@@ -77,7 +77,10 @@ yarn format:check
 ├── jest.config.js         # Jest設定
 ├── eslint.config.mjs      # ESLint設定（Flat Config）
 ├── .prettierrc            # Prettier設定
-└── .prettierignore        # Prettierで除外するファイル
+├── .prettierignore        # Prettierで除外するファイル
+└── .vscode/               # VSCode設定
+    ├── settings.json      # エディタ設定（保存時フォーマット）
+    └── extensions.json    # 推奨拡張機能
 ```
 
 ## コミットワークフロー
