@@ -67,7 +67,7 @@ const GameCanvas = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCanvas
       }
     }
 
-    loadP5()
+    void loadP5()
 
     // クリーンアップ関数
     return () => {

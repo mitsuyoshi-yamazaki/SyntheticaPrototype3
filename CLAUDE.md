@@ -52,7 +52,8 @@ yarn format:check
 /docs/                      # プロジェクト資料
 ├── requirements.md         # アプリケーション要件
 ├── game-world-requirements.md  # ゲーム仕様（作成中）
-└── coding-guidelines.md    # コーディング規約
+├── coding-guidelines.md    # コーディング規約
+└── static-code-analysis.md # 静的コード解析設定ガイド
 
 /src/                       # ソースコード
 ├── app/                    # Next.js App Router

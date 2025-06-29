@@ -5,7 +5,7 @@ import type p5 from "p5"
  * ゲームロジックとレンダリングを分離する
  */
 export class GameWorld {
-  private _tickCount: number = 0
+  private _tickCount = 0
   private _width: number
   private _height: number
 
