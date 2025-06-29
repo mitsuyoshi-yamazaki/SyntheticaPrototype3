@@ -17,7 +17,8 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(yarn build)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(yarn format)"
     ],
     "deny": []
   }

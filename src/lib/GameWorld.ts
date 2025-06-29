@@ -29,7 +29,7 @@ export class GameWorld {
   }
 
   /**
-   * 世界の高さを取得  
+   * 世界の高さを取得
    */
   get height(): number {
     return this._height
@@ -41,12 +41,12 @@ export class GameWorld {
    */
   tick(): void {
     this._tickCount++
-    
+
     // TODO: 物理演算の実行
     // TODO: ユニットの動作処理
     // TODO: 資源の生成・消費処理
     // TODO: エージェントのAI処理
-    
+
     console.log(`World tick: ${this._tickCount}`)
   }
 
@@ -59,11 +59,11 @@ export class GameWorld {
     // TODO: ユニットの描画
     // TODO: 資源の描画
     // TODO: エフェクトの描画
-    
+
     // 開発用：tick情報の表示
     p.fill(0)
     p.text(`World Tick: ${this._tickCount}`, 10, 60)
-    
+
     // 開発用：世界の境界線を描画
     p.stroke(200)
     p.strokeWeight(2)

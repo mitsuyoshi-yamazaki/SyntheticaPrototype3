@@ -13,10 +13,10 @@ type GameCanvasProps = {
  * p5.jsインスタンスモードを使用したゲームキャンバスコンポーネント
  * draw()が呼ばれるごとにゲームがn tick進む
  */
-const GameCanvas = ({ 
-  width = 800, 
-  height = 600, 
-  ticksPerFrame = 1 
+const GameCanvas = ({
+  width = 800,
+  height = 600,
+  ticksPerFrame = 1,
 }: GameCanvasProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const p5InstanceRef = useRef<{ remove: () => void } | null>(null)
@@ -28,14 +28,14 @@ const GameCanvas = ({
     const loadP5 = async () => {
       const p5Module = await import('p5')
       const p5 = p5Module.default
-      
+
       const sketch = (p: InstanceType<typeof p5>) => {
         let gameWorld: GameWorld
 
         p.setup = () => {
           p.createCanvas(width, height)
           p.background(240)
-          
+
           // GameWorldの初期化
           gameWorld = new GameWorld(width, height)
           console.log('ゲームワールドを初期化しました')
@@ -44,20 +44,20 @@ const GameCanvas = ({
         p.draw = () => {
           // 背景をクリア
           p.background(240)
-          
+
           // ゲームをn tick進める
           for (let i = 0; i < ticksPerFrame; i++) {
             gameWorld.tick()
           }
-          
+
           // ゲーム世界をレンダリング
           gameWorld.render(p)
-          
+
           // 開発用：中央に円を描画
           p.fill(100, 150, 200)
           p.noStroke()
           p.circle(width / 2, height / 2, 50)
-          
+
           // フレーム情報表示
           p.fill(0)
           p.text(`FPS: ${p.frameRate().toFixed(1)}`, 10, 20)

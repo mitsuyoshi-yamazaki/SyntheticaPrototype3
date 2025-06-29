@@ -39,6 +39,7 @@
 - 以下の技術を利用する
   - 言語はTypeScript
   - lintはESLint
+  - フォーマッタはPrettier
   - パッケージマネージャはyarn
   - テストはjest
   - フレームワークはNextJs

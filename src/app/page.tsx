@@ -12,12 +12,12 @@ export default function Home() {
         <p className="text-center text-gray-600 mb-8">
           自律エージェントが環境中で活動するMMOゲームのプロトタイプ
         </p>
-        
+
         {/* ゲームキャンバス */}
         <div className="mb-8">
           <GameCanvas width={800} height={600} ticksPerFrame={1} />
         </div>
-        
+
         {/* コントロールパネル */}
         <div className="flex justify-center">
           <div className="bg-white p-4 rounded-lg shadow">

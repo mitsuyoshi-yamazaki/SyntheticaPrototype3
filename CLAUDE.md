@@ -12,6 +12,7 @@ SyntheticaPrototype2は、自律エージェントが環境中で活動するMMO
 - **デプロイ**: Vercel（静的HTML）
 - **テスト**: Jest
 - **リント**: ESLint
+- **フォーマッタ**: Prettier
 - **パッケージ管理**: yarn
 
 ## 開発コマンド
@@ -37,6 +38,12 @@ yarn test:watch
 
 # リント実行
 yarn lint
+
+# フォーマット実行
+yarn format
+
+# フォーマットチェック
+yarn format:check
 ```
 
 ## プロジェクト構造
@@ -44,7 +51,7 @@ yarn lint
 ```
 /docs/                      # プロジェクト資料
 ├── requirements.md         # アプリケーション要件
-├── game-world-requirements.md  # ゲーム仕様（作成中）  
+├── game-world-requirements.md  # ゲーム仕様（作成中）
 └── coding-guidelines.md    # コーディング規約
 
 /src/                       # ソースコード
@@ -64,7 +71,9 @@ yarn lint
 ├── tsconfig.json          # TypeScript設定
 ├── tailwind.config.js     # Tailwind CSS設定
 ├── jest.config.js         # Jest設定
-└── eslint.config.mjs      # ESLint設定（Flat Config）
+├── eslint.config.mjs      # ESLint設定（Flat Config）
+├── .prettierrc            # Prettier設定
+└── .prettierignore        # Prettierで除外するファイル
 ```
 
 ## 開発ルール
@@ -94,14 +103,16 @@ yarn lint
 ## 実装状況
 
 ### 完了済み
+
 - ✅ Next.js + TypeScript + Tailwind CSSの基本セットアップ
 - ✅ p5.jsインスタンスモード統合
 - ✅ GameWorldクラス基本実装
 - ✅ GameCanvasコンポーネント（ゲームループ付き）
-- ✅ Jest + ESLintによるテスト・品質管理環境
+- ✅ Jest + ESLint + Prettierによるテスト・品質管理環境
 - ✅ 静的エクスポート設定
 
 ### 技術仕様
+
 - p5.js `draw()`ごとに指定tick数だけゲーム進行
 - ゲームロジック（GameWorld）と描画（p5.js）の分離
 - 1ゲーム座標 = 1ピクセル（将来的にズーム機能予定）
