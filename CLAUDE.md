@@ -4,29 +4,115 @@
 
 ## プロジェクト概要
 
-SyntheticaPrototype2は、Claude Codeアプリケーション開発のベストプラクティスに焦点を当てた学習リポジトリです。プロジェクトは現在初期セットアップ段階にあり、特定の技術スタックはまだ選択されていません。
+SyntheticaPrototype2は、自律エージェントが環境中で活動するMMOゲームのプロトタイプです。プレイヤーが作成したエージェントを観察し、オープンエンドな進化を実現することを目的としています。
 
-## 現在の状況
+## アーキテクチャ
 
-- **空のコードベース**: ソースファイルや依存関係は存在しません
-- **ドキュメント重視**: Claude Codeベストプラクティスのノートが含まれています
-- **開発準備完了**: GitとClaude Codeの設定が整っています
+- **フロントエンド**: Next.js + TypeScript + p5.js + Tailwind CSS
+- **デプロイ**: Vercel（静的HTML）
+- **テスト**: Jest
+- **リント**: ESLint
+- **パッケージ管理**: yarn
 
-## 開発セットアップ
+## 開発コマンド
 
-これは白紙状態のプロジェクトです。開発を始めるには：
+```bash
+# 依存関係インストール
+yarn install
 
-1. 技術スタックを選択する
-2. 依存関係を初期化する（package.json、requirements.txtなど）
-3. ソースディレクトリとエントリーポイントを作成する
-4. ビルドとテスト設定を追加する
+# 開発サーバー起動
+yarn dev
+
+# ビルド
+yarn build
+
+# 静的エクスポート
+yarn export
+
+# テスト実行
+yarn test
+
+# テスト（ウォッチモード）
+yarn test:watch
+
+# リント実行
+yarn lint
+```
+
+## プロジェクト構造
+
+```
+/docs/                      # プロジェクト資料
+├── requirements.md         # アプリケーション要件
+├── game-world-requirements.md  # ゲーム仕様（作成中）  
+└── coding-guidelines.md    # コーディング規約
+
+/src/                       # ソースコード
+├── app/                    # Next.js App Router
+│   ├── layout.tsx         # ルートレイアウト
+│   ├── page.tsx           # メインページ
+│   └── globals.css        # グローバルスタイル
+├── components/             # Reactコンポーネント
+│   └── GameCanvas.tsx     # p5.jsゲームキャンバス
+├── lib/                    # ライブラリ・ユーティリティ
+│   ├── GameWorld.ts       # ゲーム世界クラス
+│   └── GameWorld.test.ts  # GameWorldテスト
+└── types/                  # TypeScript型定義
+
+設定ファイル:
+├── next.config.js         # Next.js設定（静的エクスポート）
+├── tsconfig.json          # TypeScript設定
+├── tailwind.config.js     # Tailwind CSS設定
+├── jest.config.js         # Jest設定
+└── .eslintrc.json         # ESLint設定
+```
+
+## 開発ルール
+
+### コーディング規約（docs/coding-guidelines.md より）
+
+- Nominal Typeを積極使用
+- 変数・メンバはimmutable推奨
+- 関数定義は`const`を優先（`function`ではなく）
+- Enumは使わず、Literal Union型またはDiscriminated Union型を使用
+- private変数は`_`プレフィックス
+- ドキュメント・コメント・テストは日本語
+
+### テスト
+
+- テストファイル: `<対象ファイル名>.test.ts`
+- `it()`ではなく`test()`を使用
+
+## ゲーム仕様概要
+
+- **世界**: 2Dトーラス、連続座標系、離散時間
+- **エージェント**: 複数ユニットの組み合わせで構成
+- **ユニット種別**: HULL, ASSEMBLER, DISASSEMBLER, CONNECTOR, COMPUTER, SENSOR, MOVER
+- **資源システム**: 質量保存の原則
+- **物理**: 衝突検出、力学計算
+
+## 実装状況
+
+### 完了済み
+- ✅ Next.js + TypeScript + Tailwind CSSの基本セットアップ
+- ✅ p5.jsインスタンスモード統合
+- ✅ GameWorldクラス基本実装
+- ✅ GameCanvasコンポーネント（ゲームループ付き）
+- ✅ Jest + ESLintによるテスト・品質管理環境
+- ✅ 静的エクスポート設定
+
+### 技術仕様
+- p5.js `draw()`ごとに指定tick数だけゲーム進行
+- ゲームロジック（GameWorld）と描画（p5.js）の分離
+- 1ゲーム座標 = 1ピクセル（将来的にズーム機能予定）
+- Reactコンポーネントでのゲーム外UI
+
+## CI/CD
+
+- GitHub Actions設定（PRでのテスト実行）
+- 自動デプロイは現状未設定
 
 ## 設定
 
-- Claude Codeの基本的なbashオペレーション（find、ls）の権限が設定済み
-- GitHubに接続されたGitリポジトリ: `git@github.com:mitsuyoshi-yamazaki/SyntheticaPrototype2.git`
-
-## 参考資料
-
-- [Claude Code: Best practices for agentic coding](https://www.anthropic.com/engineering/claude-code-best-practices)
-- MEMO.mdには追加のClaude Code学習ノートが日本語で記載されています
+- Claude Code権限: bash操作、GitHub CLI
+- GitHubリポジトリ: `git@github.com:mitsuyoshi-yamazaki/SyntheticaPrototype2.git`
