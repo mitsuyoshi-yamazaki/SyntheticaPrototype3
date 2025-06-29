@@ -14,7 +14,8 @@
       "Bash(yarn lint)",
       "Bash(yarn test)",
       "Bash(afplay:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
