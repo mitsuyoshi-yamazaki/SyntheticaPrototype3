@@ -21,7 +21,11 @@
       "Bash(yarn format)",
       "Bash(grep:*)",
       "Bash(gh label create:*)",
-      "Bash(gh issue edit:*)"
+      "Bash(gh issue edit:*)",
+      "Bash(gh issue comment:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)"
     ],
     "deny": []
   }
