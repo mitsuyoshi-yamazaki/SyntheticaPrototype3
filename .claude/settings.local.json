@@ -12,7 +12,9 @@
       "Bash(npm init:*)",
       "Bash(yarn add:*)",
       "Bash(yarn lint)",
-      "Bash(yarn test)"
+      "Bash(yarn test)",
+      "Bash(afplay:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

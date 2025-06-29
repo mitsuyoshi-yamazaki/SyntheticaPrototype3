@@ -116,3 +116,10 @@ yarn lint
 
 - Claude Code権限: bash操作、GitHub CLI
 - GitHubリポジトリ: `git@github.com:mitsuyoshi-yamazaki/SyntheticaPrototype2.git`
+
+## Claude Code通知音設定
+
+Claudeがタスクを実行する際の音声通知：
+
+- **タスク中断時**（確認が必要な場合）: `afplay /System/Library/Sounds/Ping.aiff`
+- **タスク完了時**（次の指示待ち）: `afplay /System/Library/Sounds/Funk.aiff`
