@@ -53,7 +53,9 @@ yarn format:check
 ├── requirements.md         # アプリケーション要件
 ├── game-world-requirements.md  # ゲーム仕様（作成中）
 ├── coding-guidelines.md    # コーディング規約
-└── static-code-analysis.md # 静的コード解析設定ガイド
+├── static-code-analysis.md # 静的コード解析設定ガイド
+├── vibe-coding-guide.md    # AIアシスタント利用ガイド
+└── commit-notes/           # コミットノート（各コミットの指示記録）
 
 /src/                       # ソースコード
 ├── app/                    # Next.js App Router
@@ -76,6 +78,21 @@ yarn format:check
 ├── .prettierrc            # Prettier設定
 └── .prettierignore        # Prettierで除外するファイル
 ```
+
+## コミットワークフロー
+
+**重要**: 以下のワークフローを必ず実行すること
+
+1. **ユーザー指示を受けてファイルを変更した場合**、変更完了後に必ず以下を実行：
+   - 変更をgit addしてコミット（適切なコミットメッセージ付き）
+   - コミットハッシュを取得
+   - `docs/commit-notes/<コミットハッシュ>.md`ファイルを作成
+     - 内容：そのコミットを生み出したユーザープロンプト（指示）を記載
+   - 「<コミットハッシュ>のコミットノートを作成」メッセージでコミット
+
+2. **1コミット = 1ユーザー指示**の原則を厳守
+
+3. **ユーザーからの明示的なコミット指示は不要** - ファイル変更があれば自動実行
 
 ## 開発ルール
 
