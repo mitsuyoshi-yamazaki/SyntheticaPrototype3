@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import { useEffect, useRef } from 'react'
-import { GameWorld } from '@/lib/GameWorld'
+import { useEffect, useRef } from "react"
+import { GameWorld } from "@/lib/GameWorld"
 
 type GameCanvasProps = {
   width?: number
@@ -22,7 +22,7 @@ const GameCanvas = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCanvas
 
     // p5.jsを動的インポートしてSSRの問題を回避
     const loadP5 = async () => {
-      const p5Module = await import('p5')
+      const p5Module = await import("p5")
       const p5 = p5Module.default
 
       const sketch = (p: InstanceType<typeof p5>) => {
@@ -34,7 +34,7 @@ const GameCanvas = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCanvas
 
           // GameWorldの初期化
           gameWorld = new GameWorld(width, height)
-          console.log('ゲームワールドを初期化しました')
+          console.log("ゲームワールドを初期化しました")
         }
 
         p.draw = () => {

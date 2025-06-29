@@ -1,12 +1,12 @@
-import { GameWorld } from './GameWorld'
+import { GameWorld } from "./GameWorld"
 
-describe('GameWorld', () => {
-  test('初期化時にtickCountが0である', () => {
+describe("GameWorld", () => {
+  test("初期化時にtickCountが0である", () => {
     const world = new GameWorld(800, 600)
     expect(world.tickCount).toBe(0)
   })
 
-  test('幅と高さが正しく設定される', () => {
+  test("幅と高さが正しく設定される", () => {
     const width = 800
     const height = 600
     const world = new GameWorld(width, height)
@@ -15,7 +15,7 @@ describe('GameWorld', () => {
     expect(world.height).toBe(height)
   })
 
-  test('tick()でtickCountが増加する', () => {
+  test("tick()でtickCountが増加する", () => {
     const world = new GameWorld(800, 600)
 
     world.tick()

@@ -1,4 +1,4 @@
-import type p5 from 'p5'
+import type p5 from "p5"
 
 /**
  * ゲーム世界の基本クラス

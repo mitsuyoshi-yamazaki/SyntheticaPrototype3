@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import GameCanvas from '@/components/GameCanvas'
+import GameCanvas from "@/components/GameCanvas"
 
 export default function Home() {
   return (
