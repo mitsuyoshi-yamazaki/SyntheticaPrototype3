@@ -19,7 +19,9 @@
       "Bash(yarn build)",
       "Bash(rm:*)",
       "Bash(yarn format)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(gh label create:*)",
+      "Bash(gh issue edit:*)"
     ],
     "deny": []
   }
