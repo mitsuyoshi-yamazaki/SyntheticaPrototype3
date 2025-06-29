@@ -13,11 +13,7 @@ type GameCanvasProps = {
  * p5.jsインスタンスモードを使用したゲームキャンバスコンポーネント
  * draw()が呼ばれるごとにゲームがn tick進む
  */
-const GameCanvas = ({
-  width = 800,
-  height = 600,
-  ticksPerFrame = 1,
-}: GameCanvasProps) => {
+const GameCanvas = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCanvasProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const p5InstanceRef = useRef<{ remove: () => void } | null>(null)
 
