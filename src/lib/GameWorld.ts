@@ -70,13 +70,4 @@ export class GameWorld {
     p.noFill()
     p.rect(0, 0, this._width, this._height)
   }
-
-  /**
-   * ゲーム世界をリセット
-   */
-  reset(): void {
-    this._tickCount = 0
-    // TODO: 全てのゲームオブジェクトをクリア
-    // TODO: 初期状態に戻す
-  }
 }

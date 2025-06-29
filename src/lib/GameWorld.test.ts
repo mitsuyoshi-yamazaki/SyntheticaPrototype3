@@ -24,15 +24,4 @@ describe('GameWorld', () => {
     world.tick()
     expect(world.tickCount).toBe(2)
   })
-
-  test('reset()でtickCountが0にリセットされる', () => {
-    const world = new GameWorld(800, 600)
-    
-    world.tick()
-    world.tick()
-    expect(world.tickCount).toBe(2)
-    
-    world.reset()
-    expect(world.tickCount).toBe(0)
-  })
 })
