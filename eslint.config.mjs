@@ -15,7 +15,7 @@ const compat = new FlatCompat({
 const eslintConfig = [
   // JavaScript recommended rules
   js.configs.recommended,
-  
+
   // TypeScript configurations
   {
     files: ["**/*.ts", "**/*.tsx"],
@@ -35,7 +35,7 @@ const eslintConfig = [
       ...tseslint.configs["recommended-type-checked"].rules,
       // TypeScript stylistic type-checked rules
       ...tseslint.configs["stylistic-type-checked"].rules,
-      
+
       // Custom rules
       "prefer-const": "error",
       "no-var": "error",
@@ -47,10 +47,7 @@ const eslintConfig = [
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
       "prefer-arrow-callback": "error",
       "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_" },
-      ],
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/explicit-member-accessibility": "error",
       "@typescript-eslint/strict-boolean-expressions": [
         "error",
@@ -73,7 +70,7 @@ const eslintConfig = [
             "public-static-field",
             "public-instance-field",
             // privateプロパティ
-            "private-static-field", 
+            "private-static-field",
             "private-instance-field",
             // アクセサ
             "public-static-get",
@@ -82,7 +79,7 @@ const eslintConfig = [
             "public-instance-set",
             "private-static-get",
             "private-static-set",
-            "private-instance-get", 
+            "private-instance-get",
             "private-instance-set",
             // constructor
             "public-constructor",
@@ -94,7 +91,7 @@ const eslintConfig = [
       ],
     },
   },
-  
+
   // Next.js and Prettier rules
   ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"),
 ]

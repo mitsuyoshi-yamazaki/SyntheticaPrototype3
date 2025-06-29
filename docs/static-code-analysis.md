@@ -35,19 +35,23 @@ yarn add -D typescript @types/node
 ### 必須ルールセット
 
 1. **JavaScript基本ルール**
-  - `js.configs.recommended`
+
+- `js.configs.recommended`
 
 2. **TypeScript厳格ルール**
-  - `tseslint.configs.strict`
-  - `tseslint.configs["recommended-type-checked"]`
-  - `tseslint.configs["stylistic-type-checked"]`
+
+- `tseslint.configs.strict`
+- `tseslint.configs["recommended-type-checked"]`
+- `tseslint.configs["stylistic-type-checked"]`
 
 3. **フレームワーク固有ルール**
-  - Next.js: `next/core-web-vitals`, `next/typescript`
-  - React: プロジェクトに応じて追加
+
+- Next.js: `next/core-web-vitals`, `next/typescript`
+- React: プロジェクトに応じて追加
 
 4. **フォーマッタ統合**
-  - `prettier` (ESLintとPrettierの競合回避)
+
+- `prettier` (ESLintとPrettierの競合回避)
 
 ### 推奨カスタムルール
 
