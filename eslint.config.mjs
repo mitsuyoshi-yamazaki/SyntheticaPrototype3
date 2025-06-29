@@ -39,10 +39,32 @@ const eslintConfig = [
       // Custom rules
       "prefer-const": "error",
       "no-var": "error",
-      "@typescript-eslint/no-unused-vars": "error",
+      eqeqeq: ["error", "always", { null: "never" }],
+      // null/undefinedの比較では == を強制
+      "@typescript-eslint/prefer-nullish-coalescing": "error",
+      curly: "error",
       "@typescript-eslint/prefer-function-type": "error",
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
       "prefer-arrow-callback": "error",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
+      "@typescript-eslint/explicit-member-accessibility": "error",
+      "@typescript-eslint/strict-boolean-expressions": [
+        "error",
+        {
+          allowString: false,
+          allowNumber: false,
+          allowNullableObject: false,
+          allowNullableBoolean: false,
+          allowNullableString: false,
+          allowNullableNumber: false,
+          allowNullableEnum: false,
+          allowAny: false,
+        },
+      ],
     },
   },
   

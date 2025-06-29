@@ -9,7 +9,7 @@ export class GameWorld {
   private _width: number
   private _height: number
 
-  constructor(width: number, height: number) {
+  public constructor(width: number, height: number) {
     this._width = width
     this._height = height
   }
@@ -17,21 +17,21 @@ export class GameWorld {
   /**
    * 現在のtick数を取得
    */
-  get tickCount(): number {
+  public get tickCount(): number {
     return this._tickCount
   }
 
   /**
    * 世界の幅を取得
    */
-  get width(): number {
+  public get width(): number {
     return this._width
   }
 
   /**
    * 世界の高さを取得
    */
-  get height(): number {
+  public get height(): number {
     return this._height
   }
 
@@ -39,7 +39,7 @@ export class GameWorld {
    * ゲーム世界を1tick進める
    * 物理演算、ユニットの動作処理などを行う
    */
-  tick(): void {
+  public tick(): void {
     this._tickCount++
 
     // TODO: 物理演算の実行
@@ -54,7 +54,7 @@ export class GameWorld {
    * ゲーム世界をレンダリング
    * @param p p5インスタンス
    */
-  render(p: p5): void {
+  public render(p: p5): void {
     // TODO: ゲームオブジェクトの描画
     // TODO: ユニットの描画
     // TODO: 資源の描画

@@ -18,7 +18,7 @@ const GameCanvas = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCanvas
   const p5InstanceRef = useRef<{ remove: () => void } | null>(null)
 
   useEffect(() => {
-    if (!containerRef.current) return
+    if (containerRef.current == null) return
 
     // p5.jsを動的インポートしてSSRの問題を回避
     const loadP5 = async () => {
@@ -62,7 +62,7 @@ const GameCanvas = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCanvas
       }
 
       // p5インスタンスを作成
-      if (containerRef.current) {
+      if (containerRef.current != null) {
         p5InstanceRef.current = new p5(sketch, containerRef.current)
       }
     }
@@ -71,7 +71,7 @@ const GameCanvas = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCanvas
 
     // クリーンアップ関数
     return () => {
-      if (p5InstanceRef.current) {
+      if (p5InstanceRef.current != null) {
         p5InstanceRef.current.remove()
         p5InstanceRef.current = null
       }

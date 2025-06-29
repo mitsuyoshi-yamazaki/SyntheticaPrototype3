@@ -56,14 +56,36 @@ rules: {
   // 基本的なコード品質
   "prefer-const": "error",
   "no-var": "error",
+  "eqeqeq": ["error", "always", { null: "ignore" }],
+  "curly": "error",
 
   // TypeScript固有
-  "@typescript-eslint/no-unused-vars": "error",
+  "@typescript-eslint/no-unused-vars": [
+    "error",
+    { argsIgnorePattern: "^_" },
+  ],
   "@typescript-eslint/prefer-function-type": "error",
   "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+  "@typescript-eslint/no-explicit-any": "error",
+  "@typescript-eslint/explicit-member-accessibility": "error",
 
   // 関数定義
   "prefer-arrow-callback": "error",
+
+  // 厳格な真偽値チェック
+  "@typescript-eslint/strict-boolean-expressions": [
+    "error",
+    {
+      allowString: false,
+      allowNumber: false,
+      allowNullableObject: false,
+      allowNullableBoolean: false,
+      allowNullableString: false,
+      allowNullableNumber: false,
+      allowNullableEnum: false,
+      allowAny: false,
+    },
+  ],
 }
 ```
 
@@ -187,8 +209,8 @@ docs/static-code-analysis.mdの設定に従って、以下を実装してくだ�
 
 ### よくあるエラーと対処法
 
-1. **no-floating-promises**: 非同期関数に`void`を追加
-2. **no-inferrable-types**: 不要な型アノテーションを削除
-3. **strict-boolean-expressions**: 条件式で明示的な比較を使用
+ESLintルールに関するエラーについては、ESLintの公式ドキュメントを参照してください。
 
-これらの設定により、高品質で保守性の高いTypeScriptプロジェクトを構築できます。
+ここには、tsconfigやESLintの導入・設定に関して特に対処法を記述すべき問題がある場合に記載します。
+
+現在、特に記載すべき問題はありません。
