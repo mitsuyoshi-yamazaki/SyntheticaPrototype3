@@ -65,6 +65,33 @@ const eslintConfig = [
           allowAny: false,
         },
       ],
+      "@typescript-eslint/member-ordering": [
+        "error",
+        {
+          default: [
+            // publicプロパティ
+            "public-static-field",
+            "public-instance-field",
+            // privateプロパティ
+            "private-static-field", 
+            "private-instance-field",
+            // アクセサ
+            "public-static-get",
+            "public-static-set",
+            "public-instance-get",
+            "public-instance-set",
+            "private-static-get",
+            "private-static-set",
+            "private-instance-get", 
+            "private-instance-set",
+            // constructor
+            "public-constructor",
+            "private-constructor",
+            // メソッドは役割で順序を決めるため順序指定から除外
+            "method",
+          ],
+        },
+      ],
     },
   },
   
