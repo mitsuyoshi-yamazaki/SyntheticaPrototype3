@@ -64,7 +64,7 @@ yarn lint
 ├── tsconfig.json          # TypeScript設定
 ├── tailwind.config.js     # Tailwind CSS設定
 ├── jest.config.js         # Jest設定
-└── .eslintrc.json         # ESLint設定
+└── eslint.config.mjs      # ESLint設定（Flat Config）
 ```
 
 ## 開発ルール
