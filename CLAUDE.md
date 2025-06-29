@@ -55,6 +55,7 @@ yarn format:check
 ├── coding-guidelines.md    # コーディング規約
 ├── static-code-analysis.md # 静的コード解析設定ガイド
 ├── vibe-coding-guide.md    # AIアシスタント利用ガイド
+├── todo.md                 # TODO / 実装状況
 └── commit-notes/           # コミットノート（各コミットの指示記録）
 
 /src/                       # ソースコード
@@ -166,18 +167,7 @@ yarn format:check
 - **資源システム**: 質量保存の原則
 - **物理**: 衝突検出、力学計算
 
-## 実装状況
-
-### 完了済み
-
-- ✅ Next.js + TypeScript + Tailwind CSSの基本セットアップ
-- ✅ p5.jsインスタンスモード統合
-- ✅ GameWorldクラス基本実装
-- ✅ GameCanvasコンポーネント（ゲームループ付き）
-- ✅ Jest + ESLint + Prettierによるテスト・品質管理環境
-- ✅ 静的エクスポート設定
-
-### 技術仕様
+## 技術仕様
 
 - p5.js `draw()`ごとに指定tick数だけゲーム進行
 - ゲームロジック（GameWorld）と描画（p5.js）の分離
