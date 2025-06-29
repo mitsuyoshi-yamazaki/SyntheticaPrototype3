@@ -5,40 +5,30 @@ import type p5 from "p5"
  * ゲームロジックとレンダリングを分離する
  */
 export class GameWorld {
+  /** 現在のtick数 */
   private _tickCount = 0
+  /** 世界の幅 */
   private _width: number
+  /** 世界の高さ */
   private _height: number
+
+  public get tickCount(): number {
+    return this._tickCount
+  }
+
+  public get width(): number {
+    return this._width
+  }
+
+  public get height(): number {
+    return this._height
+  }
 
   public constructor(width: number, height: number) {
     this._width = width
     this._height = height
   }
 
-  /**
-   * 現在のtick数を取得
-   */
-  public get tickCount(): number {
-    return this._tickCount
-  }
-
-  /**
-   * 世界の幅を取得
-   */
-  public get width(): number {
-    return this._width
-  }
-
-  /**
-   * 世界の高さを取得
-   */
-  public get height(): number {
-    return this._height
-  }
-
-  /**
-   * ゲーム世界を1tick進める
-   * 物理演算、ユニットの動作処理などを行う
-   */
   public tick(): void {
     this._tickCount++
 
@@ -50,10 +40,6 @@ export class GameWorld {
     console.log(`World tick: ${this._tickCount}`)
   }
 
-  /**
-   * ゲーム世界をレンダリング
-   * @param p p5インスタンス
-   */
   public render(p: p5): void {
     // TODO: ゲームオブジェクトの描画
     // TODO: ユニットの描画
