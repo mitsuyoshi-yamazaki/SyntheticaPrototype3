@@ -1,7 +1,7 @@
 ## このファイルについて
 
 - 本ファイルはゲームの要件と仕様について記載している
-- **本ファイルは記載途中である**
+- **本ファイルは記載途中である。簡易な実装のバージョンを game-world-requirement-minimum.md に記載している**
 
 ## Claudeへの指示
 
@@ -150,6 +150,8 @@ _"実際のゲーム世界"のセクションはアプリケーションの仕�
   - ユニットはゲームオブジェクトに直接作用しない、ソフトウェアの実行に関わる回路としての性質をもつ（回路仕様）
   - ユニットはHULLの外側または内側に固定することができる。HULLも例外ではない
     - 固定されたユニットとHULLは回路が接続している状態となる
+  - エージェントの身体仕様はユニットの結合状況で表現される
+    - ユニットの結合状況は木構造で表現される
 - 回路仕様：
   - 回路的に接続しているユニットへはソフトウェアから情報アクセス・指令ができる（物理的に接続していても回路的には接続していない状態もある）
   - COMPUTERが実行するソフトウェアから特定のユニットへアクセスするためのラベルをつけられる
@@ -197,7 +199,7 @@ _"実際のゲーム世界"のセクションはアプリケーションの仕�
 - API：
   - recipe
     - readonly
-    - このHULLの生成仕様
+    - このユニットの生成仕様
   - max composition
     - readonly
     - ユニット最大資源量
@@ -266,7 +268,7 @@ _"実際のゲーム世界"のセクションはアプリケーションの仕�
 - API：
   - recipe
     - readonly
-    - このASSEMBLERの生成仕様
+    - このユニットの生成仕様
   - max composition
     - readonly
     - ユニット最大資源量
@@ -297,38 +299,211 @@ _"実際のゲーム世界"のセクションはアプリケーションの仕�
     - readonly
     - 原料格納スペースに格納されている資源の一覧
   - adjacent objects
+    - "隣接"しているオブジェクトの一覧
 
 #### DISASSEMBLER
 
 - 概要：
+  - 指定のターゲットから指定の資源を剥ぎ取る
 - 仕様：
+  - 指定のターゲットから指定の資源を剥ぎ取る
+  - 指定できるターゲット種別はマテリアル、ユニット断片、ユニットである
+  - 実際にターゲットをdisassembleするにはターゲットと接続状態であり、かつ隣接している必要がある（回路が接続されていないと、回路上にターゲットが存在しないので指定できない）
+    - このことから、自身のユニット以外をdisassembleするにはまずCONNECTORで対象と接続する必要がある
+  - disassembleを試みるには、disassemble対象とはぎ取る資源を指定し、1以上のエネルギーを投入する必要がある
+    - disassemble対象のはぎ取る資源の化学結合エネルギーが投入エネルギーより小さい場合にdisassembleに成功する
+    - 結合エネルギーが投入エネルギー以上である場合はdisassembleに失敗し、投入したエネルギーは消費され熱となる。また、投入エネルギーが結合エネルギーを大きく上回った場合も、投入エネルギーは全量消費される
+    - 同時に複数のDISASSEMBLERからdisassemble対象になった場合は、個々の投入エネルギーが結合エネルギーを下回っていても、合計の投入エネルギーが結合エネルギーを上回ればdisassembleされる
+  - 剥ぎ取られた資源はdisassemble対象に隣接する空間に出現する
 - 回路仕様：
+  - なし
 - 生成仕様：
+  - TBD
 - 分解仕様：
+  - TBD
 - API：
   - recipe
-    - このHULLの生成仕様および構成する資源の量
+    - readonly
+    - このユニットの生成仕様
+  - max composition
+    - readonly
+    - ユニット最大資源量
+  - current composition
+    - readonly
+    - 現在のユニット資源量
   - damage
     - readonly
     - そのユニットを構成する資源の量からどれだけの資源量を失っているかを表す
+    - `max composition - damage = current composition` は常に成り立つ
   - adjacentObjects
+    - "隣接"しているオブジェクトの一覧
 
 #### CONNECTOR
 
+- 概要：
+  - ゲームオブジェクトをCONNECTOR自身に結合する
+- 仕様：
+  - ゲームオブジェクトをCONNECTOR自身に結合する
+  - ゲームオブジェクトに対して接続するCONNECTOR数には上限はない
+- 回路仕様：
+  - 結合したゲームオブジェクトと回路を繋げるかどうかは以下の3種類の設定がある
+    - 常に接続しない
+    - 常に接続する
+    - 任意に接続/切断可能
+- 生成仕様：
+  - 回路接続しないCONNECTOR:
+    - TBD
+  - 回路接続するCONNECTOR:
+    - TBD
+  - 回路接続を任意に切断できるCONNECTOR:
+    - TBD
+- 分解仕様：
+  - TBD
+- API：
+  - recipe
+    - readonly
+    - このユニットの生成仕様
+  - max composition
+    - readonly
+    - ユニット最大資源量
+  - current composition
+    - readonly
+    - 現在のユニット資源量
+  - damage
+    - readonly
+    - そのユニットを構成する資源の量からどれだけの資源量を失っているかを表す
+    - `max composition - damage = current composition` は常に成り立つ
+  - connector status
+    - 回路接続の状態を返す
+  - adjacentObjects
+    - "隣接"しているオブジェクトの一覧
+
 #### CHANNEL
 
+- 概要：
+  - HULLの
+- 仕様：
+- 回路仕様：
+  - なし
+- 生成仕様：
+  - TBD
+- 分解仕様：
+  - TBD
+- API：
+  - recipe
+    - readonly
+    - このユニットの生成仕様
+  - max composition
+    - readonly
+    - ユニット最大資源量
+  - current composition
+    - readonly
+    - 現在のユニット資源量
+  - damage
+    - readonly
+    - そのユニットを構成する資源の量からどれだけの資源量を失っているかを表す
+    - `max composition - damage = current composition` は常に成り立つ
+  - adjacentObjects
+    - "隣接"しているオブジェクトの一覧
+
 #### COMPUTER
+
+- 概要：
+  - Synthetica Scriptで記述されたソフトウェアを実行し、回路的に接続しているユニットを制御する
+- 仕様：
+  - アセンブリ言語であるSynthetica Scriptを解釈し、実行する
+  - COMPUTERはプログラムカウンタ、固定bit長のワーキングレジスタ、メモリの3要素から成る
+    - つまり、プログラムとデータは分離していない（分離させたい場合は、データ領域にプログラムカウンタが侵入しないようなプログラムにする）
+  - COMPUTERの生成時に指定できる性能は以下のふたつである
+    - 動作周波数
+      - tickあたり何命令を実行できるかを表す（例：10命令/tick）
+        - 動作周波数がtickより遅い（例：1命令/3tick）設定も可能
+    - メモリ容量
+      - メモリの格納容量
+  - TBD: COMPUTERは他のCOMPUTERのメモリ内容を読み取り/書き込みできるようにすべきかどうか
+  - COMPUTERの動作（命令の実行）にはエネルギーを消費する
+  - TBD: 仕様に矛盾がないか詰める: プログラムカウンタなし、ワーキングレジスタなし、メモリの変更不可、メモリ容量に上限ありのCOMPUTERは安価に生産・運用が可能で高速に動作（毎tickメモリの先頭から末尾までを実行）する
+    - 例：ある条件を満たしたらあるユニットを動作させる、あるユニットにマクロを付与する、などの単一機能COMPUTER
+- 回路仕様：
+  - なし
+- 生成仕様：
+  - TBD
+- 分解仕様：
+  - TBD
+- API：
+  - recipe
+    - readonly
+    - このユニットの生成仕様
+  - max composition
+    - readonly
+    - ユニット最大資源量
+  - current composition
+    - readonly
+    - 現在のユニット資源量
+  - damage
+    - readonly
+    - そのユニットを構成する資源の量からどれだけの資源量を失っているかを表す
+    - `max composition - damage = current composition` は常に成り立つ
+  - adjacentObjects
+    - "隣接"しているオブジェクトの一覧
 
 #### SENSOR
 
 - 概要：
   - 遠距離の状態を計測する
+- 仕様：
+- 回路仕様：
+  - なし
+- 生成仕様：
+  - TBD
+- 分解仕様：
+  - TBD
+- API：
+  - recipe
+    - readonly
+    - このユニットの生成仕様
+  - max composition
+    - readonly
+    - ユニット最大資源量
+  - current composition
+    - readonly
+    - 現在のユニット資源量
+  - damage
+    - readonly
+    - そのユニットを構成する資源の量からどれだけの資源量を失っているかを表す
+    - `max composition - damage = current composition` は常に成り立つ
+  - adjacentObjects
+    - "隣接"しているオブジェクトの一覧
 
 #### MOVER
 
 - 概要：
+  - エージェントを移動させる
 - 仕様：
-  - 制約なしに常に推進力を得る / 反動物質を使って推力を得る
+  - エネルギーを消費し、自身（が所属しているゲームオブジェクト）に任意の方向の加速度を追加する
+    - 追加される加速度の大きさは、TBD （エネルギーを自身（が所属しているゲームオブジェクト）の質量で割った値？）
+- 回路仕様：
+  - なし
+- 生成仕様：
+  - TBD
+- 分解仕様：
+  - TBD
+- API：
+  - recipe
+    - readonly
+    - このユニットの生成仕様
+  - max composition
+    - readonly
+    - ユニット最大資源量
+  - current composition
+    - readonly
+    - 現在のユニット資源量
+  - damage
+    - readonly
+    - そのユニットを構成する資源の量からどれだけの資源量を失っているかを表す
+    - `max composition - damage = current composition` は常に成り立つ
+  - adjacentObjects
+    - "隣接"しているオブジェクトの一覧
 
 ### Synthetica Script
 
@@ -337,4 +512,38 @@ _"実際のゲーム世界"のセクションはアプリケーションの仕�
 
 ### 自己複製エージェント仕様
 
-- _TBD_
+#### 非生命複製子
+
+- 動作状態の自己複製単一目的ASSEMBLER（ `M5,O632,C151,E692` ）
+
+#### 受動自律エージェント
+
+- ハードウェア
+  - HULL
+    - 外側
+      - CHANNEL: mineral
+      - CHANNEL: organic
+      - CHANNEL: chemical
+      - CHANNEL: energy
+    - 内側
+      - 万能ASSEMBLER
+      - COMPUTER
+- ソフトウェア
+  - a.成長 → b.複製資源回収 → c.自己複製 → b のライフサイクル
+  - ## a.成長
+  - b.複製資源回収
+    - HULLの内容量を監視し、自己複製に必要な資源
+  - ## c.自己複製
+
+## 用語
+
+- 隣接
+- 結合
+- recipe
+- 「ユニット最大資源量（max composition）」
+- 「現在のユニット資源量（current composition）」
+
+## TODO
+
+- HULLへ直接ユニットが固定されるのではなく、CONNECTORを介するように変更する
+- ASSEMBLERが直接生産ユニットを設置するのではなく、設置起動を行うユニットを介在させれば良いのではないか
