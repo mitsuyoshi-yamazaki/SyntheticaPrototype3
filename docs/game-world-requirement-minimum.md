@@ -117,8 +117,6 @@ _"実際のゲーム世界"のセクションはアプリケーションの仕�
   - ASSEMBLER
   - DISASSEMBLER
   - COMPUTER
-  - SENSOR
-  - MOVER
 
 #### HULL
 
