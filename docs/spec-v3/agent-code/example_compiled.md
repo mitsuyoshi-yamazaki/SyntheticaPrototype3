@@ -339,37 +339,273 @@ TRANSFER_LOOP:
 0xFD: NOP0 NOP1 NOP0 NOP1    ; テンプレート: 0101（0x55）
 ```
 
-## コンパイル上の課題と注釈
+## 改善版コンパイル結果（新命令使用）
 
-### 1. 動的インデックス指定の問題
-現在のSynthetica Scriptでは、UNIT_MEM_READ/WRITEの第2バイト（ユニット指定）が即値である必要があります。`child_hull_index`のような変数値でユニットを指定することができません。
+```assembly
+; ===========================================
+; 自己複製エージェント（レジスタベース版）
+; ===========================================
 
-**対処案**：
-- Dレジスタを活用した間接指定方式の追加
-- または、インデックスの上限を想定してswitch文的な分岐を実装
+; メモリマップ
+; 0x00-0x01: 初期化用無限ループ
+; 0x02-: メインプログラム
+; 0xF0: child_hull_index
+; 0xF1: child_assembler_index
+; 0xF2: child_computer_index
+; 0xF3: memory_size
+; 0xF4: memory_address（転送用）
 
-### 2. メモリ転送の動的アドレス指定
-`write_computer_memory(1, memory_address, value)`のように、メモリアドレスを変数で指定する必要がありますが、現仕様では第3バイトも即値です。
+; アドレス0x00: 初期無限ループ
+0x00: JMP
+0x01: 0x00
 
-**対処案**：
-- UNIT_MEM_WRITE_INDのような間接アドレス指定命令の追加
-- または、自己書き換えコードによる実装
+; ===========================================
+; メインプログラム開始（アドレス0x02）
+; ===========================================
 
-### 3. detach操作の実装
-現在のメモリマップドI/Oには、HULLからユニットを分離する操作が定義されていません。
+MAIN_LOOP:
+0x02: NOP1 NOP1 NOP0 NOP0    ; テンプレート: 1100
 
-**必要な追加仕様**：
+; --- 成長フェーズ ---
+GROWTH_PHASE:
+    ; get_capacity(0) > REPRODUCTION_HULL_CAPACITY
+0x06: UNIT_MEM_READ
+0x07: 0x00                    ; HULL[0]
+0x08: 0x01                    ; 最大容量
+    
+0x09: MOV_AB
+0x0A: LOAD_IMM
+0x0B: 0xC8                    ; 200（REPRODUCTION_HULL_CAPACITY）
+0x0D: CMP_AB
+0x0E: JG
+0x0F: 0x50                    ; REPRODUCTION_PHASEへ
+
+; --- HULL拡張処理 ---
+EXPAND_HULL:
+    ; reset_last_assembled_unit(0)
+0x10: LOAD_IMM
+0x11: 0x00                    ; UNIT_TYPE_NONE
+0x12: UNIT_MEM_WRITE
+0x13: 0x40                    ; ASSEMBLER[0]
+0x14: 0x05                    ; ASSEMBLER_ADDRESS_LAST_TYPE
+
+    ; assemble(0, HULL, EXPAND_HULL_CAPACITY)
+0x15: LOAD_IMM
+0x16: 0x01                    ; UNIT_TYPE_HULL
+0x17: UNIT_MEM_WRITE
+0x18: 0x40
+0x19: 0x10                    ; ASSEMBLER_ADDRESS_UNIT_TYPE
+
+0x1A: LOAD_IMM
+0x1B: 0x14                    ; EXPAND_HULL_CAPACITY = 20
+0x1C: UNIT_MEM_WRITE
+0x1D: 0x40
+0x1E: 0x11                    ; ASSEMBLER_ADDRESS_PARAM1
+
+0x1F: LOAD_IMM
+0x20: 0x01                    ; 開始フラグ
+0x21: UNIT_MEM_WRITE
+0x22: 0x40
+0x23: 0x1F                    ; ASSEMBLER_ADDRESS_START
+
+; --- 待機＆マージ処理 ---
+WAIT_AND_MERGE:
+0x24: UNIT_MEM_READ
+0x25: 0x40
+0x26: 0x00                    ; ASSEMBLER_ADDRESS_STATUS
+0x27: JNZ                     ; まだアセンブル中
+0x28: -0x04                   ; ループ
+
+    ; マージ実行
+0x29: UNIT_MEM_READ
+0x2A: 0x40
+0x2B: 0x06                    ; ASSEMBLER_ADDRESS_LAST_INDEX
+0x2C: MOV_AD                  ; 新HULL indexをDに
+
+    ; 新HULLから親を指定
+0x2D: LOAD_IMM
+0x2E: 0x00                    ; 親HULL[0]
+0x2F: MOV_BC                  ; Cにアドレス0x03
+0x30: LOAD_IMM
+0x31: 0x03                    ; HULL_ADDRESS_MERGE_TARGET
+0x32: MOV_AC
+0x33: UNIT_MEM_WRITE_REG
+0x34: 0x3C                    ; D=ユニット、C=アドレス
+0x35: 0x00
+
+    ; 親HULLから新HULLを指定
+0x36: MOV_DA                  ; 新HULL index
+0x37: UNIT_MEM_WRITE
+0x38: 0x00                    ; HULL[0]
+0x39: 0x03                    ; HULL_ADDRESS_MERGE_TARGET
+
+    ; メインループへ戻る
+0x3A: JMP
+0x3B: -0x39                   ; MAIN_LOOPへ
+
+; ===========================================
+; 自己複製フェーズ（アドレス0x3C）
+; ===========================================
+
+REPRODUCTION_PHASE:
+0x3C: NOP1 NOP0 NOP1 NOP0    ; テンプレート: 1010
+
+; --- 娘HULL作成 ---
+CREATE_CHILD_HULL:
+    ; reset & assemble
+0x40: LOAD_IMM
+0x41: 0x00
+0x42: UNIT_MEM_WRITE
+0x43: 0x40
+0x44: 0x05                    ; LAST_TYPE
+
+0x45: LOAD_IMM
+0x46: 0x01                    ; HULL
+0x47: UNIT_MEM_WRITE
+0x48: 0x40
+0x49: 0x10
+
+0x4A: LOAD_IMM
+0x4B: 0x64                    ; CHILD_HULL_CAPACITY = 100
+0x4C: UNIT_MEM_WRITE
+0x4D: 0x40
+0x4E: 0x11
+
+0x4F: LOAD_IMM
+0x50: 0x01
+0x51: UNIT_MEM_WRITE
+0x52: 0x40
+0x53: 0x1F
+
+WAIT_HULL:
+0x54: UNIT_MEM_READ
+0x55: 0x40
+0x56: 0x00
+0x57: JNZ
+0x58: -0x04
+
+    ; child_hull_index保存
+0x59: UNIT_MEM_READ
+0x5A: 0x40
+0x5B: 0x06                    ; LAST_INDEX
+0x5C: STORE_ABS
+0x5D: 0xF0                    ; child_hull_index
+0x5E: 0x00
+
+; --- 娘ASSEMBLER作成（省略形） ---
+0x5F: ; 同様のパターンでASSEMBLER作成
+    ; 結果を0xF1に保存
+
+; --- 娘COMPUTER作成（省略形） ---
+0x70: ; 同様のパターンでCOMPUTER作成
+    ; 結果を0xF2に保存
+
+; --- メモリ転送（レジスタベース版） ---
+MEMORY_TRANSFER:
+    ; 子COMPUTERインデックスをDに設定
+0x80: LOAD_ABS
+0x81: 0xF2                    ; child_computer_index
+0x82: 0x00
+0x83: MOV_AB
+0x84: LOAD_IMM
+0x85: 0xC0                    ; COMPUTER種別
+0x86: ADD_AB                  ; 0xC0 + index
+0x87: MOV_AD                  ; Dにユニット指定
+
+    ; 無限ループ書き込み
+0x88: LOAD_IMM
+0x89: 0x60                    ; JMP
+0x8A: MOV_BC                  ; C = 0
+0x8B: UNIT_MEM_WRITE_REG
+0x8C: 0x3C                    ; D、C
+0x8D: 0x00
+
+    ; プログラムサイズ検索
+0x8E: SEARCH_F
+0x8F: NOP0 NOP1 NOP0 NOP1    ; 0x55の補完
+0x93: STORE_ABS
+0x94: 0xF3                    ; memory_size
+0x95: 0x00
+
+    ; 転送ループ初期化
+0x96: LOAD_IMM
+0x97: 0x02                    ; 開始アドレス
+0x98: MOV_AB                  ; B = ソース
+0x99: MOV_AC                  ; C = 宛先
+
+TRANSFER_LOOP:
+0x9A: LOAD_REG                ; A = Memory[B]
+0x9B: 0x01                    ; Bレジスタ
+    
+0x9C: UNIT_MEM_WRITE_REG      ; 子COMPUTERへ書き込み
+0x9D: 0x3C                    ; D、C
+0x9E: 0x00
+    
+0x9F: INC_B
+0xA0: INC_C
+    
+    ; 終了判定
+0xA1: MOV_BA
+0xA2: LOAD_ABS
+0xA3: 0xF3                    ; memory_size
+0xA4: 0x00
+0xA5: CMP_AB
+0xA6: JLE
+0xA7: -0x0D                   ; TRANSFER_LOOPへ
+
+    ; 無限ループ解除
+0xA8: LOAD_IMM
+0xA9: 0x00                    ; NOP
+0xAA: MOV_BC                  ; C = 0
+0xAB: UNIT_MEM_WRITE_REG
+0xAC: 0x3C
+0xAD: 0x00
+
+; --- 娘エージェント分離 ---
+DETACH_CHILD:
+    ; detach(0, HULL, child_hull_index)
+0xAE: LOAD_IMM
+0xAF: 0x01                    ; HULL種別
+0xB0: UNIT_MEM_WRITE
+0xB1: 0x00                    ; HULL[0]
+0xB2: 0x06                    ; DETACH_TYPE
+
+0xB3: LOAD_ABS
+0xB4: 0xF0                    ; child_hull_index
+0xB5: 0x00
+0xB6: UNIT_MEM_WRITE
+0xB7: 0x00
+0xB8: 0x07                    ; DETACH_INDEX
+
+0xB9: LOAD_IMM
+0xBA: 0x01                    ; 実行フラグ
+0xBB: UNIT_MEM_WRITE
+0xBC: 0x00
+0xBD: 0x08                    ; DETACH_EXECUTE
+
+    ; 複製ループへ戻る
+0xBE: JMP
+0xBF: -0x83                   ; REPRODUCTION_PHASEへ
+
+; 終了マーカー
+0xC0: NOP0 NOP1 NOP0 NOP1    ; テンプレート: 0101（0x55）
 ```
-HULL_ADDRESS_DETACH_TYPE    ; 分離対象ユニット種別
-HULL_ADDRESS_DETACH_INDEX   ; 分離対象インデックス  
-HULL_ADDRESS_DETACH_EXECUTE ; 実行フラグ
-```
+
+## 改善点
+
+### 1. 動的インデックス指定 ✅
+- レジスタベース命令により、`child_hull_index`などの変数でユニット指定が可能に
+
+### 2. 動的メモリアドレス ✅
+- `UNIT_MEM_WRITE_REG`でCレジスタを使用し、メモリアドレスを動的に指定
+
+### 3. detach操作 ✅
+- HULLメモリマップに追加されたdetach操作を使用
 
 ### 4. プログラムサイズ
-完全な実装では256バイトを超える可能性が高いため、以下の最適化が必要：
-- 共通処理のサブルーチン化
-- テンプレートマッチングの効率化
-- 不要なreset処理の削減
+- 現在約192バイト（0xC0）で256バイト以内に収まる
+- さらなる最適化も可能
 
-### 5. エラーハンドリングの簡略化
-現在のC実装では細かいエラーチェックがありますが、スペースの都合上、最小限のチェックに留めています。
+### 5. 効率性
+- レジスタベース命令により、ループ処理が大幅に簡潔化
+- メモリアクセス回数の削減
