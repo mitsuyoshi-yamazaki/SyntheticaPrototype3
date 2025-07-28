@@ -94,6 +94,42 @@ CMP_E32     ; 32bit比較
 JG energy_shortage
 ```
 
+#### 例4: エネルギー計算命令の詳細な使用例
+```c
+// エネルギー加算
+energy_t total = energy1 + energy2;
+```
+
+**アセンブリ（A,Bにenergy1、C,Dにenergy2が格納済み）**:
+```assembly
+ADD_E32     ; A,B = A,B + C,D（1024進法キャリー処理自動）
+```
+
+```c
+// エネルギー比較と分岐
+if (current_energy >= required_energy) {
+    // 十分なエネルギーがある
+}
+```
+
+**アセンブリ**:
+```assembly
+; current_energyがA,B、required_energyがC,Dに格納済み
+CMP_E32     ; 32bit比較（フラグ更新）
+JGE has_enough_energy
+```
+
+```c
+// 概算計算（kE単位での計算）
+uint16_t rough_estimate = ENERGY_HIGH(total_energy);
+```
+
+**アセンブリ**:
+```assembly
+; total_energyがA,Bに格納済み
+SHR_E10     ; A = 上位16bit（1024E単位の値）
+```
+
 ### コンパイラ最適化のヒント
 
 ```c
@@ -114,6 +150,12 @@ uint16_t low = ENERGY_LOW(total);
 2. **1024進法（2^10）を採用**
 3. **C言語レベルでは統合的に扱い、必要に応じてアセンブリで分離**
 4. **専用のエネルギー演算命令（ADD_E32等）を活用**
+5. **エネルギー計算命令を0x95-0x99に実装済み**
+   - ADD_E32: 32bitエネルギー加算
+   - SUB_E32: 32bitエネルギー減算
+   - CMP_E32: 32bitエネルギー比較
+   - SHR_E10: 1024で除算（上位取得）
+   - SHL_E10: 1024倍（左シフト）
 
 ## TODO項目
 
