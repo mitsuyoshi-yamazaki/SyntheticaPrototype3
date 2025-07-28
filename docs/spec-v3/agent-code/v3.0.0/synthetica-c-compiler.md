@@ -205,8 +205,204 @@ uint16_t low = ENERGY_LOW(total);
 - 実行時プロファイルに基づく最適化
 - JITコンパイルの検討
 
+## テンプレート記法（__attribute__を使用）
+
+### 概要
+
+Synthetica Scriptのテンプレートマッチング機能をC言語から利用するため、GCC/Clangの`__attribute__`拡張を使用する。これにより、Cの標準的な記法を保ちながら、位置独立コードの生成が可能となる。
+
+### 基本的な使用方法
+
+#### 1. ラベルへのテンプレート付与
+
+```c
+// ラベルにテンプレートを定義
+__attribute__((template(0xC5))) 
+loop_start:
+    // ここにテンプレート 11000101 が配置される
+    // ループ本体のコード
+```
+
+**コンパイラが生成するアセンブリ**:
+```assembly
+loop_start:
+    NOP1    ; 1
+    NOP1    ; 1
+    NOP0    ; 0
+    NOP0    ; 0
+    NOP0    ; 0
+    NOP1    ; 1
+    NOP0    ; 0
+    NOP1    ; 1
+    ; ループ本体のコード
+```
+
+#### 2. テンプレートを使用したgoto
+
+```c
+// テンプレートマッチングによるジャンプ
+__attribute__((template_goto(0xC5)))
+goto loop_start;  // 補完パターン 0x3A を探してジャンプ
+```
+
+**コンパイラが生成するアセンブリ**:
+```assembly
+    SEARCH_B        ; 後方検索
+    NOP0 NOP0 NOP1 NOP1 NOP1 NOP0 NOP1 NOP0  ; 補完パターン 00111010
+    JMP_IND         ; Bレジスタ（検索結果）へジャンプ
+    0x01            ; レジスタB指定
+```
+
+#### 3. 関数の定義と呼び出し
+
+```c
+// テンプレートを使用した関数定義
+__attribute__((template_entry(0x5A), template_return(0x5A)))
+void process_data(void) {
+    // 関数本体
+    // returnは自動的にテンプレート経由で戻る
+}
+
+// 関数呼び出し
+__attribute__((template_call(0x5A)))
+process_data();  // テンプレート経由で呼び出し
+```
+
+**コンパイラが生成するアセンブリ（関数定義）**:
+```assembly
+process_data:
+    NOP0 NOP1 NOP0 NOP1 NOP1 NOP0 NOP1 NOP0  ; 0x5A = 01011010
+    ; 関数本体
+    ; return時は補完パターン 0xA5 を探して戻る
+```
+
+#### 4. ループ構造での使用
+
+```c
+// whileループでのテンプレート使用
+__attribute__((template_loop(0xA5)))
+while (condition) {
+    // ループ本体
+    if (need_continue) {
+        __attribute__((template_continue(0xA5)))
+        continue;  // テンプレート経由でループ先頭へ
+    }
+}
+```
+
+#### 5. 条件分岐での使用
+
+```c
+// if-else文でのテンプレート使用
+if (condition) {
+    __attribute__((template_branch(0x33)))
+    {
+        // then節
+    }
+} else {
+    __attribute__((template_branch(0xCC)))
+    {
+        // else節
+    }
+}
+```
+
+### 実装詳細
+
+#### ヘッダーファイル（synthetica_template.h）
+
+```c
+#ifndef SYNTHETICA_TEMPLATE_H
+#define SYNTHETICA_TEMPLATE_H
+
+// 属性の存在確認
+#ifdef __has_attribute
+  #if __has_attribute(template)
+    #define HAS_SYNTHETICA_TEMPLATE 1
+  #endif
+#endif
+
+#ifndef HAS_SYNTHETICA_TEMPLATE
+  // 非対応コンパイラでの互換性確保
+  #warning "Synthetica template attributes not supported"
+  #define __attribute__(x)  /* 無視 */
+#endif
+
+// 便利なマクロ定義
+#define TEMPLATE(value) __attribute__((template(value)))
+#define TEMPLATE_GOTO(value) __attribute__((template_goto(value)))
+#define TEMPLATE_CALL(value) __attribute__((template_call(value)))
+#define TEMPLATE_FUNC(entry, ret) __attribute__((template_entry(entry), template_return(ret)))
+
+#endif /* SYNTHETICA_TEMPLATE_H */
+```
+
+#### 使用例：自己複製プログラムの一部
+
+```c
+#include "synthetica_template.h"
+
+// プログラム開始位置
+TEMPLATE(0x1010)
+void self_replicate(void) {
+    // 娘COMPUTER生成完了待機ループ
+    TEMPLATE(0x0101)
+    wait_loop: {
+        if (is_assembling(0)) {
+            TEMPLATE_GOTO(0x0101)
+            goto wait_loop;
+        }
+    }
+    
+    // メモリコピー処理
+    TEMPLATE(0x1100)
+    copy_start: {
+        unsigned int src = 0;
+        unsigned int dst = 0;
+        
+        TEMPLATE(0x0110)
+        copy_loop: {
+            write_computer_memory(1, dst, read_my_memory(src));
+            src++;
+            dst++;
+            if (src < PROGRAM_SIZE) {
+                TEMPLATE_GOTO(0x0110)
+                goto copy_loop;
+            }
+        }
+    }
+}
+```
+
+### コンパイラ実装のガイドライン
+
+1. **パース段階**：`__attribute__((template(...)))`を認識し、ASTノードに付加情報として保存
+
+2. **中間表現生成**：テンプレート情報を中間表現に保持
+
+3. **コード生成**：
+   - `template(value)`: ラベル位置にNOP0/NOP1パターンを挿入
+   - `template_goto(value)`: SEARCH_F/B + 補完パターン + JMP_INDに変換
+   - `template_call(value)`: リターンアドレス保存 + SEARCH_F + CALL_INDに変換
+   - `template_return(value)`: SEARCH_B + 補完パターン + JMP_INDに変換
+
+4. **最適化**：
+   - 近距離のテンプレートは検索範囲を制限
+   - 頻繁に使用されるテンプレートは近くに配置
+
+### 制限事項と注意点
+
+1. **テンプレート値の重複**：同じテンプレート値を複数箇所で使用すると、最も近いものが選択される
+
+2. **検索失敗時の動作**：テンプレートが見つからない場合、Bレジスタに0xFFFFが設定される
+
+3. **パフォーマンス**：テンプレート検索は線形探索のため、大きなプログラムでは遅くなる可能性がある
+
+4. **デバッグ**：テンプレートマッチングのデバッグのため、`-g`オプション使用時はテンプレート情報を保持
+
 ## 参考資料
 
 - `synthetica-script.md`: アセンブリ命令セット
 - `energy-consumption.md`: エネルギー仕様
 - `energy-scale-change-tasks.md`: エネルギースケール変更計画
+- `synthetica-c-template-syntax.md`: テンプレート記法の詳細提案
