@@ -339,7 +339,7 @@ COMPUTERは以下の機能を持つ
 - 基本実行コスト: 2E
 - テンプレート長コスト: ceil(template_length / 2)E
 - 検索距離コスト: ceil(actual_distance / 10)E
-- 失敗時: 基本コスト + 最大検索距離 × 0.01E
+- 失敗時: 基本コスト + ceil(最大検索距離 / 10)E
 
 #### 使用例
 
