@@ -1,5 +1,5 @@
 // synthetica_api.h
-// Synthetica v3.0.0 C言語API
+// Synthetica v3.1.0 C言語API
 // COMPUTERから外部ユニットへアクセスするためのAPI定義
 
 #ifndef SYNTHETICA_API_H

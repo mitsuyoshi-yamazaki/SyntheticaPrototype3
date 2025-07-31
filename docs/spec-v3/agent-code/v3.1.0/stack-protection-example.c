@@ -1,5 +1,5 @@
 // stack-protection-example.c
-// スタック保護実装例（Synthetica v3.0.0）
+// スタック保護実装例（Synthetica v3.1.0）
 
 #include "synthetica_api.h"
 
