@@ -1,4 +1,3 @@
-import type p5 from "p5"
 import * as PIXI from "pixi.js"
 import { World } from "@/engine"
 import type { AgentDefinition } from "@/types/game"
@@ -60,9 +59,6 @@ export class GameWorld {
     // 互換性のため残しているが、何もしない
   }
 
-  public render(_p: p5): void {
-    // TODO: p5.js描画実装
-  }
   
   public renderPixi(container: PIXI.Container): void {
     // コンテナをクリア
