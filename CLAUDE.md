@@ -8,7 +8,7 @@ SyntheticaPrototype2は、自律エージェントが環境中で活動するMMO
 
 ## アーキテクチャ
 
-- **フロントエンド**: Next.js + TypeScript + p5.js + Tailwind CSS
+- **フロントエンド**: Next.js + TypeScript + PixiJS + Tailwind CSS
 - **デプロイ**: Vercel（静的HTML）
 - **テスト**: Jest
 - **リント**: ESLint
@@ -51,12 +51,16 @@ yarn format:check
 ```
 /docs/                      # プロジェクト資料
 ├── requirements.md         # アプリケーション要件
-├── game-world-requirements.md  # ゲーム仕様（作成中）
+├── architecture.md         # 実装アーキテクチャ
 ├── coding-guidelines.md    # コーディング規約
 ├── static-code-analysis.md # 静的コード解析設定ガイド
 ├── vibe-coding-guide.md    # AIアシスタント利用ガイド
 ├── todo.md                 # TODO / 実装状況
-└── commit-notes/           # コミットノート（各コミットの指示記録）
+├── commit-notes/           # コミットノート（各コミットの指示記録）
+└── spec-v3/                # v3仕様書
+    ├── game-world-requirement.md  # ゲーム仕様
+    ├── TODO.md             # v3実装タスク
+    └── （各種仕様書）
 
 /src/                       # ソースコード
 ├── app/                    # Next.js App Router
@@ -64,11 +68,23 @@ yarn format:check
 │   ├── page.tsx           # メインページ
 │   └── globals.css        # グローバルスタイル
 ├── components/             # Reactコンポーネント
-│   └── GameCanvas.tsx     # p5.jsゲームキャンバス
+│   ├── GameCanvas.tsx     # p5.jsゲームキャンバス（旧版）
+│   └── GameCanvasPixi.tsx # PixiJSゲームキャンバス
 ├── lib/                    # ライブラリ・ユーティリティ
-│   ├── GameWorld.ts       # ゲーム世界クラス
+│   ├── GameWorld.ts       # ゲーム世界ブリッジクラス
 │   └── GameWorld.test.ts  # GameWorldテスト
+├── engine/                 # ゲームエンジンコア
+│   ├── world.ts           # 世界統合管理
+│   ├── world-state.ts     # 世界状態管理
+│   ├── game-loop.ts       # ゲームループ制御
+│   ├── object-factory.ts  # オブジェクト生成
+│   └── index.ts           # エクスポート
+├── utils/                  # ユーティリティ関数
+│   ├── vec2.ts            # 2次元ベクトル演算
+│   ├── torus-math.ts      # トーラス世界用数学
+│   └── object-pool.ts     # オブジェクトプール
 └── types/                  # TypeScript型定義
+    └── game.ts             # ゲーム関連型定義
 
 設定ファイル:
 ├── next.config.js         # Next.js設定（静的エクスポート）
@@ -159,15 +175,19 @@ yarn format:check
 
 - **世界**: 2Dトーラス、連続座標系、離散時間
 - **エージェント**: 複数ユニットの組み合わせで構成
-- **ユニット種別**: HULL, ASSEMBLER, DISASSEMBLER, CONNECTOR, COMPUTER, SENSOR, MOVER
-- **資源システム**: 質量保存の原則
-- **物理**: 衝突検出、力学計算
+- **ユニット種別**: HULL, ASSEMBLER, COMPUTER（v3では限定実装）
+- **資源システム**: 1024進法エネルギーシステム、質量保存の原則
+- **物理**: 円形オブジェクトのみ、衝突検出、反発力（tanh制限）
+- **詳細仕様**: `docs/spec-v3/`ディレクトリを参照
 
 ## 技術仕様
 
-- p5.js `draw()`ごとに指定tick数だけゲーム進行
-- ゲームロジック（GameWorld）と描画（p5.js）の分離
-- 1ゲーム座標 = 1ピクセル（将来的にズーム機能予定）
+- PixiJSによるWebGLベース高速描画（10,000+オブジェクト対応）
+- ゲームエンジンコアによる世界管理（World、WorldStateManager）
+- 固定タイムステップゲームループ（GameLoopController）
+- 空間ハッシュグリッドによる衝突判定最適化（セルサイズ100）
+- 1024進法エネルギーシステム（spec-v3準拠）
+- トーラス世界での座標系
 - Reactコンポーネントでのゲーム外UI
 
 ## CI/CD
