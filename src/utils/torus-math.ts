@@ -110,21 +110,30 @@ export const lineCircleIntersection = (
   worldHeight: number
 ): boolean => {
   // 最短経路での線分を計算
-  const direction = shortestVector(lineStart, lineEnd, worldWidth, worldHeight)
-  const toCircle = shortestVector(lineStart, circleCenter, worldWidth, worldHeight)
+  const lineVec = shortestVector(lineStart, lineEnd, worldWidth, worldHeight)
+  const startToCenter = shortestVector(lineStart, circleCenter, worldWidth, worldHeight)
   
-  // 線分をパラメトリック形式で表現: P(t) = lineStart + t * direction, 0 <= t <= 1
-  const a = Vec2Utils.magnitudeSquared(direction)
-  const b = 2 * Vec2Utils.dot(direction, toCircle)
-  const c = Vec2Utils.magnitudeSquared(toCircle) - circleRadius * circleRadius
+  // 線分の長さの2乗
+  const lineLength2 = Vec2Utils.magnitudeSquared(lineVec)
   
-  const discriminant = b * b - 4 * a * c
+  // 線分の長さが0の場合（点の場合）
+  if (lineLength2 === 0) {
+    return Vec2Utils.magnitudeSquared(startToCenter) <= circleRadius * circleRadius
+  }
   
-  if (discriminant < 0) return false
+  // 線分上の最近点を求めるためのパラメータtを計算
+  // t = dot(startToCenter, lineVec) / lineLength2
+  const t = Math.max(0, Math.min(1, Vec2Utils.dot(startToCenter, lineVec) / lineLength2))
   
-  const sqrt = Math.sqrt(discriminant)
-  const t1 = (-b - sqrt) / (2 * a)
-  const t2 = (-b + sqrt) / (2 * a)
+  // 線分上の最近点
+  const closestPoint = {
+    x: lineStart.x + t * lineVec.x,
+    y: lineStart.y + t * lineVec.y
+  }
   
-  return (t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1) || (t1 < 0 && t2 > 1)
+  // 最近点から円の中心までの距離をトーラス世界で計算
+  const closestToCenter = shortestVector(closestPoint, circleCenter, worldWidth, worldHeight)
+  const distance2 = Vec2Utils.magnitudeSquared(closestToCenter)
+  
+  return distance2 <= circleRadius * circleRadius
 }
