@@ -17,7 +17,7 @@ export class GameLoop {
   private _onRender: GameLoopCallback
   private _animationFrameId?: number
   
-  constructor(
+  public constructor(
     targetFPS: number,
     onTick: GameLoopCallback,
     onRender: GameLoopCallback
@@ -28,7 +28,7 @@ export class GameLoop {
   }
   
   /** ゲームループを開始 */
-  start(): void {
+  public start(): void {
     if (this._running) return
     
     this._running = true
@@ -38,21 +38,21 @@ export class GameLoop {
   }
   
   /** ゲームループを停止 */
-  stop(): void {
+  public stop(): void {
     this._running = false
-    if (this._animationFrameId) {
+    if (this._animationFrameId !== undefined) {
       cancelAnimationFrame(this._animationFrameId)
       this._animationFrameId = undefined
     }
   }
   
   /** 一時停止 */
-  pause(): void {
+  public pause(): void {
     this._paused = true
   }
   
   /** 再開 */
-  resume(): void {
+  public resume(): void {
     if (this._paused) {
       this._paused = false
       this._lastTime = performance.now()
@@ -61,17 +61,17 @@ export class GameLoop {
   }
   
   /** 一時停止状態 */
-  get isPaused(): boolean {
+  public get isPaused(): boolean {
     return this._paused
   }
   
   /** 実行中状態 */
-  get isRunning(): boolean {
+  public get isRunning(): boolean {
     return this._running
   }
   
   /** FPS設定を更新 */
-  setTargetFPS(fps: number): void {
+  public setTargetFPS(fps: number): void {
     this._tickDuration = 1000 / fps
   }
   
@@ -112,7 +112,7 @@ export class GameLoopController {
   private _frameCount = 0
   private _lastFPSUpdate = 0
   
-  constructor(worldState: WorldStateManager) {
+  public constructor(worldState: WorldStateManager) {
     this._worldState = worldState
     this._ticksPerFrame = worldState.state.parameters.ticksPerFrame
     
@@ -124,42 +124,42 @@ export class GameLoopController {
   }
   
   /** ゲーム開始 */
-  start(): void {
+  public start(): void {
     this._gameLoop.start()
   }
   
   /** ゲーム停止 */
-  stop(): void {
+  public stop(): void {
     this._gameLoop.stop()
   }
   
   /** 一時停止 */
-  pause(): void {
+  public pause(): void {
     this._gameLoop.pause()
   }
   
   /** 再開 */
-  resume(): void {
+  public resume(): void {
     this._gameLoop.resume()
   }
   
   /** 一時停止状態 */
-  get isPaused(): boolean {
+  public get isPaused(): boolean {
     return this._gameLoop.isPaused
   }
   
   /** 実行中状態 */
-  get isRunning(): boolean {
+  public get isRunning(): boolean {
     return this._gameLoop.isRunning
   }
   
   /** 現在のFPS */
-  get currentFPS(): number {
+  public get currentFPS(): number {
     return this._currentFPS
   }
   
   /** パラメータ更新 */
-  updateParameters(params: Partial<WorldParameters>): void {
+  public updateParameters(params: Partial<WorldParameters>): void {
     this._worldState.updateParameters(params)
     
     if (params.targetFPS !== undefined) {
@@ -172,7 +172,7 @@ export class GameLoopController {
   }
   
   /** tick処理 */
-  private onTick = (deltaTime: number): void => {
+  private onTick = (_deltaTime: number): void => {
     // 指定回数分tickを実行
     for (let i = 0; i < this._ticksPerFrame; i++) {
       this._worldState.incrementTick()
@@ -185,7 +185,7 @@ export class GameLoopController {
   }
   
   /** 描画処理 */
-  private onRender = (interpolation: number): void => {
+  private onRender = (_interpolation: number): void => {
     // FPS計測
     this._frameCount++
     const now = performance.now()

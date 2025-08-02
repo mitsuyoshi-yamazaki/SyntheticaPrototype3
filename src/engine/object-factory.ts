@@ -38,13 +38,13 @@ export class ObjectFactory {
   private readonly _worldWidth: number
   private readonly _worldHeight: number
   
-  constructor(worldWidth: number, worldHeight: number) {
+  public constructor(worldWidth: number, worldHeight: number) {
     this._worldWidth = worldWidth
     this._worldHeight = worldHeight
   }
   
   /** エネルギーオブジェクトを作成 */
-  createEnergyObject(
+  public createEnergyObject(
     id: ObjectId,
     position: Vec2,
     energy: number,
@@ -64,7 +64,7 @@ export class ObjectFactory {
   }
   
   /** HULLを作成 */
-  createHull(
+  public createHull(
     id: ObjectId,
     position: Vec2,
     buildEnergy: number,
@@ -90,7 +90,7 @@ export class ObjectFactory {
   }
   
   /** ASSEMBLERを作成 */
-  createAssembler(
+  public createAssembler(
     id: ObjectId,
     position: Vec2,
     buildEnergy: number,
@@ -118,7 +118,7 @@ export class ObjectFactory {
   }
   
   /** COMPUTERを作成 */
-  createComputer(
+  public createComputer(
     id: ObjectId,
     position: Vec2,
     buildEnergy: number,
@@ -131,7 +131,7 @@ export class ObjectFactory {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
     
     const memory = new Uint8Array(memorySize)
-    if (program) {
+    if (program !== undefined) {
       memory.set(program.slice(0, memorySize))
     }
     
@@ -155,7 +155,7 @@ export class ObjectFactory {
   }
   
   /** ユニット仕様からオブジェクトを作成 */
-  createFromSpec(
+  public createFromSpec(
     id: ObjectId,
     spec: UnitSpec,
     position: Vec2,
@@ -167,7 +167,7 @@ export class ObjectFactory {
           id,
           position,
           spec.buildEnergy,
-          spec.capacity || 100
+          spec.capacity ?? 100
         )
         
       case "ASSEMBLER":
@@ -175,7 +175,7 @@ export class ObjectFactory {
           id,
           position,
           spec.buildEnergy,
-          spec.assemblePower || 1,
+          spec.assemblePower ?? 1,
           parentHull
         )
         
@@ -184,8 +184,8 @@ export class ObjectFactory {
           id,
           position,
           spec.buildEnergy,
-          spec.processingPower || 1,
-          spec.memorySize || 0,
+          spec.processingPower ?? 1,
+          spec.memorySize ?? 0,
           parentHull
         )
         
@@ -197,12 +197,12 @@ export class ObjectFactory {
         )
         
       default:
-        throw new Error(`Unknown object type: ${spec.type}`)
+        throw new Error(`Unknown object type: ${String(spec.type)}`)
     }
   }
   
   /** エージェント定義からオブジェクト群を作成 */
-  createAgent(
+  public createAgent(
     generateId: () => ObjectId,
     definition: AgentDefinition,
     position?: Vec2
@@ -210,7 +210,7 @@ export class ObjectFactory {
     const objects: GameObject[] = []
     
     // 位置を決定
-    const agentPos = position || definition.position || vec2(
+    const agentPos = position ?? definition.position ?? vec2(
       Math.random() * this._worldWidth,
       Math.random() * this._worldHeight
     )
@@ -236,7 +236,7 @@ export class ObjectFactory {
             unitId,
             agentPos,
             unitDef.buildEnergy,
-            unitDef.assemblePower || 1,
+            unitDef.assemblePower ?? 1,
             hullId
           )
           break
@@ -246,8 +246,8 @@ export class ObjectFactory {
             unitId,
             agentPos,
             unitDef.buildEnergy,
-            unitDef.processingPower || 1,
-            unitDef.memorySize || 0,
+            unitDef.processingPower ?? 1,
+            unitDef.memorySize ?? 0,
             hullId,
             vec2(0, 0),
             unitDef.program
@@ -255,7 +255,7 @@ export class ObjectFactory {
           break
           
         default:
-          throw new Error(`Unknown unit type: ${unitDef.type}`)
+          throw new Error(`Unknown unit type: ${String(unitDef.type)}`)
       }
       
       objects.push(unit)

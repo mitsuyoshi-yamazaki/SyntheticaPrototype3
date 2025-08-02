@@ -73,8 +73,8 @@ export const getCellsInRect = (
   cellSize: number,
   worldWidth: number,
   worldHeight: number
-): Array<{ x: number; y: number }> => {
-  const cells: Array<{ x: number; y: number }> = []
+): { x: number; y: number }[] => {
+  const cells: { x: number; y: number }[] = []
   
   const minX = Math.floor((center.x - halfWidth) / cellSize)
   const maxX = Math.floor((center.x + halfWidth) / cellSize)

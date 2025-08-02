@@ -60,7 +60,7 @@ export class GameWorld {
     // 互換性のため残しているが、何もしない
   }
 
-  public render(p: p5): void {
+  public render(_p: p5): void {
     // TODO: p5.js描画実装
   }
   

@@ -9,7 +9,6 @@ import type {
   WorldParameters,
   EnergySource,
   DirectionalForceField,
-  SpatialCell,
 } from "@/types/game"
 
 /** デフォルトのワールドパラメータ */
@@ -39,7 +38,7 @@ export const SPATIAL_CELL_SIZE = 100
 export class WorldStateManager {
   private readonly _state: WorldState
   
-  constructor(width: number, height: number, parameters?: Partial<WorldParameters>) {
+  public constructor(width: number, height: number, parameters?: Partial<WorldParameters>) {
     this._state = {
       width,
       height,
@@ -54,74 +53,74 @@ export class WorldStateManager {
   }
   
   /** 現在の状態を取得 */
-  get state(): Readonly<WorldState> {
+  public get state(): Readonly<WorldState> {
     return this._state
   }
   
   /** 次のオブジェクトIDを生成 */
-  generateObjectId(): ObjectId {
+  public generateObjectId(): ObjectId {
     return this._state.nextObjectId++ as ObjectId
   }
   
   /** オブジェクトを追加 */
-  addObject(obj: GameObject): void {
+  public addObject(obj: GameObject): void {
     this._state.objects.set(obj.id, obj)
     this.updateSpatialIndex(obj)
   }
   
   /** オブジェクトを削除 */
-  removeObject(id: ObjectId): void {
+  public removeObject(id: ObjectId): void {
     const obj = this._state.objects.get(id)
-    if (obj) {
+    if (obj != null) {
       this.removeSpatialIndex(obj)
       this._state.objects.delete(id)
     }
   }
   
   /** オブジェクトを取得 */
-  getObject(id: ObjectId): GameObject | undefined {
+  public getObject(id: ObjectId): GameObject | undefined {
     return this._state.objects.get(id)
   }
   
   /** エネルギーソースを追加 */
-  addEnergySource(source: EnergySource): void {
+  public addEnergySource(source: EnergySource): void {
     this._state.energySources.set(source.id, source)
   }
   
   /** エネルギーソースを削除 */
-  removeEnergySource(id: ObjectId): void {
+  public removeEnergySource(id: ObjectId): void {
     this._state.energySources.delete(id)
   }
   
   /** 力場を追加 */
-  addForceField(field: DirectionalForceField): void {
+  public addForceField(field: DirectionalForceField): void {
     this._state.forceFields.set(field.id, field)
   }
   
   /** 力場を削除 */
-  removeForceField(id: ObjectId): void {
+  public removeForceField(id: ObjectId): void {
     this._state.forceFields.delete(id)
   }
   
   /** tickを進める */
-  incrementTick(): void {
+  public incrementTick(): void {
     this._state.tick++
   }
   
   /** パラメータを更新 */
-  updateParameters(params: Partial<WorldParameters>): void {
+  public updateParameters(params: Partial<WorldParameters>): void {
     Object.assign(this._state.parameters, params)
   }
   
   /** 空間インデックスを更新 */
-  updateSpatialIndex(obj: GameObject): void {
+  public updateSpatialIndex(obj: GameObject): void {
     // 古いセルから削除
     this.removeSpatialIndex(obj)
     
     // 新しいセルに追加
     const cellKey = this.getCellKey(obj.position.x, obj.position.y)
     let cell = this._state.spatialIndex.get(cellKey)
-    if (!cell) {
+    if (cell == null) {
       cell = { objects: new Set() }
       this._state.spatialIndex.set(cellKey, cell)
     }
@@ -132,7 +131,7 @@ export class WorldStateManager {
   private removeSpatialIndex(obj: GameObject): void {
     const cellKey = this.getCellKey(obj.position.x, obj.position.y)
     const cell = this._state.spatialIndex.get(cellKey)
-    if (cell) {
+    if (cell != null) {
       cell.objects.delete(obj.id)
       if (cell.objects.size === 0) {
         this._state.spatialIndex.delete(cellKey)
@@ -148,7 +147,7 @@ export class WorldStateManager {
   }
   
   /** 指定範囲内のオブジェクトを取得 */
-  getObjectsInRange(x: number, y: number, range: number): GameObject[] {
+  public getObjectsInRange(x: number, y: number, range: number): GameObject[] {
     const objects: GameObject[] = []
     const cellRange = Math.ceil(range / SPATIAL_CELL_SIZE)
     
@@ -163,10 +162,10 @@ export class WorldStateManager {
         const cellKey = `${cellX},${cellY}`
         
         const cell = this._state.spatialIndex.get(cellKey)
-        if (cell) {
+        if (cell != null) {
           for (const objId of cell.objects) {
             const obj = this._state.objects.get(objId)
-            if (obj) {
+            if (obj != null) {
               objects.push(obj)
             }
           }
@@ -178,7 +177,7 @@ export class WorldStateManager {
   }
   
   /** 全オブジェクトの空間インデックスを再構築 */
-  rebuildSpatialIndex(): void {
+  public rebuildSpatialIndex(): void {
     this._state.spatialIndex.clear()
     for (const obj of this._state.objects.values()) {
       this.updateSpatialIndex(obj)

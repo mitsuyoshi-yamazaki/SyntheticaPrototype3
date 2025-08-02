@@ -14,9 +14,8 @@ import type {
   Vec2,
 } from "@/types/game"
 import { vec2 } from "@/utils/vec2"
-import { wrapPosition } from "@/utils/torus-math"
 
-export interface WorldConfig {
+export type WorldConfig = {
   width: number
   height: number
   parameters?: Partial<WorldParameters>
@@ -28,7 +27,7 @@ export class World {
   private readonly _loopController: GameLoopController
   private readonly _objectFactory: ObjectFactory
   
-  constructor(config: WorldConfig) {
+  public constructor(config: WorldConfig) {
     // 状態管理の初期化
     this._stateManager = new WorldStateManager(
       config.width,
@@ -52,7 +51,7 @@ export class World {
     this.placeEnergySources()
     
     // 初期エージェントの配置
-    if (config.initialAgents) {
+    if (config.initialAgents != null) {
       for (const agentDef of config.initialAgents) {
         this.addAgent(agentDef)
       }
@@ -89,62 +88,62 @@ export class World {
   }
   
   /** ゲーム開始 */
-  start(): void {
+  public start(): void {
     this._loopController.start()
   }
   
   /** ゲーム停止 */
-  stop(): void {
+  public stop(): void {
     this._loopController.stop()
   }
   
   /** 一時停止 */
-  pause(): void {
+  public pause(): void {
     this._loopController.pause()
   }
   
   /** 再開 */
-  resume(): void {
+  public resume(): void {
     this._loopController.resume()
   }
   
   /** 一時停止状態 */
-  get isPaused(): boolean {
+  public get isPaused(): boolean {
     return this._loopController.isPaused
   }
   
   /** 実行中状態 */
-  get isRunning(): boolean {
+  public get isRunning(): boolean {
     return this._loopController.isRunning
   }
   
   /** 現在のFPS */
-  get currentFPS(): number {
+  public get currentFPS(): number {
     return this._loopController.currentFPS
   }
   
   /** ワールド状態を取得 */
-  get state() {
+  public get state() {
     return this._stateManager.state
   }
   
   /** パラメータを更新 */
-  updateParameters(params: Partial<WorldParameters>): void {
+  public updateParameters(params: Partial<WorldParameters>): void {
     this._loopController.updateParameters(params)
   }
   
   /** オブジェクトを追加 */
-  addObject(obj: GameObject): void {
+  public addObject(obj: GameObject): void {
     this._stateManager.addObject(obj)
   }
   
   /** オブジェクトを削除 */
-  removeObject(id: GameObject["id"]): void {
+  public removeObject(id: GameObject["id"]): void {
     this._stateManager.removeObject(id)
   }
   
   /** エージェントを追加 */
-  addAgent(definition: AgentDefinition, position?: Vec2): void {
+  public addAgent(definition: AgentDefinition, position?: Vec2): void {
     const objects = this._objectFactory.createAgent(
       () => this._stateManager.generateObjectId(),
       definition,
@@ -157,17 +156,17 @@ export class World {
   }
   
   /** 力場を追加 */
-  addForceField(field: DirectionalForceField): void {
+  public addForceField(field: DirectionalForceField): void {
     this._stateManager.addForceField(field)
   }
   
   /** 力場を削除 */
-  removeForceField(id: DirectionalForceField["id"]): void {
+  public removeForceField(id: DirectionalForceField["id"]): void {
     this._stateManager.removeForceField(id)
   }
   
   /** デバッグ用：ランダムな位置にエネルギーオブジェクトを生成 */
-  spawnRandomEnergy(amount: number): void {
+  public spawnRandomEnergy(amount: number): void {
     const id = this._stateManager.generateObjectId()
     const position = vec2(
       Math.random() * this.state.width,

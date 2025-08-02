@@ -18,7 +18,7 @@ jest.mock("pixi.js", () => ({
 
 // エンジンのモック
 jest.mock("../engine", () => ({
-  World: jest.fn().mockImplementation((config) => ({
+  World: jest.fn().mockImplementation((config: { width: number; height: number }) => ({
     state: {
       tick: 0,
       width: config.width,

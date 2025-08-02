@@ -3,7 +3,7 @@
  * 頻繁な生成・破棄によるGCを避けるため
  */
 
-export interface Poolable {
+export type Poolable = {
   reset(): void
 }
 
@@ -12,7 +12,7 @@ export class ObjectPool<T extends Poolable> {
   private readonly _factory: () => T
   private readonly _maxSize: number
   
-  constructor(factory: () => T, initialSize = 10, maxSize = 1000) {
+  public constructor(factory: () => T, initialSize = 10, maxSize = 1000) {
     this._factory = factory
     this._maxSize = maxSize
     
@@ -23,15 +23,19 @@ export class ObjectPool<T extends Poolable> {
   }
   
   /** オブジェクトを取得 */
-  acquire(): T {
+  public acquire(): T {
     if (this._pool.length > 0) {
-      return this._pool.pop()!
+      const item = this._pool.pop()
+      if (item === undefined) {
+        throw new Error("Pool is empty")
+      }
+      return item
     }
     return this._factory()
   }
   
   /** オブジェクトを返却 */
-  release(obj: T): void {
+  public release(obj: T): void {
     if (this._pool.length < this._maxSize) {
       obj.reset()
       this._pool.push(obj)
@@ -39,28 +43,28 @@ export class ObjectPool<T extends Poolable> {
   }
   
   /** プールサイズ */
-  get size(): number {
+  public get size(): number {
     return this._pool.length
   }
   
   /** プールをクリア */
-  clear(): void {
+  public clear(): void {
     this._pool.length = 0
   }
 }
 
 /** Vec2用のプーラブル実装 */
 export class PoolableVec2 implements Poolable {
-  x = 0
-  y = 0
+  public x = 0
+  public y = 0
   
-  set(x: number, y: number): this {
+  public set(x: number, y: number): this {
     this.x = x
     this.y = y
     return this
   }
   
-  reset(): void {
+  public reset(): void {
     this.x = 0
     this.y = 0
   }
@@ -68,13 +72,13 @@ export class PoolableVec2 implements Poolable {
 
 /** 配列用のプーラブル実装 */
 export class PoolableArray<T> implements Poolable {
-  readonly items: T[] = []
+  public readonly items: T[] = []
   
-  push(item: T): void {
+  public push(item: T): void {
     this.items.push(item)
   }
   
-  reset(): void {
+  public reset(): void {
     this.items.length = 0
   }
 }

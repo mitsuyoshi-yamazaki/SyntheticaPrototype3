@@ -20,7 +20,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
   const gameWorldRef = useRef<GameWorld | null>(null)
 
   useEffect(() => {
-    if (!containerRef.current) return
+    if (containerRef.current == null) return
 
     // PixiJS Applicationの初期化
     const initPixi = async () => {
@@ -31,13 +31,13 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         height,
         backgroundColor: 0xf0f0f0,
         antialias: true,
-        resolution: window.devicePixelRatio || 1,
+        resolution: window.devicePixelRatio !== 0 ? window.devicePixelRatio : 1,
         autoDensity: true,
       })
 
       // キャンバスをDOMに追加
-      if (containerRef.current && app.canvas) {
-        containerRef.current.appendChild(app.canvas as HTMLCanvasElement)
+      if (containerRef.current != null && app.canvas != null) {
+        containerRef.current.appendChild(app.canvas)
       }
 
       appRef.current = app
@@ -105,7 +105,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
 
     // クリーンアップ関数
     return () => {
-      if (appRef.current) {
+      if (appRef.current != null) {
         appRef.current.destroy(true, { children: true })
         appRef.current = null
       }

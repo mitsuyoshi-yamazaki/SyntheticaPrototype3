@@ -13,13 +13,13 @@ export type ObjectType =
   | "COMPUTER"    // COMPUTERユニット
 
 /** 2次元ベクトル */
-export interface Vec2 {
+export type Vec2 = {
   readonly x: number
   readonly y: number
 }
 
 /** ゲームオブジェクトの基本インターフェース */
-export interface GameObject {
+export type GameObject = {
   readonly id: ObjectId
   readonly type: ObjectType
   position: Vec2
@@ -30,19 +30,19 @@ export interface GameObject {
 }
 
 /** エネルギーオブジェクト */
-export interface EnergyObject extends GameObject {
+export type EnergyObject = GameObject & {
   readonly type: "ENERGY"
 }
 
 /** ユニットの基本インターフェース */
-export interface Unit extends GameObject {
+export type Unit = GameObject & {
   readonly buildEnergy: number  // 構成エネルギー
   currentEnergy: number         // 現在のエネルギー（ダメージを受けると減少）
   readonly parentHull?: ObjectId // 所属するHULL
 }
 
 /** HULLユニット */
-export interface Hull extends Unit {
+export type Hull = Unit & {
   readonly type: "HULL"
   readonly capacity: number     // エネルギー格納容量
   storedEnergy: number         // 格納中のエネルギー
@@ -50,7 +50,7 @@ export interface Hull extends Unit {
 }
 
 /** ASSEMBLERユニット */
-export interface Assembler extends Unit {
+export type Assembler = Unit & {
   readonly type: "ASSEMBLER"
   readonly assemblePower: number // 組立能力
   isAssembling: boolean
@@ -59,7 +59,7 @@ export interface Assembler extends Unit {
 }
 
 /** COMPUTERユニット */
-export interface Computer extends Unit {
+export type Computer = Unit & {
   readonly type: "COMPUTER"
   readonly processingPower: number // 処理能力（命令/tick）
   readonly memorySize: number      // メモリサイズ（バイト）
@@ -69,7 +69,7 @@ export interface Computer extends Unit {
 }
 
 /** ユニット仕様（組立用） */
-export interface UnitSpec {
+export type UnitSpec = {
   type: ObjectType
   buildEnergy: number
   // タイプ別の追加パラメータ
@@ -80,7 +80,7 @@ export interface UnitSpec {
 }
 
 /** ワールドパラメータ */
-export interface WorldParameters {
+export type WorldParameters = {
   // 物理
   maxForce: number
   forceScale: number
@@ -101,14 +101,14 @@ export interface WorldParameters {
 }
 
 /** エネルギーソース */
-export interface EnergySource {
+export type EnergySource = {
   readonly id: ObjectId
   position: Vec2
   energyPerTick: number
 }
 
 /** 方向性力場 */
-export interface DirectionalForceField {
+export type DirectionalForceField = {
   readonly id: ObjectId
   readonly type: "LINEAR" | "RADIAL" | "SPIRAL"
   position: Vec2
@@ -118,12 +118,12 @@ export interface DirectionalForceField {
 }
 
 /** 空間ハッシュグリッドのセル */
-export interface SpatialCell {
+export type SpatialCell = {
   objects: Set<ObjectId>
 }
 
 /** ゲーム世界の状態 */
-export interface WorldState {
+export type WorldState = {
   width: number
   height: number
   tick: number
@@ -136,20 +136,20 @@ export interface WorldState {
 }
 
 /** エージェント定義（初期化用） */
-export interface AgentDefinition {
+export type AgentDefinition = {
   name: string
   hull: {
     buildEnergy: number
     capacity: number
     position?: Vec2
   }
-  units: Array<{
+  units: {
     type: "ASSEMBLER" | "COMPUTER"
     buildEnergy: number
     assemblePower?: number
     processingPower?: number
     memorySize?: number
     program?: Uint8Array
-  }>
+  }[]
   position?: Vec2
 }
