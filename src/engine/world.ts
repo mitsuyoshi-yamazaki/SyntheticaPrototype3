@@ -13,7 +13,7 @@ import type {
   AgentDefinition,
   Vec2,
 } from "@/types/game"
-import { vec2 } from "@/utils/vec2"
+import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 export type WorldConfig = {
   width: number
@@ -89,7 +89,7 @@ export class World {
     const height = this._stateManager.state.height
     
     for (let i = 0; i < params.energySourceCount; i++) {
-      const position = vec2(
+      const position = Vec2Utils.create(
         Math.random() * width,
         Math.random() * height
       )
@@ -168,7 +168,7 @@ export class World {
   /** デバッグ用：ランダムな位置にエネルギーオブジェクトを生成 */
   public spawnRandomEnergy(amount: number): void {
     const id = this._stateManager.generateObjectId()
-    const position = vec2(
+    const position = Vec2Utils.create(
       Math.random() * this.state.width,
       Math.random() * this.state.height
     )

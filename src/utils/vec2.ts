@@ -2,82 +2,82 @@
  * 2次元ベクトル演算ユーティリティ
  */
 
-import type { Vec2 } from "@/types/game"
+import type { Vec2 as Vec2Type } from "@/types/game"
 
 /** ゼロベクトル */
-export const ZERO: Vec2 = { x: 0, y: 0 }
+const _ZERO: Vec2Type = { x: 0, y: 0 }
 
 /** ベクトル作成 */
-export const vec2 = (x: number, y: number): Vec2 => ({ x, y })
+const _create = (x: number, y: number): Vec2Type => ({ x, y })
 
 /** ベクトル加算 */
-export const add = (a: Vec2, b: Vec2): Vec2 => ({
+const _add = (a: Vec2Type, b: Vec2Type): Vec2Type => ({
   x: a.x + b.x,
   y: a.y + b.y,
 })
 
 /** ベクトル減算 */
-export const sub = (a: Vec2, b: Vec2): Vec2 => ({
+const _sub = (a: Vec2Type, b: Vec2Type): Vec2Type => ({
   x: a.x - b.x,
   y: a.y - b.y,
 })
 
 /** スカラー倍 */
-export const scale = (v: Vec2, s: number): Vec2 => ({
+const _scale = (v: Vec2Type, s: number): Vec2Type => ({
   x: v.x * s,
   y: v.y * s,
 })
 
 /** 内積 */
-export const dot = (a: Vec2, b: Vec2): number => a.x * b.x + a.y * b.y
+const _dot = (a: Vec2Type, b: Vec2Type): number => a.x * b.x + a.y * b.y
 
 /** ベクトルの大きさの2乗 */
-export const magnitudeSquared = (v: Vec2): number => v.x * v.x + v.y * v.y
+const _magnitudeSquared = (v: Vec2Type): number => v.x * v.x + v.y * v.y
 
 /** ベクトルの大きさ */
-export const magnitude = (v: Vec2): number => Math.sqrt(magnitudeSquared(v))
+const _magnitude = (v: Vec2Type): number => Math.sqrt(_magnitudeSquared(v))
 
 /** 距離の2乗 */
-export const distanceSquared = (a: Vec2, b: Vec2): number => {
+const _distanceSquared = (a: Vec2Type, b: Vec2Type): number => {
   const dx = b.x - a.x
   const dy = b.y - a.y
   return dx * dx + dy * dy
 }
 
 /** 距離 */
-export const distance = (a: Vec2, b: Vec2): number => Math.sqrt(distanceSquared(a, b))
+const _distance = (a: Vec2Type, b: Vec2Type): number => Math.sqrt(_distanceSquared(a, b))
 
 /** 正規化（単位ベクトル化） */
-export const normalize = (v: Vec2): Vec2 => {
-  const mag = magnitude(v)
+const _normalize = (v: Vec2Type): Vec2Type => {
+  const mag = _magnitude(v)
   if (mag === 0) return { x: 0, y: 0 }
-  return scale(v, 1 / mag)
+  return _scale(v, 1 / mag)
 }
 
 /** 角度からベクトル（ラジアン） */
-export const fromAngle = (angle: number): Vec2 => ({
+const _fromAngle = (angle: number): Vec2Type => ({
   x: Math.cos(angle),
   y: Math.sin(angle),
 })
 
 /** ベクトルから角度（ラジアン） */
-export const toAngle = (v: Vec2): number => Math.atan2(v.y, v.x)
+const _toAngle = (v: Vec2Type): number => Math.atan2(v.y, v.x)
 
 /** 線形補間 */
-export const lerp = (a: Vec2, b: Vec2, t: number): Vec2 => ({
+const _lerp = (a: Vec2Type, b: Vec2Type, t: number): Vec2Type => ({
   x: a.x + (b.x - a.x) * t,
   y: a.y + (b.y - a.y) * t,
 })
 
 /** クランプ（最大長さ制限） */
-export const clamp = (v: Vec2, maxLength: number): Vec2 => {
-  const mag = magnitude(v)
+const _clamp = (v: Vec2Type, maxLength: number): Vec2Type => {
+  const mag = _magnitude(v)
   if (mag <= maxLength) return v
-  return scale(normalize(v), maxLength)
+  return _scale(_normalize(v), maxLength)
 }
 
 /** 回転（ラジアン） */
-export const rotate = (v: Vec2, angle: number): Vec2 => {
+const _rotate = (v: Vec2Type, angle: number): Vec2Type => {
   const cos = Math.cos(angle)
   const sin = Math.sin(angle)
   return {
@@ -87,9 +87,72 @@ export const rotate = (v: Vec2, angle: number): Vec2 => {
 }
 
 /** コピー */
-export const copy = (v: Vec2): Vec2 => ({ x: v.x, y: v.y })
+const _copy = (v: Vec2Type): Vec2Type => ({ x: v.x, y: v.y })
 
 /** 等価判定 */
-export const equals = (a: Vec2, b: Vec2, epsilon = 0.0001): boolean => {
+const _equals = (a: Vec2Type, b: Vec2Type, epsilon = 0.0001): boolean => {
   return Math.abs(a.x - b.x) < epsilon && Math.abs(a.y - b.y) < epsilon
 }
+
+/**
+ * Vec2名前空間
+ * 2次元ベクトル演算の関数群
+ */
+export const Vec2 = {
+  /** ゼロベクトル */
+  zero: _ZERO,
+  /** ベクトル作成 */
+  create: _create,
+  /** ベクトル加算 */
+  add: _add,
+  /** ベクトル減算 */
+  sub: _sub,
+  /** スカラー倍 */
+  scale: _scale,
+  /** 内積 */
+  dot: _dot,
+  /** ベクトルの大きさの2乗 */
+  magnitudeSquared: _magnitudeSquared,
+  /** ベクトルの大きさ */
+  magnitude: _magnitude,
+  /** 距離の2乗 */
+  distanceSquared: _distanceSquared,
+  /** 距離 */
+  distance: _distance,
+  /** 正規化（単位ベクトル化） */
+  normalize: _normalize,
+  /** 角度からベクトル（ラジアン） */
+  fromAngle: _fromAngle,
+  /** ベクトルから角度（ラジアン） */
+  toAngle: _toAngle,
+  /** 線形補間 */
+  lerp: _lerp,
+  /** クランプ（最大長さ制限） */
+  clamp: _clamp,
+  /** 回転（ラジアン） */
+  rotate: _rotate,
+  /** コピー */
+  copy: _copy,
+  /** 等価判定 */
+  equals: _equals,
+} as const
+
+// 後方互換性のための個別エクスポート（非推奨）
+export const ZERO = Vec2.zero
+export const vec2 = Vec2.create
+export const add = Vec2.add
+export const sub = Vec2.sub
+export const scale = Vec2.scale
+export const dot = Vec2.dot
+export const magnitudeSquared = Vec2.magnitudeSquared
+export const magnitude = Vec2.magnitude
+export const distanceSquared = Vec2.distanceSquared
+export const distance = Vec2.distance
+export const normalize = Vec2.normalize
+export const fromAngle = Vec2.fromAngle
+export const toAngle = Vec2.toAngle
+export const lerp = Vec2.lerp
+export const clamp = Vec2.clamp
+export const rotate = Vec2.rotate
+export const copy = Vec2.copy
+export const equals = Vec2.equals

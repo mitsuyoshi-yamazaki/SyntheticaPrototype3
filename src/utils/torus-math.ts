@@ -4,7 +4,7 @@
  */
 
 import type { Vec2 } from "@/types/game"
-import * as Vec2Utils from "./vec2"
+import { Vec2 as Vec2Utils } from "./vec2"
 
 /** トーラス世界での位置の正規化 */
 export const wrapPosition = (position: Vec2, worldWidth: number, worldHeight: number): Vec2 => {

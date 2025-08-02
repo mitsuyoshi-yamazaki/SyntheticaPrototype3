@@ -13,7 +13,7 @@ import type {
   UnitSpec,
   AgentDefinition,
 } from "@/types/game"
-import { vec2 } from "@/utils/vec2"
+import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { wrapPosition } from "@/utils/torus-math"
 
 /** エネルギー量から半径を計算 */
@@ -48,7 +48,7 @@ export class ObjectFactory {
     id: ObjectId,
     position: Vec2,
     energy: number,
-    velocity: Vec2 = vec2(0, 0)
+    velocity: Vec2 = Vec2Utils.create(0, 0)
   ): EnergyObject {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
     
@@ -69,7 +69,7 @@ export class ObjectFactory {
     position: Vec2,
     buildEnergy: number,
     capacity: number,
-    velocity: Vec2 = vec2(0, 0)
+    velocity: Vec2 = Vec2Utils.create(0, 0)
   ): Hull {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
     
@@ -96,7 +96,7 @@ export class ObjectFactory {
     buildEnergy: number,
     assemblePower: number,
     parentHull?: ObjectId,
-    velocity: Vec2 = vec2(0, 0)
+    velocity: Vec2 = Vec2Utils.create(0, 0)
   ): Assembler {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
     
@@ -110,7 +110,7 @@ export class ObjectFactory {
       mass: buildEnergy,
       buildEnergy,
       currentEnergy: buildEnergy,
-      parentHull,
+      ...(parentHull !== undefined ? { parentHull } : {}),
       assemblePower,
       isAssembling: false,
       progress: 0,
@@ -125,7 +125,7 @@ export class ObjectFactory {
     processingPower: number,
     memorySize: number,
     parentHull?: ObjectId,
-    velocity: Vec2 = vec2(0, 0),
+    velocity: Vec2 = Vec2Utils.create(0, 0),
     program?: Uint8Array
   ): Computer {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
@@ -145,7 +145,7 @@ export class ObjectFactory {
       mass: buildEnergy,
       buildEnergy,
       currentEnergy: buildEnergy,
-      parentHull,
+      ...(parentHull !== undefined ? { parentHull } : {}),
       processingPower,
       memorySize,
       memory,
@@ -210,7 +210,7 @@ export class ObjectFactory {
     const objects: GameObject[] = []
     
     // 位置を決定
-    const agentPos = position ?? definition.position ?? vec2(
+    const agentPos = position ?? definition.position ?? Vec2Utils.create(
       Math.random() * this._worldWidth,
       Math.random() * this._worldHeight
     )
@@ -249,7 +249,7 @@ export class ObjectFactory {
             unitDef.processingPower ?? 1,
             unitDef.memorySize ?? 0,
             hullId,
-            vec2(0, 0),
+            Vec2Utils.create(0, 0),
             unitDef.program
           )
           break
