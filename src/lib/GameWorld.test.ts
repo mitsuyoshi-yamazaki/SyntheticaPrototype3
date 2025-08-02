@@ -46,14 +46,6 @@ describe("GameWorld", () => {
     expect(world.height).toBe(height)
   })
 
-  test("tick()は互換性のため存在するが何もしない", () => {
-    const world = new GameWorld(800, 600)
-    const initialTick = world.tickCount
-
-    world.tick()
-    expect(world.tickCount).toBe(initialTick)
-  })
-
   test("spawnRandomEnergyが呼び出せる", () => {
     const world = new GameWorld(800, 600)
     

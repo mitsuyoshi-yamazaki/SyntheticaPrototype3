@@ -53,12 +53,7 @@ export class GameWorld {
     // ゲームループ開始
     this._world.start()
   }
-
-  public tick(): void {
-    // 新エンジンでは内部でtick管理されるため、この関数は不要
-    // 互換性のため残しているが、何もしない
-  }
-
+  
   
   public renderPixi(container: PIXI.Container): void {
     // コンテナをクリア
