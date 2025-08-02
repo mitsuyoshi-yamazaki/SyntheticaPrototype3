@@ -1,6 +1,6 @@
 "use client"
 
-import GameCanvas from "@/components/GameCanvas"
+import GameCanvasPixi from "@/components/GameCanvasPixi"
 
 export default function Home() {
   return (
@@ -13,7 +13,7 @@ export default function Home() {
 
         {/* ゲームキャンバス */}
         <div className="mb-8">
-          <GameCanvas width={800} height={600} ticksPerFrame={1} />
+          <GameCanvasPixi width={800} height={600} ticksPerFrame={1} />
         </div>
 
         {/* コントロールパネル */}

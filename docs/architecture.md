@@ -11,7 +11,7 @@
 │                    ブラウザ (Main Thread)                 │
 ├─────────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │  React UI   │  │  p5.js       │  │  Game Loop   │  │
+│  │  React UI   │  │  PixiJS      │  │  Game Loop   │  │
 │  │  Components │  │  Renderer    │  │  Controller  │  │
 │  └──────┬──────┘  └──────┬───────┘  └───────┬──────┘  │
 │         │                 │                   │         │
@@ -119,10 +119,11 @@ interface VMState {
 
 ### 6. Rendering System (`/src/rendering/`)
 
-#### p5.js Integration
-- ゲームキャンバスの描画
-- カメラシステム（パン・ズーム）
-- デバッグオーバーレイ
+#### PixiJS Integration
+- WebGLベースの高速描画
+- バッチレンダリング（10,000+オブジェクト対応）
+- カスタムViewport実装（パン・ズーム）
+- レイヤー管理とデバッグオーバーレイ
 
 #### Optimization
 - 可視範囲カリング
