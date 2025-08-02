@@ -136,23 +136,3 @@ export const Vec2 = {
   /** 等価判定 */
   equals: _equals,
 } as const
-
-// 後方互換性のための個別エクスポート（非推奨）
-export const ZERO = Vec2.zero
-export const vec2 = Vec2.create
-export const add = Vec2.add
-export const sub = Vec2.sub
-export const scale = Vec2.scale
-export const dot = Vec2.dot
-export const magnitudeSquared = Vec2.magnitudeSquared
-export const magnitude = Vec2.magnitude
-export const distanceSquared = Vec2.distanceSquared
-export const distance = Vec2.distance
-export const normalize = Vec2.normalize
-export const fromAngle = Vec2.fromAngle
-export const toAngle = Vec2.toAngle
-export const lerp = Vec2.lerp
-export const clamp = Vec2.clamp
-export const rotate = Vec2.rotate
-export const copy = Vec2.copy
-export const equals = Vec2.equals
