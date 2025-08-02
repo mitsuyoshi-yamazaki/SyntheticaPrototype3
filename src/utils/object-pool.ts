@@ -12,6 +12,11 @@ export class ObjectPool<T extends Poolable> {
   private readonly _factory: () => T
   private readonly _maxSize: number
   
+  /** プールサイズ */
+  public get size(): number {
+    return this._pool.length
+  }
+  
   public constructor(factory: () => T, initialSize = 10, maxSize = 1000) {
     this._factory = factory
     this._maxSize = maxSize
@@ -40,11 +45,6 @@ export class ObjectPool<T extends Poolable> {
       obj.reset()
       this._pool.push(obj)
     }
-  }
-  
-  /** プールサイズ */
-  public get size(): number {
-    return this._pool.length
   }
   
   /** プールをクリア */

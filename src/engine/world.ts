@@ -27,6 +27,26 @@ export class World {
   private readonly _loopController: GameLoopController
   private readonly _objectFactory: ObjectFactory
   
+  /** 一時停止状態 */
+  public get isPaused(): boolean {
+    return this._loopController.isPaused
+  }
+  
+  /** 実行中状態 */
+  public get isRunning(): boolean {
+    return this._loopController.isRunning
+  }
+  
+  /** 現在のFPS */
+  public get currentFPS(): number {
+    return this._loopController.currentFPS
+  }
+  
+  /** ワールド状態を取得 */
+  public get state() {
+    return this._stateManager.state
+  }
+  
   public constructor(config: WorldConfig) {
     // 状態管理の初期化
     this._stateManager = new WorldStateManager(
@@ -105,26 +125,6 @@ export class World {
   /** 再開 */
   public resume(): void {
     this._loopController.resume()
-  }
-  
-  /** 一時停止状態 */
-  public get isPaused(): boolean {
-    return this._loopController.isPaused
-  }
-  
-  /** 実行中状態 */
-  public get isRunning(): boolean {
-    return this._loopController.isRunning
-  }
-  
-  /** 現在のFPS */
-  public get currentFPS(): number {
-    return this._loopController.currentFPS
-  }
-  
-  /** ワールド状態を取得 */
-  public get state() {
-    return this._stateManager.state
   }
   
   /** パラメータを更新 */

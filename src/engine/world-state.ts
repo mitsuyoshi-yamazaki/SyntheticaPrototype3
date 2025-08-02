@@ -38,6 +38,11 @@ export const SPATIAL_CELL_SIZE = 100
 export class WorldStateManager {
   private readonly _state: WorldState
   
+  /** 現在の状態を取得 */
+  public get state(): Readonly<WorldState> {
+    return this._state
+  }
+  
   public constructor(width: number, height: number, parameters?: Partial<WorldParameters>) {
     this._state = {
       width,
@@ -50,11 +55,6 @@ export class WorldStateManager {
       parameters: { ...DEFAULT_PARAMETERS, ...parameters },
       nextObjectId: 1,
     }
-  }
-  
-  /** 現在の状態を取得 */
-  public get state(): Readonly<WorldState> {
-    return this._state
   }
   
   /** 次のオブジェクトIDを生成 */
