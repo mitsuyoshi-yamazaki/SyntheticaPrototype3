@@ -55,7 +55,7 @@ yarn format:check
 ├── coding-guidelines.md    # コーディング規約
 ├── static-code-analysis.md # 静的コード解析設定ガイド
 ├── vibe-coding-guide.md    # AIアシスタント利用ガイド
-├── todo.md                 # TODO / 実装状況
+├── TODO.md                 # TODO / 実装状況
 ├── commit-notes/           # コミットノート（各コミットの指示記録）
 └── spec-v3/                # v3仕様書
     ├── game-world-requirement.md  # ゲーム仕様
