@@ -16,9 +16,10 @@ const eslintConfig = [
   // JavaScript recommended rules
   js.configs.recommended,
 
-  // TypeScript configurations
+  // アプリケーションコード用の設定
   {
     files: ["**/*.ts", "**/*.tsx"],
+    ignores: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/__tests__/**/*"],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
@@ -89,6 +90,23 @@ const eslintConfig = [
           ],
         },
       ],
+    },
+  },
+
+  // テストコード用の設定
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/__tests__/**/*"],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        project: "./tsconfig.json",
+      },
+    },
+    plugins: {
+      "@typescript-eslint": tseslint,
+    },
+    rules: {
+      // テスト用のルール設定（ユーザーが後で設定）
     },
   },
 

@@ -388,7 +388,6 @@ describe("ObjectFactory", () => {
       // HULL
       const hull = objects[0]
       expect(hull).toBeDefined()
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(hull!.type).toBe("HULL")
       expect((hull as Hull).capacity).toBe(500)
       expect((hull as Hull).attachedUnits).toHaveLength(2)
@@ -396,25 +395,19 @@ describe("ObjectFactory", () => {
       // ASSEMBLER
       const assembler = objects[1]
       expect(assembler).toBeDefined()
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(assembler!.type).toBe("ASSEMBLER")
       expect((assembler as Assembler).assemblePower).toBe(2)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect((assembler as Assembler).parentHull).toBe(hull!.id)
       
       // COMPUTER
       const computer = objects[2]
       expect(computer).toBeDefined()
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(computer!.type).toBe("COMPUTER")
       expect((computer as Computer).processingPower).toBe(10)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect((computer as Computer).parentHull).toBe(hull!.id)
       
       // 全てのオブジェクトが同じ位置にある
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(assembler!.position).toEqual(hull!.position)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(computer!.position).toEqual(hull!.position)
     })
 
@@ -432,7 +425,6 @@ describe("ObjectFactory", () => {
       const objects = factory.createAgent(generateId, agentDef, position)
       
       expect(objects[0]).toBeDefined()
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(objects[0]!.position).toEqual({ x: 123, y: 456 })
     })
 
@@ -450,7 +442,6 @@ describe("ObjectFactory", () => {
       const objects = factory.createAgent(generateId, agentDef)
       
       expect(objects[0]).toBeDefined()
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(objects[0]!.position).toEqual({ x: 789, y: 321 })
     })
 
@@ -469,7 +460,6 @@ describe("ObjectFactory", () => {
       const objects = factory.createAgent(generateId, agentDef, position)
       
       expect(objects[0]).toBeDefined()
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(objects[0]!.position).toEqual({ x: 333, y: 444 })
     })
 
@@ -486,7 +476,6 @@ describe("ObjectFactory", () => {
       const objects = factory.createAgent(generateId, agentDef)
       
       expect(objects[0]).toBeDefined()
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const pos = objects[0]!.position
       expect(pos.x).toBeGreaterThanOrEqual(0)
       expect(pos.x).toBeLessThan(worldWidth)
@@ -569,11 +558,8 @@ describe("ObjectFactory", () => {
       const hull = objects[0] as Hull
       
       expect(hull.attachedUnits).toHaveLength(3)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(hull.attachedUnits[0]).toBe(objects[1]!.id)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(hull.attachedUnits[1]).toBe(objects[2]!.id)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(hull.attachedUnits[2]).toBe(objects[3]!.id)
     })
   })
