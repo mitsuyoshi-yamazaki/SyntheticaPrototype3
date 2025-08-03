@@ -3,7 +3,7 @@
  * ObjectId生成とユニーク性保証を含む
  */
 
-import { WorldStateManager, DEFAULT_PARAMETERS, SPATIAL_CELL_SIZE } from "./world-state"
+import { WorldStateManager, DEFAULT_PARAMETERS } from "./world-state"
 import type { ObjectId, GameObject, EnergySource, DirectionalForceField } from "@/types/game"
 import { Vec2 } from "@/utils/vec2"
 
