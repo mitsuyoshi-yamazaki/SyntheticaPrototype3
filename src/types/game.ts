@@ -71,15 +71,24 @@ export type Computer = Unit & {
   registers: Uint16Array // レジスタ（8個）
 }
 
-export type UnitSpec = {
-  type: ObjectType
-  buildEnergy: number
-  // タイプ別の追加パラメータ
-  capacity?: number // HULL用
-  assemblePower?: number // ASSEMBLER用
-  processingPower?: number // COMPUTER用
-  memorySize?: number // COMPUTER用
+/** ユニット仕様 */
+export type HullSpec = {
+  readonly type: HullType
+  readonly capacity: number
 }
+
+export type AssemblerSpec = {
+  readonly type: AssemblerType
+  readonly assemblePower: number
+}
+
+export type ComputerSpec = {
+  readonly type: ComputerType
+  readonly processingPower: number
+  readonly memorySize: number
+}
+
+export type UnitSpec = HullSpec | AssemblerSpec | ComputerSpec
 
 /** ワールドパラメータ */
 export type WorldParameters = {

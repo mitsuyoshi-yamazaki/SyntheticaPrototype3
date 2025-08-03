@@ -158,37 +158,30 @@ export class ObjectFactory {
   public createFromSpec(
     id: ObjectId,
     spec: UnitSpec,
+    buildEnergy: number,
     position: Vec2,
     parentHull?: ObjectId
   ): GameObject {
     switch (spec.type) {
       case "HULL":
-        return this.createHull(id, position, spec.buildEnergy, spec.capacity ?? 100)
+        return this.createHull(id, position, buildEnergy, spec.capacity)
 
       case "ASSEMBLER":
-        return this.createAssembler(
-          id,
-          position,
-          spec.buildEnergy,
-          spec.assemblePower ?? 1,
-          parentHull
-        )
+        return this.createAssembler(id, position, buildEnergy, spec.assemblePower, parentHull)
 
       case "COMPUTER":
         return this.createComputer(
           id,
           position,
-          spec.buildEnergy,
-          spec.processingPower ?? 1,
-          spec.memorySize ?? 0,
+          buildEnergy,
+          spec.processingPower,
+          spec.memorySize,
           parentHull
         )
 
-      case "ENERGY":
-        return this.createEnergyObject(id, position, spec.buildEnergy)
-
       default:
-        throw new Error(`Unknown object type: ${String(spec.type)}`)
+        // @ts-expect-error: Never type - all cases should be handled
+        throw new Error(`Unknown object type: ${spec.type}`)
     }
   }
 

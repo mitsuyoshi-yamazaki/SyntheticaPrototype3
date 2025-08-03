@@ -8,7 +8,16 @@ import {
   calculateUnitRadius,
   calculateHullRadius,
 } from "./object-factory"
-import type { ObjectId, AgentDefinition, UnitSpec, Hull, Assembler, Computer } from "@/types/game"
+import type {
+  ObjectId,
+  AgentDefinition,
+  Hull,
+  Assembler,
+  Computer,
+  HullSpec,
+  AssemblerSpec,
+  ComputerSpec,
+} from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 // テスト用のObjectId生成関数
@@ -255,93 +264,79 @@ describe("ObjectFactory", () => {
 
   describe("createFromSpec", () => {
     test("HULL仕様からオブジェクトを作成", () => {
-      const spec: UnitSpec = {
+      const spec: HullSpec = {
         type: "HULL",
-        buildEnergy: 1000,
         capacity: 800,
       }
-
-      const obj = factory.createFromSpec(generateId(), spec, Vec2Utils.create(100, 200))
-
-      expect(obj.type).toBe("HULL")
-      expect((obj as Hull).capacity).toBe(800)
-    })
-
-    test("ASSEMBLER仕様からオブジェクトを作成", () => {
-      const spec: UnitSpec = {
-        type: "ASSEMBLER",
-        buildEnergy: 800,
-        assemblePower: 3,
-      }
+      const buildEnergy = 1000
 
       const obj = factory.createFromSpec(
         generateId(),
         spec,
+        buildEnergy,
+        Vec2Utils.create(100, 200)
+      )
+
+      expect(obj.type).toBe("HULL")
+      expect((obj as Hull).capacity).toBe(800)
+      expect(obj.energy).toBe(buildEnergy)
+    })
+
+    test("ASSEMBLER仕様からオブジェクトを作成", () => {
+      const spec: AssemblerSpec = {
+        type: "ASSEMBLER",
+        assemblePower: 3,
+      }
+      const buildEnergy = 800
+
+      const obj = factory.createFromSpec(
+        generateId(),
+        spec,
+        buildEnergy,
         Vec2Utils.create(100, 200),
         generateId()
       )
 
       expect(obj.type).toBe("ASSEMBLER")
       expect((obj as Assembler).assemblePower).toBe(3)
+      expect(obj.energy).toBe(buildEnergy)
     })
 
     test("COMPUTER仕様からオブジェクトを作成", () => {
-      const spec: UnitSpec = {
+      const spec: ComputerSpec = {
         type: "COMPUTER",
-        buildEnergy: 600,
         processingPower: 20,
         memorySize: 2048,
       }
+      const buildEnergy = 600
 
-      const obj = factory.createFromSpec(generateId(), spec, Vec2Utils.create(100, 200))
+      const obj = factory.createFromSpec(
+        generateId(),
+        spec,
+        buildEnergy,
+        Vec2Utils.create(100, 200)
+      )
 
       expect(obj.type).toBe("COMPUTER")
       expect((obj as Computer).processingPower).toBe(20)
       expect((obj as Computer).memorySize).toBe(2048)
+      expect(obj.energy).toBe(buildEnergy)
     })
 
-    test("ENERGY仕様からオブジェクトを作成", () => {
-      const spec: UnitSpec = {
-        type: "ENERGY",
-        buildEnergy: 250,
-      }
-
-      const obj = factory.createFromSpec(generateId(), spec, Vec2Utils.create(100, 200))
-
-      expect(obj.type).toBe("ENERGY")
-      expect(obj.energy).toBe(250)
-    })
+    // ENERGYはUnitSpecに含まれないため、このテストは削除
 
     test("未知のタイプはエラー", () => {
       const spec = {
         type: "UNKNOWN",
-        buildEnergy: 100,
-      } as unknown as UnitSpec
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any
 
       expect(() => {
-        factory.createFromSpec(generateId(), spec, Vec2Utils.create(0, 0))
+        factory.createFromSpec(generateId(), spec, 100, Vec2Utils.create(0, 0))
       }).toThrow("Unknown object type: UNKNOWN")
     })
 
-    test("デフォルト値が適用される", () => {
-      const hullSpec: UnitSpec = {
-        type: "HULL",
-        buildEnergy: 1000,
-        // capacityは省略
-      }
-
-      const hull = factory.createFromSpec(generateId(), hullSpec, Vec2Utils.create(0, 0))
-      expect((hull as Hull).capacity).toBe(100) // デフォルト値
-
-      const assemblerSpec: UnitSpec = {
-        type: "ASSEMBLER",
-        buildEnergy: 800,
-        // assemblePowerは省略
-      }
-
-      const assembler = factory.createFromSpec(generateId(), assemblerSpec, Vec2Utils.create(0, 0))
-      expect((assembler as Assembler).assemblePower).toBe(1) // デフォルト値
-    })
+    // union typeにより、必須パラメータが明示的になったため、デフォルト値のテストは不要
   })
 
   describe("createAgent", () => {
@@ -507,7 +502,8 @@ describe("ObjectFactory", () => {
           {
             type: "UNKNOWN",
             buildEnergy: 100,
-          } as unknown as UnitSpec,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } as any,
         ],
       }
 
