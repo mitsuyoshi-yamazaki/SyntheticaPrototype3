@@ -125,7 +125,7 @@ describe("ObjectFactory", () => {
         position: { x: 300, y: 400 },
         velocity: { x: 0, y: 0 },
         radius: calculateHullRadius(capacity, buildEnergy),
-        energy: buildEnergy,
+        energy: 0,
         mass: buildEnergy,
         buildEnergy,
         currentEnergy: buildEnergy,
@@ -158,7 +158,7 @@ describe("ObjectFactory", () => {
         position: { x: 150, y: 250 },
         velocity: { x: 0, y: 0 },
         radius: calculateUnitRadius(buildEnergy),
-        energy: buildEnergy,
+        energy: 0,
         mass: buildEnergy,
         buildEnergy,
         currentEnergy: buildEnergy,
@@ -207,7 +207,7 @@ describe("ObjectFactory", () => {
         position: { x: 500, y: 600 },
         velocity: { x: 0, y: 0 },
         radius: calculateUnitRadius(buildEnergy),
-        energy: buildEnergy,
+        energy: 0,
         mass: buildEnergy,
         buildEnergy,
         currentEnergy: buildEnergy,
@@ -266,61 +266,53 @@ describe("ObjectFactory", () => {
     test("HULL仕様からオブジェクトを作成", () => {
       const spec: HullSpec = {
         type: "HULL",
+        buildEnergy: 1000,
         capacity: 800,
       }
-      const buildEnergy = 1000
 
-      const obj = factory.createFromSpec(
-        generateId(),
-        spec,
-        buildEnergy,
-        Vec2Utils.create(100, 200)
-      )
+      const obj = factory.createFromSpec(generateId(), spec, Vec2Utils.create(100, 200))
 
       expect(obj.type).toBe("HULL")
       expect((obj as Hull).capacity).toBe(800)
-      expect(obj.energy).toBe(buildEnergy)
+      expect((obj as Hull).buildEnergy).toBe(1000)
+      expect(obj.energy).toBe(0) // Units don't use energy
     })
 
     test("ASSEMBLER仕様からオブジェクトを作成", () => {
       const spec: AssemblerSpec = {
         type: "ASSEMBLER",
+        buildEnergy: 800,
         assemblePower: 3,
       }
-      const buildEnergy = 800
 
       const obj = factory.createFromSpec(
         generateId(),
         spec,
-        buildEnergy,
         Vec2Utils.create(100, 200),
         generateId()
       )
 
       expect(obj.type).toBe("ASSEMBLER")
       expect((obj as Assembler).assemblePower).toBe(3)
-      expect(obj.energy).toBe(buildEnergy)
+      expect((obj as Assembler).buildEnergy).toBe(800)
+      expect(obj.energy).toBe(0) // Units don't use energy
     })
 
     test("COMPUTER仕様からオブジェクトを作成", () => {
       const spec: ComputerSpec = {
         type: "COMPUTER",
+        buildEnergy: 600,
         processingPower: 20,
         memorySize: 2048,
       }
-      const buildEnergy = 600
 
-      const obj = factory.createFromSpec(
-        generateId(),
-        spec,
-        buildEnergy,
-        Vec2Utils.create(100, 200)
-      )
+      const obj = factory.createFromSpec(generateId(), spec, Vec2Utils.create(100, 200))
 
       expect(obj.type).toBe("COMPUTER")
       expect((obj as Computer).processingPower).toBe(20)
       expect((obj as Computer).memorySize).toBe(2048)
-      expect(obj.energy).toBe(buildEnergy)
+      expect((obj as Computer).buildEnergy).toBe(600)
+      expect(obj.energy).toBe(0) // Units don't use energy
     })
 
     // ENERGYはUnitSpecに含まれないため、このテストは削除
@@ -332,7 +324,7 @@ describe("ObjectFactory", () => {
       } as any
 
       expect(() => {
-        factory.createFromSpec(generateId(), spec, 100, Vec2Utils.create(0, 0))
+        factory.createFromSpec(generateId(), spec, Vec2Utils.create(0, 0))
       }).toThrow("Unknown object type: UNKNOWN")
     })
 

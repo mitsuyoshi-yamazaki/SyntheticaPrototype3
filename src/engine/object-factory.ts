@@ -79,7 +79,7 @@ export class ObjectFactory {
       position: wrappedPos,
       velocity: { ...velocity },
       radius: calculateHullRadius(capacity, buildEnergy),
-      energy: buildEnergy,
+      energy: 0, // Units don't use energy property
       mass: buildEnergy,
       buildEnergy,
       currentEnergy: buildEnergy,
@@ -106,7 +106,7 @@ export class ObjectFactory {
       position: wrappedPos,
       velocity: { ...velocity },
       radius: calculateUnitRadius(buildEnergy),
-      energy: buildEnergy,
+      energy: 0, // Units don't use energy property
       mass: buildEnergy,
       buildEnergy,
       currentEnergy: buildEnergy,
@@ -141,7 +141,7 @@ export class ObjectFactory {
       position: wrappedPos,
       velocity: { ...velocity },
       radius: calculateUnitRadius(buildEnergy),
-      energy: buildEnergy,
+      energy: 0, // Units don't use energy property
       mass: buildEnergy,
       buildEnergy,
       currentEnergy: buildEnergy,
@@ -158,22 +158,21 @@ export class ObjectFactory {
   public createFromSpec(
     id: ObjectId,
     spec: UnitSpec,
-    buildEnergy: number,
     position: Vec2,
     parentHull?: ObjectId
   ): GameObject {
     switch (spec.type) {
       case "HULL":
-        return this.createHull(id, position, buildEnergy, spec.capacity)
+        return this.createHull(id, position, spec.buildEnergy, spec.capacity)
 
       case "ASSEMBLER":
-        return this.createAssembler(id, position, buildEnergy, spec.assemblePower, parentHull)
+        return this.createAssembler(id, position, spec.buildEnergy, spec.assemblePower, parentHull)
 
       case "COMPUTER":
         return this.createComputer(
           id,
           position,
-          buildEnergy,
+          spec.buildEnergy,
           spec.processingPower,
           spec.memorySize,
           parentHull
