@@ -52,6 +52,12 @@ const callRafCallbacks = (time: number) => {
   callbacks.forEach(({ callback }) => callback(time))
 }
 
+// タイムスタンプを進めてRAFコールバックを呼ぶヘルパー
+const advanceTime = (ms: number) => {
+  currentTime += ms
+  callRafCallbacks(currentTime)
+}
+
 
 describe("GameLoop", () => {
   const createGameLoop = () => {
@@ -152,92 +158,119 @@ describe("GameLoop", () => {
       
       // 最初の呼び出しでrenderが呼ばれているか
       expect(onRender).toHaveBeenCalledTimes(1)
+      expect(onTick).toHaveBeenCalledTimes(0) // tickはまだ呼ばれない
       
-      // フレームを進める（currentTimeを17に設定してからcallRafCallbacks）
-      currentTime = 17
-      callRafCallbacks(17)
+      // フレームを進める
+      advanceTime(17)
       // 次のrafコールバックが登録される
       expect(rafCallbacks.length).toBe(1)
       
       // onTickが呼ばれたか確認
       expect(onTick).toHaveBeenCalledTimes(1)
+      expect(onRender).toHaveBeenCalledTimes(2) // start時とtick時
     })
     
-    test("固定タイムステップでtickが呼ばれる", () => {
+    test("FPS上限に達するまでtickが実行される", () => {
       const { gameLoop, onTick, onRender } = createGameLoop()
       
       currentTime = 0
       gameLoop.start()
-      // startの時点でloop()が呼ばれ、renderは1回実行される
-      expect(onRender).toHaveBeenCalledTimes(1)
       
-      // 1フレーム目（17ms経過）
-      currentTime = 17
-      callRafCallbacks(17) // 1tick分
+      // 60FPSの場合、16.67ms毎にtick
+      advanceTime(17)
       expect(onTick).toHaveBeenCalledTimes(1)
-      expect(onTick).toHaveBeenCalledWith(1/60)
+      expect(onRender).toHaveBeenCalledTimes(2) // start時とtick時
       
+      // まだ16.67ms経過していないのでtickは呼ばれない
+      currentTime = 30
+      callRafCallbacks(30)
+      expect(onTick).toHaveBeenCalledTimes(1)
+      
+      // 16.67ms以上経過したらtickが呼ばれる
       currentTime = 34
-      callRafCallbacks(34) // もう1tick分
+      callRafCallbacks(34)
       expect(onTick).toHaveBeenCalledTimes(2)
     })
 
-    test("フレームスキップ時は複数回tickが呼ばれる", () => {
+    test("長時間経過してもtickは1回だけ呼ばれる", () => {
       const { gameLoop, onTick } = createGameLoop()
       
       currentTime = 0
       gameLoop.start()
       
-      // 初回フレームで時間を大きく進める
-      currentTime = 50
-      callRafCallbacks(50) // 50ms経過（約3tick分）
-      expect(onTick).toHaveBeenCalledTimes(3)
+      // 100ms経過しても、tickは1回だけ呼ばれる
+      currentTime = 100
+      callRafCallbacks(100)
+      expect(onTick).toHaveBeenCalledTimes(1)
+      
+      // 次のフレームでもう1回呼ばれる
+      currentTime = 117
+      callRafCallbacks(117)
+      expect(onTick).toHaveBeenCalledTimes(2)
     })
 
-    test("renderは毎フレーム呼ばれる", () => {
-      const { gameLoop, onRender } = createGameLoop()
+    test("renderはtickと同時に呼ばれる", () => {
+      const { gameLoop, onRender, onTick } = createGameLoop()
       
       currentTime = 0
       gameLoop.start()
-      // startの時点で1回呼ばれる
-      expect(onRender).toHaveBeenCalledTimes(1)
       
-      // 各フレームでrenderが呼ばれる
-      currentTime = 10
-      callRafCallbacks(10)
-      expect(onRender).toHaveBeenCalledTimes(2)
+      // 最初のtick
+      currentTime = 17
+      callRafCallbacks(17)
+      expect(onTick).toHaveBeenCalledTimes(1)
+      expect(onRender).toHaveBeenCalledTimes(2) // start時とtick時
+      expect(onRender).toHaveBeenLastCalledWith(0) // 補間値は常に0
       
+      // FPS上限未満では呼ばれない
       currentTime = 20
       callRafCallbacks(20)
-      expect(onRender).toHaveBeenCalledTimes(3)
+      expect(onTick).toHaveBeenCalledTimes(1)
+      expect(onRender).toHaveBeenCalledTimes(2)
     })
 
-    test("大きなフレームスキップは制限される", () => {
+    test("一時停止中はtickが実行されない", () => {
       const { gameLoop, onTick } = createGameLoop()
       
       currentTime = 0
       gameLoop.start()
+      gameLoop.pause()
       
-      // 初回フレームで200ms経過（最大100msに制限）
-      currentTime = 200
-      callRafCallbacks(200) // 200ms経過
-      // 100ms = 16.67 * 6 = 100.02なので、実際には5回の可能性
-      expect(onTick).toHaveBeenCalledTimes(5)
+      // 時間が経過してもtickは呼ばれない
+      currentTime = 100
+      callRafCallbacks(100)
+      expect(onTick).not.toHaveBeenCalled()
+      
+      // 再開後はtickが呼ばれる
+      gameLoop.resume()
+      currentTime = 117
+      callRafCallbacks(117)
+      expect(onTick).toHaveBeenCalledTimes(1)
     })
   })
 
-  describe("setTargetFPS", () => {
-    test("FPSを変更できる", () => {
+  describe("setMaxFPS", () => {
+    test("FPS上限を変更できる", () => {
       const { gameLoop, onTick } = createGameLoop()
       
       currentTime = 0
       gameLoop.start()
-      gameLoop.setTargetFPS(30) // 30FPSに変更
+      gameLoop.setMaxFPS(30) // 30FPSに変更
       
-      // 30FPSの場合は33.33msでtick
+      // 30FPSの場合は33.33ms毎にtick
       currentTime = 34
-      callRafCallbacks(34) // 34ms経過
+      callRafCallbacks(34)
       expect(onTick).toHaveBeenCalledTimes(1)
+      
+      // 33.33ms未満では呼ばれない
+      currentTime = 50
+      callRafCallbacks(50)
+      expect(onTick).toHaveBeenCalledTimes(1)
+      
+      // 33.33ms以上経過したら呼ばれる
+      currentTime = 68
+      callRafCallbacks(68)
+      expect(onTick).toHaveBeenCalledTimes(2)
     })
   })
 })
@@ -252,7 +285,7 @@ describe("GameLoopController", () => {
   describe("初期状態", () => {
     test("WorldStateのパラメータが反映される", () => {
       const params: Partial<WorldParameters> = {
-        targetFPS: 30,
+        maxFPS: 30,
         ticksPerFrame: 2,
       }
       const { controller } = createController(params)
@@ -334,31 +367,43 @@ describe("GameLoopController", () => {
       expect(controller.currentFPS).toBe(0)
       
       // 1秒間に60フレーム実行
-      for (let i = 1; i <= 61; i++) {
+      for (let i = 1; i <= 60; i++) {
         currentTime = i * 16.67
         callRafCallbacks(currentTime)
       }
       
       // 1秒経過後（1001ms以上）にFPSが更新される
+      currentTime = 1001
+      callRafCallbacks(1001)
       expect(controller.currentFPS).toBeGreaterThan(55)
       expect(controller.currentFPS).toBeLessThanOrEqual(61)
     })
   })
 
   describe("パラメータ更新", () => {
-    test("targetFPSの更新が反映される", () => {
+    test("maxFPSの更新が反映される", () => {
       const { controller, worldState } = createController()
       
       const incrementTickSpy = jest.spyOn(worldState, "incrementTick")
       
       currentTime = 0
       controller.start()
-      controller.updateParameters({ targetFPS: 30 })
+      controller.updateParameters({ maxFPS: 30 })
       
-      // 30FPSの場合は33.33msでtick
+      // 30FPSの場合は33.33ms毎にtick
       currentTime = 34
       callRafCallbacks(34)
       expect(incrementTickSpy).toHaveBeenCalledTimes(1)
+      
+      // 33.33ms未満では呼ばれない
+      currentTime = 50
+      callRafCallbacks(50)
+      expect(incrementTickSpy).toHaveBeenCalledTimes(1)
+      
+      // 次のtickは33.33ms後
+      currentTime = 68
+      callRafCallbacks(68)
+      expect(incrementTickSpy).toHaveBeenCalledTimes(2)
     })
 
     test("ticksPerFrameの更新が反映される", () => {

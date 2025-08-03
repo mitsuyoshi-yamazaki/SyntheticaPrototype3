@@ -29,7 +29,7 @@ export const DEFAULT_PARAMETERS: WorldParameters = {
   
   // シミュレーション
   ticksPerFrame: 1,
-  targetFPS: 60,
+  maxFPS: 60,
 }
 
 /** 空間ハッシュグリッドのセルサイズ */

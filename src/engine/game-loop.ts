@@ -5,16 +5,16 @@
 import { WorldStateManager } from "./world-state"
 import type { WorldParameters } from "@/types/game"
 
-export type GameLoopCallback = (deltaTime: number) => void
+export type TickCallback = () => void
+export type RenderCallback = (interpolation: number) => void
 
 export class GameLoop {
   private _running = false
   private _paused = false
-  private _lastTime = 0
-  private _accumulator = 0
-  private _tickDuration: number
-  private _onTick: GameLoopCallback
-  private _onRender: GameLoopCallback
+  private _lastTickTime = 0
+  private _minFrameDuration: number // FPS上限による最小フレーム間隔
+  private _onTick: TickCallback
+  private _onRender: RenderCallback
   private _animationFrameId: number | undefined
   
   /** 一時停止状態 */
@@ -28,11 +28,11 @@ export class GameLoop {
   }
   
   public constructor(
-    targetFPS: number,
-    onTick: GameLoopCallback,
-    onRender: GameLoopCallback
+    maxFPS: number,
+    onTick: TickCallback,
+    onRender: RenderCallback
   ) {
-    this._tickDuration = 1000 / targetFPS
+    this._minFrameDuration = 1000 / maxFPS
     this._onTick = onTick
     this._onRender = onRender
   }
@@ -42,11 +42,13 @@ export class GameLoop {
     if (this._running) return
     
     this._running = true
-    this._lastTime = performance.now()
-    this._accumulator = 0
-    this.loop(this._lastTime)
+    this._lastTickTime = performance.now()
+    
+    // 初回レンダリング
+    this._onRender(0)
+    
+    this.loop()
   }
-  
   /** ゲームループを停止 */
   public stop(): void {
     this._running = false
@@ -65,41 +67,37 @@ export class GameLoop {
   public resume(): void {
     if (this._paused) {
       this._paused = false
-      this._lastTime = performance.now()
-      this._accumulator = 0
+      this._lastTickTime = performance.now()
     }
   }
   
-  /** FPS設定を更新 */
-  public setTargetFPS(fps: number): void {
-    this._tickDuration = 1000 / fps
+  /** FPS上限を更新 */
+  public setMaxFPS(fps: number): void {
+    this._minFrameDuration = 1000 / fps
   }
   
   /** メインループ */
-  private loop = (currentTime: number): void => {
+  private loop = (): void => {
     if (!this._running) return
     
+    const currentTime = performance.now()
+    
+    if (!this._paused) {
+      const timeSinceLastTick = currentTime - this._lastTickTime
+      
+      // FPS上限による最小フレーム間隔をチェック
+      if (timeSinceLastTick >= this._minFrameDuration) {
+        // tick処理を実行
+        this._onTick()
+        this._lastTickTime = currentTime
+        
+        // 描画更新（補間なし、常に0）
+        this._onRender(0)
+      }
+    }
+    
+    // 次のフレームをスケジュール
     this._animationFrameId = requestAnimationFrame(this.loop)
-    
-    if (this._paused) {
-      this._lastTime = currentTime
-      return
-    }
-    
-    const deltaTime = Math.min(currentTime - this._lastTime, 100) // 最大100ms
-    this._lastTime = currentTime
-    
-    this._accumulator += deltaTime
-    
-    // 固定タイムステップで物理更新
-    while (this._accumulator >= this._tickDuration) {
-      this._onTick(this._tickDuration / 1000)
-      this._accumulator -= this._tickDuration
-    }
-    
-    // 描画更新（補間あり）
-    const interpolation = this._accumulator / this._tickDuration
-    this._onRender(interpolation)
   }
 }
 
@@ -131,8 +129,10 @@ export class GameLoopController {
     this._worldState = worldState
     this._ticksPerFrame = worldState.state.parameters.ticksPerFrame
     
+    // FPS上限は60に固定（パラメータから読み取ることも可能）
+    const maxFPS = worldState.state.parameters.maxFPS ?? 60
     this._gameLoop = new GameLoop(
-      worldState.state.parameters.targetFPS,
+      maxFPS,
       this.onTick,
       this.onRender
     )
@@ -162,8 +162,8 @@ export class GameLoopController {
   public updateParameters(params: Partial<WorldParameters>): void {
     this._worldState.updateParameters(params)
     
-    if (params.targetFPS !== undefined) {
-      this._gameLoop.setTargetFPS(params.targetFPS)
+    if (params.maxFPS !== undefined) {
+      this._gameLoop.setMaxFPS(params.maxFPS)
     }
     
     if (params.ticksPerFrame !== undefined) {
@@ -172,7 +172,7 @@ export class GameLoopController {
   }
   
   /** tick処理 */
-  private onTick = (_deltaTime: number): void => {
+  private onTick = (): void => {
     // 指定回数分tickを実行
     for (let i = 0; i < this._ticksPerFrame; i++) {
       this._worldState.incrementTick()

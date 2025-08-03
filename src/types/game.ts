@@ -97,7 +97,7 @@ export type WorldParameters = {
   
   // シミュレーション
   ticksPerFrame: number
-  targetFPS: number
+  maxFPS?: number  // FPS上限（省略時は60）
 }
 
 /** エネルギーソース */
