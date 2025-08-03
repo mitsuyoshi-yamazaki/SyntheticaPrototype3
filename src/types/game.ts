@@ -34,7 +34,7 @@ export type GameObject = {
 
 /** エネルギーオブジェクト */
 export type EnergyObject = GameObject & {
-  readonly type: "ENERGY"
+  readonly type: EnergyType
 }
 
 /** ユニットの基本インターフェース */
@@ -46,7 +46,7 @@ export type Unit = GameObject & {
 
 /** HULLユニット */
 export type Hull = Unit & {
-  readonly type: "HULL"
+  readonly type: HullType
   readonly capacity: number // エネルギー格納容量
   storedEnergy: number // 格納中のエネルギー
   attachedUnits: ObjectId[] // 固定されているユニット
@@ -54,7 +54,7 @@ export type Hull = Unit & {
 
 /** ASSEMBLERユニット */
 export type Assembler = Unit & {
-  readonly type: "ASSEMBLER"
+  readonly type: AssemblerType
   readonly assemblePower: number // 組立能力
   isAssembling: boolean
   targetSpec?: UnitSpec // 組立中のユニット仕様
@@ -63,7 +63,7 @@ export type Assembler = Unit & {
 
 /** COMPUTERユニット */
 export type Computer = Unit & {
-  readonly type: "COMPUTER"
+  readonly type: ComputerType
   readonly processingPower: number // 処理能力（命令/tick）
   readonly memorySize: number // メモリサイズ（バイト）
   memory: Uint8Array // メモリ内容
@@ -146,7 +146,7 @@ export type AgentDefinition = {
     position?: Vec2
   }
   units: {
-    type: "ASSEMBLER" | "COMPUTER"
+    type: AssemblerType | ComputerType
     buildEnergy: number
     assemblePower?: number
     processingPower?: number
