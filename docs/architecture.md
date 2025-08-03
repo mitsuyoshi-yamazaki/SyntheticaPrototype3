@@ -28,6 +28,7 @@
 ### 1. Game Engine Core (`/src/engine/`)
 
 #### World State Manager
+
 - ゲーム世界の状態管理
 - トーラス座標系の実装
 - オブジェクトのライフサイクル管理
@@ -44,6 +45,7 @@ interface WorldState {
 ```
 
 #### Object System
+
 - 全ゲームオブジェクトの基底実装
 - 円形オブジェクトの統一インターフェース
 
@@ -61,10 +63,12 @@ interface GameObject {
 ### 2. Physics Engine (`/src/physics/`)
 
 #### Collision Detection
+
 - 空間ハッシュグリッド（セルサイズ: 100）
 - 円形オブジェクト専用の最適化
 
 #### Force System
+
 - 反発力計算（tanh関数による制限）
 - 方向性力場の実装
 - トーラス境界の処理
@@ -72,46 +76,53 @@ interface GameObject {
 ### 3. Energy System (`/src/energy/`)
 
 #### Energy Objects
+
 - エネルギーオブジェクトの生成・結合
 - サイズ計算（radius = sqrt(energy/π)）
 
 #### Energy Sources
+
 - ランダム位置生成
 - 10-100E/tickの生成
 
 #### Heat System
+
 - セルオートマトンベースの熱拡散
 - ノイマン近傍での熱流計算
 
 ### 4. Unit System (`/src/units/`)
 
 #### Unit Types
+
 - HULL: コンテナユニット
 - ASSEMBLER: 構築ユニット
 - COMPUTER: 演算ユニット
 - （将来: SENSOR, MOVER, CONNECTOR）
 
 #### Unit Behaviors
+
 - 各ユニットタイプ固有の動作
 - エネルギー消費計算
 
 ### 5. Synthetica Script VM (`/src/vm/`)
 
 #### Virtual Machine
+
 - 16bitアーキテクチャ
 - レジスタベース命令セット
 - メモリ管理（最大64KB）
 
 ```typescript
 interface VMState {
-  registers: Uint16Array  // 8 registers
-  memory: Uint8Array      // up to 64KB
-  pc: number              // program counter
+  registers: Uint16Array // 8 registers
+  memory: Uint8Array // up to 64KB
+  pc: number // program counter
   flags: VMFlags
 }
 ```
 
 #### Instruction Set
+
 - 基本演算命令
 - ビット操作命令
 - ユニット制御命令
@@ -120,12 +131,14 @@ interface VMState {
 ### 6. Rendering System (`/src/rendering/`)
 
 #### PixiJS Integration
+
 - WebGLベースの高速描画
 - バッチレンダリング（10,000+オブジェクト対応）
 - カスタムViewport実装（パン・ズーム）
 - レイヤー管理とデバッグオーバーレイ
 
 #### Optimization
+
 - 可視範囲カリング
 - LODシステム
 - オブジェクトプーリング
@@ -133,15 +146,18 @@ interface VMState {
 ### 7. UI Components (`/src/components/`)
 
 #### Control Panel
+
 - 一時停止/再開
 - シミュレーション速度調整
 - 統計情報表示
 
 #### Parameter Editor
+
 - リアルタイムパラメータ調整
 - プリセット管理
 
 #### Debug Tools
+
 - オブジェクトインスペクター
 - VMステートビューア
 - パフォーマンスモニター
@@ -163,16 +179,19 @@ Renderer    Physics Engine   Energy System
 ## パフォーマンス最適化
 
 ### メモリ管理
+
 - オブジェクトプール使用
 - TypedArray活用
 - 最大10,000オブジェクト制限
 
 ### 計算最適化
+
 - 空間分割による衝突判定
 - ビット演算活用（1024進法計算）
 - 不要な平方根計算の回避
 
 ### 描画最適化
+
 - requestAnimationFrame使用
 - 可視範囲外のオブジェクトスキップ
 - バッチ描画
@@ -181,7 +200,7 @@ Renderer    Physics Engine   Energy System
 
 ```typescript
 interface InitialConfiguration {
-  worldSize: { width: number, height: number }
+  worldSize: { width: number; height: number }
   parameters: WorldParameters
   initialAgents: AgentDefinition[]
 }
@@ -204,16 +223,16 @@ interface WorldParameters {
   maxForce: number
   forceScale: number
   friction: number
-  
+
   // Energy
   energySourceCount: number
   energySourceMinRate: number
   energySourceMaxRate: number
-  
+
   // Heat
   heatDiffusionRate: number
   heatRadiationRate: number
-  
+
   // Simulation
   ticksPerFrame: number
   targetFPS: number
@@ -229,17 +248,19 @@ interface WorldParameters {
 ## 拡張性
 
 ### エージェント定義インターフェース
+
 ```typescript
 interface AgentDefinition {
   name: string
   hull: HullSpec
   units: UnitSpec[]
-  program: Uint8Array  // Synthetica Script bytecode
+  program: Uint8Array // Synthetica Script bytecode
   position?: Vec2
 }
 ```
 
 ### プラグインシステム（将来）
+
 - カスタムユニットタイプ
 - 追加の物理法則
 - 拡張描画モード

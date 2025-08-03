@@ -16,11 +16,11 @@
 
 ユニットは以下のいずれかの状態を持ちます：
 
-| 状態 | 説明 | 回路接続 |
-|------|------|----------|
-| HULL固定状態 | HULLの外側または内側に物理的に固定 | 可能 |
-| HULL格納状態 | HULLの内部空間に格納（固定ではない） | 不可 |
-| 自由状態 | 座標を持ってゲーム世界を漂う | 不可 |
+| 状態         | 説明                                 | 回路接続 |
+| ------------ | ------------------------------------ | -------- |
+| HULL固定状態 | HULLの外側または内側に物理的に固定   | 可能     |
+| HULL格納状態 | HULLの内部空間に格納（固定ではない） | 不可     |
+| 自由状態     | 座標を持ってゲーム世界を漂う         | 不可     |
 
 ### 回路接続の成立条件
 
@@ -38,7 +38,7 @@
 
 ### v3での変更点
 
-- **廃止理由**: 
+- **廃止理由**:
   - HULLへ能動的にユニットを追加できるのは、既に接続済みのASSEMBLERのみ
   - 他者のHULLへのアクセス手段が存在しない
   - 現状では機能しない仕様となっている
@@ -65,11 +65,11 @@ if (sameHull(source, target)) {
 
 ### ユニット種別コード
 
-| ユニット種別 | コード | 説明 |
-|-------------|--------|------|
-| HULL | 0x00 | 基本構造体 |
-| ASSEMBLER | 0x40 | 生産ユニット |
-| COMPUTER | 0xC0 | 演算ユニット |
+| ユニット種別 | コード | 説明         |
+| ------------ | ------ | ------------ |
+| HULL         | 0x00   | 基本構造体   |
+| ASSEMBLER    | 0x40   | 生産ユニット |
+| COMPUTER     | 0xC0   | 演算ユニット |
 
 ### ユニットインデックス
 
@@ -100,10 +100,10 @@ struct Hull {
     uint32 id;
     Vec2 position;
     uint16 capacity;
-    
+
     // 固定ユニットリスト（回路接続可能）
     Unit[] attachedUnits;
-    
+
     // 格納オブジェクト（回路接続不可）
     GameObject[] containedObjects;
 }
@@ -124,7 +124,7 @@ function canAccess(sourceUnit, targetUnit) {
     if (!sourceUnit.isAttached || !targetUnit.isAttached) {
         return false;
     }
-    
+
     // 同一HULLに固定されているか確認
     return sourceUnit.parentHull == targetUnit.parentHull;
 }

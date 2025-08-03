@@ -22,13 +22,13 @@
 
 ### 熱を発生させる活動
 
-| 活動 | 発生熱量 |
-|------|----------|
-| ユニット生産 | 生産エネルギー |
-| ユニット修復 | 修復に使用したエネルギー × 1.1 |
-| COMPUTER動作 | 命令実行数 × 動作コスト |
-| HULLマージ | マージコスト |
-| その他のアクション | 消費エネルギー量 |
+| 活動               | 発生熱量                       |
+| ------------------ | ------------------------------ |
+| ユニット生産       | 生産エネルギー                 |
+| ユニット修復       | 修復に使用したエネルギー × 1.1 |
+| COMPUTER動作       | 命令実行数 × 動作コスト        |
+| HULLマージ         | マージコスト                   |
+| その他のアクション | 消費エネルギー量               |
 
 ## 2. 熱の拡散・平衡化
 
@@ -51,24 +51,24 @@ netHeatFlow = 0
 
 for each neighbor in [north, south, east, west]:
     neighborHeat = heatMap[neighbor.x][neighbor.y]
-    
+
     // 各セルの1/4を基準熱量とする
     baseHeat = floor(currentHeat / 4)
     neighborBaseHeat = floor(neighborHeat / 4)
-    
+
     // 熱量差
     heatDifference = neighborBaseHeat - baseHeat
-    
+
     // 移動熱量の計算（差の1/3を移動）
     // 正の値: 隣接セルから流入
     // 負の値: 隣接セルへ流出
     heatFlow = floor(heatDifference / 3)
-    
+
     // 移動量の制限（差の半分未満）
     maxFlow = floor(abs(heatDifference) / 2) - 1
     if abs(heatFlow) > maxFlow:
         heatFlow = sign(heatFlow) * maxFlow
-    
+
     netHeatFlow += heatFlow
 
 // 次tickの熱量
@@ -135,7 +135,7 @@ HEAT_DAMAGE_THRESHOLD = 100  // 100度を超えるとダメージ
 
 if cellHeat > HEAT_DAMAGE_THRESHOLD:
     damagePerTick = ceil(cellHeat - HEAT_DAMAGE_THRESHOLD)
-    
+
     // ユニット状態による倍率
     if unit.isDamaged():  // 構成エネルギー50%以下
         damagePerTick *= 2
@@ -217,51 +217,53 @@ DAMAGE_MULTIPLIER_PRODUCING = 3  // 生産中の倍率
 
 ```javascript
 function updateHeatDiffusion(heatGrid, width, height) {
-    const newHeat = Array(height).fill().map(() => Array(width).fill(0));
-    
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            const currentHeat = heatGrid[y][x];
-            let netFlow = 0;
-            
-            // 4方向の隣接セルとの熱交換
-            const neighbors = [
-                {x: x, y: (y - 1 + height) % height},  // 北
-                {x: x, y: (y + 1) % height},           // 南
-                {x: (x - 1 + width) % width, y: y},   // 西
-                {x: (x + 1) % width, y: y}            // 東
-            ];
-            
-            for (const neighbor of neighbors) {
-                const neighborHeat = heatGrid[neighbor.y][neighbor.x];
-                
-                // 基準熱量
-                const baseHeat = Math.floor(currentHeat / 4);
-                const neighborBaseHeat = Math.floor(neighborHeat / 4);
-                
-                // 熱流量
-                const diff = neighborBaseHeat - baseHeat;
-                let flow = Math.floor(diff / 3);
-                
-                // 流量制限
-                const maxFlow = Math.floor(Math.abs(diff) / 2) - 1;
-                if (Math.abs(flow) > maxFlow && maxFlow > 0) {
-                    flow = Math.sign(flow) * maxFlow;
-                }
-                
-                netFlow += flow;
-            }
-            
-            // 流出制限チェック
-            if (netFlow < 0 && Math.abs(netFlow) > currentHeat) {
-                netFlow = -currentHeat;
-            }
-            
-            newHeat[y][x] = currentHeat + netFlow;
+  const newHeat = Array(height)
+    .fill()
+    .map(() => Array(width).fill(0))
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const currentHeat = heatGrid[y][x]
+      let netFlow = 0
+
+      // 4方向の隣接セルとの熱交換
+      const neighbors = [
+        { x: x, y: (y - 1 + height) % height }, // 北
+        { x: x, y: (y + 1) % height }, // 南
+        { x: (x - 1 + width) % width, y: y }, // 西
+        { x: (x + 1) % width, y: y }, // 東
+      ]
+
+      for (const neighbor of neighbors) {
+        const neighborHeat = heatGrid[neighbor.y][neighbor.x]
+
+        // 基準熱量
+        const baseHeat = Math.floor(currentHeat / 4)
+        const neighborBaseHeat = Math.floor(neighborHeat / 4)
+
+        // 熱流量
+        const diff = neighborBaseHeat - baseHeat
+        let flow = Math.floor(diff / 3)
+
+        // 流量制限
+        const maxFlow = Math.floor(Math.abs(diff) / 2) - 1
+        if (Math.abs(flow) > maxFlow && maxFlow > 0) {
+          flow = Math.sign(flow) * maxFlow
         }
+
+        netFlow += flow
+      }
+
+      // 流出制限チェック
+      if (netFlow < 0 && Math.abs(netFlow) > currentHeat) {
+        netFlow = -currentHeat
+      }
+
+      newHeat[y][x] = currentHeat + netFlow
     }
-    
-    return newHeat;
+  }
+
+  return newHeat
 }
 ```
 

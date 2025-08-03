@@ -6,11 +6,11 @@
 export type ObjectId = number & { readonly __brand: "ObjectId" }
 
 /** ゲームオブジェクトの種別 */
-export type ObjectType = 
-  | "ENERGY"      // エネルギーオブジェクト
-  | "HULL"        // HULLユニット
-  | "ASSEMBLER"   // ASSEMBLERユニット
-  | "COMPUTER"    // COMPUTERユニット
+export type ObjectType =
+  | "ENERGY" // エネルギーオブジェクト
+  | "HULL" // HULLユニット
+  | "ASSEMBLER" // ASSEMBLERユニット
+  | "COMPUTER" // COMPUTERユニット
 
 /** 2次元ベクトル */
 export type Vec2 = {
@@ -36,17 +36,17 @@ export type EnergyObject = GameObject & {
 
 /** ユニットの基本インターフェース */
 export type Unit = GameObject & {
-  readonly buildEnergy: number  // 構成エネルギー
-  currentEnergy: number         // 現在のエネルギー（ダメージを受けると減少）
+  readonly buildEnergy: number // 構成エネルギー
+  currentEnergy: number // 現在のエネルギー（ダメージを受けると減少）
   readonly parentHull?: ObjectId // 所属するHULL
 }
 
 /** HULLユニット */
 export type Hull = Unit & {
   readonly type: "HULL"
-  readonly capacity: number     // エネルギー格納容量
-  storedEnergy: number         // 格納中のエネルギー
-  attachedUnits: ObjectId[]    // 固定されているユニット
+  readonly capacity: number // エネルギー格納容量
+  storedEnergy: number // 格納中のエネルギー
+  attachedUnits: ObjectId[] // 固定されているユニット
 }
 
 /** ASSEMBLERユニット */
@@ -54,18 +54,18 @@ export type Assembler = Unit & {
   readonly type: "ASSEMBLER"
   readonly assemblePower: number // 組立能力
   isAssembling: boolean
-  targetSpec?: UnitSpec         // 組立中のユニット仕様
-  progress: number              // 組立進捗（0-1）
+  targetSpec?: UnitSpec // 組立中のユニット仕様
+  progress: number // 組立進捗（0-1）
 }
 
 /** COMPUTERユニット */
 export type Computer = Unit & {
   readonly type: "COMPUTER"
   readonly processingPower: number // 処理能力（命令/tick）
-  readonly memorySize: number      // メモリサイズ（バイト）
-  memory: Uint8Array              // メモリ内容
-  programCounter: number          // プログラムカウンタ
-  registers: Uint16Array          // レジスタ（8個）
+  readonly memorySize: number // メモリサイズ（バイト）
+  memory: Uint8Array // メモリ内容
+  programCounter: number // プログラムカウンタ
+  registers: Uint16Array // レジスタ（8個）
 }
 
 /** ユニット仕様（組立用） */
@@ -73,10 +73,10 @@ export type UnitSpec = {
   type: ObjectType
   buildEnergy: number
   // タイプ別の追加パラメータ
-  capacity?: number         // HULL用
-  assemblePower?: number    // ASSEMBLER用
-  processingPower?: number  // COMPUTER用
-  memorySize?: number      // COMPUTER用
+  capacity?: number // HULL用
+  assemblePower?: number // ASSEMBLER用
+  processingPower?: number // COMPUTER用
+  memorySize?: number // COMPUTER用
 }
 
 /** ワールドパラメータ */
@@ -85,19 +85,19 @@ export type WorldParameters = {
   maxForce: number
   forceScale: number
   friction: number
-  
+
   // エネルギー
   energySourceCount: number
   energySourceMinRate: number
   energySourceMaxRate: number
-  
+
   // 熱
   heatDiffusionRate: number
   heatRadiationRate: number
-  
+
   // シミュレーション
   ticksPerFrame: number
-  maxFPS?: number  // FPS上限（省略時は60）
+  maxFPS?: number // FPS上限（省略時は60）
 }
 
 /** エネルギーソース */
@@ -114,7 +114,7 @@ export type DirectionalForceField = {
   position: Vec2
   radius: number
   strength: number
-  direction?: Vec2  // LINEAR用
+  direction?: Vec2 // LINEAR用
 }
 
 /** 空間ハッシュグリッドのセル */

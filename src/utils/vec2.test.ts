@@ -166,7 +166,7 @@ describe("Vec2", () => {
     })
 
     test("270度の場合", () => {
-      const v = Vec2.fromAngle(Math.PI * 3 / 2)
+      const v = Vec2.fromAngle((Math.PI * 3) / 2)
       expect(v.x).toBeCloseTo(0)
       expect(v.y).toBeCloseTo(-1)
     })

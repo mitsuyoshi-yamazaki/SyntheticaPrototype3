@@ -10,7 +10,7 @@ Synthetica v3.0.0の16bitアーキテクチャでは、最大65,536バイトの�
 
 ```
 0x0000 - 0x3FFF: プログラムコード領域（16KB）
-0x4000 - 0xDFFF: データ・ヒープ領域（40KB）  
+0x4000 - 0xDFFF: データ・ヒープ領域（40KB）
 0xE000 - 0xFFFF: スタック領域（8KB）
 ```
 
@@ -78,26 +78,26 @@ heap_limit:
 allocate_memory:
     PUSH_B
     PUSH_C
-    
+
     ; 現在のヒープポインタを取得
     MOV B, [heap_current]
-    
+
     ; 新しいヒープポインタを計算
     MOV C, B
     ADD C, A
-    
+
     ; ヒープ上限チェック
     CMP C, #heap_limit
     BGT allocation_failed
-    
+
     ; 割り当て成功
     MOV [heap_current], C
     MOV A, B    ; 割り当てられたアドレスを返す
     JMP allocation_done
-    
+
 allocation_failed:
     MOV A, #0   ; 失敗を示す
-    
+
 allocation_done:
     POP_C
     POP_B
@@ -112,7 +112,7 @@ allocation_done:
 ; 固定サイズ配列の定義
 data_array:
     .space 100    ; 100バイトの配列
-    
+
 ; 配列アクセス（境界チェック付き）
 ; 入力: A = インデックス
 array_access:
@@ -150,11 +150,11 @@ check_write_permission:
     BGE write_to_stack
     ; データ領域への書き込みは許可
     RET
-    
+
 write_denied:
     ; エラー処理
     JMP error_handler
-    
+
 write_to_stack:
     ; スタック領域への書き込みは特別な処理
     RET
@@ -168,9 +168,9 @@ function_prologue:
     PUSH_A
     MOV A, #0xDEAD    ; カナリア値
     PUSH_A
-    
+
     ; 関数本体
-    
+
 function_epilogue:
     POP_A
     CMP A, #0xDEAD
@@ -190,9 +190,9 @@ allocate_resource:
     MOV A, #resource_size
     CALL allocate_memory
     MOV [resource_ptr], A
-    
+
     ; 使用
-    
+
 free_resource:
     ; メモリ解放（簡易実装では解放しない）
     ; より高度な実装では解放リストを管理
@@ -208,17 +208,17 @@ free_resource:
 memory_dump:
     PUSH_C
     MOV C, #0
-    
+
 dump_loop:
     CMP C, B
     BGE dump_done
-    
+
     ; メモリ内容を読み出して出力（実装依存）
     ; [A + C]の内容を表示
-    
+
     INC C
     JMP dump_loop
-    
+
 dump_done:
     POP_C
     RET

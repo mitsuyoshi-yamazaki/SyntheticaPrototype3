@@ -20,7 +20,7 @@ HULL_ADDRESS_CURRENT_LOAD    ; 現在の格納量
 HULL_ADDRESS_ENERGY_AMOUNT   ; エネルギー保有量
 HULL_ADDRESS_MERGE_TARGET    ; マージ対象HULL ID
 
-; ASSEMBLER メモリマップ  
+; ASSEMBLER メモリマップ
 ASSEMBLER_ADDRESS_STATUS     ; 状態（稼働中/待機中）
 ASSEMBLER_ADDRESS_UNIT_TYPE  ; 生産ユニット種別
 ASSEMBLER_ADDRESS_PARAM1     ; 生産パラメータ1
@@ -61,12 +61,12 @@ GROWTH_PHASE:
 0x06: UNIT_MEM_READ
 0x07: 0x00                    ; HULL[0]
 0x08: HULL_ADDRESS_CAPACITY   ; 容量取得
-    
+
     ; 200と比較（REPRODUCTION_HULL_CAPACITY）
 0x09: MOV_AB                  ; A→B（容量を保存）
 0x0A: LOAD_IMM
 0x0B: 0xC8                    ; 200（仮の値として8bitに収まるよう200を使用）
-    
+
 0x0D: XCHG                    ; A↔B
 0x0E: CMP_AB                  ; 容量 - 200
 0x0F: JG                      ; 容量 > 200なら
@@ -110,12 +110,12 @@ EXPAND_HULL:
 ; --- アセンブル待機ループ ---
 WAIT_EXPAND_ASSEMBLY:
 0x2A: NOP0 NOP0 NOP1 NOP1    ; テンプレート: 0011
-    
+
     ; is_assembling(0)のチェック
 0x2E: UNIT_MEM_READ
 0x2F: 0x40                    ; ASSEMBLER[0]
 0x30: ASSEMBLER_ADDRESS_STATUS
-    
+
 0x31: JZ                      ; 待機中（0）なら
 0x32: 0x08                    ; CHECK_EXPAND_RESULTへ
 
@@ -131,7 +131,7 @@ CHECK_EXPAND_RESULT:
 0x3B: UNIT_MEM_READ
 0x3C: 0x40                    ; ASSEMBLER[0]
 0x3D: ASSEMBLER_ADDRESS_LAST_TYPE
-    
+
 0x3E: MOV_AB                  ; A→B
 0x3F: LOAD_IMM
 0x40: UNIT_TYPE_HULL
@@ -143,12 +143,12 @@ CHECK_EXPAND_RESULT:
 0x44: UNIT_MEM_READ
 0x45: 0x40                    ; ASSEMBLER[0]
 0x46: ASSEMBLER_ADDRESS_LAST_INDEX
-    
+
     ; マージ実行（両HULLで相互指定が必要）
 0x47: UNIT_MEM_WRITE          ; 新HULLから親を指定
 0x48: 0x00                    ; HULL[取得したindex] ※動的に決まる
 0x49: HULL_ADDRESS_MERGE_TARGET
-    
+
 0x4A: LOAD_IMM
 0x4B: 0x00                    ; ※実際は新HULLのindexを指定
 0x4C: UNIT_MEM_WRITE
@@ -208,7 +208,7 @@ REPRODUCTION_LOOP:
 ; --- 待機ループ ---
 WAIT_HULL_ASSEMBLY:
 0x74: NOP0 NOP1 NOP0 NOP1    ; テンプレート: 0101
-    
+
 0x78: UNIT_MEM_READ
 0x79: 0x40
 0x7A: ASSEMBLER_ADDRESS_STATUS
@@ -245,7 +245,7 @@ CHECK_HULL_RESULT:
     ; （同様のパターンなので省略表記）
 0x94: ; reset → assemble → wait → check の処理
     ; ...
-    
+
     ; --- 娘COMPUTER作成 ---
 0xA0: ; reset → assemble → wait → check の処理
     ; ...
@@ -276,7 +276,7 @@ MEMORY_TRANSFER:
 
 TRANSFER_LOOP:
 0xC3: NOP1 NOP1 NOP1 NOP0    ; テンプレート: 1110
-    
+
     ; 自メモリ読み取り
 0xC7: LOAD_ABS
 0xC8: 0xF2                    ; memory_address
@@ -284,14 +284,14 @@ TRANSFER_LOOP:
 0xCA: MOV_AB                  ; アドレスをBへ
 0xCB: LOAD_IND                ; Memory[B]を読む
 0xCC: 0x00
-    
+
     ; 子COMPUTERへ書き込み
 0xCD: MOV_AB                  ; 値を一時保存
 0xCE: LOAD_ABS
 0xCF: 0xF2                    ; memory_address
 0xD0: 0x00
 0xD1: ; ※ここで動的アドレス指定が必要（現仕様では困難）
-    
+
     ; memory_address++
 0xD5: LOAD_ABS
 0xD6: 0xF2
@@ -300,7 +300,7 @@ TRANSFER_LOOP:
 0xD9: STORE_ABS
 0xDA: 0xF2
 0xDB: 0x00
-    
+
     ; memory_address <= memory_sizeチェック
 0xDC: MOV_AB
 0xDD: LOAD_ABS
@@ -372,7 +372,7 @@ GROWTH_PHASE:
 0x06: UNIT_MEM_READ
 0x07: 0x00                    ; HULL[0]
 0x08: 0x01                    ; 最大容量
-    
+
 0x09: MOV_AB
 0x0A: LOAD_IMM
 0x0B: 0xC8                    ; 200（REPRODUCTION_HULL_CAPACITY）
@@ -536,14 +536,14 @@ MEMORY_TRANSFER:
 TRANSFER_LOOP:
 0x9A: LOAD_REG                ; A = Memory[B]
 0x9B: 0x01                    ; Bレジスタ
-    
+
 0x9C: UNIT_MEM_WRITE_REG      ; 子COMPUTERへ書き込み
 0x9D: 0x3C                    ; D、C
 0x9E: 0x00
-    
+
 0x9F: INC_B
 0xA0: INC_C
-    
+
     ; 終了判定
 0xA1: MOV_BA
 0xA2: LOAD_ABS
@@ -594,18 +594,23 @@ DETACH_CHILD:
 ## 改善点
 
 ### 1. 動的インデックス指定 ✅
+
 - レジスタベース命令により、`child_hull_index`などの変数でユニット指定が可能に
 
 ### 2. 動的メモリアドレス ✅
+
 - `UNIT_MEM_WRITE_REG`でCレジスタを使用し、メモリアドレスを動的に指定
 
 ### 3. detach操作 ✅
+
 - HULLメモリマップに追加されたdetach操作を使用
 
 ### 4. プログラムサイズ
+
 - 現在約192バイト（0xC0）で256バイト以内に収まる
 - さらなる最適化も可能
 
 ### 5. 効率性
+
 - レジスタベース命令により、ループ処理が大幅に簡潔化
 - メモリアクセス回数の削減

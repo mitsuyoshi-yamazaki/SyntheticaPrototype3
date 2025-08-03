@@ -8,12 +8,12 @@
 
 ### プロパティ
 
-| プロパティ | 型 | 説明 | 値 |
-|-----------|------|------|-----|
-| position | Vec2 | 固定位置座標 | 初期配置時に決定 |
+| プロパティ    | 型     | 説明                | 値                   |
+| ------------- | ------ | ------------------- | -------------------- |
+| position      | Vec2   | 固定位置座標        | 初期配置時に決定     |
 | energyPerTick | uint16 | 1tickあたりの生成量 | 10〜100E（ランダム） |
-| id | uint32 | ユニークID | 自動割り当て |
-| isActive | bool | 生成有効フラグ | true（常時） |
+| id            | uint32 | ユニークID          | 自動割り当て         |
+| isActive      | bool   | 生成有効フラグ      | true（常時）         |
 
 ### 特性
 
@@ -43,7 +43,7 @@ for each energySource in world:
     if energySource.isActive:
         position = energySource.position
         amount = energySource.energyPerTick
-        
+
         if isPositionOccupied(position):
             nearestEmpty = findNearestEmptyPosition(position)
             if nearestEmpty != null:
@@ -83,19 +83,19 @@ for each energySource in world:
 function checkEnergyMerge(energy1, energy2):
     if !areAdjacent(energy1, energy2):
         return false
-    
+
     velocityDiff = magnitude(energy1.velocity - energy2.velocity)
     if velocityDiff > 10:
         return false
-    
+
     // 結合実行
     newEnergy = energy1.amount + energy2.amount
     newPosition = weightedCenter(energy1, energy2)
-    
+
     removeObject(energy1)
     removeObject(energy2)
     createEnergyObject(newPosition, newEnergy, velocity=Vec2(0,0))
-    
+
     return true
 ```
 
@@ -106,14 +106,14 @@ function checkEnergyMerge(energy1, energy2):
 ```
 function findNearestEmptyPosition(center):
     maxRadius = 50  // 探索範囲の制限
-    
+
     for radius in range(1, maxRadius):
         // 8方向を距離順に探索
         for angle in [0, 45, 90, 135, 180, 225, 270, 315]:
             position = center + polarToCartesian(radius, angle)
             if !isPositionOccupied(position):
                 return position
-    
+
     return null  // 空き位置なし
 ```
 
@@ -138,21 +138,21 @@ MIN_DISTANCE_BETWEEN_SOURCES = 50  // 最小間隔（オプション）
 ```
 function placeEnergySources(worldWidth, worldHeight, count):
     sources = []
-    
+
     for i in range(count):
         // ランダム配置
         x = random(0, worldWidth)
         y = random(0, worldHeight)
         energyPerTick = random(10, 100)
-        
+
         source = EnergySource(
             position: Vec2(x, y),
             energyPerTick: energyPerTick,
             id: generateUniqueId()
         )
-        
+
         sources.append(source)
-    
+
     return sources
 ```
 

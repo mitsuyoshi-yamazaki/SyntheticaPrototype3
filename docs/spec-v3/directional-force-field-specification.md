@@ -14,17 +14,18 @@ Synthetica v3では、移動ユニット（MOVER）の代わりに、環境要�
 
 ### プロパティ
 
-| プロパティ | 型 | 説明 | 値の範囲 |
-|-----------|------|------|----------|
-| position | Vec2 | 領域の中心座標 | ワールド座標 |
-| radius | uint16 | 影響半径 | 10〜500 |
-| forceVector | Vec2 | 力の方向と大きさ | 各成分 -100〜100 |
-| fieldType | enum | 力場のタイプ | LINEAR, RADIAL, SPIRAL |
-| isActive | bool | 有効フラグ | true/false |
+| プロパティ  | 型     | 説明             | 値の範囲               |
+| ----------- | ------ | ---------------- | ---------------------- |
+| position    | Vec2   | 領域の中心座標   | ワールド座標           |
+| radius      | uint16 | 影響半径         | 10〜500                |
+| forceVector | Vec2   | 力の方向と大きさ | 各成分 -100〜100       |
+| fieldType   | enum   | 力場のタイプ     | LINEAR, RADIAL, SPIRAL |
+| isActive    | bool   | 有効フラグ       | true/false             |
 
 ### 力場タイプ
 
 #### 1. LINEAR（線形力場）
+
 - 領域内の全オブジェクトに同一方向・同一大きさの力を与える
 - 用途：一方向の流れ、風のような効果
 
@@ -33,6 +34,7 @@ force = forceVector  // 全位置で一定
 ```
 
 #### 2. RADIAL（放射状力場）
+
 - 中心から外側（または内側）に向かう力
 - 用途：噴出、吸引効果
 
@@ -42,6 +44,7 @@ force = direction * forceMagnitude
 ```
 
 #### 3. SPIRAL（渦巻き力場）
+
 - 回転しながら中心に向かう（または離れる）力
 - 用途：渦、竜巻効果
 
@@ -61,13 +64,13 @@ distance = magnitude(object.position - field.position)
 if (distance <= field.radius):
     // 力場の強度計算（距離による減衰）
     strength = 1.0 - (distance / field.radius) * 0.5  // 中心で100%、端で50%
-    
+
     // 力の計算
     appliedForce = field.calculateForce(object.position) * strength
-    
+
     // 加速度の計算（F = ma より a = F/m）
     acceleration = appliedForce / object.mass
-    
+
     // オブジェクトの加速度に追加
     object.acceleration += acceleration
 ```
@@ -96,19 +99,19 @@ MIN_FIELD_DISTANCE = 200   // 力場間の最小距離
 
 function placeForceFields(world):
     fields = []
-    
+
     for i in range(FORCE_FIELD_COUNT):
         // ランダム配置
         position = Vec2(
             random(0, world.width),
             random(0, world.height)
         )
-        
+
         // パラメータのランダム生成
         radius = random(50, 300)
         forceMagnitude = random(10, 50)
         forceAngle = random(0, 2 * PI)
-        
+
         field = DirectionalForceField(
             position: position,
             radius: radius,
@@ -118,9 +121,9 @@ function placeForceFields(world):
             ),
             fieldType: randomChoice([LINEAR, RADIAL, SPIRAL])
         )
-        
+
         fields.append(field)
-    
+
     return fields
 ```
 
@@ -135,16 +138,16 @@ function physicsPhase():
     for object in gameObjects:
         // 既存の力（反発力など）
         object.acceleration = calculateExistingForces(object)
-        
+
         // 力場からの力を追加
         for field in forceFields:
             if field.isActive and field.contains(object.position):
                 force = field.calculateForce(object.position)
                 object.acceleration += force / object.mass
-        
+
         // 速度更新
         object.velocity += object.acceleration * deltaTime
-        
+
         // 摩擦による減速
         object.velocity *= FRICTION_COEFFICIENT  // 0.95〜0.99
 ```
@@ -159,14 +162,14 @@ GRID_SIZE = 100
 
 function updateFieldGrid():
     fieldGrid = {}
-    
+
     for field in forceFields:
         // 影響範囲のグリッドセルを計算
         minX = floor((field.position.x - field.radius) / GRID_SIZE)
         maxX = ceil((field.position.x + field.radius) / GRID_SIZE)
         minY = floor((field.position.y - field.radius) / GRID_SIZE)
         maxY = ceil((field.position.y + field.radius) / GRID_SIZE)
-        
+
         // 該当グリッドに登録
         for x in range(minX, maxX + 1):
             for y in range(minY, maxY + 1):
@@ -186,7 +189,7 @@ function precomputeFieldInfluences():
             floor(object.position.x / GRID_SIZE),
             floor(object.position.y / GRID_SIZE)
         )
-        
+
         object.affectingFields = []
         if gridKey in fieldGrid:
             for field in fieldGrid[gridKey]:
@@ -203,7 +206,7 @@ function precomputeFieldInfluences():
 function renderForceField(field):
     // 外周円
     drawCircle(field.position, field.radius, alpha=0.2)
-    
+
     // 力の方向を矢印で表示
     if field.fieldType == LINEAR:
         // グリッド状に矢印を配置
@@ -211,7 +214,7 @@ function renderForceField(field):
             for y in gridPoints:
                 if field.contains(Vec2(x, y)):
                     drawArrow(Vec2(x, y), field.forceVector)
-    
+
     else if field.fieldType == RADIAL:
         // 放射状の矢印
         for angle in range(0, 360, 30):

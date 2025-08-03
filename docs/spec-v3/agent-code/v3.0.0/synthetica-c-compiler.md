@@ -39,11 +39,13 @@ typedef uint32_t energy_t;  // 1024進法エネルギー値
 ### コンパイル例
 
 #### 例1: 単純な加算（C言語）
+
 ```c
 energy_t total = energy1 + energy2;
 ```
 
 **コンパイラが生成するアセンブリ（最適化なし）**:
+
 ```assembly
 ; energy1が[A,B]、energy2が[C,D]に格納されている場合
 ADD_AB      ; 下位を加算: B = B + D
@@ -54,12 +56,14 @@ ADD_AC      ; 上位を加算: A = A + C
 ```
 
 **コンパイラが生成するアセンブリ（最適化あり）**:
+
 ```assembly
 ; 専用命令を使用
 ADD_E32     ; エネルギー32bit加算（自動的にキャリー処理）
 ```
 
 #### 例2: 概算計算（上位のみ）
+
 ```c
 // プログラマが明示的に上位のみで計算
 if (ENERGY_HIGH(current_energy) > ENERGY_HIGH(required_energy)) {
@@ -68,17 +72,19 @@ if (ENERGY_HIGH(current_energy) > ENERGY_HIGH(required_energy)) {
 ```
 
 **生成されるアセンブリ**:
+
 ```assembly
 ; current_energyの上位のみロード
 SHR_E10     ; 1024で除算（上位16bit取得）
 MOVE_AB     ; Bに保存
-; required_energyの上位のみロード  
+; required_energyの上位のみロード
 SHR_E10
 CMP_AB      ; 上位16bitのみで比較
 JG enough_energy
 ```
 
 #### 例3: 精密な計算が必要な場合
+
 ```c
 // エネルギー不足を正確に判定
 energy_t deficit = required_energy - current_energy;
@@ -88,6 +94,7 @@ if (deficit > 0) {
 ```
 
 **生成されるアセンブリ**:
+
 ```assembly
 SUB_E32     ; 32bitエネルギー減算（ボロー処理込み）
 CMP_E32     ; 32bit比較
@@ -95,12 +102,14 @@ JG energy_shortage
 ```
 
 #### 例4: エネルギー計算命令の詳細な使用例
+
 ```c
 // エネルギー加算
 energy_t total = energy1 + energy2;
 ```
 
 **アセンブリ（A,Bにenergy1、C,Dにenergy2が格納済み）**:
+
 ```assembly
 ADD_E32     ; A,B = A,B + C,D（1024進法キャリー処理自動）
 ```
@@ -113,6 +122,7 @@ if (current_energy >= required_energy) {
 ```
 
 **アセンブリ**:
+
 ```assembly
 ; current_energyがA,B、required_energyがC,Dに格納済み
 CMP_E32     ; 32bit比較（フラグ更新）
@@ -125,6 +135,7 @@ uint16_t rough_estimate = ENERGY_HIGH(total_energy);
 ```
 
 **アセンブリ**:
+
 ```assembly
 ; total_energyがA,Bに格納済み
 SHR_E10     ; A = 上位16bit（1024E単位の値）
@@ -136,7 +147,7 @@ SHR_E10     ; A = 上位16bit（1024E単位の値）
 // volatile指定で最適化を抑制
 volatile energy_t precise_energy;
 
-// register指定で高速アクセスを示唆  
+// register指定で高速アクセスを示唆
 register energy_t working_energy;
 
 // 明示的な分離アクセス
@@ -160,52 +171,62 @@ uint16_t low = ENERGY_LOW(total);
 ## TODO項目
 
 ### 高優先度
+
 - [ ] energy_t型の正式な定義
 - [ ] 標準ライブラリ関数の定義（エネルギー操作用）
 - [ ] エネルギー定数の標準ヘッダファイル作成
 
 ### 中優先度
+
 - [ ] コンパイラ最適化パスの設計
 - [ ] インライン展開の基準策定
 - [ ] デバッグ情報の出力形式
 
 ### 低優先度
+
 - [ ] プロファイリング機能の追加
 - [ ] エネルギー消費見積もり機能
 
 ## 課題
 
 ### 1. オーバーフロー処理
+
 - 加算時の上限チェック（67,108,863E）
 - 警告/エラーの出力方法
 
 ### 2. 型安全性
+
 - energy_tと通常のuint32_tの区別
 - 暗黙の型変換の扱い
 
 ### 3. 定数折りたたみ
+
 - コンパイル時計算の範囲
 - 1024進法での定数評価
 
 ### 4. メモリモデル
+
 - エネルギー値の格納方法（リトルエンディアン/ビッグエンディアン）
 - レジスタ割り当て戦略
 
 ## 将来の拡張
 
 ### 浮動小数点サポート
+
 - 現在は整数のみ
 - 将来的に固定小数点や浮動小数点のサポートを検討
 
 ### SIMD命令
+
 - 複数エネルギー値の並列計算
 - ベクトル化の可能性
 
 ### 動的最適化
+
 - 実行時プロファイルに基づく最適化
 - JITコンパイルの検討
 
-## テンプレート記法（__attribute__を使用）
+## テンプレート記法（**attribute**を使用）
 
 ### 概要
 
@@ -217,13 +238,14 @@ Synthetica Scriptのテンプレートマッチング機能をC言語から利�
 
 ```c
 // ラベルにテンプレートを定義
-__attribute__((template(0xC5))) 
+__attribute__((template(0xC5)))
 loop_start:
     // ここにテンプレート 11000101 が配置される
     // ループ本体のコード
 ```
 
 **コンパイラが生成するアセンブリ**:
+
 ```assembly
 loop_start:
     NOP1    ; 1
@@ -246,6 +268,7 @@ goto loop_start;  // 補完パターン 0x3A を探してジャンプ
 ```
 
 **コンパイラが生成するアセンブリ**:
+
 ```assembly
     SEARCH_B        ; 後方検索
     NOP0 NOP0 NOP1 NOP1 NOP1 NOP0 NOP1 NOP0  ; 補完パターン 00111010
@@ -269,6 +292,7 @@ process_data();  // テンプレート経由で呼び出し
 ```
 
 **コンパイラが生成するアセンブリ（関数定義）**:
+
 ```assembly
 process_data:
     NOP0 NOP1 NOP0 NOP1 NOP1 NOP0 NOP1 NOP0  ; 0x5A = 01011010
@@ -353,13 +377,13 @@ void self_replicate(void) {
             goto wait_loop;
         }
     }
-    
+
     // メモリコピー処理
     TEMPLATE(0x1100)
     copy_start: {
         unsigned int src = 0;
         unsigned int dst = 0;
-        
+
         TEMPLATE(0x0110)
         copy_loop: {
             write_computer_memory(1, dst, read_my_memory(src));

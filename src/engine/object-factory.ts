@@ -37,12 +37,12 @@ export const calculateHullRadius = (capacity: number, buildEnergy: number): numb
 export class ObjectFactory {
   private readonly _worldWidth: number
   private readonly _worldHeight: number
-  
+
   public constructor(worldWidth: number, worldHeight: number) {
     this._worldWidth = worldWidth
     this._worldHeight = worldHeight
   }
-  
+
   /** エネルギーオブジェクトを作成 */
   public createEnergyObject(
     id: ObjectId,
@@ -51,7 +51,7 @@ export class ObjectFactory {
     velocity: Vec2 = Vec2Utils.create(0, 0)
   ): EnergyObject {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
-    
+
     return {
       id,
       type: "ENERGY",
@@ -62,7 +62,7 @@ export class ObjectFactory {
       mass: energy,
     }
   }
-  
+
   /** HULLを作成 */
   public createHull(
     id: ObjectId,
@@ -72,7 +72,7 @@ export class ObjectFactory {
     velocity: Vec2 = Vec2Utils.create(0, 0)
   ): Hull {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
-    
+
     return {
       id,
       type: "HULL",
@@ -88,7 +88,7 @@ export class ObjectFactory {
       attachedUnits: [],
     }
   }
-  
+
   /** ASSEMBLERを作成 */
   public createAssembler(
     id: ObjectId,
@@ -99,7 +99,7 @@ export class ObjectFactory {
     velocity: Vec2 = Vec2Utils.create(0, 0)
   ): Assembler {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
-    
+
     return {
       id,
       type: "ASSEMBLER",
@@ -116,7 +116,7 @@ export class ObjectFactory {
       progress: 0,
     }
   }
-  
+
   /** COMPUTERを作成 */
   public createComputer(
     id: ObjectId,
@@ -129,12 +129,12 @@ export class ObjectFactory {
     program?: Uint8Array
   ): Computer {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
-    
+
     const memory = new Uint8Array(memorySize)
     if (program !== undefined) {
       memory.set(program.slice(0, memorySize))
     }
-    
+
     return {
       id,
       type: "COMPUTER",
@@ -153,7 +153,7 @@ export class ObjectFactory {
       registers: new Uint16Array(8),
     }
   }
-  
+
   /** ユニット仕様からオブジェクトを作成 */
   public createFromSpec(
     id: ObjectId,
@@ -163,13 +163,8 @@ export class ObjectFactory {
   ): GameObject {
     switch (spec.type) {
       case "HULL":
-        return this.createHull(
-          id,
-          position,
-          spec.buildEnergy,
-          spec.capacity ?? 100
-        )
-        
+        return this.createHull(id, position, spec.buildEnergy, spec.capacity ?? 100)
+
       case "ASSEMBLER":
         return this.createAssembler(
           id,
@@ -178,7 +173,7 @@ export class ObjectFactory {
           spec.assemblePower ?? 1,
           parentHull
         )
-        
+
       case "COMPUTER":
         return this.createComputer(
           id,
@@ -188,19 +183,15 @@ export class ObjectFactory {
           spec.memorySize ?? 0,
           parentHull
         )
-        
+
       case "ENERGY":
-        return this.createEnergyObject(
-          id,
-          position,
-          spec.buildEnergy
-        )
-        
+        return this.createEnergyObject(id, position, spec.buildEnergy)
+
       default:
         throw new Error(`Unknown object type: ${String(spec.type)}`)
     }
   }
-  
+
   /** エージェント定義からオブジェクト群を作成 */
   public createAgent(
     generateId: () => ObjectId,
@@ -208,13 +199,13 @@ export class ObjectFactory {
     position?: Vec2
   ): GameObject[] {
     const objects: GameObject[] = []
-    
+
     // 位置を決定
-    const agentPos = position ?? definition.position ?? Vec2Utils.create(
-      Math.random() * this._worldWidth,
-      Math.random() * this._worldHeight
-    )
-    
+    const agentPos =
+      position ??
+      definition.position ??
+      Vec2Utils.create(Math.random() * this._worldWidth, Math.random() * this._worldHeight)
+
     // HULLを作成
     const hullId = generateId()
     const hull = this.createHull(
@@ -224,11 +215,11 @@ export class ObjectFactory {
       definition.hull.capacity
     )
     objects.push(hull)
-    
+
     // ユニットを作成してHULLに固定
     for (const unitDef of definition.units) {
       const unitId = generateId()
-      
+
       let unit: GameObject
       switch (unitDef.type) {
         case "ASSEMBLER":
@@ -240,7 +231,7 @@ export class ObjectFactory {
             hullId
           )
           break
-          
+
         case "COMPUTER":
           unit = this.createComputer(
             unitId,
@@ -253,15 +244,15 @@ export class ObjectFactory {
             unitDef.program
           )
           break
-          
+
         default:
           throw new Error(`Unknown unit type: ${String(unitDef.type)}`)
       }
-      
+
       objects.push(unit)
       hull.attachedUnits.push(unitId)
     }
-    
+
     return objects
   }
 }

@@ -43,28 +43,27 @@ export class GameWorld {
         },
       ],
     }
-    
+
     this._world = new World({
       width,
       height,
       initialAgents: [sampleAgent],
     })
-    
+
     // ゲームループ開始
     this._world.start()
   }
-  
-  
+
   public renderPixi(container: PIXI.Container): void {
     // コンテナをクリア
     container.removeChildren()
-    
+
     // 世界の境界線を描画
     const border = new PIXI.Graphics()
     border.rect(0, 0, this.width, this.height)
     border.stroke({ width: 2, color: 0xcccccc })
     container.addChild(border)
-    
+
     // エネルギーソースを描画
     for (const source of this._world.state.energySources.values()) {
       const sourceGraphics = new PIXI.Graphics()
@@ -74,20 +73,28 @@ export class GameWorld {
       sourceGraphics.y = source.position.y
       container.addChild(sourceGraphics)
     }
-    
+
     // ゲームオブジェクトを描画
     for (const obj of this._world.state.objects.values()) {
       const objGraphics = new PIXI.Graphics()
-      
+
       // タイプに応じた色
       let color = 0x808080
       switch (obj.type) {
-        case "ENERGY": color = 0x00ff00; break
-        case "HULL": color = 0x0080ff; break
-        case "ASSEMBLER": color = 0xff8000; break
-        case "COMPUTER": color = 0xff00ff; break
+        case "ENERGY":
+          color = 0x00ff00
+          break
+        case "HULL":
+          color = 0x0080ff
+          break
+        case "ASSEMBLER":
+          color = 0xff8000
+          break
+        case "COMPUTER":
+          color = 0xff00ff
+          break
       }
-      
+
       objGraphics.circle(0, 0, obj.radius)
       objGraphics.fill(color)
       objGraphics.x = obj.position.x
@@ -95,7 +102,7 @@ export class GameWorld {
       container.addChild(objGraphics)
     }
   }
-  
+
   /** デバッグ用：ランダムエネルギー生成 */
   public spawnRandomEnergy(amount: number): void {
     this._world.spawnRandomEnergy(amount)

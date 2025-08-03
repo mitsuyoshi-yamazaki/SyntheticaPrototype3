@@ -52,13 +52,13 @@ function calculateRadius(energy):
 function mergeEnergyObjects(obj1, obj2):
     // 新しいエネルギー量
     newEnergy = obj1.energy + obj2.energy
-    
+
     // 結合位置（2オブジェクトの中間点）
     newPosition = Vec2(
         (obj1.x + obj2.x) / 2,
         (obj1.y + obj2.y) / 2
     )
-    
+
     // 新しい速度（運動量保存）
     totalMomentum = Vec2(
         obj1.velocity.x * obj1.mass + obj2.velocity.x * obj2.mass,
@@ -68,7 +68,7 @@ function mergeEnergyObjects(obj1, obj2):
         totalMomentum.x / newEnergy,
         totalMomentum.y / newEnergy
     )
-    
+
     // 新しいオブジェクトを生成
     removeObject(obj1)
     removeObject(obj2)
@@ -104,19 +104,19 @@ HULLの容量が不足する場合、可能な分だけ回収します。
 ```
 function partialCollect(hull, energyObject):
     availableCapacity = hull.maxCapacity - hull.currentCapacity
-    
+
     if availableCapacity <= 0:
         return false  // 回収不可
-    
+
     // 回収可能な最大エネルギー量
     collectAmount = min(availableCapacity, energyObject.energy)
-    
+
     // HULLに格納
     hull.storedEnergy += collectAmount
-    
+
     // エネルギーオブジェクトを更新
     energyObject.energy -= collectAmount
-    
+
     if energyObject.energy <= 0:
         removeObject(energyObject)
     else:
@@ -124,7 +124,7 @@ function partialCollect(hull, energyObject):
         energyObject.radius = calculateRadius(energyObject.energy)
         energyObject.mass = energyObject.energy
         // 位置と速度は変更なし
-    
+
     return true
 ```
 
@@ -135,12 +135,12 @@ function partialCollect(hull, energyObject):
 function processEnergyInHull(hull):
     // HULL内のエネルギーオブジェクトは全て相対速度0
     // したがって全て結合条件を満たす
-    
+
     totalEnergy = 0
     for energyObj in hull.containedEnergyObjects:
         totalEnergy += energyObj.energy
         removeObject(energyObj)
-    
+
     if totalEnergy > 0:
         // 統合されたエネルギーとしてHULLが保持
         hull.storedEnergy += totalEnergy
@@ -155,7 +155,7 @@ function spawnEnergyFromSource(source):
     position = source.position
     energy = source.energyPerTick
     velocity = Vec2(0, 0)  // 初期速度0
-    
+
     newObject = EnergyObject{
         position: position,
         velocity: velocity,
@@ -164,7 +164,7 @@ function spawnEnergyFromSource(source):
         mass: energy,
         type: ENERGY_OBJECT
     }
-    
+
     addToWorld(newObject)
 ```
 
@@ -192,7 +192,7 @@ if energyObject.energy <= 0:
 // 1E未満にならないよう保証
 function updateEnergy(energyObject, delta):
     newEnergy = energyObject.energy + delta
-    
+
     if newEnergy < 1:
         if delta < 0:
             // 減少の場合、オブジェクトを削除
@@ -225,14 +225,14 @@ ENERGY_OBJECT_FRICTION = 0.98   // 摩擦係数（他オブジェクトと同じ
 function drawEnergyDebug(energyObject):
     // エネルギー量を中心に表示
     drawText(energyObject.position, energyObject.energy + "E")
-    
+
     // 速度ベクトルを表示
     drawLine(
         energyObject.position,
         energyObject.position + energyObject.velocity * 10,
         color=GREEN
     )
-    
+
     // 結合可能範囲を表示
     drawCircle(
         energyObject.position,

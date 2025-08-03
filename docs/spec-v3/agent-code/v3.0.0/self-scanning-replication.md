@@ -9,17 +9,20 @@
 ## 課題点と制限事項
 
 ### 1. C言語の高度な機能
+
 - **for文**: Synthetica Scriptにはループカウンタの自動管理がないため、手動でカウンタを管理
 - **関数呼び出し**: CALLとRETで実装可能だが、引数の受け渡しにスタックが必要
 - **ローカル変数**: メモリの固定アドレスに配置
 
 ### 2. APIのマッピング
+
 - `hull_get_capacity()` → UNIT_MEM_READ (0x90)
 - `computer_write_memory()` → UNIT_MEM_WRITE (0x91)
 - `unit_exists()` → UNIT_EXISTS (0x94)
 - その他のAPI関数も同様に命令にマッピング
 
 ### 3. テンプレートマッチング
+
 - `__attribute__((template()))`はSEARCH命令のテンプレートに変換
 - 待機ループの最適化に使用
 
@@ -37,7 +40,7 @@
 ; 先頭3バイトのNOP
 ; ====================
 0x0000: 00      ; NOP
-0x0001: 00      ; NOP  
+0x0001: 00      ; NOP
 0x0002: 00      ; NOP
 
 ; ====================
@@ -96,7 +99,7 @@ continue_scan:
 0x0046: 90 C0 00 00    ; UNIT_MEM_READ COMPUTER[0], 0x0000 (frequency)
 0x004A: A1 02 02 00    ; STORE_ABS [0x0202] = A
 
-; computer_get_my_capacity() → A  
+; computer_get_my_capacity() → A
 0x004E: 90 C0 01 00    ; UNIT_MEM_READ COMPUTER[0], 0x0001 (capacity)
 0x0052: A1 03 02 00    ; STORE_ABS [0x0203] = A
 
@@ -108,7 +111,7 @@ replication_loop:
 ; 設計値の読み出し
 0x0056: A0 00 02 00    ; LOAD_ABS A, [0x0200] ; hull_capacity
 0x005A: 41             ; MOV_AB
-0x005B: A0 01 02 00    ; LOAD_ABS A, [0x0201] ; assembler_power  
+0x005B: A0 01 02 00    ; LOAD_ABS A, [0x0201] ; assembler_power
 0x005F: 42             ; MOV_AC
 0x0060: A0 04 02 00    ; LOAD_ABS A, [0x0204] ; assembler_idx
 0x0064: 24             ; MOV_AD
@@ -225,20 +228,24 @@ copy_done:
 ## 実装における課題
 
 ### 1. メモリアドレッシングの制限
+
 - C言語の配列アクセス `memory[addr]` は間接アドレッシング命令で対応
 - ただし、UNIT_MEM_WRITEで可変アドレスへの書き込みは複雑
 
 ### 2. 32bitエネルギー計算
+
 - エネルギー量の動的計算部分は簡略化
 - 完全な実装には多数のADD_E32/MUL命令が必要
 
 ### 3. 権限変更プログラムの埋め込み
+
 - 娘COMPUTER内への小プログラム書き込みは実装可能
 - ただし、コードサイズが大きくなる
 
 ## 結論
 
 自己スキャン型複製の基本機能は実装可能だが、以下の点で仕様の拡張が望まれる：
+
 1. 間接アドレッシングの強化（特にユニット操作）
 2. ループ制御の専用命令
 3. 関数呼び出しのスタック管理支援

@@ -101,7 +101,7 @@ switch (value) {
 
 ```c
 // 提案記法1: 関数定義の拡張
-[[template_entry(0x5A)]] 
+[[template_entry(0x5A)]]
 void my_function() {
     // 関数本体
     [[template_return(0x5A)]]  // 呼び出し元へ戻る
@@ -168,11 +168,11 @@ if (!__goto_template_safe(0xC5)) {
 #pragma template_cold 0x3A
 ```
 
-## __attribute__を使用した実装
+## **attribute**を使用した実装
 
 GCC/Clangの`__attribute__`拡張を使用することで、より標準的な方法でテンプレート機能を実装できる。
 
-### __attribute__による実装例
+### **attribute**による実装例
 
 ```c
 // 1. ラベル定義
@@ -212,7 +212,7 @@ if (condition) {
 }
 ```
 
-### __attribute__の利点
+### **attribute**の利点
 
 1. **既存のコンパイラ拡張機能との親和性**
    - GCC/Clangは既に`__attribute__`の解析機能を持つ
@@ -286,6 +286,7 @@ loop_start:
 4. **関数呼び出し**: `__attribute__((template_entry(0xXX), template_return(0xXX)))`
 
 この方式の利点：
+
 - 既存のCコンパイラインフラを活用可能
 - 構文的に明確で、エラー検出が容易
 - IDEサポートが得られやすい

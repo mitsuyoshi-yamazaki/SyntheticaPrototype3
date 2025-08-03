@@ -22,7 +22,6 @@ HULLマージ時のID処理について、game-world-requirement.mdを更新し�
 
 - **game-world-requirement.md**（277行目）
   - マージ後の統合セクションに「ID：古い方のHULLのIDが引き継がれる（IDが小さい方を保持）」を追加
-  
 - **TODO.md**
   - 「HULLマージ時のID処理」タスクを完了に変更
 

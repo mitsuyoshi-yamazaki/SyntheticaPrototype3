@@ -227,7 +227,7 @@ describe("torus-math", () => {
         expect(cell.x).toBeGreaterThanOrEqual(0)
         expect(cell.y).toBeGreaterThanOrEqual(0)
         expect(cell.x).toBeLessThan(10) // worldWidth / cellSize
-        expect(cell.y).toBeLessThan(8)  // worldHeight / cellSize
+        expect(cell.y).toBeLessThan(8) // worldHeight / cellSize
       })
     })
   })
@@ -238,9 +238,16 @@ describe("torus-math", () => {
       const lineEnd: Vec2 = { x: 60, y: 40 }
       const circleCenter: Vec2 = { x: 50, y: 40 }
       const circleRadius = 5
-      expect(TorusMath.lineCircleIntersection(
-        lineStart, lineEnd, circleCenter, circleRadius, worldWidth, worldHeight
-      )).toBe(true)
+      expect(
+        TorusMath.lineCircleIntersection(
+          lineStart,
+          lineEnd,
+          circleCenter,
+          circleRadius,
+          worldWidth,
+          worldHeight
+        )
+      ).toBe(true)
     })
 
     test("線分が円に接する場合", () => {
@@ -248,9 +255,16 @@ describe("torus-math", () => {
       const lineEnd: Vec2 = { x: 60, y: 35 }
       const circleCenter: Vec2 = { x: 50, y: 40 }
       const circleRadius = 5
-      expect(TorusMath.lineCircleIntersection(
-        lineStart, lineEnd, circleCenter, circleRadius, worldWidth, worldHeight
-      )).toBe(true)
+      expect(
+        TorusMath.lineCircleIntersection(
+          lineStart,
+          lineEnd,
+          circleCenter,
+          circleRadius,
+          worldWidth,
+          worldHeight
+        )
+      ).toBe(true)
     })
 
     test("線分が円に交差しない場合", () => {
@@ -258,9 +272,16 @@ describe("torus-math", () => {
       const lineEnd: Vec2 = { x: 60, y: 30 }
       const circleCenter: Vec2 = { x: 50, y: 40 }
       const circleRadius = 5
-      expect(TorusMath.lineCircleIntersection(
-        lineStart, lineEnd, circleCenter, circleRadius, worldWidth, worldHeight
-      )).toBe(false)
+      expect(
+        TorusMath.lineCircleIntersection(
+          lineStart,
+          lineEnd,
+          circleCenter,
+          circleRadius,
+          worldWidth,
+          worldHeight
+        )
+      ).toBe(false)
     })
 
     test("線分の端点が円内にある場合", () => {
@@ -268,9 +289,16 @@ describe("torus-math", () => {
       const lineEnd: Vec2 = { x: 60, y: 40 }
       const circleCenter: Vec2 = { x: 50, y: 40 }
       const circleRadius = 5
-      expect(TorusMath.lineCircleIntersection(
-        lineStart, lineEnd, circleCenter, circleRadius, worldWidth, worldHeight
-      )).toBe(true)
+      expect(
+        TorusMath.lineCircleIntersection(
+          lineStart,
+          lineEnd,
+          circleCenter,
+          circleRadius,
+          worldWidth,
+          worldHeight
+        )
+      ).toBe(true)
     })
 
     test("世界端をまたぐ線分が円に交差する場合", () => {
@@ -278,9 +306,16 @@ describe("torus-math", () => {
       const lineEnd: Vec2 = { x: 5, y: 40 }
       const circleCenter: Vec2 = { x: 0, y: 40 }
       const circleRadius = 5
-      expect(TorusMath.lineCircleIntersection(
-        lineStart, lineEnd, circleCenter, circleRadius, worldWidth, worldHeight
-      )).toBe(true)
+      expect(
+        TorusMath.lineCircleIntersection(
+          lineStart,
+          lineEnd,
+          circleCenter,
+          circleRadius,
+          worldWidth,
+          worldHeight
+        )
+      ).toBe(true)
     })
 
     test("線分が円を完全に含む場合", () => {
@@ -288,27 +323,48 @@ describe("torus-math", () => {
       const lineEnd: Vec2 = { x: 60, y: 40 }
       const circleCenter: Vec2 = { x: 50, y: 40 }
       const circleRadius = 3
-      expect(TorusMath.lineCircleIntersection(
-        lineStart, lineEnd, circleCenter, circleRadius, worldWidth, worldHeight
-      )).toBe(true)
+      expect(
+        TorusMath.lineCircleIntersection(
+          lineStart,
+          lineEnd,
+          circleCenter,
+          circleRadius,
+          worldWidth,
+          worldHeight
+        )
+      ).toBe(true)
     })
 
     test("長さ0の線分（点）が円内にある場合", () => {
       const point: Vec2 = { x: 50, y: 40 }
       const circleCenter: Vec2 = { x: 50, y: 40 }
       const circleRadius = 5
-      expect(TorusMath.lineCircleIntersection(
-        point, point, circleCenter, circleRadius, worldWidth, worldHeight
-      )).toBe(true)
+      expect(
+        TorusMath.lineCircleIntersection(
+          point,
+          point,
+          circleCenter,
+          circleRadius,
+          worldWidth,
+          worldHeight
+        )
+      ).toBe(true)
     })
 
     test("長さ0の線分（点）が円外にある場合", () => {
       const point: Vec2 = { x: 60, y: 40 }
       const circleCenter: Vec2 = { x: 50, y: 40 }
       const circleRadius = 5
-      expect(TorusMath.lineCircleIntersection(
-        point, point, circleCenter, circleRadius, worldWidth, worldHeight
-      )).toBe(false)
+      expect(
+        TorusMath.lineCircleIntersection(
+          point,
+          point,
+          circleCenter,
+          circleRadius,
+          worldWidth,
+          worldHeight
+        )
+      ).toBe(false)
     })
   })
 })

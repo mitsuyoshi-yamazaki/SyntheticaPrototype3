@@ -9,6 +9,7 @@
 ### 1.1 基本仕様
 
 #### オブジェクト形状
+
 - **形状**: 全てのゲームオブジェクトは円形
 - **プロパティ**:
   - 中心座標: `Vec2(x, y)`
@@ -23,7 +24,7 @@ function checkCollision(obj1, obj2):
     dx = obj2.x - obj1.x
     dy = obj2.y - obj1.y
     distance = sqrt(dx * dx + dy * dy)
-    
+
     return distance < (obj1.radius + obj2.radius)
 ```
 
@@ -52,7 +53,7 @@ function registerToGrid(object):
     maxX = floor((object.x + object.radius) / GRID_SIZE)
     minY = floor((object.y - object.radius) / GRID_SIZE)
     maxY = floor((object.y + object.radius) / GRID_SIZE)
-    
+
     // トーラス境界を考慮
     for gx in range(minX, maxX + 1):
         for gy in range(minY, maxY + 1):
@@ -71,14 +72,14 @@ function checkCollisionOptimized(obj1, obj2):
     dx = abs(obj2.x - obj1.x)
     dy = abs(obj2.y - obj1.y)
     maxDist = obj1.radius + obj2.radius
-    
+
     if (dx > maxDist || dy > maxDist):
         return false  // 確実に衝突していない
-    
+
     // 2. 距離の二乗による判定（平方根を避ける）
     distSq = dx * dx + dy * dy
     maxDistSq = maxDist * maxDist
-    
+
     return distSq < maxDistSq
 ```
 
@@ -88,35 +89,35 @@ function checkCollisionOptimized(obj1, obj2):
 function detectCollisions():
     // グリッドをクリア
     clearGrid()
-    
+
     // 全オブジェクトをグリッドに登録
     for object in gameObjects:
         registerToGrid(object)
-    
+
     // 衝突ペアを検出
     collisionPairs = []
     processedPairs = Set()
-    
+
     for gridCell in grid:
         objects = gridCell.objects
-        
+
         // 同一グリッド内のオブジェクトペアをチェック
         for i in range(0, objects.length):
             for j in range(i + 1, objects.length):
                 obj1 = objects[i]
                 obj2 = objects[j]
-                
+
                 // 重複チェックを避ける
                 pairKey = min(obj1.id, obj2.id) + "," + max(obj1.id, obj2.id)
                 if pairKey in processedPairs:
                     continue
-                
+
                 processedPairs.add(pairKey)
-                
+
                 // 詳細な衝突判定
                 if checkCollisionOptimized(obj1, obj2):
                     collisionPairs.add({obj1, obj2})
-    
+
     return collisionPairs
 ```
 
@@ -131,7 +132,7 @@ function handleTorusBoundary(object):
     nearRightEdge = object.x + object.radius > WORLD_WIDTH
     nearTopEdge = object.y - object.radius < 0
     nearBottomEdge = object.y + object.radius > WORLD_HEIGHT
-    
+
     // 境界を跨ぐ場合、反対側にも登録
     if nearLeftEdge:
         registerWrappedObject(object, WORLD_WIDTH, 0)
@@ -149,13 +150,13 @@ function handleTorusBoundary(object):
 function torusDistance(obj1, obj2):
     dx = obj2.x - obj1.x
     dy = obj2.y - obj1.y
-    
+
     // トーラスでの最短距離を計算
     if abs(dx) > WORLD_WIDTH / 2:
         dx = dx - sign(dx) * WORLD_WIDTH
     if abs(dy) > WORLD_HEIGHT / 2:
         dy = dy - sign(dy) * WORLD_HEIGHT
-    
+
     return sqrt(dx * dx + dy * dy)
 ```
 
@@ -190,11 +191,11 @@ function drawCollisionDebug():
         drawLine(x, 0, x, WORLD_HEIGHT, alpha=0.2)
     for y in range(0, WORLD_HEIGHT, GRID_SIZE):
         drawLine(0, y, WORLD_WIDTH, y, alpha=0.2)
-    
+
     // 衝突ペアの強調表示
     for pair in collisionPairs:
         drawLine(pair.obj1.pos, pair.obj2.pos, color=RED)
-        
+
     // アクティブなグリッドセルの強調
     for gridCell in grid:
         if gridCell.objects.length > 1:
@@ -222,20 +223,20 @@ function calculateSeparationForce(obj1, obj2):
     dx = obj2.x - obj1.x
     dy = obj2.y - obj1.y
     distance = sqrt(dx * dx + dy * dy)
-    
+
     // 重なり深度
     overlap = (obj1.radius + obj2.radius) - distance
-    
+
     if overlap <= 0:
         return Vec2(0, 0)  // 衝突していない
-    
+
     // 反発力の大きさ（シグモイド関数で上限を設定）
     MAX_FORCE = 1000  // 反発力の上限値
     FORCE_SCALE = 10  // スケーリング係数
-    
+
     // tanh関数により滑らかに上限に漸近
     forceMagnitude = MAX_FORCE * tanh(overlap / FORCE_SCALE)
-    
+
     // 反発方向（obj1から見た場合）
     if distance > 0:
         directionX = -dx / distance
@@ -245,7 +246,7 @@ function calculateSeparationForce(obj1, obj2):
         angle = random() * 2 * PI
         directionX = cos(angle)
         directionY = sin(angle)
-    
+
     return Vec2(forceMagnitude * directionX, forceMagnitude * directionY)
 ```
 
@@ -283,7 +284,7 @@ EMERGENCY_VELOCITY_LIMIT = 10000  // 数値エラー防止用
 function updateVelocity(object, acceleration, deltaTime):
     object.velocity.x += acceleration.x * deltaTime
     object.velocity.y += acceleration.y * deltaTime
-    
+
     // 数値エラー防止のみ
     speed = magnitude(object.velocity)
     if speed > EMERGENCY_VELOCITY_LIMIT:
@@ -307,7 +308,7 @@ function applyForce(object, force):
     if object.mass > 0:
         acceleration.x = force.x / object.mass
         acceleration.y = force.y / object.mass
-        
+
         object.acceleration.x += acceleration.x
         object.acceleration.y += acceleration.y
 ```
@@ -319,11 +320,11 @@ function updateMotion(object, deltaTime):
     // 速度の更新（v = v0 + at）
     object.velocity.x += object.acceleration.x * deltaTime
     object.velocity.y += object.acceleration.y * deltaTime
-    
+
     // 位置の更新（x = x0 + vt）
     object.position.x += object.velocity.x * deltaTime
     object.position.y += object.velocity.y * deltaTime
-    
+
     // 加速度をリセット（次フレームで再計算）
     object.acceleration = Vec2(0, 0)
 ```
@@ -368,7 +369,7 @@ function handleBoundaryCrossing(object):
         object.x += WORLD_WIDTH
     else if object.x >= WORLD_WIDTH:
         object.x -= WORLD_WIDTH
-        
+
     if object.y < 0:
         object.y += WORLD_HEIGHT
     else if object.y >= WORLD_HEIGHT:
@@ -384,24 +385,24 @@ function physicsUpdate(deltaTime):
     // 1. 力の初期化
     for object in gameObjects:
         object.acceleration = Vec2(0, 0)
-    
+
     // 2. 外部力の適用（方向性力場など）
     applyExternalForces()
-    
+
     // 3. 衝突検出
     collisionPairs = detectCollisions()
-    
+
     // 4. 反発力の計算と適用
     for pair in collisionPairs:
         force = calculateSeparationForce(pair.obj1, pair.obj2)
         applyForce(pair.obj1, force)
         applyForce(pair.obj2, -force)  // 作用・反作用
-    
+
     // 5. 運動の更新
     for object in gameObjects:
         updateMotion(object, deltaTime)
         wrapPosition(object)
-    
+
     // 6. グリッドの更新（次フレーム用）
     updateSpatialGrid()
 ```
@@ -412,7 +413,7 @@ function physicsUpdate(deltaTime):
 // 複数オブジェクトとの衝突は自然に合成される
 object A が B, C, D と衝突している場合：
 - A←B の反発力
-- A←C の反発力  
+- A←C の反発力
 - A←D の反発力
 これらが全て object A の acceleration に加算される
 ```
@@ -452,6 +453,7 @@ MIN_DISTANCE = 0.001
 ## 実装チェックリスト
 
 ### 衝突判定
+
 - [ ] 円形衝突判定の基本実装
 - [ ] 空間分割グリッドの実装
 - [ ] 距離による早期棄却の実装
@@ -459,6 +461,7 @@ MIN_DISTANCE = 0.001
 - [ ] グリッドサイズの調整機能
 
 ### 物理演算
+
 - [ ] 反発力計算（tanh関数による上限設定）
 - [ ] 質量に基づく加速度計算
 - [ ] 速度・位置の更新
@@ -466,6 +469,7 @@ MIN_DISTANCE = 0.001
 - [ ] 境界ラップアラウンド
 
 ### デバッグ・調整
+
 - [ ] 物理演算の可視化
 - [ ] パラメータ調整UI
 - [ ] パフォーマンス計測

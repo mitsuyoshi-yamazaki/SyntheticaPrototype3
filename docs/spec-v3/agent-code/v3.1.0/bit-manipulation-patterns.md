@@ -224,15 +224,15 @@ AND A, #0xF000      ; 下位12ビットをクリア
 MOV C, #16
 loop:
     ; ループ処理
-    
+
     DEC C
     BNZ loop
-    
+
 ; または、ビットマスクを使った方法
 MOV C, #0
 loop:
     ; ループ処理
-    
+
     INC C
     MOV A, C
     AND A, #0x0F    ; 16回で0に戻る
@@ -246,7 +246,7 @@ loop:
 MOV C, #0
 loop:
     ; ループ処理
-    
+
     INC C
     MOV A, C
     AND A, #0x40    ; ビット6をチェック
@@ -264,11 +264,11 @@ loop:
 calculate_hull_cost:
     ; A = capacity
     PUSH_A
-    
+
     ; 構成エネルギー = capacity * 2
     SHL A, 1        ; A = capacity * 2
     PUSH_A          ; 構成エネルギーを保存
-    
+
     ; 生産エネルギー = ceil(構成エネルギー * 0.05)
     ; 0.05 ≈ 1/20 ≈ (1/16 - 1/64)
     MOV B, A
@@ -276,16 +276,16 @@ calculate_hull_cost:
     MOV C, A
     SHR C, 6        ; C = A/64
     SUB B, C        ; B ≈ A * 0.05
-    
+
     ; 切り上げ処理
     CMP B, #0
     BZ no_round_up
     INC B
-    
+
 no_round_up:
     POP_A           ; 構成エネルギーを復元
     ADD A, B        ; 総コスト
-    
+
     POP_B           ; 元のcapacityを復元
     RET
 ```
@@ -297,18 +297,18 @@ no_round_up:
 check_energy_1024:
     ; A = 現在のエネルギー
     ; B = 必要なエネルギー（1024E単位）
-    
+
     SHR A, 10       ; 1024E単位に変換
     CMP A, B
     BLT insufficient_energy
-    
+
     ; 十分なエネルギーがある
     JMP sufficient_energy
-    
+
 insufficient_energy:
     ; エネルギー不足処理
     RET
-    
+
 sufficient_energy:
     ; 処理続行
     RET
@@ -318,12 +318,12 @@ sufficient_energy:
 
 ### ビットシフト vs 乗除算
 
-| 演算 | 乗除算命令 | ビットシフト | 速度比 |
-|------|-----------|-------------|--------|
-| ×2   | MUL A, #2 | SHL A, 1    | 5-10倍 |
-| ×4   | MUL A, #4 | SHL A, 2    | 5-10倍 |
-| ÷2   | DIV A, #2 | SHR A, 1    | 10-20倍|
-| ÷4   | DIV A, #4 | SHR A, 2    | 10-20倍|
+| 演算 | 乗除算命令 | ビットシフト | 速度比  |
+| ---- | ---------- | ------------ | ------- |
+| ×2   | MUL A, #2  | SHL A, 1     | 5-10倍  |
+| ×4   | MUL A, #4  | SHL A, 2     | 5-10倍  |
+| ÷2   | DIV A, #2  | SHR A, 1     | 10-20倍 |
+| ÷4   | DIV A, #4  | SHR A, 2     | 10-20倍 |
 
 ### メモリアクセスの削減
 
@@ -352,13 +352,13 @@ MOV [value], A
 debug_hex:
     PUSH_A
     PUSH_B
-    
+
     MOV B, A
     SHR B, 8        ; 上位バイト
     AND A, #0xFF    ; 下位バイト
-    
+
     ; ここでBとAをデバッグ出力
-    
+
     POP_B
     POP_A
     RET

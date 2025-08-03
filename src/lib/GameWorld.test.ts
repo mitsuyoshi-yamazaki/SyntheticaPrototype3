@@ -48,7 +48,7 @@ describe("GameWorld", () => {
 
   test("spawnRandomEnergyが呼び出せる", () => {
     const world = new GameWorld(800, 600)
-    
+
     // エラーなく実行できることを確認
     expect(() => {
       world.spawnRandomEnergy(100)

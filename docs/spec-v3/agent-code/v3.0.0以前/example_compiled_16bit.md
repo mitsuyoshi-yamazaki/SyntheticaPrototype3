@@ -115,7 +115,7 @@ assemble_wait_1:               # 0x002E
     MOVE_AD                    # 0x0048: D = A (新HULL index)
     LOAD_IMM_A 0x0000          # 0x0049: A = 0 (メインHULL index)
     UNIT_MEM_WRITE_REG HULL, 0x04  # 0x004C: HULL[D].merge_target = 0
-    
+
     LOAD_IMM_D 0x0000          # 0x004F: D = 0 (メインHULL)
     UNIT_MEM_READ_REG ASSEMBLER, 0x0D  # 0x0052: A = last_assembled_index
     UNIT_MEM_WRITE_REG HULL, 0x04  # 0x0055: HULL[0].merge_target = A
@@ -263,7 +263,7 @@ copy_memory:                   # 0x0165
     # 最後に生産したユニットのindex（娘COMPUTER）を取得
     UNIT_MEM_READ_REG ASSEMBLER, 0x0D  # 0x0165: A = last_assembled_index
     STORE_IMM_A 0x0206         # 0x0168: temp_value = A (computer_index)
-    
+
     # write_computer_memory(computer_index, 0, ASSEMBLER_JMP)
     LOAD_IMM_A 0x0206          # 0x016B: A = &temp_value
     LOAD_REG A, A              # 0x016E: A = computer_index
@@ -300,7 +300,7 @@ copy_loop:                     # 0x0195
     LOAD_IMM_A 0x0204          # 0x01A3: A = &memory_address
     LOAD_REG A, A              # 0x01A6: A = memory_address
     LOAD_REG B, A              # 0x01A8: B = memory[memory_address]
-    
+
     # write_computer_memory(computer_index, memory_address, value)
     LOAD_IMM_A 0x0206          # 0x01AA: A = &temp_value
     LOAD_REG A, A              # 0x01AD: A = computer_index
@@ -374,18 +374,21 @@ template_CC:                   # 0x01F9
 ## エネルギーコスト概算
 
 ### 命令実行コスト（新エネルギーシステム）
+
 - 1バイト命令: 1E
 - 3バイト命令: 3E
 - 4バイト命令: 4E（ユニット操作は+10E）
 - 5バイト命令: 5E
 
 ### プログラム概要
+
 - プログラムサイズ: 約512バイト (0x0200)
 - 成長ループ: 約100命令（約300E/ループ）
 - 複製ループ: 約150命令（約450E/ループ）
 - メモリコピー: 256バイト×3E = 768E
 
 ### 自己複製に必要なエネルギー合計
+
 - 娘個体生成: 16,045E（210E + 1200E + 14635E）
 - 作業エネルギー: 約1,500E（命令実行 + メモリコピー）
 - **合計**: 約17,545E = 17×1024E + 137E（1024進法表現）
@@ -410,6 +413,7 @@ SHR_E10                        # A = 上位16bit（1024E単位の値）
 ```
 
 ### 利用可能なエネルギー計算命令
+
 - **0x95: ADD_E32** - 32bitエネルギー加算
 - **0x96: SUB_E32** - 32bitエネルギー減算
 - **0x97: CMP_E32** - 32bitエネルギー比較

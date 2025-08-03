@@ -33,7 +33,7 @@ ASSEMBLER、COMPUTERなどのユニットは、構成エネルギー量に基づ
 function calculateUnitRadius(unit):
     // 構成エネルギー量（ダメージを含む全容量）
     buildEnergy = unit.buildEnergy
-    
+
     // エネルギーオブジェクトと同じ計算式
     return calculateEnergyRadius(buildEnergy)
 
@@ -55,19 +55,19 @@ HULLは容積と構成エネルギーの両方を考慮してサイズが決定�
 function calculateHullRadius(hull):
     // HULLの容積
     volume = hull.capacity
-    
+
     // HULLの構成エネルギー
     buildEnergy = hull.buildEnergy
-    
+
     // 容積から半径を計算（容積を面積として扱う）
     volumeRadius = sqrt(volume / PI)
-    
+
     // 構成エネルギーから半径を計算
     energyRadius = calculateEnergyRadius(buildEnergy)
-    
+
     // 合計半径（容積の半径 + 構成エネルギーの半径）
     totalRadius = volumeRadius + energyRadius
-    
+
     return totalRadius
 
 // 例：
@@ -86,21 +86,21 @@ function calculateHullRadius(hull):
 
 ### ユニットのサイズ
 
-| ユニット種別 | 構成エネルギー例 | 半径 |
-|------------|---------------|------|
-| ASSEMBLER (assemble_power=1) | 1000E | ≈17.84 |
-| ASSEMBLER (assemble_power=2) | 1200E | ≈19.54 |
-| COMPUTER (10命令/tick, 64byte) | 600E + 3200E | ≈34.15 |
-| COMPUTER (1命令/tick, 0byte) | 500E | ≈12.62 |
+| ユニット種別                   | 構成エネルギー例 | 半径   |
+| ------------------------------ | ---------------- | ------ |
+| ASSEMBLER (assemble_power=1)   | 1000E            | ≈17.84 |
+| ASSEMBLER (assemble_power=2)   | 1200E            | ≈19.54 |
+| COMPUTER (10命令/tick, 64byte) | 600E + 3200E     | ≈34.15 |
+| COMPUTER (1命令/tick, 0byte)   | 500E             | ≈12.62 |
 
 ### HULLのサイズ
 
 | 容量 | 構成エネルギー | 容積半径 | エネルギー半径 | 総半径 |
-|-----|-------------|---------|------------|-------|
-| 50 | 100E | ≈3.99 | ≈5.64 | ≈9.63 |
-| 100 | 200E | ≈5.64 | ≈7.98 | ≈13.62 |
-| 500 | 1000E | ≈12.62 | ≈17.84 | ≈30.46 |
-| 1000 | 2000E | ≈17.84 | ≈25.23 | ≈43.07 |
+| ---- | -------------- | -------- | -------------- | ------ |
+| 50   | 100E           | ≈3.99    | ≈5.64          | ≈9.63  |
+| 100  | 200E           | ≈5.64    | ≈7.98          | ≈13.62 |
+| 500  | 1000E          | ≈12.62   | ≈17.84         | ≈30.46 |
+| 1000 | 2000E          | ≈17.84   | ≈25.23         | ≈43.07 |
 
 ## 実装上の注意事項
 
@@ -127,7 +127,7 @@ function createUnit(type, specs):
 function applyDamage(unit, damage):
     unit.currentEnergy -= damage
     // radiusは更新しない（サイズ不変）
-    
+
 // エネルギーオブジェクトの場合のみサイズ更新
 function updateEnergyObject(energyObj, newEnergy):
     energyObj.energy = newEnergy
@@ -164,12 +164,12 @@ function scaleRadius(radius):
 function drawObjectDebug(object):
     // オブジェクトの境界円
     drawCircle(object.position, object.radius, color=WHITE)
-    
+
     // HULLの場合、内部空間も表示
     if object.type == HULL:
         volumeRadius = sqrt(object.capacity / PI)
         drawCircle(object.position, volumeRadius, color=GRAY, alpha=0.5)
-        
+
     // サイズ情報
     drawText(object.position, "R:" + object.radius)
 ```
