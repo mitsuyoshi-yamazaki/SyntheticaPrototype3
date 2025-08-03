@@ -11,3 +11,4 @@ export {
   calculateUnitRadius,
   calculateHullRadius,
 } from "./object-factory"
+export { SpatialHashGrid } from "./spatial-hash-grid"
