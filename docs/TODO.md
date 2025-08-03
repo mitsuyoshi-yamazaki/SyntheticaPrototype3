@@ -28,7 +28,7 @@
 ### ゲームループ基盤
 
 - ✅ WorldStateManager実装（tick管理、オブジェクト管理）
-- WorldStateManagerテスト作成
+- ✅ WorldStateManagerテスト作成
 - ✅ World.tick()メソッド実装（外部駆動型）
 - ✅ Pixi.js tickerとの統合
 
@@ -37,7 +37,7 @@
 - ✅ GameObject型定義（円形オブジェクト統一インターフェース）
 - ✅ ObjectFactory実装（各種オブジェクト生成）
 - ✅ ObjectFactoryテスト作成
-- ObjectIdの生成とユニーク性保証のテスト
+- ✅ ObjectIdの生成とユニーク性保証のテスト
 
 ---
 

@@ -125,7 +125,7 @@ export class World {
     const ticksPerFrame = this._stateManager.state.parameters.ticksPerFrame
     for (let i = 0; i < ticksPerFrame; i++) {
       this._stateManager.incrementTick()
-      
+
       // TODO: 物理演算の実行
       // TODO: エネルギーシステムの更新
       // TODO: ユニットの動作処理

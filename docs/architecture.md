@@ -237,7 +237,7 @@ interface WorldParameters {
 
   // Simulation
   ticksPerFrame: number
-  maxFPS?: number  // FPS上限（オプション）
+  maxFPS?: number // FPS上限（オプション）
 }
 ```
 

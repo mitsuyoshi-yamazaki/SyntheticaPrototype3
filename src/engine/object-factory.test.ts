@@ -2,7 +2,12 @@
  * ObjectFactory テスト
  */
 
-import { ObjectFactory, calculateEnergyRadius, calculateUnitRadius, calculateHullRadius } from "./object-factory"
+import {
+  ObjectFactory,
+  calculateEnergyRadius,
+  calculateUnitRadius,
+  calculateHullRadius,
+} from "./object-factory"
 import type { ObjectId, AgentDefinition, UnitSpec, Hull, Assembler, Computer } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
@@ -45,7 +50,7 @@ describe("ObjectFactory", () => {
       const capacity = 500
       const buildEnergy = 100
       const radius = calculateHullRadius(capacity, buildEnergy)
-      
+
       // 容量ベースの半径 + エネルギーベースの半径
       const volumeRadius = Math.sqrt(capacity / Math.PI)
       const energyRadius = calculateEnergyRadius(buildEnergy)
@@ -58,9 +63,9 @@ describe("ObjectFactory", () => {
       const id = generateId()
       const position = Vec2Utils.create(100, 200)
       const energy = 250
-      
+
       const obj = factory.createEnergyObject(id, position, energy)
-      
+
       expect(obj).toMatchObject({
         id,
         type: "ENERGY",
@@ -74,13 +79,8 @@ describe("ObjectFactory", () => {
 
     test("速度を指定してエネルギーオブジェクトを作成", () => {
       const velocity = Vec2Utils.create(5, -3)
-      const obj = factory.createEnergyObject(
-        generateId(),
-        Vec2Utils.create(0, 0),
-        100,
-        velocity
-      )
-      
+      const obj = factory.createEnergyObject(generateId(), Vec2Utils.create(0, 0), 100, velocity)
+
       expect(obj.velocity).toEqual({ x: 5, y: -3 })
     })
 
@@ -90,17 +90,13 @@ describe("ObjectFactory", () => {
         Vec2Utils.create(worldWidth + 100, worldHeight + 50),
         100
       )
-      
+
       expect(obj.position).toEqual({ x: 100, y: 50 })
     })
 
     test("負の位置がラップされる", () => {
-      const obj = factory.createEnergyObject(
-        generateId(),
-        Vec2Utils.create(-100, -50),
-        100
-      )
-      
+      const obj = factory.createEnergyObject(generateId(), Vec2Utils.create(-100, -50), 100)
+
       expect(obj.position).toEqual({ x: worldWidth - 100, y: worldHeight - 50 })
     })
   })
@@ -111,9 +107,9 @@ describe("ObjectFactory", () => {
       const position = Vec2Utils.create(300, 400)
       const buildEnergy = 1000
       const capacity = 500
-      
+
       const hull = factory.createHull(id, position, buildEnergy, capacity)
-      
+
       expect(hull).toMatchObject({
         id,
         type: "HULL",
@@ -132,14 +128,8 @@ describe("ObjectFactory", () => {
 
     test("速度を指定してHULLを作成", () => {
       const velocity = Vec2Utils.create(2, 4)
-      const hull = factory.createHull(
-        generateId(),
-        Vec2Utils.create(0, 0),
-        1000,
-        500,
-        velocity
-      )
-      
+      const hull = factory.createHull(generateId(), Vec2Utils.create(0, 0), 1000, 500, velocity)
+
       expect(hull.velocity).toEqual({ x: 2, y: 4 })
     })
   })
@@ -150,9 +140,9 @@ describe("ObjectFactory", () => {
       const position = Vec2Utils.create(150, 250)
       const buildEnergy = 800
       const assemblePower = 2
-      
+
       const assembler = factory.createAssembler(id, position, buildEnergy, assemblePower)
-      
+
       expect(assembler).toMatchObject({
         id,
         type: "ASSEMBLER",
@@ -167,7 +157,7 @@ describe("ObjectFactory", () => {
         isAssembling: false,
         progress: 0,
       })
-      
+
       // parentHullが未定義の場合はプロパティが存在しない
       expect("parentHull" in assembler).toBe(false)
     })
@@ -181,7 +171,7 @@ describe("ObjectFactory", () => {
         1,
         parentHullId
       )
-      
+
       expect(assembler.parentHull).toBe(parentHullId)
     })
   })
@@ -193,7 +183,7 @@ describe("ObjectFactory", () => {
       const buildEnergy = 600
       const processingPower = 10
       const memorySize = 1024
-      
+
       const computer = factory.createComputer(
         id,
         position,
@@ -201,7 +191,7 @@ describe("ObjectFactory", () => {
         processingPower,
         memorySize
       )
-      
+
       expect(computer).toMatchObject({
         id,
         type: "COMPUTER",
@@ -216,7 +206,7 @@ describe("ObjectFactory", () => {
         memorySize,
         programCounter: 0,
       })
-      
+
       expect(computer.memory.length).toBe(memorySize)
       expect(computer.registers.length).toBe(8)
       expect("parentHull" in computer).toBe(false)
@@ -234,7 +224,7 @@ describe("ObjectFactory", () => {
         Vec2Utils.create(0, 0),
         program
       )
-      
+
       // プログラムがメモリにコピーされている
       expect(computer.memory[0]).toBe(0x01)
       expect(computer.memory[1]).toBe(0x02)
@@ -257,7 +247,7 @@ describe("ObjectFactory", () => {
         Vec2Utils.create(0, 0),
         program
       )
-      
+
       expect(computer.memory.length).toBe(memorySize)
       expect(computer.memory[memorySize - 1]).toBe(0xff)
     })
@@ -270,9 +260,9 @@ describe("ObjectFactory", () => {
         buildEnergy: 1000,
         capacity: 800,
       }
-      
+
       const obj = factory.createFromSpec(generateId(), spec, Vec2Utils.create(100, 200))
-      
+
       expect(obj.type).toBe("HULL")
       expect((obj as Hull).capacity).toBe(800)
     })
@@ -283,14 +273,14 @@ describe("ObjectFactory", () => {
         buildEnergy: 800,
         assemblePower: 3,
       }
-      
+
       const obj = factory.createFromSpec(
         generateId(),
         spec,
         Vec2Utils.create(100, 200),
         generateId()
       )
-      
+
       expect(obj.type).toBe("ASSEMBLER")
       expect((obj as Assembler).assemblePower).toBe(3)
     })
@@ -302,9 +292,9 @@ describe("ObjectFactory", () => {
         processingPower: 20,
         memorySize: 2048,
       }
-      
+
       const obj = factory.createFromSpec(generateId(), spec, Vec2Utils.create(100, 200))
-      
+
       expect(obj.type).toBe("COMPUTER")
       expect((obj as Computer).processingPower).toBe(20)
       expect((obj as Computer).memorySize).toBe(2048)
@@ -315,9 +305,9 @@ describe("ObjectFactory", () => {
         type: "ENERGY",
         buildEnergy: 250,
       }
-      
+
       const obj = factory.createFromSpec(generateId(), spec, Vec2Utils.create(100, 200))
-      
+
       expect(obj.type).toBe("ENERGY")
       expect(obj.energy).toBe(250)
     })
@@ -327,7 +317,7 @@ describe("ObjectFactory", () => {
         type: "UNKNOWN",
         buildEnergy: 100,
       } as unknown as UnitSpec
-      
+
       expect(() => {
         factory.createFromSpec(generateId(), spec, Vec2Utils.create(0, 0))
       }).toThrow("Unknown object type: UNKNOWN")
@@ -339,21 +329,17 @@ describe("ObjectFactory", () => {
         buildEnergy: 1000,
         // capacityは省略
       }
-      
+
       const hull = factory.createFromSpec(generateId(), hullSpec, Vec2Utils.create(0, 0))
       expect((hull as Hull).capacity).toBe(100) // デフォルト値
-      
+
       const assemblerSpec: UnitSpec = {
         type: "ASSEMBLER",
         buildEnergy: 800,
         // assemblePowerは省略
       }
-      
-      const assembler = factory.createFromSpec(
-        generateId(),
-        assemblerSpec,
-        Vec2Utils.create(0, 0)
-      )
+
+      const assembler = factory.createFromSpec(generateId(), assemblerSpec, Vec2Utils.create(0, 0))
       expect((assembler as Assembler).assemblePower).toBe(1) // デフォルト値
     })
   })
@@ -380,32 +366,32 @@ describe("ObjectFactory", () => {
           },
         ],
       }
-      
+
       const objects = factory.createAgent(generateId, agentDef)
-      
+
       expect(objects).toHaveLength(3)
-      
+
       // HULL
       const hull = objects[0]
       expect(hull).toBeDefined()
       expect(hull!.type).toBe("HULL")
       expect((hull as Hull).capacity).toBe(500)
       expect((hull as Hull).attachedUnits).toHaveLength(2)
-      
+
       // ASSEMBLER
       const assembler = objects[1]
       expect(assembler).toBeDefined()
       expect(assembler!.type).toBe("ASSEMBLER")
       expect((assembler as Assembler).assemblePower).toBe(2)
       expect((assembler as Assembler).parentHull).toBe(hull!.id)
-      
+
       // COMPUTER
       const computer = objects[2]
       expect(computer).toBeDefined()
       expect(computer!.type).toBe("COMPUTER")
       expect((computer as Computer).processingPower).toBe(10)
       expect((computer as Computer).parentHull).toBe(hull!.id)
-      
+
       // 全てのオブジェクトが同じ位置にある
       expect(assembler!.position).toEqual(hull!.position)
       expect(computer!.position).toEqual(hull!.position)
@@ -420,10 +406,10 @@ describe("ObjectFactory", () => {
         },
         units: [],
       }
-      
+
       const position = Vec2Utils.create(123, 456)
       const objects = factory.createAgent(generateId, agentDef, position)
-      
+
       expect(objects[0]).toBeDefined()
       expect(objects[0]!.position).toEqual({ x: 123, y: 456 })
     })
@@ -438,9 +424,9 @@ describe("ObjectFactory", () => {
         },
         units: [],
       }
-      
+
       const objects = factory.createAgent(generateId, agentDef)
-      
+
       expect(objects[0]).toBeDefined()
       expect(objects[0]!.position).toEqual({ x: 789, y: 321 })
     })
@@ -455,10 +441,10 @@ describe("ObjectFactory", () => {
         },
         units: [],
       }
-      
+
       const position = Vec2Utils.create(333, 444)
       const objects = factory.createAgent(generateId, agentDef, position)
-      
+
       expect(objects[0]).toBeDefined()
       expect(objects[0]!.position).toEqual({ x: 333, y: 444 })
     })
@@ -472,9 +458,9 @@ describe("ObjectFactory", () => {
         },
         units: [],
       }
-      
+
       const objects = factory.createAgent(generateId, agentDef)
-      
+
       expect(objects[0]).toBeDefined()
       const pos = objects[0]!.position
       expect(pos.x).toBeGreaterThanOrEqual(0)
@@ -501,10 +487,10 @@ describe("ObjectFactory", () => {
           },
         ],
       }
-      
+
       const objects = factory.createAgent(generateId, agentDef)
       const computer = objects[1]
-      
+
       expect((computer as Computer).memory[0]).toBe(0xaa)
       expect((computer as Computer).memory[1]).toBe(0xbb)
       expect((computer as Computer).memory[2]).toBe(0xcc)
@@ -518,13 +504,13 @@ describe("ObjectFactory", () => {
           capacity: 500,
         },
         units: [
-          ({
+          {
             type: "UNKNOWN",
             buildEnergy: 100,
-          } as unknown as UnitSpec),
+          } as unknown as UnitSpec,
         ],
       }
-      
+
       expect(() => {
         factory.createAgent(generateId, agentDef)
       }).toThrow("Unknown unit type: UNKNOWN")
@@ -553,10 +539,10 @@ describe("ObjectFactory", () => {
           },
         ],
       }
-      
+
       const objects = factory.createAgent(generateId, agentDef)
       const hull = objects[0] as Hull
-      
+
       expect(hull.attachedUnits).toHaveLength(3)
       expect(hull.attachedUnits[0]).toBe(objects[1]!.id)
       expect(hull.attachedUnits[1]).toBe(objects[2]!.id)
@@ -580,14 +566,8 @@ describe("ObjectFactory", () => {
     })
 
     test("メモリサイズ0のCOMPUTER", () => {
-      const computer = factory.createComputer(
-        generateId(),
-        Vec2Utils.create(0, 0),
-        600,
-        10,
-        0
-      )
-      
+      const computer = factory.createComputer(generateId(), Vec2Utils.create(0, 0), 600, 10, 0)
+
       expect(computer.memory.length).toBe(0)
     })
 
@@ -598,7 +578,7 @@ describe("ObjectFactory", () => {
         100
       )
       expect(obj1.position).toEqual({ x: 0, y: 0 })
-      
+
       const obj2 = factory.createEnergyObject(
         generateId(),
         Vec2Utils.create(worldWidth - 1, worldHeight - 1),
@@ -617,12 +597,12 @@ describe("ObjectFactory", () => {
         100,
         originalVelocity
       )
-      
+
       // 元の速度を変更（これはテストのための意図的な変更）
       // TypeScriptの読み取り専用プロパティを回避するため、新しいオブジェクトを作成
       const mutableVelocity = { ...originalVelocity }
       mutableVelocity.x = 999
-      
+
       // オブジェクトの速度は変更されない（元のvelocityオブジェクトとは独立）
       expect(obj.velocity.x).toBe(10)
       expect(obj.velocity).not.toBe(originalVelocity) // 参照が異なることを確認
