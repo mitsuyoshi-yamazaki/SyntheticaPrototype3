@@ -142,21 +142,21 @@ describe("ObjectFactory", () => {
     test("基本的なHULLを作成", () => {
       const id = generateId()
       const position = Vec2Utils.create(300, 400)
-      const buildEnergy = 1000
       const capacity = 500
 
-      const hull = factory.createHull(id, position, buildEnergy, capacity)
+      const hull = factory.createHull(id, position, capacity)
+      const expectedBuildEnergy = calculateHullBuildEnergy(capacity)
 
       expect(hull).toMatchObject({
         id,
         type: "HULL",
         position: { x: 300, y: 400 },
         velocity: { x: 0, y: 0 },
-        radius: calculateHullRadius(capacity, buildEnergy),
+        radius: calculateHullRadius(capacity, expectedBuildEnergy),
         energy: 0,
-        mass: buildEnergy,
-        buildEnergy,
-        currentEnergy: buildEnergy,
+        mass: expectedBuildEnergy,
+        buildEnergy: expectedBuildEnergy,
+        currentEnergy: expectedBuildEnergy,
         capacity,
         storedEnergy: 0,
         attachedUnits: [],
@@ -165,7 +165,7 @@ describe("ObjectFactory", () => {
 
     test("速度を指定してHULLを作成", () => {
       const velocity = Vec2Utils.create(2, 4)
-      const hull = factory.createHull(generateId(), Vec2Utils.create(0, 0), 1000, 500, velocity)
+      const hull = factory.createHull(generateId(), Vec2Utils.create(0, 0), 500, velocity)
 
       expect(hull.velocity).toEqual({ x: 2, y: 4 })
     })
@@ -175,21 +175,21 @@ describe("ObjectFactory", () => {
     test("基本的なASSEMBLERを作成", () => {
       const id = generateId()
       const position = Vec2Utils.create(150, 250)
-      const buildEnergy = 800
       const assemblePower = 2
 
-      const assembler = factory.createAssembler(id, position, buildEnergy, assemblePower)
+      const assembler = factory.createAssembler(id, position, assemblePower)
+      const expectedBuildEnergy = calculateAssemblerBuildEnergy(assemblePower)
 
       expect(assembler).toMatchObject({
         id,
         type: "ASSEMBLER",
         position: { x: 150, y: 250 },
         velocity: { x: 0, y: 0 },
-        radius: calculateUnitRadius(buildEnergy),
+        radius: calculateUnitRadius(expectedBuildEnergy),
         energy: 0,
-        mass: buildEnergy,
-        buildEnergy,
-        currentEnergy: buildEnergy,
+        mass: expectedBuildEnergy,
+        buildEnergy: expectedBuildEnergy,
+        currentEnergy: expectedBuildEnergy,
         assemblePower,
         isAssembling: false,
         progress: 0,
@@ -204,7 +204,6 @@ describe("ObjectFactory", () => {
       const assembler = factory.createAssembler(
         generateId(),
         Vec2Utils.create(0, 0),
-        800,
         1,
         parentHullId
       )
@@ -217,28 +216,22 @@ describe("ObjectFactory", () => {
     test("基本的なCOMPUTERを作成", () => {
       const id = generateId()
       const position = Vec2Utils.create(500, 600)
-      const buildEnergy = 600
       const processingPower = 10
       const memorySize = 1024
 
-      const computer = factory.createComputer(
-        id,
-        position,
-        buildEnergy,
-        processingPower,
-        memorySize
-      )
+      const computer = factory.createComputer(id, position, processingPower, memorySize)
+      const expectedBuildEnergy = calculateComputerBuildEnergy(processingPower, memorySize)
 
       expect(computer).toMatchObject({
         id,
         type: "COMPUTER",
         position: { x: 500, y: 600 },
         velocity: { x: 0, y: 0 },
-        radius: calculateUnitRadius(buildEnergy),
+        radius: calculateUnitRadius(expectedBuildEnergy),
         energy: 0,
-        mass: buildEnergy,
-        buildEnergy,
-        currentEnergy: buildEnergy,
+        mass: expectedBuildEnergy,
+        buildEnergy: expectedBuildEnergy,
+        currentEnergy: expectedBuildEnergy,
         processingPower,
         memorySize,
         programCounter: 0,
@@ -254,7 +247,6 @@ describe("ObjectFactory", () => {
       const computer = factory.createComputer(
         generateId(),
         Vec2Utils.create(0, 0),
-        600,
         10,
         1024,
         undefined,
@@ -277,7 +269,6 @@ describe("ObjectFactory", () => {
       const computer = factory.createComputer(
         generateId(),
         Vec2Utils.create(0, 0),
-        600,
         10,
         memorySize,
         undefined,
@@ -564,7 +555,7 @@ describe("ObjectFactory", () => {
     })
 
     test("メモリサイズ0のCOMPUTER", () => {
-      const computer = factory.createComputer(generateId(), Vec2Utils.create(0, 0), 600, 10, 0)
+      const computer = factory.createComputer(generateId(), Vec2Utils.create(0, 0), 10, 0)
 
       expect(computer.memory.length).toBe(0)
     })

@@ -86,11 +86,11 @@ export class ObjectFactory {
   public createHull(
     id: ObjectId,
     position: Vec2,
-    buildEnergy: number,
     capacity: number,
     velocity: Vec2 = Vec2Utils.create(0, 0)
   ): Hull {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
+    const buildEnergy = calculateHullBuildEnergy(capacity)
 
     return {
       id,
@@ -112,12 +112,12 @@ export class ObjectFactory {
   public createAssembler(
     id: ObjectId,
     position: Vec2,
-    buildEnergy: number,
     assemblePower: number,
     parentHull?: ObjectId,
     velocity: Vec2 = Vec2Utils.create(0, 0)
   ): Assembler {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
+    const buildEnergy = calculateAssemblerBuildEnergy(assemblePower)
 
     return {
       id,
@@ -140,7 +140,6 @@ export class ObjectFactory {
   public createComputer(
     id: ObjectId,
     position: Vec2,
-    buildEnergy: number,
     processingPower: number,
     memorySize: number,
     parentHull?: ObjectId,
@@ -148,6 +147,7 @@ export class ObjectFactory {
     program?: Uint8Array
   ): Computer {
     const wrappedPos = wrapPosition(position, this._worldWidth, this._worldHeight)
+    const buildEnergy = calculateComputerBuildEnergy(processingPower, memorySize)
 
     const memory = new Uint8Array(memorySize)
     if (program !== undefined) {
@@ -181,27 +181,14 @@ export class ObjectFactory {
     parentHull?: ObjectId
   ): GameObject {
     switch (spec.type) {
-      case "HULL": {
-        const buildEnergy = calculateHullBuildEnergy(spec.capacity)
-        return this.createHull(id, position, buildEnergy, spec.capacity)
-      }
+      case "HULL":
+        return this.createHull(id, position, spec.capacity)
 
-      case "ASSEMBLER": {
-        const buildEnergy = calculateAssemblerBuildEnergy(spec.assemblePower)
-        return this.createAssembler(id, position, buildEnergy, spec.assemblePower, parentHull)
-      }
+      case "ASSEMBLER":
+        return this.createAssembler(id, position, spec.assemblePower, parentHull)
 
-      case "COMPUTER": {
-        const buildEnergy = calculateComputerBuildEnergy(spec.processingPower, spec.memorySize)
-        return this.createComputer(
-          id,
-          position,
-          buildEnergy,
-          spec.processingPower,
-          spec.memorySize,
-          parentHull
-        )
-      }
+      case "COMPUTER":
+        return this.createComputer(id, position, spec.processingPower, spec.memorySize, parentHull)
 
       default:
         // @ts-expect-error: Never type - all cases should be handled
@@ -225,8 +212,7 @@ export class ObjectFactory {
 
     // HULLを作成
     const hullId = generateId()
-    const hullBuildEnergy = calculateHullBuildEnergy(definition.hull.capacity)
-    const hull = this.createHull(hullId, agentPos, hullBuildEnergy, definition.hull.capacity)
+    const hull = this.createHull(hullId, agentPos, definition.hull.capacity)
     objects.push(hull)
 
     // ユニットを作成してHULLに固定
@@ -235,27 +221,14 @@ export class ObjectFactory {
 
       let unit: GameObject
       switch (unitDef.type) {
-        case "ASSEMBLER": {
-          const buildEnergy = calculateAssemblerBuildEnergy(unitDef.assemblePower ?? 1)
-          unit = this.createAssembler(
-            unitId,
-            agentPos,
-            buildEnergy,
-            unitDef.assemblePower ?? 1,
-            hullId
-          )
+        case "ASSEMBLER":
+          unit = this.createAssembler(unitId, agentPos, unitDef.assemblePower ?? 1, hullId)
           break
-        }
 
-        case "COMPUTER": {
-          const buildEnergy = calculateComputerBuildEnergy(
-            unitDef.processingPower ?? 1,
-            unitDef.memorySize ?? 0
-          )
+        case "COMPUTER":
           unit = this.createComputer(
             unitId,
             agentPos,
-            buildEnergy,
             unitDef.processingPower ?? 1,
             unitDef.memorySize ?? 0,
             hullId,
@@ -263,7 +236,6 @@ export class ObjectFactory {
             unitDef.program
           )
           break
-        }
 
         default:
           throw new Error(`Unknown unit type: ${String(unitDef.type)}`)
