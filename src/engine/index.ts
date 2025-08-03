@@ -12,3 +12,11 @@ export {
   calculateHullRadius,
 } from "./object-factory"
 export { SpatialHashGrid } from "./spatial-hash-grid"
+export { CollisionDetector } from "./collision-detector"
+export type { CollisionPair, CollisionResult } from "./collision-detector"
+export {
+  calculateSeparationForce,
+  calculateTotalSeparationForce,
+  DEFAULT_SEPARATION_PARAMETERS,
+} from "./separation-force"
+export type { SeparationForceParameters } from "./separation-force"
