@@ -10,6 +10,8 @@ import type {
   EnergySource,
   DirectionalForceField,
 } from "@/types/game"
+import { PhysicsEngine, DEFAULT_PHYSICS_PARAMETERS } from "./physics-engine"
+import type { PhysicsParameters, PhysicsParametersUpdate } from "./physics-engine"
 
 /** デフォルトのワールドパラメータ */
 export const DEFAULT_PARAMETERS: WorldParameters = {
@@ -37,6 +39,7 @@ export const SPATIAL_CELL_SIZE = 100
 
 export class WorldStateManager {
   private readonly _state: WorldState
+  private readonly _physicsEngine: PhysicsEngine
 
   /** 現在の状態を取得 */
   public get state(): Readonly<WorldState> {
@@ -55,6 +58,18 @@ export class WorldStateManager {
       parameters: { ...DEFAULT_PARAMETERS, ...parameters },
       nextObjectId: 1,
     }
+
+    // 物理演算エンジンの初期化
+    const physicsParams: PhysicsParameters = {
+      ...DEFAULT_PHYSICS_PARAMETERS,
+      frictionCoefficient: parameters?.friction ?? DEFAULT_PARAMETERS.friction,
+      separationForce: {
+        maxForce: parameters?.maxForce ?? DEFAULT_PARAMETERS.maxForce,
+        forceScale: parameters?.forceScale ?? DEFAULT_PARAMETERS.forceScale,
+        minForce: 1,
+      },
+    }
+    this._physicsEngine = new PhysicsEngine(SPATIAL_CELL_SIZE, width, height, physicsParams)
   }
 
   /** 次のオブジェクトIDを生成 */
@@ -110,6 +125,22 @@ export class WorldStateManager {
   /** パラメータを更新 */
   public updateParameters(params: Partial<WorldParameters>): void {
     Object.assign(this._state.parameters, params)
+
+    // 物理演算パラメータも更新
+    if (params.friction != null || params.maxForce != null || params.forceScale != null) {
+      const physicsParams: PhysicsParametersUpdate = {}
+      if (params.friction != null) {
+        physicsParams.frictionCoefficient = params.friction
+      }
+      if (params.maxForce != null || params.forceScale != null) {
+        physicsParams.separationForce = {
+          maxForce: params.maxForce ?? this._state.parameters.maxForce,
+          forceScale: params.forceScale ?? this._state.parameters.forceScale,
+          minForce: 1,
+        }
+      }
+      this._physicsEngine.updateParameters(physicsParams)
+    }
   }
 
   /** 空間インデックスを更新 */
@@ -182,5 +213,34 @@ export class WorldStateManager {
     for (const obj of this._state.objects.values()) {
       this.updateSpatialIndex(obj)
     }
+  }
+
+  /**
+   * 物理演算を実行
+   * @param deltaTime 時間ステップ
+   * @returns 物理演算の結果
+   */
+  public updatePhysics(deltaTime: number): ReturnType<PhysicsEngine["update"]> {
+    return this._physicsEngine.update(this._state.objects, deltaTime)
+  }
+
+  /**
+   * 特定位置での衝突を検出
+   * @param position 検査位置
+   * @param radius 検査半径
+   * @param excludeId 除外するオブジェクトID（オプション）
+   * @returns 衝突しているオブジェクトのリスト
+   */
+  public detectCollisionsAtPosition(
+    position: { x: number; y: number },
+    radius: number,
+    excludeId?: ObjectId
+  ): GameObject[] {
+    return this._physicsEngine.detectCollisionsAtPosition(
+      position,
+      radius,
+      this._state.objects,
+      excludeId
+    )
   }
 }

@@ -126,7 +126,9 @@ export class World {
     for (let i = 0; i < ticksPerFrame; i++) {
       this._stateManager.incrementTick()
 
-      // TODO: 物理演算の実行
+      // 物理演算の実行（1tick = 1時間単位）
+      this._stateManager.updatePhysics(1.0)
+
       // TODO: エネルギーシステムの更新
       // TODO: ユニットの動作処理
       // TODO: Synthetica Script VMの実行

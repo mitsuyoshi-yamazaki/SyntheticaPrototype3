@@ -35,12 +35,6 @@ export class SpatialHashGrid {
     return `${col},${row}`
   }
 
-  /** 座標からグリッドインデックスを計算 */
-  private getGridIndex(position: Vec2): { col: number; row: number } {
-    const col = Math.floor(position.x / this._cellSize)
-    const row = Math.floor(position.y / this._cellSize)
-    return { col, row }
-  }
 
   /** オブジェクトが占有する全セルを取得 */
   private getOccupiedCells(object: GameObject): { col: number; row: number }[] {
