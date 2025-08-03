@@ -36,7 +36,7 @@
 
 - ✅ GameObject型定義（円形オブジェクト統一インターフェース）
 - ✅ ObjectFactory実装（各種オブジェクト生成）
-- ObjectFactoryテスト作成
+- ✅ ObjectFactoryテスト作成
 - ObjectIdの生成とユニーク性保証のテスト
 
 ---
