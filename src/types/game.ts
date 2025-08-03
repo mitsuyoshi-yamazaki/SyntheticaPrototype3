@@ -74,19 +74,16 @@ export type Computer = Unit & {
 /** ユニット仕様 */
 export type HullSpec = {
   readonly type: HullType
-  readonly buildEnergy: number
   readonly capacity: number
 }
 
 export type AssemblerSpec = {
   readonly type: AssemblerType
-  readonly buildEnergy: number
   readonly assemblePower: number
 }
 
 export type ComputerSpec = {
   readonly type: ComputerType
-  readonly buildEnergy: number
   readonly processingPower: number
   readonly memorySize: number
 }
@@ -153,13 +150,11 @@ export type WorldState = {
 export type AgentDefinition = {
   name: string
   hull: {
-    buildEnergy: number
     capacity: number
     position?: Vec2
   }
   units: {
     type: AssemblerType | ComputerType
-    buildEnergy: number
     assemblePower?: number
     processingPower?: number
     memorySize?: number

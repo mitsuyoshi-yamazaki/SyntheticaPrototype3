@@ -7,6 +7,9 @@ import {
   calculateEnergyRadius,
   calculateUnitRadius,
   calculateHullRadius,
+  calculateHullBuildEnergy,
+  calculateAssemblerBuildEnergy,
+  calculateComputerBuildEnergy,
 } from "./object-factory"
 import type {
   ObjectId,
@@ -64,6 +67,31 @@ describe("ObjectFactory", () => {
       const volumeRadius = Math.sqrt(capacity / Math.PI)
       const energyRadius = calculateEnergyRadius(buildEnergy)
       expect(radius).toBeCloseTo(volumeRadius + energyRadius, 2)
+    })
+  })
+
+  describe("構成エネルギー計算関数", () => {
+    test("calculateHullBuildEnergy - HULLの構成エネルギーを計算", () => {
+      expect(calculateHullBuildEnergy(100)).toBe(200)
+      expect(calculateHullBuildEnergy(500)).toBe(1000)
+      expect(calculateHullBuildEnergy(0)).toBe(0)
+    })
+
+    test("calculateAssemblerBuildEnergy - ASSEMBLERの構成エネルギーを計算", () => {
+      expect(calculateAssemblerBuildEnergy(1)).toBe(10000)
+      expect(calculateAssemblerBuildEnergy(5)).toBe(18000)
+      expect(calculateAssemblerBuildEnergy(10)).toBe(28000)
+    })
+
+    test("calculateComputerBuildEnergy - COMPUTERの構成エネルギーを計算", () => {
+      // 例1: 動作周波数10/tick、メモリ256バイト
+      expect(calculateComputerBuildEnergy(10, 256)).toBe(13700)
+
+      // 例2: 動作周波数1/tick、メモリ64バイト
+      expect(calculateComputerBuildEnergy(1, 64)).toBe(3705)
+
+      // 最小値: 動作周波数0、メモリ0
+      expect(calculateComputerBuildEnergy(0, 0)).toBe(500)
     })
   })
 
@@ -266,7 +294,6 @@ describe("ObjectFactory", () => {
     test("HULL仕様からオブジェクトを作成", () => {
       const spec: HullSpec = {
         type: "HULL",
-        buildEnergy: 1000,
         capacity: 800,
       }
 
@@ -274,14 +301,13 @@ describe("ObjectFactory", () => {
 
       expect(obj.type).toBe("HULL")
       expect((obj as Hull).capacity).toBe(800)
-      expect((obj as Hull).buildEnergy).toBe(1000)
+      expect((obj as Hull).buildEnergy).toBe(calculateHullBuildEnergy(800))
       expect(obj.energy).toBe(0) // Units don't use energy
     })
 
     test("ASSEMBLER仕様からオブジェクトを作成", () => {
       const spec: AssemblerSpec = {
         type: "ASSEMBLER",
-        buildEnergy: 800,
         assemblePower: 3,
       }
 
@@ -294,14 +320,13 @@ describe("ObjectFactory", () => {
 
       expect(obj.type).toBe("ASSEMBLER")
       expect((obj as Assembler).assemblePower).toBe(3)
-      expect((obj as Assembler).buildEnergy).toBe(800)
+      expect((obj as Assembler).buildEnergy).toBe(calculateAssemblerBuildEnergy(3))
       expect(obj.energy).toBe(0) // Units don't use energy
     })
 
     test("COMPUTER仕様からオブジェクトを作成", () => {
       const spec: ComputerSpec = {
         type: "COMPUTER",
-        buildEnergy: 600,
         processingPower: 20,
         memorySize: 2048,
       }
@@ -311,7 +336,7 @@ describe("ObjectFactory", () => {
       expect(obj.type).toBe("COMPUTER")
       expect((obj as Computer).processingPower).toBe(20)
       expect((obj as Computer).memorySize).toBe(2048)
-      expect((obj as Computer).buildEnergy).toBe(600)
+      expect((obj as Computer).buildEnergy).toBe(calculateComputerBuildEnergy(20, 2048))
       expect(obj.energy).toBe(0) // Units don't use energy
     })
 
@@ -336,18 +361,15 @@ describe("ObjectFactory", () => {
       const agentDef: AgentDefinition = {
         name: "TestAgent",
         hull: {
-          buildEnergy: 1000,
           capacity: 500,
         },
         units: [
           {
             type: "ASSEMBLER",
-            buildEnergy: 800,
             assemblePower: 2,
           },
           {
             type: "COMPUTER",
-            buildEnergy: 600,
             processingPower: 10,
             memorySize: 1024,
           },
@@ -388,7 +410,6 @@ describe("ObjectFactory", () => {
       const agentDef: AgentDefinition = {
         name: "TestAgent",
         hull: {
-          buildEnergy: 1000,
           capacity: 500,
         },
         units: [],
@@ -406,7 +427,6 @@ describe("ObjectFactory", () => {
         name: "TestAgent",
         position: Vec2Utils.create(789, 321),
         hull: {
-          buildEnergy: 1000,
           capacity: 500,
         },
         units: [],
@@ -423,7 +443,6 @@ describe("ObjectFactory", () => {
         name: "TestAgent",
         position: Vec2Utils.create(111, 222),
         hull: {
-          buildEnergy: 1000,
           capacity: 500,
         },
         units: [],
@@ -440,7 +459,6 @@ describe("ObjectFactory", () => {
       const agentDef: AgentDefinition = {
         name: "TestAgent",
         hull: {
-          buildEnergy: 1000,
           capacity: 500,
         },
         units: [],
@@ -461,13 +479,11 @@ describe("ObjectFactory", () => {
       const agentDef: AgentDefinition = {
         name: "TestAgent",
         hull: {
-          buildEnergy: 1000,
           capacity: 500,
         },
         units: [
           {
             type: "COMPUTER",
-            buildEnergy: 600,
             processingPower: 10,
             memorySize: 1024,
             program,
@@ -487,13 +503,11 @@ describe("ObjectFactory", () => {
       const agentDef: AgentDefinition = {
         name: "TestAgent",
         hull: {
-          buildEnergy: 1000,
           capacity: 500,
         },
         units: [
           {
             type: "UNKNOWN",
-            buildEnergy: 100,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any,
         ],
@@ -508,22 +522,18 @@ describe("ObjectFactory", () => {
       const agentDef: AgentDefinition = {
         name: "TestAgent",
         hull: {
-          buildEnergy: 1000,
           capacity: 500,
         },
         units: [
           {
             type: "ASSEMBLER",
-            buildEnergy: 800,
           },
           {
             type: "COMPUTER",
-            buildEnergy: 600,
             memorySize: 512,
           },
           {
             type: "ASSEMBLER",
-            buildEnergy: 700,
           },
         ],
       }

@@ -26,18 +26,15 @@ export class GameWorld {
     const sampleAgent: AgentDefinition = {
       name: "SampleAgent",
       hull: {
-        buildEnergy: 1000,
         capacity: 500,
       },
       units: [
         {
           type: "ASSEMBLER",
-          buildEnergy: 800,
           assemblePower: 1,
         },
         {
           type: "COMPUTER",
-          buildEnergy: 600,
           processingPower: 10,
           memorySize: 1024,
         },

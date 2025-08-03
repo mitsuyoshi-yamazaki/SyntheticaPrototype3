@@ -34,6 +34,25 @@ export const calculateHullRadius = (capacity: number, buildEnergy: number): numb
   return volumeRadius + energyRadius
 }
 
+/** HULLの構成エネルギーを計算 */
+export const calculateHullBuildEnergy = (capacity: number): number => {
+  return capacity * 2
+}
+
+/** ASSEMBLERの構成エネルギーを計算 */
+export const calculateAssemblerBuildEnergy = (assemblePower: number): number => {
+  return 8000 + assemblePower * 2000
+}
+
+/** COMPUTERの構成エネルギーを計算 */
+export const calculateComputerBuildEnergy = (
+  processingPower: number,
+  memorySize: number
+): number => {
+  const frequencyComponent = Math.ceil(Math.pow(processingPower / 5, 2) * 100)
+  return 500 + frequencyComponent + memorySize * 50
+}
+
 export class ObjectFactory {
   private readonly _worldWidth: number
   private readonly _worldHeight: number
@@ -162,21 +181,27 @@ export class ObjectFactory {
     parentHull?: ObjectId
   ): GameObject {
     switch (spec.type) {
-      case "HULL":
-        return this.createHull(id, position, spec.buildEnergy, spec.capacity)
+      case "HULL": {
+        const buildEnergy = calculateHullBuildEnergy(spec.capacity)
+        return this.createHull(id, position, buildEnergy, spec.capacity)
+      }
 
-      case "ASSEMBLER":
-        return this.createAssembler(id, position, spec.buildEnergy, spec.assemblePower, parentHull)
+      case "ASSEMBLER": {
+        const buildEnergy = calculateAssemblerBuildEnergy(spec.assemblePower)
+        return this.createAssembler(id, position, buildEnergy, spec.assemblePower, parentHull)
+      }
 
-      case "COMPUTER":
+      case "COMPUTER": {
+        const buildEnergy = calculateComputerBuildEnergy(spec.processingPower, spec.memorySize)
         return this.createComputer(
           id,
           position,
-          spec.buildEnergy,
+          buildEnergy,
           spec.processingPower,
           spec.memorySize,
           parentHull
         )
+      }
 
       default:
         // @ts-expect-error: Never type - all cases should be handled
@@ -200,12 +225,8 @@ export class ObjectFactory {
 
     // HULLを作成
     const hullId = generateId()
-    const hull = this.createHull(
-      hullId,
-      agentPos,
-      definition.hull.buildEnergy,
-      definition.hull.capacity
-    )
+    const hullBuildEnergy = calculateHullBuildEnergy(definition.hull.capacity)
+    const hull = this.createHull(hullId, agentPos, hullBuildEnergy, definition.hull.capacity)
     objects.push(hull)
 
     // ユニットを作成してHULLに固定
@@ -214,21 +235,27 @@ export class ObjectFactory {
 
       let unit: GameObject
       switch (unitDef.type) {
-        case "ASSEMBLER":
+        case "ASSEMBLER": {
+          const buildEnergy = calculateAssemblerBuildEnergy(unitDef.assemblePower ?? 1)
           unit = this.createAssembler(
             unitId,
             agentPos,
-            unitDef.buildEnergy,
+            buildEnergy,
             unitDef.assemblePower ?? 1,
             hullId
           )
           break
+        }
 
-        case "COMPUTER":
+        case "COMPUTER": {
+          const buildEnergy = calculateComputerBuildEnergy(
+            unitDef.processingPower ?? 1,
+            unitDef.memorySize ?? 0
+          )
           unit = this.createComputer(
             unitId,
             agentPos,
-            unitDef.buildEnergy,
+            buildEnergy,
             unitDef.processingPower ?? 1,
             unitDef.memorySize ?? 0,
             hullId,
@@ -236,6 +263,7 @@ export class ObjectFactory {
             unitDef.program
           )
           break
+        }
 
         default:
           throw new Error(`Unknown unit type: ${String(unitDef.type)}`)
