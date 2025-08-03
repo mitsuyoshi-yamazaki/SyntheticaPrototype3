@@ -22,3 +22,5 @@ export {
 export type { SeparationForceParameters } from "./separation-force"
 export { PhysicsEngine, DEFAULT_PHYSICS_PARAMETERS } from "./physics-engine"
 export type { PhysicsParameters, PhysicsParametersUpdate, PhysicsUpdateResult } from "./physics-engine"
+export { EnergySystem, DEFAULT_ENERGY_PARAMETERS } from "./energy-system"
+export type { EnergyCombineResult, EnergySystemParameters } from "./energy-system"
