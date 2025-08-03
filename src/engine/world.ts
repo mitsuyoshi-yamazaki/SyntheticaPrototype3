@@ -3,7 +3,6 @@
  */
 
 import { WorldStateManager } from "./world-state"
-import { GameLoopController } from "./game-loop"
 import { ObjectFactory } from "./object-factory"
 import type {
   GameObject,
@@ -24,23 +23,7 @@ export type WorldConfig = {
 
 export class World {
   private readonly _stateManager: WorldStateManager
-  private readonly _loopController: GameLoopController
   private readonly _objectFactory: ObjectFactory
-
-  /** 一時停止状態 */
-  public get isPaused(): boolean {
-    return this._loopController.isPaused
-  }
-
-  /** 実行中状態 */
-  public get isRunning(): boolean {
-    return this._loopController.isRunning
-  }
-
-  /** 現在のFPS */
-  public get currentFPS(): number {
-    return this._loopController.currentFPS
-  }
 
   /** ワールド状態を取得 */
   public get state() {
@@ -50,9 +33,6 @@ export class World {
   public constructor(config: WorldConfig) {
     // 状態管理の初期化
     this._stateManager = new WorldStateManager(config.width, config.height, config.parameters)
-
-    // ゲームループの初期化
-    this._loopController = new GameLoopController(this._stateManager)
 
     // オブジェクトファクトリの初期化
     this._objectFactory = new ObjectFactory(config.width, config.height)
@@ -101,29 +81,9 @@ export class World {
     }
   }
 
-  /** ゲーム開始 */
-  public start(): void {
-    this._loopController.start()
-  }
-
-  /** ゲーム停止 */
-  public stop(): void {
-    this._loopController.stop()
-  }
-
-  /** 一時停止 */
-  public pause(): void {
-    this._loopController.pause()
-  }
-
-  /** 再開 */
-  public resume(): void {
-    this._loopController.resume()
-  }
-
   /** パラメータを更新 */
   public updateParameters(params: Partial<WorldParameters>): void {
-    this._loopController.updateParameters(params)
+    this._stateManager.updateParameters(params)
   }
 
   /** オブジェクトを追加 */
@@ -157,6 +117,20 @@ export class World {
   /** 力場を削除 */
   public removeForceField(id: DirectionalForceField["id"]): void {
     this._stateManager.removeForceField(id)
+  }
+
+  /** 1tick進める（手動実行用） */
+  public tick(): void {
+    // ticksPerFrame回数分のtickを実行
+    const ticksPerFrame = this._stateManager.state.parameters.ticksPerFrame
+    for (let i = 0; i < ticksPerFrame; i++) {
+      this._stateManager.incrementTick()
+      
+      // TODO: 物理演算の実行
+      // TODO: エネルギーシステムの更新
+      // TODO: ユニットの動作処理
+      // TODO: Synthetica Script VMの実行
+    }
   }
 
   /** デバッグ用：ランダムな位置にエネルギーオブジェクトを生成 */

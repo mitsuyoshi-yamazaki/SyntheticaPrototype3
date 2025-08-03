@@ -97,7 +97,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         gameWorld.renderPixi(gameContainer)
 
         // デバッグ情報更新
-        debugText.text = `FPS: ${fps}\nTicks per frame: ${ticksPerFrame}`
+        debugText.text = `FPS: ${fps}\nTicks per frame: ${ticksPerFrame}\nTick: ${gameWorld.tickCount}`
       })
     }
 

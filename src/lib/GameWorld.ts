@@ -49,9 +49,6 @@ export class GameWorld {
       height,
       initialAgents: [sampleAgent],
     })
-
-    // ゲームループ開始
-    this._world.start()
   }
 
   public renderPixi(container: PIXI.Container): void {
@@ -101,6 +98,11 @@ export class GameWorld {
       objGraphics.y = obj.position.y
       container.addChild(objGraphics)
     }
+  }
+
+  /** 1tick進める */
+  public tick(): void {
+    this._world.tick()
   }
 
   /** デバッグ用：ランダムエネルギー生成 */
