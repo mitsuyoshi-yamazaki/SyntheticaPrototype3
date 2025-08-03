@@ -388,6 +388,7 @@ describe("ObjectFactory", () => {
       // HULL
       const hull = objects[0]
       expect(hull).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(hull!.type).toBe("HULL")
       expect((hull as Hull).capacity).toBe(500)
       expect((hull as Hull).attachedUnits).toHaveLength(2)
@@ -395,19 +396,25 @@ describe("ObjectFactory", () => {
       // ASSEMBLER
       const assembler = objects[1]
       expect(assembler).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(assembler!.type).toBe("ASSEMBLER")
       expect((assembler as Assembler).assemblePower).toBe(2)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect((assembler as Assembler).parentHull).toBe(hull!.id)
       
       // COMPUTER
       const computer = objects[2]
       expect(computer).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(computer!.type).toBe("COMPUTER")
       expect((computer as Computer).processingPower).toBe(10)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect((computer as Computer).parentHull).toBe(hull!.id)
       
       // 全てのオブジェクトが同じ位置にある
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(assembler!.position).toEqual(hull!.position)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(computer!.position).toEqual(hull!.position)
     })
 
