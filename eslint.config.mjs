@@ -12,6 +12,35 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 })
 
+const sharedRules = {
+  // Custom rules
+  "prefer-const": "error",
+  "no-var": "error",
+  eqeqeq: ["error", "always", { null: "never" }],
+  // null/undefinedの比較では == を強制
+  "@typescript-eslint/prefer-nullish-coalescing": "error",
+  curly: "error",
+  "@typescript-eslint/prefer-function-type": "error",
+  "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+  "prefer-arrow-callback": "error",
+  "@typescript-eslint/no-explicit-any": "error",
+  "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+  "@typescript-eslint/explicit-member-accessibility": "error",
+  "@typescript-eslint/strict-boolean-expressions": [
+    "error",
+    {
+      allowString: false,
+      allowNumber: false,
+      allowNullableObject: false,
+      allowNullableBoolean: false,
+      allowNullableString: false,
+      allowNullableNumber: false,
+      allowNullableEnum: false,
+      allowAny: false,
+    },
+  ],
+}
+
 const eslintConfig = [
   // JavaScript recommended rules
   js.configs.recommended,
@@ -19,7 +48,13 @@ const eslintConfig = [
   // アプリケーションコード用の設定
   {
     files: ["**/*.ts", "**/*.tsx"],
-    ignores: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/__tests__/**/*"],
+    ignores: [
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      "**/__tests__/**/*",
+    ],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
@@ -37,32 +72,7 @@ const eslintConfig = [
       // TypeScript stylistic type-checked rules
       ...tseslint.configs["stylistic-type-checked"].rules,
 
-      // Custom rules
-      "prefer-const": "error",
-      "no-var": "error",
-      eqeqeq: ["error", "always", { null: "never" }],
-      // null/undefinedの比較では == を強制
-      "@typescript-eslint/prefer-nullish-coalescing": "error",
-      curly: "error",
-      "@typescript-eslint/prefer-function-type": "error",
-      "@typescript-eslint/consistent-type-definitions": ["error", "type"],
-      "prefer-arrow-callback": "error",
-      "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-      "@typescript-eslint/explicit-member-accessibility": "error",
-      "@typescript-eslint/strict-boolean-expressions": [
-        "error",
-        {
-          allowString: false,
-          allowNumber: false,
-          allowNullableObject: false,
-          allowNullableBoolean: false,
-          allowNullableString: false,
-          allowNullableNumber: false,
-          allowNullableEnum: false,
-          allowAny: false,
-        },
-      ],
+      ...sharedRules,
       "@typescript-eslint/member-ordering": [
         "error",
         {
@@ -106,7 +116,7 @@ const eslintConfig = [
       "@typescript-eslint": tseslint,
     },
     rules: {
-      // テスト用のルール設定（ユーザーが後で設定）
+      ...sharedRules,
     },
   },
 
