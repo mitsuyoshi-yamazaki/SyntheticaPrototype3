@@ -5,12 +5,15 @@
 /** オブジェクトの一意識別子 */
 export type ObjectId = number & { readonly __brand: "ObjectId" }
 
+/** ユニットの種別 */
+export type HullType = "HULL" // HULLユニット
+export type AssemblerType = "ASSEMBLER" // ASSEMBLERユニット
+export type ComputerType = "COMPUTER" // COMPUTERユニット
+export type UnitType = HullType | AssemblerType | ComputerType
+
 /** ゲームオブジェクトの種別 */
-export type ObjectType =
-  | "ENERGY" // エネルギーオブジェクト
-  | "HULL" // HULLユニット
-  | "ASSEMBLER" // ASSEMBLERユニット
-  | "COMPUTER" // COMPUTERユニット
+export type EnergyType = "ENERGY" // エネルギーオブジェクト
+export type ObjectType = EnergyType | UnitType
 
 /** 2次元ベクトル */
 export type Vec2 = {
@@ -68,7 +71,6 @@ export type Computer = Unit & {
   registers: Uint16Array // レジスタ（8個）
 }
 
-/** ユニット仕様（組立用） */
 export type UnitSpec = {
   type: ObjectType
   buildEnergy: number

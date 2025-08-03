@@ -4,7 +4,13 @@
  */
 
 import { WorldStateManager, DEFAULT_PARAMETERS } from "./world-state"
-import type { ObjectId, GameObject, EnergySource, DirectionalForceField } from "@/types/game"
+import type {
+  ObjectId,
+  GameObject,
+  EnergySource,
+  DirectionalForceField,
+  EnergyType,
+} from "@/types/game"
 import { Vec2 } from "@/utils/vec2"
 
 describe("WorldStateManager", () => {
@@ -98,7 +104,7 @@ describe("WorldStateManager", () => {
     test("オブジェクト追加・削除後もIDは再利用されない", () => {
       const obj1: GameObject = {
         id: manager.generateObjectId(),
-        type: "ENERGY",
+        type: "ENERGY" as EnergyType,
         position: Vec2.create(100, 100),
         velocity: Vec2.create(0, 0),
         radius: 10,
@@ -127,7 +133,7 @@ describe("WorldStateManager", () => {
     test("オブジェクトを追加・取得できる", () => {
       const obj: GameObject = {
         id: manager.generateObjectId(),
-        type: "ENERGY",
+        type: "ENERGY" as EnergyType,
         position: Vec2.create(100, 200),
         velocity: Vec2.create(1, 2),
         radius: 5,
@@ -150,7 +156,7 @@ describe("WorldStateManager", () => {
     test("オブジェクトを削除できる", () => {
       const obj: GameObject = {
         id: manager.generateObjectId(),
-        type: "ENERGY",
+        type: "ENERGY" as EnergyType,
         position: Vec2.create(0, 0),
         velocity: Vec2.create(0, 0),
         radius: 5,
@@ -213,7 +219,7 @@ describe("WorldStateManager", () => {
     test("オブジェクト追加時に空間インデックスが更新される", () => {
       const obj: GameObject = {
         id: manager.generateObjectId(),
-        type: "ENERGY",
+        type: "ENERGY" as EnergyType,
         position: Vec2.create(150, 250),
         velocity: Vec2.create(0, 0),
         radius: 5,
@@ -233,7 +239,7 @@ describe("WorldStateManager", () => {
     test("オブジェクト削除時に空間インデックスから削除される", () => {
       const obj: GameObject = {
         id: manager.generateObjectId(),
-        type: "ENERGY",
+        type: "ENERGY" as EnergyType,
         position: Vec2.create(150, 250),
         velocity: Vec2.create(0, 0),
         radius: 5,
@@ -254,7 +260,7 @@ describe("WorldStateManager", () => {
       const objects: GameObject[] = [
         {
           id: manager.generateObjectId(),
-          type: "ENERGY",
+          type: "ENERGY" as EnergyType,
           position: Vec2.create(100, 100),
           velocity: Vec2.create(0, 0),
           radius: 5,
@@ -263,7 +269,7 @@ describe("WorldStateManager", () => {
         },
         {
           id: manager.generateObjectId(),
-          type: "ENERGY",
+          type: "ENERGY" as EnergyType,
           position: Vec2.create(120, 120),
           velocity: Vec2.create(0, 0),
           radius: 5,
@@ -272,7 +278,7 @@ describe("WorldStateManager", () => {
         },
         {
           id: manager.generateObjectId(),
-          type: "ENERGY",
+          type: "ENERGY" as EnergyType,
           position: Vec2.create(300, 300), // 遠い
           velocity: Vec2.create(0, 0),
           radius: 5,
@@ -293,7 +299,7 @@ describe("WorldStateManager", () => {
     test("空間インデックスを再構築できる", () => {
       const obj1: GameObject = {
         id: manager.generateObjectId(),
-        type: "ENERGY",
+        type: "ENERGY" as EnergyType,
         position: Vec2.create(50, 50),
         velocity: Vec2.create(0, 0),
         radius: 5,
@@ -302,7 +308,7 @@ describe("WorldStateManager", () => {
       }
       const obj2: GameObject = {
         id: manager.generateObjectId(),
-        type: "ENERGY",
+        type: "ENERGY" as EnergyType,
         position: Vec2.create(250, 250),
         velocity: Vec2.create(0, 0),
         radius: 5,
@@ -351,7 +357,7 @@ describe("WorldStateManager", () => {
     test("位置が0の場合の空間インデックス", () => {
       const obj: GameObject = {
         id: manager.generateObjectId(),
-        type: "ENERGY",
+        type: "ENERGY" as EnergyType,
         position: Vec2.create(0, 0),
         velocity: Vec2.create(0, 0),
         radius: 5,
@@ -366,7 +372,7 @@ describe("WorldStateManager", () => {
     test("負の位置の場合の空間インデックス", () => {
       const obj: GameObject = {
         id: manager.generateObjectId(),
-        type: "ENERGY",
+        type: "ENERGY" as EnergyType,
         position: Vec2.create(-150, -250),
         velocity: Vec2.create(0, 0),
         radius: 5,
@@ -382,7 +388,7 @@ describe("WorldStateManager", () => {
     test("非常に大きな範囲でのオブジェクト検索", () => {
       const obj: GameObject = {
         id: manager.generateObjectId(),
-        type: "ENERGY",
+        type: "ENERGY" as EnergyType,
         position: Vec2.create(500, 500),
         velocity: Vec2.create(0, 0),
         radius: 5,

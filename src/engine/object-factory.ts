@@ -12,6 +12,10 @@ import type {
   Vec2,
   UnitSpec,
   AgentDefinition,
+  EnergyType,
+  HullType,
+  AssemblerType,
+  ComputerType,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { wrapPosition } from "@/utils/torus-math"
@@ -54,7 +58,7 @@ export class ObjectFactory {
 
     return {
       id,
-      type: "ENERGY",
+      type: "ENERGY" as EnergyType,
       position: wrappedPos,
       velocity: { ...velocity },
       radius: calculateEnergyRadius(energy),
@@ -75,7 +79,7 @@ export class ObjectFactory {
 
     return {
       id,
-      type: "HULL",
+      type: "HULL" as HullType,
       position: wrappedPos,
       velocity: { ...velocity },
       radius: calculateHullRadius(capacity, buildEnergy),
@@ -102,7 +106,7 @@ export class ObjectFactory {
 
     return {
       id,
-      type: "ASSEMBLER",
+      type: "ASSEMBLER" as AssemblerType,
       position: wrappedPos,
       velocity: { ...velocity },
       radius: calculateUnitRadius(buildEnergy),
@@ -137,7 +141,7 @@ export class ObjectFactory {
 
     return {
       id,
-      type: "COMPUTER",
+      type: "COMPUTER" as ComputerType,
       position: wrappedPos,
       velocity: { ...velocity },
       radius: calculateUnitRadius(buildEnergy),
