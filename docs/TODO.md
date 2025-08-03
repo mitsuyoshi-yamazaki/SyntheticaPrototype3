@@ -22,7 +22,7 @@
 - ✅ Vec2テスト作成
 - ✅ トーラス数学実装（wrapPosition, shortestVector等）
 - ✅ トーラス数学テスト作成
-- オブジェクトプール実装のテスト作成
+- ✅ オブジェクトプール実装のテスト作成
 
 ### ゲームループ基盤
 - ✅ GameLoopController実装（一時停止/再開、FPS管理）

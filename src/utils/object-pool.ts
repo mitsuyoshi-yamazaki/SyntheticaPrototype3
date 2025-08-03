@@ -41,8 +41,8 @@ export class ObjectPool<T extends Poolable> {
   
   /** オブジェクトを返却 */
   public release(obj: T): void {
+    obj.reset()
     if (this._pool.length < this._maxSize) {
-      obj.reset()
       this._pool.push(obj)
     }
   }
