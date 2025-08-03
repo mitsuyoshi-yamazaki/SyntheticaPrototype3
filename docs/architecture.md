@@ -10,13 +10,13 @@
 ┌─────────────────────────────────────────────────────────┐
 │                    ブラウザ (Main Thread)                 │
 ├─────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │  React UI   │  │  PixiJS      │  │  Game Loop   │  │
-│  │  Components │  │  Renderer    │  │  Controller  │  │
-│  └──────┬──────┘  └──────┬───────┘  └───────┬──────┘  │
-│         │                 │                   │         │
-│  ┌──────┴─────────────────┴───────────────────┴──────┐  │
-│  │              Game Engine Core                      │  │
+│  ┌─────────────┐  ┌──────────────────────────────────┐  │
+│  │  React UI   │  │  PixiJS (Ticker Driver)          │  │
+│  │  Components │  │  Renderer + GameWorld.tick()     │  │
+│  └──────┬──────┘  └──────────────┬───────────────────┘  │
+│         │                        │                       │
+│  ┌──────┴────────────────────────┴────────────────────┐  │
+│  │              Game Engine Core (World)              │  │
 │  ├────────────────────────────────────────────────────┤  │
 │  │  World State │ Physics │ Energy │ Units │ VM     │  │
 │  └────────────────────────────────────────────────────┘  │
@@ -167,13 +167,15 @@ interface VMState {
 ```
 User Input → UI Components → Parameter Manager
                                     ↓
-Game Loop ← World State ← Game Engine Core
-    ↓           ↑               ↑
-Renderer    Physics Engine   Energy System
-                                ↑
-                            Unit System
-                                ↑
-                          Synthetica VM
+PixiJS Ticker → GameWorld.tick() → World.tick()
+    ↓                                   ↓
+Renderer ←───── World State ←────── Game Engine Core
+                    ↑                   ↑
+                Physics Engine      Energy System
+                                        ↑
+                                   Unit System
+                                        ↑
+                                  Synthetica VM
 ```
 
 ## パフォーマンス最適化
@@ -235,7 +237,7 @@ interface WorldParameters {
 
   // Simulation
   ticksPerFrame: number
-  targetFPS: number
+  maxFPS?: number  // FPS上限（オプション）
 }
 ```
 
@@ -270,9 +272,9 @@ interface AgentDefinition {
 ```
 src/
 ├── engine/          # ゲームエンジンコア
-│   ├── world.ts
-│   ├── objects.ts
-│   └── gameloop.ts
+│   ├── world.ts         # Worldクラス（tickメソッド付き）
+│   ├── world-state.ts   # 状態管理
+│   └── object-factory.ts # オブジェクト生成
 ├── physics/         # 物理エンジン
 │   ├── collision.ts
 │   ├── forces.ts
@@ -295,9 +297,12 @@ src/
 │   ├── camera.ts
 │   └── debug-overlay.ts
 ├── components/      # UIコンポーネント
+│   ├── GameCanvasPixi.tsx # PixiJS描画・シミュレーション駆動
 │   ├── ControlPanel.tsx
 │   ├── ParameterEditor.tsx
 │   └── DebugTools.tsx
+├── lib/             # ブリッジクラス
+│   └── GameWorld.ts     # UI層とエンジンのブリッジ
 ├── utils/           # ユーティリティ
 │   ├── vec2.ts
 │   ├── torus-math.ts

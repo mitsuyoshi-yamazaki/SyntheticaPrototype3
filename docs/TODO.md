@@ -27,10 +27,10 @@
 
 ### ゲームループ基盤
 
-- ✅ GameLoopController実装（一時停止/再開、FPS管理）
-- GameLoopControllerテスト作成
 - ✅ WorldStateManager実装（tick管理、オブジェクト管理）
 - WorldStateManagerテスト作成
+- ✅ World.tick()メソッド実装（外部駆動型）
+- ✅ Pixi.js tickerとの統合
 
 ### オブジェクトシステム
 
@@ -159,6 +159,7 @@
 
 - ✅ PixiJSレンダラー初期化
 - ✅ GameCanvasPixiコンポーネント実装
+- ✅ Pixi.js tickerによるシミュレーション駆動
 - カスタムViewport実装（パン・ズーム機能）
 - Viewportテスト作成
 
@@ -166,6 +167,7 @@
 
 - ✅ ゲームオブジェクト描画（円形、色分け）
 - ✅ エネルギーソース描画
+- ✅ デバッグ情報表示（FPS、tick数）
 - ユニット種別ごとの視覚表現実装
 - 熱マップオーバーレイ実装
 - 力場可視化実装
@@ -270,3 +272,4 @@
 - ✅ 実装アーキテクチャ設計
 - ✅ 描画ライブラリ選定（p5.js→PixiJS）
 - ✅ ゲームエンジンコア実装
+- ✅ GameLoop実装後、Pixi.js ticker駆動に変更
