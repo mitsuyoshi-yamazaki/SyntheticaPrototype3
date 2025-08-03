@@ -3,8 +3,14 @@
  */
 
 import { ObjectFactory, calculateEnergyRadius, calculateUnitRadius, calculateHullRadius } from "./object-factory"
-import type { ObjectId, Vec2, AgentDefinition, UnitSpec } from "@/types/game"
+import type { ObjectId, AgentDefinition, UnitSpec, Hull, Assembler, Computer } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
+
+// テスト用のObjectId生成関数
+const createTestObjectId = (value: string | number): ObjectId => {
+  // テスト環境でのみ使用する変換関数
+  return value as unknown as ObjectId
+}
 
 describe("ObjectFactory", () => {
   const worldWidth = 1000
@@ -14,7 +20,7 @@ describe("ObjectFactory", () => {
 
   const generateId = (): ObjectId => {
     idCounter++
-    return `test-id-${idCounter}` as ObjectId
+    return createTestObjectId(`test-id-${idCounter}`)
   }
 
   beforeEach(() => {
@@ -268,7 +274,7 @@ describe("ObjectFactory", () => {
       const obj = factory.createFromSpec(generateId(), spec, Vec2Utils.create(100, 200))
       
       expect(obj.type).toBe("HULL")
-      expect((obj as any).capacity).toBe(800)
+      expect((obj as Hull).capacity).toBe(800)
     })
 
     test("ASSEMBLER仕様からオブジェクトを作成", () => {
@@ -286,7 +292,7 @@ describe("ObjectFactory", () => {
       )
       
       expect(obj.type).toBe("ASSEMBLER")
-      expect((obj as any).assemblePower).toBe(3)
+      expect((obj as Assembler).assemblePower).toBe(3)
     })
 
     test("COMPUTER仕様からオブジェクトを作成", () => {
@@ -300,8 +306,8 @@ describe("ObjectFactory", () => {
       const obj = factory.createFromSpec(generateId(), spec, Vec2Utils.create(100, 200))
       
       expect(obj.type).toBe("COMPUTER")
-      expect((obj as any).processingPower).toBe(20)
-      expect((obj as any).memorySize).toBe(2048)
+      expect((obj as Computer).processingPower).toBe(20)
+      expect((obj as Computer).memorySize).toBe(2048)
     })
 
     test("ENERGY仕様からオブジェクトを作成", () => {
@@ -318,9 +324,9 @@ describe("ObjectFactory", () => {
 
     test("未知のタイプはエラー", () => {
       const spec = {
-        type: "UNKNOWN" as any,
+        type: "UNKNOWN",
         buildEnergy: 100,
-      }
+      } as unknown as UnitSpec
       
       expect(() => {
         factory.createFromSpec(generateId(), spec, Vec2Utils.create(0, 0))
@@ -335,7 +341,7 @@ describe("ObjectFactory", () => {
       }
       
       const hull = factory.createFromSpec(generateId(), hullSpec, Vec2Utils.create(0, 0))
-      expect((hull as any).capacity).toBe(100) // デフォルト値
+      expect((hull as Hull).capacity).toBe(100) // デフォルト値
       
       const assemblerSpec: UnitSpec = {
         type: "ASSEMBLER",
@@ -348,7 +354,7 @@ describe("ObjectFactory", () => {
         assemblerSpec,
         Vec2Utils.create(0, 0)
       )
-      expect((assembler as any).assemblePower).toBe(1) // デフォルト値
+      expect((assembler as Assembler).assemblePower).toBe(1) // デフォルト値
     })
   })
 
@@ -381,25 +387,28 @@ describe("ObjectFactory", () => {
       
       // HULL
       const hull = objects[0]
-      expect(hull.type).toBe("HULL")
-      expect((hull as any).capacity).toBe(500)
-      expect((hull as any).attachedUnits).toHaveLength(2)
+      expect(hull).toBeDefined()
+      expect(hull!.type).toBe("HULL")
+      expect((hull as Hull).capacity).toBe(500)
+      expect((hull as Hull).attachedUnits).toHaveLength(2)
       
       // ASSEMBLER
       const assembler = objects[1]
-      expect(assembler.type).toBe("ASSEMBLER")
-      expect((assembler as any).assemblePower).toBe(2)
-      expect((assembler as any).parentHull).toBe(hull.id)
+      expect(assembler).toBeDefined()
+      expect(assembler!.type).toBe("ASSEMBLER")
+      expect((assembler as Assembler).assemblePower).toBe(2)
+      expect((assembler as Assembler).parentHull).toBe(hull!.id)
       
       // COMPUTER
       const computer = objects[2]
-      expect(computer.type).toBe("COMPUTER")
-      expect((computer as any).processingPower).toBe(10)
-      expect((computer as any).parentHull).toBe(hull.id)
+      expect(computer).toBeDefined()
+      expect(computer!.type).toBe("COMPUTER")
+      expect((computer as Computer).processingPower).toBe(10)
+      expect((computer as Computer).parentHull).toBe(hull!.id)
       
       // 全てのオブジェクトが同じ位置にある
-      expect(assembler.position).toEqual(hull.position)
-      expect(computer.position).toEqual(hull.position)
+      expect(assembler!.position).toEqual(hull!.position)
+      expect(computer!.position).toEqual(hull!.position)
     })
 
     test("位置を指定してエージェントを作成", () => {
@@ -415,7 +424,9 @@ describe("ObjectFactory", () => {
       const position = Vec2Utils.create(123, 456)
       const objects = factory.createAgent(generateId, agentDef, position)
       
-      expect(objects[0].position).toEqual({ x: 123, y: 456 })
+      expect(objects[0]).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(objects[0]!.position).toEqual({ x: 123, y: 456 })
     })
 
     test("エージェント定義に位置が含まれる場合", () => {
@@ -431,7 +442,9 @@ describe("ObjectFactory", () => {
       
       const objects = factory.createAgent(generateId, agentDef)
       
-      expect(objects[0].position).toEqual({ x: 789, y: 321 })
+      expect(objects[0]).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(objects[0]!.position).toEqual({ x: 789, y: 321 })
     })
 
     test("引数の位置がエージェント定義の位置より優先される", () => {
@@ -448,7 +461,9 @@ describe("ObjectFactory", () => {
       const position = Vec2Utils.create(333, 444)
       const objects = factory.createAgent(generateId, agentDef, position)
       
-      expect(objects[0].position).toEqual({ x: 333, y: 444 })
+      expect(objects[0]).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(objects[0]!.position).toEqual({ x: 333, y: 444 })
     })
 
     test("位置が指定されない場合はランダム位置", () => {
@@ -463,7 +478,9 @@ describe("ObjectFactory", () => {
       
       const objects = factory.createAgent(generateId, agentDef)
       
-      const pos = objects[0].position
+      expect(objects[0]).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const pos = objects[0]!.position
       expect(pos.x).toBeGreaterThanOrEqual(0)
       expect(pos.x).toBeLessThan(worldWidth)
       expect(pos.y).toBeGreaterThanOrEqual(0)
@@ -492,9 +509,9 @@ describe("ObjectFactory", () => {
       const objects = factory.createAgent(generateId, agentDef)
       const computer = objects[1]
       
-      expect((computer as any).memory[0]).toBe(0xaa)
-      expect((computer as any).memory[1]).toBe(0xbb)
-      expect((computer as any).memory[2]).toBe(0xcc)
+      expect((computer as Computer).memory[0]).toBe(0xaa)
+      expect((computer as Computer).memory[1]).toBe(0xbb)
+      expect((computer as Computer).memory[2]).toBe(0xcc)
     })
 
     test("未知のユニットタイプはエラー", () => {
@@ -505,10 +522,10 @@ describe("ObjectFactory", () => {
           capacity: 500,
         },
         units: [
-          {
-            type: "UNKNOWN" as any,
+          ({
+            type: "UNKNOWN",
             buildEnergy: 100,
-          },
+          } as unknown as UnitSpec),
         ],
       }
       
@@ -542,12 +559,15 @@ describe("ObjectFactory", () => {
       }
       
       const objects = factory.createAgent(generateId, agentDef)
-      const hull = objects[0] as any
+      const hull = objects[0] as Hull
       
       expect(hull.attachedUnits).toHaveLength(3)
-      expect(hull.attachedUnits[0]).toBe(objects[1].id)
-      expect(hull.attachedUnits[1]).toBe(objects[2].id)
-      expect(hull.attachedUnits[2]).toBe(objects[3].id)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(hull.attachedUnits[0]).toBe(objects[1]!.id)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(hull.attachedUnits[1]).toBe(objects[2]!.id)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(hull.attachedUnits[2]).toBe(objects[3]!.id)
     })
   })
 
@@ -605,11 +625,14 @@ describe("ObjectFactory", () => {
         originalVelocity
       )
       
-      // 元の速度を変更
-      originalVelocity.x = 999
+      // 元の速度を変更（これはテストのための意図的な変更）
+      // TypeScriptの読み取り専用プロパティを回避するため、新しいオブジェクトを作成
+      const mutableVelocity = { ...originalVelocity }
+      mutableVelocity.x = 999
       
-      // オブジェクトの速度は変更されない
+      // オブジェクトの速度は変更されない（元のvelocityオブジェクトとは独立）
       expect(obj.velocity.x).toBe(10)
+      expect(obj.velocity).not.toBe(originalVelocity) // 参照が異なることを確認
     })
   })
 })
