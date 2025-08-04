@@ -20,7 +20,9 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
   const gameWorldRef = useRef<GameWorld | null>(null)
 
   useEffect(() => {
-    if (containerRef.current == null) return
+    if (containerRef.current == null) {
+      return
+    }
 
     // PixiJS Applicationの初期化
     const initPixi = async () => {

@@ -41,9 +41,16 @@ const sharedRules = {
   ],
 }
 
+/**
+ * eslintConfigに同じルールに関して複数回設定が行われている場合、lint対象に関する設定のみを抽出したうえで最も最後に記載された設定が有効となる = プロジェクト固有の設定は末尾に記載する
+ * 最終的に適用されるルールの一覧の表示: `$ npx eslint --print-config yourfile.js`
+ */
 const eslintConfig = [
   // JavaScript recommended rules
   js.configs.recommended,
+
+  // Next.js and Prettier rules
+  ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"),
 
   // アプリケーションコード用の設定
   {
@@ -119,9 +126,6 @@ const eslintConfig = [
       ...sharedRules,
     },
   },
-
-  // Next.js and Prettier rules
-  ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"),
 ]
 
 export default eslintConfig
