@@ -64,6 +64,11 @@ export class GameWorld {
     })
   }
 
+  /** ゲームオブジェクトの総数を取得 */
+  public getObjectCount(): number {
+    return this._world.state.objects.size
+  }
+
   public renderPixi(container: PIXI.Container): void {
     // コンテナをクリア
     container.removeChildren()
