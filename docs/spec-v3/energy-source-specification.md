@@ -221,8 +221,17 @@ struct EnergySource {
 - [ ] パフォーマンステスト
 - [ ] パラメータ調整UI（開発用）
 
+## エネルギーの持続性
+
+生成されたエネルギーオブジェクトは自然崩壊により徐々に熱に変換されます：
+- 崩壊量 = `ceil(sqrt(エネルギー量) / 10)` E/tick
+- 詳細は`energy-decay-specification.md`参照
+
+これにより、エネルギーが無限に蓄積することを防ぎ、システム全体のバランスを保ちます。
+
 ## 関連ドキュメント
 
 - `game-world-requirement.md`: 基本的な要件定義
 - `energy-definition.md`: エネルギーシステムの概要
 - `energy-action-order.md`: 処理順序の仕様
+- `energy-decay-specification.md`: エネルギー自然崩壊の仕様
