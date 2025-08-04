@@ -4,6 +4,9 @@
 
 import { WorldStateManager } from "./world-state"
 import { ObjectFactory } from "./object-factory"
+import { HullEnergyManager } from "./hull-energy-manager"
+import { EnergySourceManager } from "./energy-source-manager"
+import { EnergyCollector } from "./energy-collector"
 import type {
   GameObject,
   EnergySource,
@@ -11,6 +14,8 @@ import type {
   WorldParameters,
   AgentDefinition,
   Vec2,
+  Hull,
+  EnergyObject,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
@@ -24,6 +29,9 @@ export type WorldConfig = {
 export class World {
   private readonly _stateManager: WorldStateManager
   private readonly _objectFactory: ObjectFactory
+  private readonly _hullEnergyManager: HullEnergyManager
+  private readonly _energySourceManager: EnergySourceManager
+  private readonly _energyCollector: EnergyCollector
 
   /** ワールド状態を取得 */
   public get state() {
@@ -36,6 +44,15 @@ export class World {
 
     // オブジェクトファクトリの初期化
     this._objectFactory = new ObjectFactory(config.width, config.height)
+
+    // HULLエネルギー管理の初期化
+    this._hullEnergyManager = new HullEnergyManager()
+
+    // エネルギーソース管理の初期化
+    this._energySourceManager = new EnergySourceManager(config.width, config.height)
+
+    // エネルギー収集システムの初期化
+    this._energyCollector = new EnergyCollector(config.width, config.height)
 
     this.initialize(config)
   }
@@ -123,9 +140,71 @@ export class World {
       // 物理演算の実行（1tick = 1時間単位）
       this._stateManager.updatePhysics(1.0)
 
-      // TODO: エネルギーシステムの更新
+      // エネルギーシステムの更新
+      this.updateEnergySystem()
+
       // TODO: ユニットの動作処理
       // TODO: Synthetica Script VMの実行
+    }
+  }
+
+  /** エネルギーシステムの更新 */
+  private updateEnergySystem(): void {
+    // エネルギーソースからの生成
+    this.generateEnergyFromSources()
+
+    // HULLによるエネルギー収集
+    this.collectEnergyForHulls()
+  }
+
+  /** エネルギーソースからエネルギーを生成 */
+  private generateEnergyFromSources(): void {
+    for (const source of this._stateManager.state.energySources.values()) {
+      const result = this._energySourceManager.generateEnergy(
+        source,
+        () => this._stateManager.generateObjectId()
+      )
+
+      // 生成されたエネルギーオブジェクトを追加
+      for (const energyObj of result.generatedObjects) {
+        this._stateManager.addObject(energyObj)
+      }
+    }
+  }
+
+  /** HULLのエネルギー収集処理 */
+  private collectEnergyForHulls(): void {
+    const hulls: Hull[] = []
+    const energyObjectsMap = new Map<EnergyObject["id"], EnergyObject>()
+
+    // HULLとエネルギーオブジェクトを分類
+    for (const obj of this._stateManager.state.objects.values()) {
+      if (obj.type === "HULL") {
+        hulls.push(obj as Hull)
+      } else if (obj.type === "ENERGY") {
+        const energyObj = obj as EnergyObject
+        energyObjectsMap.set(energyObj.id, energyObj)
+      }
+    }
+
+    // 各HULLのエネルギー収集
+    for (const hull of hulls) {
+      const result = this._energyCollector.collectEnergy(hull, energyObjectsMap)
+
+      if (result.collectedIds.length > 0) {
+        // HULLにエネルギーを追加
+        const energyResult = this._hullEnergyManager.addEnergy(hull, result.totalEnergy)
+        
+        // HULLを更新
+        this._stateManager.updateObject(energyResult.updatedHull)
+
+        // 収集されたエネルギーオブジェクトを削除
+        for (const id of result.collectedIds) {
+          this._stateManager.removeObject(id)
+          // Mapからも削除
+          energyObjectsMap.delete(id)
+        }
+      }
     }
   }
 

@@ -90,6 +90,17 @@ export class WorldStateManager {
     }
   }
 
+  /** オブジェクトを更新 */
+  public updateObject(obj: GameObject): void {
+    const oldObj = this._state.objects.get(obj.id)
+    if (oldObj != null) {
+      // 空間インデックスを更新
+      this.removeSpatialIndex(oldObj)
+      this._state.objects.set(obj.id, obj)
+      this.updateSpatialIndex(obj)
+    }
+  }
+
   /** オブジェクトを取得 */
   public getObject(id: ObjectId): GameObject | undefined {
     return this._state.objects.get(id)
