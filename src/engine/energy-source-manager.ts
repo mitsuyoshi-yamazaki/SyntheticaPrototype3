@@ -34,16 +34,12 @@ export const DEFAULT_SOURCE_PARAMETERS: EnergySourceParameters = {
 export class EnergySourceManager {
   private readonly _energySystem: EnergySystem
   private readonly _parameters: EnergySourceParameters
-  private readonly _worldWidth: number
-  private readonly _worldHeight: number
   
   public constructor(
     worldWidth: number,
     worldHeight: number,
     parameters: EnergySourceParameters = DEFAULT_SOURCE_PARAMETERS
   ) {
-    this._worldWidth = worldWidth
-    this._worldHeight = worldHeight
     this._parameters = parameters
     this._energySystem = new EnergySystem(worldWidth, worldHeight)
   }

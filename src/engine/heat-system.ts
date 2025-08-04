@@ -189,9 +189,9 @@ export class HeatSystem {
           radiationAmount = currentHeat
         }
         
-        const row = this._currentHeat[y]
-        if (row?.[x] !== undefined) {
-          row[x] = currentHeat - radiationAmount
+        const currentRow = this._currentHeat[y]
+        if (currentRow?.[x] !== undefined) {
+          currentRow[x] = currentHeat - radiationAmount
         }
       }
     }

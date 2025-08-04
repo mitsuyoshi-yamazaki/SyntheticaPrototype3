@@ -221,7 +221,7 @@ export class WorldStateManager {
    * @returns 物理演算の結果
    */
   public updatePhysics(deltaTime: number): ReturnType<PhysicsEngine["update"]> {
-    return this._physicsEngine.update(this._state.objects, deltaTime)
+    return this._physicsEngine.update(this._state.objects, this._state.forceFields, deltaTime)
   }
 
   /**

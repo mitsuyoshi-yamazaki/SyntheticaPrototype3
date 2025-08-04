@@ -177,7 +177,7 @@ describe("WorldStateManager", () => {
       const source: EnergySource = {
         id: manager.generateObjectId(),
         position: Vec2.create(500, 400),
-        rate: 50,
+        energyPerTick: 50,
       }
 
       manager.addEnergySource(source)
@@ -285,9 +285,9 @@ describe("WorldStateManager", () => {
 
       const nearbyObjects = manager.getObjectsInRange(110, 110, 50)
       expect(nearbyObjects).toHaveLength(2)
-      expect(nearbyObjects.some(obj => obj.id === objects[0].id)).toBe(true)
-      expect(nearbyObjects.some(obj => obj.id === objects[1].id)).toBe(true)
-      expect(nearbyObjects.some(obj => obj.id === objects[2].id)).toBe(false)
+      expect(nearbyObjects.some(obj => obj.id === objects[0]?.id)).toBe(true)
+      expect(nearbyObjects.some(obj => obj.id === objects[1]?.id)).toBe(true)
+      expect(nearbyObjects.some(obj => obj.id === objects[2]?.id)).toBe(false)
     })
 
     test("空間インデックスを再構築できる", () => {
@@ -393,7 +393,7 @@ describe("WorldStateManager", () => {
       manager.addObject(obj)
       const objects = manager.getObjectsInRange(0, 0, 10000)
       expect(objects).toHaveLength(1)
-      expect(objects[0].id).toBe(obj.id)
+      expect(objects[0]?.id).toBe(obj.id)
     })
   })
 })

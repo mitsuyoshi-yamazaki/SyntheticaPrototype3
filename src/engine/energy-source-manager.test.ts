@@ -63,8 +63,9 @@ describe("EnergySourceManager", () => {
       )
 
       // 元の位置を変更してもソースの位置は変わらない
-      position.x = 300
+      const newPosition = Vec2Utils.create(300, position.y)
       expect(source.position.x).toBe(100)
+      expect(newPosition.x).toBe(300)
     })
   })
 

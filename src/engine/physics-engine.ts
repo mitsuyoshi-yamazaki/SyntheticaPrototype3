@@ -60,7 +60,7 @@ export class PhysicsEngine {
   private readonly _worldHeight: number
   private readonly _collisionDetector: CollisionDetector
   private readonly _parameters: PhysicsParameters
-  private readonly _forceFieldSystem: ForceFieldSystem
+  private _forceFieldSystem: ForceFieldSystem
   
   public constructor(
     cellSize: number,

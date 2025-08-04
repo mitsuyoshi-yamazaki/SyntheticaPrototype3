@@ -28,11 +28,11 @@ const createTestHull = (
     radius,
     energy,
     mass: 100 + energy, // 本体質量100 + エネルギー
-    spec: {
-      type: "PRIME",
-      maxEnergy: 10000,
-    },
-    mountedUnits: [],
+    buildEnergy: 100,
+    currentEnergy: 100,
+    capacity: 10000,
+    storedEnergy: energy,
+    attachedUnits: [],
   }
 }
 

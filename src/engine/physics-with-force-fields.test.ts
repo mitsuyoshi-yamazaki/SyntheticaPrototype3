@@ -3,7 +3,7 @@
  */
 
 import { PhysicsEngine } from "./physics-engine"
-import type { GameObject, ObjectId, DirectionalForceField } from "@/types/game"
+import type { GameObject, ObjectId, DirectionalForceField, Vec2 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 // テスト用のObjectId生成関数
