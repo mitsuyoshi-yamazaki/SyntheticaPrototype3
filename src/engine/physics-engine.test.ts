@@ -4,7 +4,7 @@
 
 import { PhysicsEngine, DEFAULT_PHYSICS_PARAMETERS } from "./physics-engine"
 import type { PhysicsParameters } from "./physics-engine"
-import type { GameObject, ObjectId } from "@/types/game"
+import type { GameObject, ObjectId, DirectionalForceField } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 // テスト用のObjectId生成関数
@@ -53,7 +53,7 @@ describe("PhysicsEngine", () => {
       objects.set(obj2.id, obj2)
 
       const deltaTime = 1.0
-      engine.update(objects, deltaTime)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), deltaTime)
 
       const updated1 = objects.get(obj1.id)!
       const updated2 = objects.get(obj2.id)!
@@ -78,7 +78,7 @@ describe("PhysicsEngine", () => {
       objects.set(obj.id, obj)
 
       const deltaTime = 1.0
-      engine.update(objects, deltaTime)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), deltaTime)
 
       const updated = objects.get(obj.id)!
       expect(updated.position.x).toBe(300)
@@ -95,7 +95,7 @@ describe("PhysicsEngine", () => {
       objects.set(obj2.id, obj2)
 
       const deltaTime = 0.1
-      engine.update(objects, deltaTime)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), deltaTime)
 
       const updated1 = objects.get(obj1.id)!
       const updated2 = objects.get(obj2.id)!
@@ -119,7 +119,7 @@ describe("PhysicsEngine", () => {
       objects.set(light.id, light)
 
       const deltaTime = 0.1
-      engine.update(objects, deltaTime)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), deltaTime)
 
       const updatedHeavy = objects.get(heavy.id)!
       const updatedLight = objects.get(light.id)!
@@ -138,7 +138,7 @@ describe("PhysicsEngine", () => {
       objects.set(obj.id, obj)
 
       const deltaTime = 1.0
-      engine.update(objects, deltaTime)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), deltaTime)
 
       const updated = objects.get(obj.id)!
       // ラップアラウンドして反対側に現れる
@@ -155,7 +155,7 @@ describe("PhysicsEngine", () => {
       objects.set(obj2.id, obj2)
 
       const deltaTime = 0.1
-      engine.update(objects, deltaTime)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), deltaTime)
 
       const updated1 = objects.get(obj1.id)!
       const updated2 = objects.get(obj2.id)!
@@ -180,7 +180,7 @@ describe("PhysicsEngine", () => {
 
       // 複数ステップで更新
       for (let i = 0; i < 10; i++) {
-        engine.update(objects, 0.1)
+        engine.update(objects, new Map<ObjectId, DirectionalForceField>(), 0.1)
       }
 
       const updated = objects.get(obj.id)!
@@ -199,7 +199,7 @@ describe("PhysicsEngine", () => {
       const obj = createTestObject(1, 100, 100, 10, 50, 0)
       objects.set(obj.id, obj)
 
-      engine.update(objects, 1.0)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), 1.0)
 
       const updated = objects.get(obj.id)!
       // 速度が維持される
@@ -219,7 +219,7 @@ describe("PhysicsEngine", () => {
       objects.set(obj3.id, obj3)
 
       const deltaTime = 0.1
-      engine.update(objects, deltaTime)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), deltaTime)
 
       const updated1 = objects.get(obj1.id)!
       const updated2 = objects.get(obj2.id)!
@@ -247,7 +247,7 @@ describe("PhysicsEngine", () => {
       }
 
       const deltaTime = 0.1
-      const result = engine.update(objects, deltaTime)
+      const result = engine.update(objects, new Map<ObjectId, DirectionalForceField>(), deltaTime)
 
       // パフォーマンス確認
       expect(result.elapsedTime).toBeLessThan(100) // 100ms以内
@@ -268,7 +268,7 @@ describe("PhysicsEngine", () => {
       const obj = createTestObject(1, 100, 100, 10, 10000, 0) // 異常に高速
       objects.set(obj.id, obj)
 
-      engine.update(objects, 0.1)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), 0.1)
 
       const updated = objects.get(obj.id)!
       const speed = Math.sqrt(
@@ -288,7 +288,7 @@ describe("PhysicsEngine", () => {
       objects.set(obj2.id, obj2)
 
       const deltaTime = 0.1
-      engine.update(objects, deltaTime)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), deltaTime)
 
       // エラーなく処理される
       expect(objects.get(obj1.id)).toBeDefined()
@@ -298,7 +298,7 @@ describe("PhysicsEngine", () => {
     test("空のオブジェクトマップ", () => {
       const objects = new Map<ObjectId, GameObject>()
 
-      const result = engine.update(objects, 1.0)
+      const result = engine.update(objects, new Map<ObjectId, DirectionalForceField>(), 1.0)
 
       expect(result.objectCount).toBe(0)
       expect(result.collisionCount).toBe(0)
@@ -310,7 +310,7 @@ describe("PhysicsEngine", () => {
       objects.set(obj.id, obj)
 
       const deltaTime = 1.0
-      const result = engine.update(objects, deltaTime)
+      const result = engine.update(objects, new Map<ObjectId, DirectionalForceField>(), deltaTime)
 
       expect(result.objectCount).toBe(1)
       expect(result.collisionCount).toBe(0)
@@ -350,7 +350,7 @@ describe("PhysicsEngine", () => {
 
       // 摩擦なしに変更
       engine.updateParameters({ frictionCoefficient: 1.0 })
-      engine.update(objects, 1.0)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), 1.0)
 
       const updated = objects.get(obj.id)!
       expect(updated.velocity.x).toBeCloseTo(50, 5) // 速度が維持される
@@ -365,7 +365,7 @@ describe("PhysicsEngine", () => {
         objects.set(obj.id, obj)
       }
 
-      engine.update(objects, 0.1)
+      engine.update(objects, new Map<ObjectId, DirectionalForceField>(), 0.1)
       const debugInfo = engine.getDebugInfo()
 
       expect(debugInfo.parameters).toEqual(DEFAULT_PHYSICS_PARAMETERS)

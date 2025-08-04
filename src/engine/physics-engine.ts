@@ -2,12 +2,13 @@
  * 物理演算エンジン - 衝突検出と物理シミュレーションの統合
  */
 
-import type { GameObject, ObjectId, Vec2 } from "@/types/game"
+import type { GameObject, ObjectId, Vec2, DirectionalForceField } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { wrapPosition } from "@/utils/torus-math"
 import { CollisionDetector } from "./collision-detector"
 import { calculateSeparationForce, DEFAULT_SEPARATION_PARAMETERS } from "./separation-force"
 import type { SeparationForceParameters } from "./separation-force"
+import { ForceFieldSystem } from "./force-field-system"
 
 /** 物理演算のパラメータ */
 export type PhysicsParameters = {
@@ -59,6 +60,7 @@ export class PhysicsEngine {
   private readonly _worldHeight: number
   private readonly _collisionDetector: CollisionDetector
   private readonly _parameters: PhysicsParameters
+  private readonly _forceFieldSystem: ForceFieldSystem
   
   public constructor(
     cellSize: number,
@@ -70,22 +72,31 @@ export class PhysicsEngine {
     this._worldHeight = worldHeight
     this._parameters = parameters
     this._collisionDetector = new CollisionDetector(cellSize, worldWidth, worldHeight)
+    this._forceFieldSystem = new ForceFieldSystem({
+      attenuationStart: 0.5,
+      frictionCoefficient: parameters.frictionCoefficient,
+    })
   }
   
   /**
    * 物理演算の更新
    * @param objects ゲームオブジェクトのマップ
+   * @param forceFields 力場のマップ
    * @param deltaTime 時間ステップ
    * @returns 物理演算の結果
    */
-  public update(objects: Map<ObjectId, GameObject>, deltaTime: number): PhysicsUpdateResult {
+  public update(
+    objects: Map<ObjectId, GameObject>,
+    forceFields: Map<ObjectId, DirectionalForceField>,
+    deltaTime: number
+  ): PhysicsUpdateResult {
     const startTime = performance.now()
     
     // 1. 加速度の初期化
     const accelerations = this.initializeAccelerations(objects)
     
-    // 2. 外部力の適用（将来的に実装）
-    // this.applyExternalForces(objects, accelerations)
+    // 2. 外部力の適用（力場システム）
+    this.applyForceFieldForces(objects, forceFields, accelerations)
     
     // 3. 衝突検出
     const collisionResult = this._collisionDetector.detectCollisions(objects)
@@ -174,6 +185,22 @@ export class PhysicsEngine {
   }
   
   /**
+   * 力場からの力を適用
+   */
+  private applyForceFieldForces(
+    objects: Map<ObjectId, GameObject>,
+    forceFields: Map<ObjectId, DirectionalForceField>,
+    accelerations: AccelerationMap
+  ): void {
+    for (const object of objects.values()) {
+      const totalForce = this._forceFieldSystem.calculateTotalForce(object, forceFields)
+      if (totalForce.x !== 0 || totalForce.y !== 0) {
+        this.applyForce(object, totalForce, accelerations)
+      }
+    }
+  }
+  
+  /**
    * 運動の更新
    */
   private updateMotion(
@@ -191,8 +218,8 @@ export class PhysicsEngine {
       const newVelocityX = object.velocity.x + acceleration.x * deltaTime
       const newVelocityY = object.velocity.y + acceleration.y * deltaTime
       
-      // 摩擦の適用
-      const friction = this._parameters.frictionCoefficient
+      // 摩擦の適用（力場システムから取得）
+      const friction = this._forceFieldSystem.frictionCoefficient
       const velocityX = newVelocityX * friction
       const velocityY = newVelocityY * friction
       
@@ -259,6 +286,14 @@ export class PhysicsEngine {
    */
   public updateParameters(parameters: PhysicsParametersUpdate): void {
     Object.assign(this._parameters, parameters)
+    
+    // 力場システムの摩擦係数も更新
+    if (parameters.frictionCoefficient !== undefined) {
+      this._forceFieldSystem = new ForceFieldSystem({
+        attenuationStart: 0.5,
+        frictionCoefficient: parameters.frictionCoefficient,
+      })
+    }
   }
   
   /**
