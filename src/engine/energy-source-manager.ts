@@ -34,7 +34,7 @@ export const DEFAULT_SOURCE_PARAMETERS: EnergySourceParameters = {
 export class EnergySourceManager {
   private readonly _energySystem: EnergySystem
   private readonly _parameters: EnergySourceParameters
-  
+
   public constructor(
     worldWidth: number,
     worldHeight: number,
@@ -43,7 +43,7 @@ export class EnergySourceManager {
     this._parameters = parameters
     this._energySystem = new EnergySystem(worldWidth, worldHeight)
   }
-  
+
   /**
    * エネルギーソースを作成
    * @param id ソースのID
@@ -51,31 +51,24 @@ export class EnergySourceManager {
    * @param energyPerTick 1tickあたりの生成エネルギー量
    * @returns エネルギーソース
    */
-  public createEnergySource(
-    id: ObjectId,
-    position: Vec2,
-    energyPerTick: number
-  ): EnergySource {
+  public createEnergySource(id: ObjectId, position: Vec2, energyPerTick: number): EnergySource {
     return {
       id,
       position: Vec2Utils.copy(position),
       energyPerTick: Math.max(1, Math.floor(energyPerTick)),
     }
   }
-  
+
   /**
    * エネルギーソースからエネルギーを生成
    * @param source エネルギーソース
    * @param idGenerator 新しいIDを生成する関数
    * @returns 生成結果
    */
-  public generateEnergy(
-    source: EnergySource,
-    idGenerator: () => ObjectId
-  ): EnergyGenerationResult {
+  public generateEnergy(source: EnergySource, idGenerator: () => ObjectId): EnergyGenerationResult {
     const generatedObjects: EnergyObject[] = []
     let remainingEnergy = source.energyPerTick
-    
+
     // エネルギーを複数のオブジェクトに分割して生成
     for (let i = 0; i < this._parameters.maxObjectsPerSource && remainingEnergy > 0; i++) {
       // 生成するエネルギー量を決定（ランダムな分割）
@@ -88,7 +81,7 @@ export class EnergySourceManager {
         const maxAmount = Math.min(remainingEnergy / 2, 1000)
         amount = Math.floor(10 + Math.random() * (maxAmount - 10))
       }
-      
+
       // 生成位置（ソースの周囲にランダム配置）
       const angle = Math.random() * 2 * Math.PI
       const distance = this._parameters.spawnDistance
@@ -96,37 +89,30 @@ export class EnergySourceManager {
         source.position.x + Math.cos(angle) * distance,
         source.position.y + Math.sin(angle) * distance
       )
-      
+
       // 初期速度（外向き）
       const speed = Math.random() * this._parameters.spawnVelocityRange
-      const velocity = Vec2Utils.create(
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed
-      )
-      
+      const velocity = Vec2Utils.create(Math.cos(angle) * speed, Math.sin(angle) * speed)
+
       // エネルギーオブジェクトを生成
-      const energyObj = this._energySystem.createEnergyObject(
-        idGenerator(),
-        position,
-        amount
-      )
-      
+      const energyObj = this._energySystem.createEnergyObject(idGenerator(), position, amount)
+
       // 速度を設定
       const energyObjWithVelocity: EnergyObject = {
         ...energyObj,
         velocity,
       }
-      
+
       generatedObjects.push(energyObjWithVelocity)
       remainingEnergy -= amount
     }
-    
+
     return {
       generatedObjects,
       totalEnergy: source.energyPerTick,
     }
   }
-  
+
   /**
    * 複数のエネルギーソースから一括生成
    * @param sources エネルギーソースの配列
@@ -139,45 +125,39 @@ export class EnergySourceManager {
   ): EnergyGenerationResult {
     const allGeneratedObjects: EnergyObject[] = []
     let totalEnergy = 0
-    
+
     for (const source of sources) {
       const result = this.generateEnergy(source, idGenerator)
       allGeneratedObjects.push(...result.generatedObjects)
       totalEnergy += result.totalEnergy
     }
-    
+
     return {
       generatedObjects: allGeneratedObjects,
       totalEnergy,
     }
   }
-  
+
   /**
    * エネルギーソースの位置を更新
    * @param source エネルギーソース
    * @param newPosition 新しい位置
    * @returns 更新されたエネルギーソース
    */
-  public updateSourcePosition(
-    source: EnergySource,
-    newPosition: Vec2
-  ): EnergySource {
+  public updateSourcePosition(source: EnergySource, newPosition: Vec2): EnergySource {
     return {
       ...source,
       position: Vec2Utils.copy(newPosition),
     }
   }
-  
+
   /**
    * エネルギーソースの生成率を更新
    * @param source エネルギーソース
    * @param newRate 新しい生成率
    * @returns 更新されたエネルギーソース
    */
-  public updateSourceRate(
-    source: EnergySource,
-    newRate: number
-  ): EnergySource {
+  public updateSourceRate(source: EnergySource, newRate: number): EnergySource {
     return {
       ...source,
       energyPerTick: Math.max(1, Math.floor(newRate)),

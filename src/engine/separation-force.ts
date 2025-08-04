@@ -41,35 +41,35 @@ export const calculateSeparationForce = (
 ): Vec2 => {
   // トーラス世界での最短ベクトル（obj1からobj2へ）
   const delta = shortestVector(obj1.position, obj2.position, worldWidth, worldHeight)
-  
+
   // 距離の計算
   const distanceSq = delta.x * delta.x + delta.y * delta.y
   const distance = Math.sqrt(distanceSq)
-  
+
   // 重なり深度の計算
   const radiusSum = obj1.radius + obj2.radius
   const overlap = radiusSum - distance
-  
+
   // 衝突していない場合
   if (overlap <= 0) {
     return Vec2Utils.create(0, 0)
   }
-  
+
   // 半径0のオブジェクトは反発力を受けない
   if (obj1.radius === 0 || obj2.radius === 0) {
     return Vec2Utils.create(0, 0)
   }
-  
+
   // tanh関数により滑らかに上限に漸近する反発力の大きさ
   const forceMagnitude = parameters.maxForce * Math.tanh(overlap / parameters.forceScale)
-  
+
   // 最小反発力の適用（数値誤差対策）
   const actualForceMagnitude = Math.max(forceMagnitude, parameters.minForce)
-  
+
   // 反発方向の計算（obj1から見た場合）
   let directionX: number
   let directionY: number
-  
+
   if (distance > 0.001) {
     // 通常の場合：obj2からobj1への方向（反発）
     directionX = -delta.x / distance
@@ -80,12 +80,9 @@ export const calculateSeparationForce = (
     directionX = Math.cos(angle)
     directionY = Math.sin(angle)
   }
-  
+
   // 反発力ベクトル
-  return Vec2Utils.create(
-    actualForceMagnitude * directionX,
-    actualForceMagnitude * directionY
-  )
+  return Vec2Utils.create(actualForceMagnitude * directionX, actualForceMagnitude * directionY)
 }
 
 /**
@@ -106,19 +103,13 @@ export const calculateTotalSeparationForce = (
 ): Vec2 => {
   let totalForceX = 0
   let totalForceY = 0
-  
+
   for (const other of collidingObjects) {
-    const force = calculateSeparationForce(
-      object,
-      other,
-      worldWidth,
-      worldHeight,
-      parameters
-    )
-    
+    const force = calculateSeparationForce(object, other, worldWidth, worldHeight, parameters)
+
     totalForceX += force.x
     totalForceY += force.y
   }
-  
+
   return Vec2Utils.create(totalForceX, totalForceY)
 }

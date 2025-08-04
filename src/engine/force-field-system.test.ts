@@ -30,18 +30,9 @@ describe("ForceFieldSystem", () => {
       }
 
       // 力場内の複数の点で同じ力が発生
-      const force1 = forceFieldSystem.calculateForceFromField(
-        Vec2Utils.create(100, 100),
-        field
-      )
-      const force2 = forceFieldSystem.calculateForceFromField(
-        Vec2Utils.create(120, 100),
-        field
-      )
-      const force3 = forceFieldSystem.calculateForceFromField(
-        Vec2Utils.create(100, 120),
-        field
-      )
+      const force1 = forceFieldSystem.calculateForceFromField(Vec2Utils.create(100, 100), field)
+      const force2 = forceFieldSystem.calculateForceFromField(Vec2Utils.create(120, 100), field)
+      const force3 = forceFieldSystem.calculateForceFromField(Vec2Utils.create(100, 120), field)
 
       expect(force1).toEqual({ x: 10, y: 0 })
       expect(force2).toEqual({ x: 10, y: 0 })
@@ -77,10 +68,7 @@ describe("ForceFieldSystem", () => {
       }
 
       // 端（距離50）での力
-      const force = forceFieldSystem.calculateForceFromField(
-        Vec2Utils.create(150, 100),
-        field
-      )
+      const force = forceFieldSystem.calculateForceFromField(Vec2Utils.create(150, 100), field)
 
       // 減衰により元の50%の強度
       expect(force).toEqual({ x: 5, y: 0 })
@@ -98,15 +86,9 @@ describe("ForceFieldSystem", () => {
       }
 
       // 右側の点
-      const force1 = forceFieldSystem.calculateForceFromField(
-        Vec2Utils.create(120, 100),
-        field
-      )
+      const force1 = forceFieldSystem.calculateForceFromField(Vec2Utils.create(120, 100), field)
       // 上側の点
-      const force2 = forceFieldSystem.calculateForceFromField(
-        Vec2Utils.create(100, 80),
-        field
-      )
+      const force2 = forceFieldSystem.calculateForceFromField(Vec2Utils.create(100, 80), field)
 
       // 正規化された方向に強度を掛けた値
       expect(force1).toEqual({ x: 10, y: 0 })
@@ -122,10 +104,7 @@ describe("ForceFieldSystem", () => {
         strength: -10,
       }
 
-      const force = forceFieldSystem.calculateForceFromField(
-        Vec2Utils.create(120, 100),
-        field
-      )
+      const force = forceFieldSystem.calculateForceFromField(Vec2Utils.create(120, 100), field)
 
       // 中心に向かう力
       expect(force!.x).toBe(-10)
@@ -162,10 +141,7 @@ describe("ForceFieldSystem", () => {
       }
 
       // 右側の点（放射方向: 右、接線方向: 下）
-      const force = forceFieldSystem.calculateForceFromField(
-        Vec2Utils.create(120, 100),
-        field
-      )
+      const force = forceFieldSystem.calculateForceFromField(Vec2Utils.create(120, 100), field)
 
       // 距離20、半径50なので、放射比率 = 20/50 * 0.3 = 0.12
       // 接線比率 = 1 - 0.12 = 0.88
@@ -351,7 +327,7 @@ describe("ForceFieldSystem", () => {
       // 多数生成して全タイプが含まれることを確認
       const fields = forceFieldSystem.generateForceFields(2000, 2000, 30, mockIdGenerator)
 
-      const types = new Set(fields.map((f) => f.type))
+      const types = new Set(fields.map(f => f.type))
       expect(types.has("LINEAR")).toBe(true)
       expect(types.has("RADIAL")).toBe(true)
       expect(types.has("SPIRAL")).toBe(true)
@@ -445,8 +421,7 @@ describe("ForceFieldSystem", () => {
         if (distance > 0) {
           // 力が接線成分を持つこと
           const radialDir = Vec2Utils.normalize(delta)
-          const dotProduct =
-            radialDir.x * point.force.x + radialDir.y * point.force.y
+          const dotProduct = radialDir.x * point.force.x + radialDir.y * point.force.y
 
           // 完全に放射方向でない（接線成分がある）
           const forceMagnitude = Vec2Utils.magnitude(point.force)

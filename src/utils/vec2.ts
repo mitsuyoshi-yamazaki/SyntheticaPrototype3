@@ -50,7 +50,9 @@ const _distance = (a: Vec2Type, b: Vec2Type): number => Math.sqrt(_distanceSquar
 /** 正規化（単位ベクトル化） */
 const _normalize = (v: Vec2Type): Vec2Type => {
   const mag = _magnitude(v)
-  if (mag === 0) return { x: 0, y: 0 }
+  if (mag === 0) {
+    return { x: 0, y: 0 }
+  }
   return _scale(v, 1 / mag)
 }
 
@@ -72,7 +74,9 @@ const _lerp = (a: Vec2Type, b: Vec2Type, t: number): Vec2Type => ({
 /** クランプ（最大長さ制限） */
 const _clamp = (v: Vec2Type, maxLength: number): Vec2Type => {
   const mag = _magnitude(v)
-  if (mag <= maxLength) return v
+  if (mag <= maxLength) {
+    return v
+  }
   return _scale(_normalize(v), maxLength)
 }
 

@@ -61,7 +61,7 @@ export class PhysicsEngine {
   private readonly _collisionDetector: CollisionDetector
   private readonly _parameters: PhysicsParameters
   private _forceFieldSystem: ForceFieldSystem
-  
+
   public constructor(
     cellSize: number,
     worldWidth: number,
@@ -77,7 +77,7 @@ export class PhysicsEngine {
       frictionCoefficient: parameters.frictionCoefficient,
     })
   }
-  
+
   /**
    * 物理演算の更新
    * @param objects ゲームオブジェクトのマップ
@@ -91,44 +91,44 @@ export class PhysicsEngine {
     deltaTime: number
   ): PhysicsUpdateResult {
     const startTime = performance.now()
-    
+
     // 1. 加速度の初期化
     const accelerations = this.initializeAccelerations(objects)
-    
+
     // 2. 外部力の適用（力場システム）
     this.applyForceFieldForces(objects, forceFields, accelerations)
-    
+
     // 3. 衝突検出
     const collisionResult = this._collisionDetector.detectCollisions(objects)
-    
+
     // 4. 反発力の計算と適用
     this.applySeparationForces(objects, collisionResult.pairs, accelerations)
-    
+
     // 5. 運動の更新
     this.updateMotion(objects, accelerations, deltaTime)
-    
+
     const elapsedTime = performance.now() - startTime
-    
+
     return {
       collisionCount: collisionResult.actualCollisions,
       objectCount: objects.size,
       elapsedTime,
     }
   }
-  
+
   /**
    * 加速度マップの初期化
    */
   private initializeAccelerations(objects: Map<ObjectId, GameObject>): AccelerationMap {
     const accelerations = new Map<ObjectId, Vec2>()
-    
+
     for (const object of objects.values()) {
       accelerations.set(object.id, Vec2Utils.create(0, 0))
     }
-    
+
     return accelerations
   }
-  
+
   /**
    * 反発力の計算と適用
    */
@@ -146,44 +146,36 @@ export class PhysicsEngine {
         this._worldHeight,
         this._parameters.separationForce
       )
-      
+
       // 作用・反作用の法則
       this.applyForce(pair.object1, force, accelerations)
-      this.applyForce(
-        pair.object2,
-        Vec2Utils.create(-force.x, -force.y),
-        accelerations
-      )
+      this.applyForce(pair.object2, Vec2Utils.create(-force.x, -force.y), accelerations)
     }
   }
-  
+
   /**
    * オブジェクトに力を適用
    */
-  private applyForce(
-    object: GameObject,
-    force: Vec2,
-    accelerations: AccelerationMap
-  ): void {
+  private applyForce(object: GameObject, force: Vec2, accelerations: AccelerationMap): void {
     // F = ma より a = F/m
     const mass = Math.max(object.mass, this._parameters.minMass)
-    const accelerationDelta = Vec2Utils.create(
-      force.x / mass,
-      force.y / mass
-    )
-    
+    const accelerationDelta = Vec2Utils.create(force.x / mass, force.y / mass)
+
     const currentAcceleration = accelerations.get(object.id)
     if (currentAcceleration === undefined) {
       return
     }
-    
+
     // 加速度を蓄積
-    accelerations.set(object.id, Vec2Utils.create(
-      currentAcceleration.x + accelerationDelta.x,
-      currentAcceleration.y + accelerationDelta.y
-    ))
+    accelerations.set(
+      object.id,
+      Vec2Utils.create(
+        currentAcceleration.x + accelerationDelta.x,
+        currentAcceleration.y + accelerationDelta.y
+      )
+    )
   }
-  
+
   /**
    * 力場からの力を適用
    */
@@ -199,7 +191,7 @@ export class PhysicsEngine {
       }
     }
   }
-  
+
   /**
    * 運動の更新
    */
@@ -213,52 +205,49 @@ export class PhysicsEngine {
       if (acceleration === undefined) {
         continue
       }
-      
+
       // 速度の更新（v = v0 + at）
       const newVelocityX = object.velocity.x + acceleration.x * deltaTime
       const newVelocityY = object.velocity.y + acceleration.y * deltaTime
-      
+
       // 摩擦の適用（力場システムから取得）
       const friction = this._forceFieldSystem.frictionCoefficient
       const velocityX = newVelocityX * friction
       const velocityY = newVelocityY * friction
-      
+
       // 数値的安定性のための緊急速度制限
       const speed = Math.sqrt(velocityX * velocityX + velocityY * velocityY)
       let finalVelocity: Vec2
-      
+
       if (speed > this._parameters.emergencyVelocityLimit) {
         const scale = this._parameters.emergencyVelocityLimit / speed
-        finalVelocity = Vec2Utils.create(
-          velocityX * scale,
-          velocityY * scale
-        )
+        finalVelocity = Vec2Utils.create(velocityX * scale, velocityY * scale)
       } else {
         finalVelocity = Vec2Utils.create(velocityX, velocityY)
       }
-      
+
       // 位置の更新（x = x0 + vt）
       const newPositionX = object.position.x + finalVelocity.x * deltaTime
       const newPositionY = object.position.y + finalVelocity.y * deltaTime
-      
+
       // トーラス境界でのラップアラウンド
       const wrappedPosition = wrapPosition(
         Vec2Utils.create(newPositionX, newPositionY),
         this._worldWidth,
         this._worldHeight
       )
-      
+
       // オブジェクトの更新（イミュータブル）
       const updatedObject: GameObject = {
         ...object,
         position: wrappedPosition,
         velocity: finalVelocity,
       }
-      
+
       objects.set(object.id, updatedObject)
     }
   }
-  
+
   /**
    * 特定位置での衝突を検出
    * @param position 検査位置
@@ -273,20 +262,15 @@ export class PhysicsEngine {
     objects: Map<ObjectId, GameObject>,
     excludeId?: ObjectId
   ): GameObject[] {
-    return this._collisionDetector.detectCollisionsAtPosition(
-      position,
-      radius,
-      objects,
-      excludeId
-    )
+    return this._collisionDetector.detectCollisionsAtPosition(position, radius, objects, excludeId)
   }
-  
+
   /**
    * パラメータの更新
    */
   public updateParameters(parameters: PhysicsParametersUpdate): void {
     Object.assign(this._parameters, parameters)
-    
+
     // 力場システムの摩擦係数も更新
     if (parameters.frictionCoefficient !== undefined) {
       this._forceFieldSystem = new ForceFieldSystem({
@@ -295,7 +279,7 @@ export class PhysicsEngine {
       })
     }
   }
-  
+
   /**
    * デバッグ情報の取得
    */

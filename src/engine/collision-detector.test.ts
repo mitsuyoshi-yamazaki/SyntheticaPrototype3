@@ -90,13 +90,13 @@ describe("CollisionDetector", () => {
 
     test("複数オブジェクトでの衝突検出", () => {
       const objects = new Map<ObjectId, GameObject>()
-      
+
       // 3つのオブジェクトが一列に並んでいる
       const obj1 = createTestObject(1, 100, 100, 25)
       const obj2 = createTestObject(2, 140, 100, 25) // obj1と衝突
       const obj3 = createTestObject(3, 180, 100, 25) // obj2と衝突
       const obj4 = createTestObject(4, 300, 300, 10) // 誰とも衝突しない
-      
+
       objects.set(obj1.id, obj1)
       objects.set(obj2.id, obj2)
       objects.set(obj3.id, obj3)
@@ -106,7 +106,7 @@ describe("CollisionDetector", () => {
 
       expect(result.pairs).toHaveLength(2)
       expect(result.actualCollisions).toBe(2)
-      
+
       // ペアの順序は保証されないので、IDでソート
       const sortedPairs = result.pairs.sort((a, b) => {
         const aId1 = a.object1.id as unknown as number
@@ -191,12 +191,7 @@ describe("CollisionDetector", () => {
       objects.set(obj2.id, obj2)
 
       const position = Vec2Utils.create(105, 100)
-      const collisions = detector.detectCollisionsAtPosition(
-        position,
-        10,
-        objects,
-        obj1.id
-      )
+      const collisions = detector.detectCollisionsAtPosition(position, 10, objects, obj1.id)
 
       expect(collisions).toHaveLength(1)
       expect(collisions[0]).toBe(obj2)
@@ -260,7 +255,7 @@ describe("CollisionDetector", () => {
       expect(endTime - startTime).toBeLessThan(100) // 100ms以内
       expect(result.totalChecks).toBeGreaterThan(0)
       expect(result.actualCollisions).toBeGreaterThan(0)
-      
+
       // 総当たりより効率的であることを確認
       const bruteForceChecks = (objectCount * (objectCount - 1)) / 2
       expect(result.totalChecks).toBeLessThan(bruteForceChecks)
@@ -268,7 +263,7 @@ describe("CollisionDetector", () => {
 
     test("スパースな配置での効率性", () => {
       const objects = new Map<ObjectId, GameObject>()
-      
+
       // 離れた位置に配置
       for (let i = 0; i < 50; i++) {
         const x = Math.random() * worldWidth
@@ -278,7 +273,7 @@ describe("CollisionDetector", () => {
       }
 
       const result = detector.detectCollisions(objects)
-      
+
       // ほとんど衝突しないはず
       expect(result.actualCollisions).toBeLessThan(5)
       // チェック数も少ないはず
@@ -320,7 +315,7 @@ describe("CollisionDetector", () => {
 
       expect(result.pairs).toHaveLength(3) // 3つのペア
       expect(result.actualCollisions).toBe(3)
-      
+
       // すべての距離が0
       for (const pair of result.pairs) {
         expect(pair.distance).toBe(0)

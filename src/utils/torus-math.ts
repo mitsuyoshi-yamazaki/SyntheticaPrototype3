@@ -11,8 +11,12 @@ export const wrapPosition = (position: Vec2, worldWidth: number, worldHeight: nu
   let x = position.x % worldWidth
   let y = position.y % worldHeight
 
-  if (x < 0) x += worldWidth
-  if (y < 0) y += worldHeight
+  if (x < 0) {
+    x += worldWidth
+  }
+  if (y < 0) {
+    y += worldHeight
+  }
 
   return { x, y }
 }
@@ -95,8 +99,12 @@ export const getCellsInRect = (
       let cellX = x % cellsX
       let cellY = y % cellsY
 
-      if (cellX < 0) cellX += cellsX
-      if (cellY < 0) cellY += cellsY
+      if (cellX < 0) {
+        cellX += cellsX
+      }
+      if (cellY < 0) {
+        cellY += cellsY
+      }
 
       cells.push({ x: cellX, y: cellY })
     }

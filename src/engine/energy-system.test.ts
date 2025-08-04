@@ -92,7 +92,7 @@ describe("EnergySystem", () => {
       expect(result.combined.energy).toBe(800)
       expect(result.combined.mass).toBe(800)
       expect(result.removedIds).toEqual([obj1.id, obj2.id])
-      
+
       // 質量中心の確認
       const expectedX = (100 * 500 + 200 * 300) / 800
       expect(result.combined.position.x).toBeCloseTo(expectedX, 5)
@@ -167,7 +167,7 @@ describe("EnergySystem", () => {
   describe("結合候補の検出", () => {
     test("近接する2つのオブジェクトが結合候補になる", () => {
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       const obj1: EnergyObject = {
         id: createTestObjectId(1),
         type: "ENERGY",
@@ -186,7 +186,7 @@ describe("EnergySystem", () => {
         energy: 100,
         mass: 100,
       }
-      
+
       energyObjects.set(obj1.id, obj1)
       energyObjects.set(obj2.id, obj2)
 
@@ -200,7 +200,7 @@ describe("EnergySystem", () => {
 
     test("離れたオブジェクトは結合候補にならない", () => {
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       const obj1: EnergyObject = {
         id: createTestObjectId(1),
         type: "ENERGY",
@@ -219,7 +219,7 @@ describe("EnergySystem", () => {
         energy: 100,
         mass: 100,
       }
-      
+
       energyObjects.set(obj1.id, obj1)
       energyObjects.set(obj2.id, obj2)
 
@@ -230,7 +230,7 @@ describe("EnergySystem", () => {
 
     test("複数のグループが検出される", () => {
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       // グループ1
       for (let i = 0; i < 3; i++) {
         const obj: EnergyObject = {
@@ -244,7 +244,7 @@ describe("EnergySystem", () => {
         }
         energyObjects.set(obj.id, obj)
       }
-      
+
       // グループ2（離れた位置）
       for (let i = 3; i < 5; i++) {
         const obj: EnergyObject = {
@@ -274,7 +274,7 @@ describe("EnergySystem", () => {
       energySystem = new EnergySystem(worldWidth, worldHeight, params)
 
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       // 5つの近接したオブジェクト
       for (let i = 0; i < 5; i++) {
         const obj: EnergyObject = {
@@ -294,7 +294,7 @@ describe("EnergySystem", () => {
       // 複数のグループに分かれる可能性がある
       const totalInCandidates = candidates.reduce((sum, group) => sum + group.length, 0)
       expect(totalInCandidates).toBe(5) // 全オブジェクトが候補に含まれる
-      
+
       // 各グループは最大3つまで
       for (const group of candidates) {
         expect(group.length).toBeLessThanOrEqual(3)
@@ -317,25 +317,23 @@ describe("EnergySystem", () => {
       let nextId = 2
       const idGenerator = () => createTestObjectId(nextId++)
 
-      const result = energySystem.splitEnergyObject(
-        original,
-        [250, 250, 250, 250],
-        idGenerator
-      )
+      const result = energySystem.splitEnergyObject(original, [250, 250, 250, 250], idGenerator)
 
       expect(result).toHaveLength(4)
       expect(result.every(obj => obj.energy === 250)).toBe(true)
-      
+
       // 円周上に配置されることを確認
-      const angles = result.map(obj => 
-        Math.atan2(obj.position.y - 500, obj.position.x - 500)
-      ).sort((a, b) => a - b)
-      
+      const angles = result
+        .map(obj => Math.atan2(obj.position.y - 500, obj.position.x - 500))
+        .sort((a, b) => a - b)
+
       // 角度がほぼ均等に分布していることを確認
       for (let i = 0; i < angles.length; i++) {
         const nextIndex = (i + 1) % angles.length
         let diff = angles[nextIndex]! - angles[i]!
-        if (diff < 0) diff += 2 * Math.PI // 最後から最初への差分
+        if (diff < 0) {
+          diff += 2 * Math.PI // 最後から最初への差分
+        }
         const expectedDiff = (2 * Math.PI) / 4 // 90度
         expect(Math.abs(diff - expectedDiff)).toBeLessThan(0.1)
       }
@@ -355,11 +353,7 @@ describe("EnergySystem", () => {
       let nextId = 2
       const idGenerator = () => createTestObjectId(nextId++)
 
-      const result = energySystem.splitEnergyObject(
-        original,
-        [100, 200, 300],
-        idGenerator
-      )
+      const result = energySystem.splitEnergyObject(original, [100, 200, 300], idGenerator)
 
       expect(result).toHaveLength(3)
       expect(result[0]!.energy).toBe(100)
@@ -379,11 +373,7 @@ describe("EnergySystem", () => {
       }
 
       expect(() => {
-        energySystem.splitEnergyObject(
-          original,
-          [600, 600],
-          () => createTestObjectId(2)
-        )
+        energySystem.splitEnergyObject(original, [600, 600], () => createTestObjectId(2))
       }).toThrow("分割後の合計エネルギーが元のエネルギーを超えています")
     })
 
@@ -401,11 +391,7 @@ describe("EnergySystem", () => {
       let nextId = 2
       const idGenerator = () => createTestObjectId(nextId++)
 
-      const result = energySystem.splitEnergyObject(
-        original,
-        [200, 0, -100, 300],
-        idGenerator
-      )
+      const result = energySystem.splitEnergyObject(original, [200, 0, -100, 300], idGenerator)
 
       expect(result).toHaveLength(2)
       expect(result[0]!.energy).toBe(200)
@@ -440,7 +426,7 @@ describe("EnergySystem", () => {
     test("空のマップで結合候補検出", () => {
       const energyObjects = new Map<ObjectId, EnergyObject>()
       const candidates = energySystem.findCombineCandidates(energyObjects)
-      
+
       expect(candidates).toHaveLength(0)
     })
 
@@ -458,7 +444,7 @@ describe("EnergySystem", () => {
       energyObjects.set(obj.id, obj)
 
       const candidates = energySystem.findCombineCandidates(energyObjects)
-      
+
       expect(candidates).toHaveLength(0)
     })
   })

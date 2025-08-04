@@ -229,9 +229,7 @@ describe("PhysicsEngine", () => {
       expect(updated1.position.x).toBeLessThan(100)
       expect(updated3.position.x).toBeGreaterThan(180)
       // obj2の移動は小さい（両側から押される）
-      expect(Math.abs(updated2.position.x - 140)).toBeLessThan(
-        Math.abs(updated1.position.x - 100)
-      )
+      expect(Math.abs(updated2.position.x - 140)).toBeLessThan(Math.abs(updated1.position.x - 100))
     })
 
     test("多数のオブジェクトでのパフォーマンス", () => {
@@ -272,8 +270,7 @@ describe("PhysicsEngine", () => {
 
       const updated = objects.get(obj.id)!
       const speed = Math.sqrt(
-        updated.velocity.x * updated.velocity.x +
-        updated.velocity.y * updated.velocity.y
+        updated.velocity.x * updated.velocity.x + updated.velocity.y * updated.velocity.y
       )
       expect(speed).toBeLessThanOrEqual(100)
     })

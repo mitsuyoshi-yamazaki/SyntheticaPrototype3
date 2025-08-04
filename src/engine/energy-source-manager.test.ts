@@ -35,32 +35,20 @@ describe("EnergySourceManager", () => {
     })
 
     test("小数の生成率は整数に切り捨て", () => {
-      const source = manager.createEnergySource(
-        createTestObjectId(1),
-        Vec2Utils.create(0, 0),
-        75.8
-      )
+      const source = manager.createEnergySource(createTestObjectId(1), Vec2Utils.create(0, 0), 75.8)
 
       expect(source.energyPerTick).toBe(75)
     })
 
     test("0以下の生成率は1にクランプ", () => {
-      const source = manager.createEnergySource(
-        createTestObjectId(1),
-        Vec2Utils.create(0, 0),
-        0
-      )
+      const source = manager.createEnergySource(createTestObjectId(1), Vec2Utils.create(0, 0), 0)
 
       expect(source.energyPerTick).toBe(1)
     })
 
     test("位置は複製される", () => {
       const position = Vec2Utils.create(100, 200)
-      const source = manager.createEnergySource(
-        createTestObjectId(1),
-        position,
-        50
-      )
+      const source = manager.createEnergySource(createTestObjectId(1), position, 50)
 
       // 元の位置を変更してもソースの位置は変わらない
       const newPosition = Vec2Utils.create(300, position.y)
@@ -89,10 +77,7 @@ describe("EnergySourceManager", () => {
       )
 
       // 生成されたエネルギーの合計が正しい
-      const totalGenerated = result.generatedObjects.reduce(
-        (sum, obj) => sum + obj.energy,
-        0
-      )
+      const totalGenerated = result.generatedObjects.reduce((sum, obj) => sum + obj.energy, 0)
       expect(totalGenerated).toBe(100)
     })
 
@@ -226,10 +211,7 @@ describe("EnergySourceManager", () => {
       expect(result.generatedObjects.length).toBeGreaterThanOrEqual(3) // 最低でも各ソースから1つずつ
 
       // 生成されたエネルギーの合計が正しい
-      const totalGenerated = result.generatedObjects.reduce(
-        (sum, obj) => sum + obj.energy,
-        0
-      )
+      const totalGenerated = result.generatedObjects.reduce((sum, obj) => sum + obj.energy, 0)
       expect(totalGenerated).toBe(225)
     })
 
@@ -330,7 +312,7 @@ describe("EnergySourceManager", () => {
       const result = manager.generateEnergy(source, idGenerator)
 
       expect(result.generatedObjects.length).toBeGreaterThan(0)
-      
+
       // 位置が負になる可能性がある（トーラス世界でラップする前）
       for (const obj of result.generatedObjects) {
         expect(Number.isFinite(obj.position.x)).toBe(true)

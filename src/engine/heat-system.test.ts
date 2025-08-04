@@ -19,7 +19,7 @@ describe("HeatSystem", () => {
     test("熱の追加と取得", () => {
       heatSystem.addHeat(5, 5, 100)
       expect(heatSystem.getHeat(5, 5)).toBe(100)
-      
+
       // 他のセルは0のまま
       expect(heatSystem.getHeat(4, 5)).toBe(0)
       expect(heatSystem.getHeat(6, 5)).toBe(0)
@@ -28,7 +28,7 @@ describe("HeatSystem", () => {
     test("座標から熱を追加", () => {
       const position = Vec2Utils.create(55, 55) // グリッド座標(5, 5)に対応
       heatSystem.addHeatAt(position, 200)
-      
+
       expect(heatSystem.getHeat(5, 5)).toBe(200)
     })
 
@@ -36,14 +36,14 @@ describe("HeatSystem", () => {
       heatSystem.addHeat(3, 3, 50)
       heatSystem.addHeat(3, 3, 30)
       heatSystem.addHeat(3, 3, 20)
-      
+
       expect(heatSystem.getHeat(3, 3)).toBe(100)
     })
 
     test("負の熱量は追加されない", () => {
       heatSystem.addHeat(0, 0, 100)
       heatSystem.addHeat(0, 0, -50)
-      
+
       expect(heatSystem.getHeat(0, 0)).toBe(100)
     })
 
@@ -56,7 +56,7 @@ describe("HeatSystem", () => {
   describe("トーラス境界での熱操作", () => {
     test("境界を越えた座標でのアクセス", () => {
       heatSystem.addHeat(0, 0, 100)
-      
+
       // 同じセルを指す
       expect(heatSystem.getHeat(width, 0)).toBe(100)
       expect(heatSystem.getHeat(0, height)).toBe(100)
@@ -69,19 +69,19 @@ describe("HeatSystem", () => {
     test("単一の熱源からの拡散", () => {
       // 中央に熱を配置
       heatSystem.addHeat(5, 5, 400)
-      
+
       // 1ステップ拡散
       heatSystem.updateDiffusion()
-      
+
       // 中央の熱が減少
       expect(heatSystem.getHeat(5, 5)).toBeLessThan(400)
-      
+
       // 隣接セルに熱が拡散
       expect(heatSystem.getHeat(4, 5)).toBeGreaterThan(0)
       expect(heatSystem.getHeat(6, 5)).toBeGreaterThan(0)
       expect(heatSystem.getHeat(5, 4)).toBeGreaterThan(0)
       expect(heatSystem.getHeat(5, 6)).toBeGreaterThan(0)
-      
+
       // 斜めのセルには拡散しない（ノイマン近傍）
       expect(heatSystem.getHeat(4, 4)).toBe(0)
     })
@@ -92,15 +92,15 @@ describe("HeatSystem", () => {
       heatSystem.addHeat(2, 3, 1000)
       heatSystem.addHeat(7, 8, 2000)
       heatSystem.addHeat(1, 9, 2000)
-      
+
       const statsBefore = heatSystem.getStats()
       expect(statsBefore.totalHeat).toBe(initialHeat)
-      
+
       // 複数ステップ拡散
       for (let i = 0; i < 10; i++) {
         heatSystem.updateDiffusion()
       }
-      
+
       const statsAfter = heatSystem.getStats()
       // 熱の総量が保存される（拡散のみでは熱は失われない）
       expect(statsAfter.totalHeat).toBe(initialHeat)
@@ -113,9 +113,9 @@ describe("HeatSystem", () => {
           heatSystem.addHeat(x, y, 100)
         }
       }
-      
+
       heatSystem.updateDiffusion()
-      
+
       // 全セルが同じ熱量のまま
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
@@ -127,9 +127,9 @@ describe("HeatSystem", () => {
     test("境界を跨いだ拡散", () => {
       // 端に熱を配置
       heatSystem.addHeat(0, 0, 400)
-      
+
       heatSystem.updateDiffusion()
-      
+
       // トーラス境界を越えて拡散
       expect(heatSystem.getHeat(width - 1, 0)).toBeGreaterThan(0) // 左端へ
       expect(heatSystem.getHeat(0, height - 1)).toBeGreaterThan(0) // 上端へ
@@ -140,9 +140,9 @@ describe("HeatSystem", () => {
     test("高温セルからの放熱", () => {
       heatSystem.addHeat(5, 5, 1000)
       const heatBefore = heatSystem.getHeat(5, 5)
-      
+
       heatSystem.updateRadiation()
-      
+
       const heatAfter = heatSystem.getHeat(5, 5)
       expect(heatAfter).toBeLessThan(heatBefore)
       expect(heatAfter).toBeGreaterThan(0) // 完全には冷却されない
@@ -151,9 +151,9 @@ describe("HeatSystem", () => {
     test("低温セルからの放熱は少ない", () => {
       heatSystem.addHeat(5, 5, 10)
       const heatBefore = heatSystem.getHeat(5, 5)
-      
+
       heatSystem.updateRadiation()
-      
+
       const heatAfter = heatSystem.getHeat(5, 5)
       const radiationAmount = heatBefore - heatAfter
       expect(radiationAmount).toBeLessThanOrEqual(1)
@@ -161,7 +161,7 @@ describe("HeatSystem", () => {
 
     test("温度0のセルは放熱しない", () => {
       heatSystem.updateRadiation()
-      
+
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           expect(heatSystem.getHeat(x, y)).toBe(0)
@@ -173,14 +173,14 @@ describe("HeatSystem", () => {
       // 複数のセルに熱を配置
       heatSystem.addHeat(2, 2, 500)
       heatSystem.addHeat(7, 7, 800)
-      
+
       const statsBefore = heatSystem.getStats()
-      
+
       // 複数回放熱
       for (let i = 0; i < 5; i++) {
         heatSystem.updateRadiation()
       }
-      
+
       const statsAfter = heatSystem.getStats()
       expect(statsAfter.totalHeat).toBeLessThan(statsBefore.totalHeat)
     })
@@ -189,7 +189,7 @@ describe("HeatSystem", () => {
   describe("熱ダメージ計算", () => {
     test("閾値以下ではダメージなし", () => {
       heatSystem.addHeat(5, 5, DEFAULT_HEAT_PARAMETERS.heatDamageThreshold)
-      
+
       const damage = heatSystem.calculateHeatDamage(5, 5)
       expect(damage).toBe(0)
     })
@@ -197,7 +197,7 @@ describe("HeatSystem", () => {
     test("閾値を超えるとダメージ発生", () => {
       const heat = DEFAULT_HEAT_PARAMETERS.heatDamageThreshold + 50
       heatSystem.addHeat(5, 5, heat)
-      
+
       const damage = heatSystem.calculateHeatDamage(5, 5)
       expect(damage).toBe(50)
     })
@@ -205,32 +205,28 @@ describe("HeatSystem", () => {
     test("損傷時のダメージ倍率", () => {
       const heat = DEFAULT_HEAT_PARAMETERS.heatDamageThreshold + 20
       heatSystem.addHeat(5, 5, heat)
-      
+
       const normalDamage = heatSystem.calculateHeatDamage(5, 5, false, false)
       const damagedDamage = heatSystem.calculateHeatDamage(5, 5, true, false)
-      
-      expect(damagedDamage).toBe(
-        normalDamage * DEFAULT_HEAT_PARAMETERS.damageMultiplierDamaged
-      )
+
+      expect(damagedDamage).toBe(normalDamage * DEFAULT_HEAT_PARAMETERS.damageMultiplierDamaged)
     })
 
     test("生産中のダメージ倍率", () => {
       const heat = DEFAULT_HEAT_PARAMETERS.heatDamageThreshold + 30
       heatSystem.addHeat(5, 5, heat)
-      
+
       const normalDamage = heatSystem.calculateHeatDamage(5, 5, false, false)
       const producingDamage = heatSystem.calculateHeatDamage(5, 5, false, true)
-      
-      expect(producingDamage).toBe(
-        normalDamage * DEFAULT_HEAT_PARAMETERS.damageMultiplierProducing
-      )
+
+      expect(producingDamage).toBe(normalDamage * DEFAULT_HEAT_PARAMETERS.damageMultiplierProducing)
     })
   })
 
   describe("統計情報", () => {
     test("空のグリッドの統計", () => {
       const stats = heatSystem.getStats()
-      
+
       expect(stats.totalHeat).toBe(0)
       expect(stats.maxHeat).toBe(0)
       expect(stats.minHeat).toBe(0)
@@ -242,9 +238,9 @@ describe("HeatSystem", () => {
       heatSystem.addHeat(1, 1, 50)
       heatSystem.addHeat(5, 5, 200)
       heatSystem.addHeat(8, 8, 150)
-      
+
       const stats = heatSystem.getStats()
-      
+
       expect(stats.totalHeat).toBe(400)
       expect(stats.maxHeat).toBe(200)
       expect(stats.minHeat).toBe(0)
@@ -258,10 +254,10 @@ describe("HeatSystem", () => {
       // 熱を追加
       heatSystem.addHeat(3, 3, 100)
       heatSystem.addHeat(7, 7, 200)
-      
+
       // リセット
       heatSystem.reset()
-      
+
       // 全セルが0に
       const stats = heatSystem.getStats()
       expect(stats.totalHeat).toBe(0)
@@ -275,12 +271,12 @@ describe("HeatSystem", () => {
         ...DEFAULT_HEAT_PARAMETERS,
         heatFlowRate: 2, // より速い拡散
       }
-      
+
       heatSystem = new HeatSystem(width, height, params)
       heatSystem.addHeat(5, 5, 400)
-      
+
       heatSystem.updateDiffusion()
-      
+
       // デフォルトより多くの熱が拡散
       const neighborHeat = heatSystem.getHeat(4, 5)
       expect(neighborHeat).toBeGreaterThan(20)
@@ -291,14 +287,14 @@ describe("HeatSystem", () => {
         ...DEFAULT_HEAT_PARAMETERS,
         radiationEnvRatio: 0.5, // より速い放熱
       }
-      
+
       heatSystem = new HeatSystem(width, height, params)
       heatSystem.addHeat(5, 5, 1000)
-      
+
       const heatBefore = heatSystem.getHeat(5, 5)
       heatSystem.updateRadiation()
       const heatAfter = heatSystem.getHeat(5, 5)
-      
+
       const radiationAmount = heatBefore - heatAfter
       // 放熱計算: environmentHeat = 1000 * 0.5 = 500
       // baseHeat = 1000 / 4 = 250, envBaseHeat = 500 / 4 = 125
@@ -312,15 +308,15 @@ describe("HeatSystem", () => {
     test("拡散と放熱の組み合わせ", () => {
       // 熱源を配置
       heatSystem.addHeat(5, 5, 1000)
-      
+
       // 10ステップのシミュレーション
       for (let i = 0; i < 10; i++) {
         heatSystem.updateDiffusion()
         heatSystem.updateRadiation()
       }
-      
+
       const stats = heatSystem.getStats()
-      
+
       // 熱が拡散し、全体的に冷却される
       expect(stats.totalHeat).toBeLessThan(1000)
       expect(stats.maxHeat).toBeLessThan(500)
@@ -331,14 +327,14 @@ describe("HeatSystem", () => {
       // 近接する2つの熱源
       heatSystem.addHeat(4, 5, 500)
       heatSystem.addHeat(6, 5, 500)
-      
+
       // 拡散
       heatSystem.updateDiffusion()
-      
+
       // 中間地点(5,5)に熱が集まる
       const centerHeat = heatSystem.getHeat(5, 5)
       expect(centerHeat).toBeGreaterThan(0)
-      
+
       // 熱源自体は減少
       expect(heatSystem.getHeat(4, 5)).toBeLessThan(500)
       expect(heatSystem.getHeat(6, 5)).toBeLessThan(500)

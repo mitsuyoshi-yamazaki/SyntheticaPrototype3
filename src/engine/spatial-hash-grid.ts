@@ -35,7 +35,6 @@ export class SpatialHashGrid {
     return `${col},${row}`
   }
 
-
   /** オブジェクトが占有する全セルを取得 */
   private getOccupiedCells(object: GameObject): { col: number; row: number }[] {
     const cells: { col: number; row: number }[] = []

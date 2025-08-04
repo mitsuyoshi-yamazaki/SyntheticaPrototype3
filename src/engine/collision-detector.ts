@@ -40,7 +40,7 @@ export class CollisionDetector {
   public detectCollisions(objects: Map<ObjectId, GameObject>): CollisionResult {
     // グリッドをクリアして再登録
     this._spatialGrid.clear()
-    
+
     // 全オブジェクトをグリッドに登録
     for (const object of objects.values()) {
       this._spatialGrid.register(object)
@@ -55,15 +55,19 @@ export class CollisionDetector {
     // 各オブジェクトについて近傍オブジェクトとの衝突をチェック
     for (const object1 of objects.values()) {
       const nearbyIds = this._spatialGrid.getNearbyObjects(object1)
-      
+
       for (const id2 of nearbyIds) {
         const object2 = objects.get(id2)
-        if (object2 === undefined) continue
+        if (object2 === undefined) {
+          continue
+        }
 
         // ペアの重複チェック（IDの小さい方を先にして正規化）
         const pairKey = this.getPairKey(object1.id, object2.id)
-        if (processedPairs.has(pairKey)) continue
-        
+        if (processedPairs.has(pairKey)) {
+          continue
+        }
+
         processedPairs.add(pairKey)
         totalChecks++
 
@@ -102,15 +106,19 @@ export class CollisionDetector {
     for (const object of objects.values()) {
       this._spatialGrid.register(object)
     }
-    
+
     const collisions: GameObject[] = []
     const nearbyIds = this._spatialGrid.getNearbyObjectsAtPosition(position, radius)
 
     for (const id of nearbyIds) {
-      if (id === excludeId) continue
-      
+      if (id === excludeId) {
+        continue
+      }
+
       const object = objects.get(id)
-      if (object === undefined) continue
+      if (object === undefined) {
+        continue
+      }
 
       // 仮想オブジェクトとの衝突判定
       const virtualObject: Partial<GameObject> = {
@@ -150,7 +158,7 @@ export class CollisionDetector {
     if (distanceSq >= radiusSumSq) {
       return null
     }
-    
+
     // 半径0のオブジェクトは衝突しない
     if (object1.radius === 0 || object2.radius === 0) {
       return null
@@ -183,7 +191,7 @@ export class CollisionDetector {
     if (object1.radius === 0 || object2.radius === 0) {
       return false
     }
-    
+
     const distanceSq = delta.x * delta.x + delta.y * delta.y
     const radiusSum = object1.radius + object2.radius
     const radiusSumSq = radiusSum * radiusSum
@@ -198,7 +206,7 @@ export class CollisionDetector {
     // IDを数値として比較（ObjectIdの内部表現に依存）
     const numId1 = id1 as unknown as number
     const numId2 = id2 as unknown as number
-    
+
     if (numId1 < numId2) {
       return `${id1},${id2}`
     } else {

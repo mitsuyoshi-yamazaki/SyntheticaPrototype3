@@ -19,7 +19,7 @@ const sharedRules = {
   eqeqeq: ["error", "always", { null: "never" }],
   // null/undefinedの比較では == を強制
   "@typescript-eslint/prefer-nullish-coalescing": "error",
-  curly: "error",
+  curly: ["error", "all"],
   "@typescript-eslint/prefer-function-type": "error",
   "@typescript-eslint/consistent-type-definitions": ["error", "type"],
   "prefer-arrow-callback": "error",

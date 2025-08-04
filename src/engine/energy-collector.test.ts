@@ -67,7 +67,7 @@ describe("EnergyCollector", () => {
     test("範囲内のエネルギーを収集", () => {
       const hull = createTestHull("hull1", 500, 500, 20, 1000)
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       // HULLの近くにエネルギーオブジェクトを配置
       const energy1 = createTestEnergyObject("e1", 520, 500, 100) // 20単位離れている
       const energy2 = createTestEnergyObject("e2", 500, 520, 50) // 20単位離れている
@@ -87,7 +87,7 @@ describe("EnergyCollector", () => {
     test("範囲外のエネルギーは収集しない", () => {
       const hull = createTestHull("hull1", 500, 500, 20, 1000)
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       // HULLから離れた位置にエネルギーオブジェクトを配置
       const energy1 = createTestEnergyObject("e1", 600, 500, 100) // 100単位離れている
       const energy2 = createTestEnergyObject("e2", 500, 600, 50) // 100単位離れている
@@ -110,7 +110,7 @@ describe("EnergyCollector", () => {
 
       const hull = createTestHull("hull1", 500, 500, 20, 1000)
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       // 異なる距離にエネルギーオブジェクトを配置
       const energy1 = createTestEnergyObject("e1", 510, 500, 100) // 10単位
       const energy2 = createTestEnergyObject("e2", 515, 500, 50) // 15単位
@@ -138,7 +138,7 @@ describe("EnergyCollector", () => {
 
       const hull = createTestHull("hull1", 500, 500, 20, 1000)
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       // 5つのエネルギーオブジェクトを近くに配置
       for (let i = 0; i < 5; i++) {
         const energy = createTestEnergyObject(`e${i}`, 510 + i * 2, 500, 50)
@@ -162,7 +162,7 @@ describe("EnergyCollector", () => {
 
       const hull = createTestHull("hull1", 500, 500, 20, 1000) // 現在1000E
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       const energy1 = createTestEnergyObject("e1", 510, 500, 100)
       const energy2 = createTestEnergyObject("e2", 515, 500, 150) // これを収集すると容量オーバー
       const energy3 = createTestEnergyObject("e3", 520, 500, 50)
@@ -189,7 +189,7 @@ describe("EnergyCollector", () => {
 
       const hull = createTestHull("hull1", 500, 500, 20, 1000) // すでに容量いっぱい
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       const energy1 = createTestEnergyObject("e1", 510, 500, 100)
       energyObjects.set(energy1.id, energy1)
 
@@ -206,7 +206,7 @@ describe("EnergyCollector", () => {
       const hull1 = createTestHull("hull1", 490, 500, 20, 1000)
       const hull2 = createTestHull("hull2", 510, 500, 20, 1000)
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       // 中間地点にエネルギーオブジェクトを配置
       const energy = createTestEnergyObject("e1", 500, 500, 100)
       energyObjects.set(energy.id, energy)
@@ -230,7 +230,7 @@ describe("EnergyCollector", () => {
       const hull1 = createTestHull("hull1", 200, 200, 20, 1000)
       const hull2 = createTestHull("hull2", 800, 800, 20, 1000)
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       // 各HULLの近くにエネルギーを配置
       const energy1 = createTestEnergyObject("e1", 210, 200, 50) // hull1の近く
       const energy2 = createTestEnergyObject("e2", 790, 800, 75) // hull2の近く
@@ -258,7 +258,7 @@ describe("EnergyCollector", () => {
     test("境界を跨いだ収集", () => {
       const hull = createTestHull("hull1", 10, 500, 20, 1000)
       const energyObjects = new Map<ObjectId, EnergyObject>()
-      
+
       // 反対側の境界近くにエネルギーを配置
       const energy = createTestEnergyObject("e1", worldWidth - 15, 500, 100)
       energyObjects.set(energy.id, energy)
