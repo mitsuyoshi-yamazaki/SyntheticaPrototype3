@@ -32,3 +32,5 @@ export { EnergySourceManager, DEFAULT_SOURCE_PARAMETERS } from "./energy-source-
 export type { EnergyGenerationResult, EnergySourceParameters } from "./energy-source-manager"
 export { EnergyCollector, DEFAULT_COLLECTOR_PARAMETERS } from "./energy-collector"
 export type { EnergyCollectionResult, EnergyCollectorParameters } from "./energy-collector"
+export { EnergyDecaySystem, DEFAULT_DECAY_PARAMETERS } from "./energy-decay-system"
+export type { EnergyDecayResult, EnergyDecayParameters } from "./energy-decay-system"

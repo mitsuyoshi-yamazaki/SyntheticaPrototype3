@@ -7,6 +7,7 @@ import { ObjectFactory } from "./object-factory"
 import { HullEnergyManager } from "./hull-energy-manager"
 import { EnergySourceManager } from "./energy-source-manager"
 import { EnergyCollector } from "./energy-collector"
+import { EnergyDecaySystem } from "./energy-decay-system"
 import type {
   GameObject,
   EnergySource,
@@ -32,6 +33,7 @@ export class World {
   private readonly _hullEnergyManager: HullEnergyManager
   private readonly _energySourceManager: EnergySourceManager
   private readonly _energyCollector: EnergyCollector
+  private readonly _energyDecaySystem: EnergyDecaySystem
 
   /** ワールド状態を取得 */
   public get state() {
@@ -53,6 +55,9 @@ export class World {
 
     // エネルギー収集システムの初期化
     this._energyCollector = new EnergyCollector(config.width, config.height)
+
+    // エネルギー崩壊システムの初期化
+    this._energyDecaySystem = new EnergyDecaySystem()
 
     this.initialize(config)
   }
@@ -153,6 +158,9 @@ export class World {
     // エネルギーソースからの生成
     this.generateEnergyFromSources()
 
+    // エネルギーの自然崩壊
+    this.processEnergyDecay()
+
     // HULLによるエネルギー収集
     this.collectEnergyForHulls()
   }
@@ -204,6 +212,45 @@ export class World {
           // Mapからも削除
           energyObjectsMap.delete(id)
         }
+      }
+    }
+  }
+
+  /** エネルギーの自然崩壊処理 */
+  private processEnergyDecay(): void {
+    const energyObjectsMap = new Map<EnergyObject["id"], EnergyObject>()
+
+    // エネルギーオブジェクトを抽出
+    for (const obj of this._stateManager.state.objects.values()) {
+      if (obj.type === "ENERGY") {
+        const energyObj = obj as EnergyObject
+        energyObjectsMap.set(energyObj.id, energyObj)
+      }
+    }
+
+    // 崩壊処理
+    const decayResult = this._energyDecaySystem.processDecay(energyObjectsMap)
+
+    // 完全に崩壊したオブジェクトを削除（熱を発生）
+    for (const id of decayResult.removedIds) {
+      const obj = this._stateManager.getObject(id)
+      if (obj != null) {
+        const energyObj = obj as EnergyObject
+        // 削除前に熱を発生させる（オブジェクトが持っていた全エネルギー）
+        this._stateManager.addHeatToCell(obj.position, energyObj.energy)
+        this._stateManager.removeObject(id)
+      }
+    }
+
+    // 部分的に崩壊したオブジェクトを更新（熱を発生）
+    for (const [id, updatedObj] of decayResult.updatedObjects.entries()) {
+      const originalObj = this._stateManager.getObject(id)
+      if (originalObj != null) {
+        // 崩壊した分の熱を発生
+        const decayAmount = (originalObj as EnergyObject).energy - updatedObj.energy
+        this._stateManager.addHeatToCell(originalObj.position, decayAmount)
+        // オブジェクトを更新
+        this._stateManager.updateObject(updatedObj)
       }
     }
   }

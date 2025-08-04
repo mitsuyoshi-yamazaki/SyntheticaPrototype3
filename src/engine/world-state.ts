@@ -246,4 +246,17 @@ export class WorldStateManager {
       excludeId
     )
   }
+
+  /**
+   * 指定位置のセルに熱を追加（熱システム統合時に実装予定）
+   * @param position 座標
+   * @param heat 追加する熱量
+   */
+  public addHeatToCell(position: { x: number; y: number }, heat: number): void {
+    // TODO: 熱システムの実装時に完全実装
+    // 現在は熱システムが未実装のため、ログ出力のみ
+    if (heat > 0) {
+      console.debug(`Heat generated at (${position.x}, ${position.y}): ${heat}`)
+    }
+  }
 }
