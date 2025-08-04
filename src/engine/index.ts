@@ -34,3 +34,11 @@ export { EnergyCollector, DEFAULT_COLLECTOR_PARAMETERS } from "./energy-collecto
 export type { EnergyCollectionResult, EnergyCollectorParameters } from "./energy-collector"
 export { EnergyDecaySystem, DEFAULT_DECAY_PARAMETERS } from "./energy-decay-system"
 export type { EnergyDecayResult, EnergyDecayParameters } from "./energy-decay-system"
+export { HullEnergyManager } from "./hull-energy-manager"
+export {
+  AssemblerConstructionSystem,
+  UnitCostCalculator,
+  type ProducingUnit,
+  type ConstructionParameters,
+  type ConstructionResult,
+} from "./assembler-construction-system"
