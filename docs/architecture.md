@@ -60,7 +60,7 @@ interface GameObject {
 }
 ```
 
-### 2. Physics Engine (`/src/physics/`)
+### 2. Physics Engine (`/src/engine/`)
 
 #### Collision Detection
 
@@ -73,7 +73,7 @@ interface GameObject {
 - 方向性力場の実装
 - トーラス境界の処理
 
-### 3. Energy System (`/src/energy/`)
+### 3. Energy System (`/src/engine/`)
 
 #### Energy Objects
 
@@ -90,7 +90,7 @@ interface GameObject {
 - セルオートマトンベースの熱拡散
 - ノイマン近傍での熱流計算
 
-### 4. Unit System (`/src/units/`)
+### 4. Unit System (`/src/engine/` - ObjectFactory内に実装)
 
 #### Unit Types
 
@@ -247,6 +247,22 @@ interface WorldParameters {
 - 物理演算エラー: オブジェクトをセーフ位置へ
 - メモリ不足: 古いオブジェクトから削除
 
+## 実装状況
+
+### 完了済み
+- ✅ ゲームエンジンコア（World、WorldStateManager）
+- ✅ 物理エンジン（衝突検出、反発力、力場）
+- ✅ エネルギーシステム（生成、結合、収集）
+- ✅ 熱システム（拡散、放射）
+- ✅ 基本ユニット実装（HULL、ASSEMBLER、COMPUTER）
+- ✅ PixiJS統合とレンダリング
+
+### 未実装
+- ⏳ Synthetica Script VM
+- ⏳ ユニット動作ロジック（エネルギー管理、構築）
+- ⏳ 高度なUI（パラメータエディタ、デバッグツール）
+- ⏳ パフォーマンス最適化（LOD、カリング）
+
 ## 拡張性
 
 ### エージェント定義インターフェース
@@ -272,22 +288,18 @@ interface AgentDefinition {
 ```
 src/
 ├── engine/          # ゲームエンジンコア
-│   ├── world.ts         # Worldクラス（tickメソッド付き）
-│   ├── world-state.ts   # 状態管理
-│   └── object-factory.ts # オブジェクト生成
-├── physics/         # 物理エンジン
-│   ├── collision.ts
-│   ├── forces.ts
-│   └── spatial-hash.ts
-├── energy/          # エネルギーシステム
-│   ├── energy-object.ts
-│   ├── energy-source.ts
-│   └── heat-system.ts
-├── units/           # ユニットシステム
-│   ├── base-unit.ts
-│   ├── hull.ts
-│   ├── assembler.ts
-│   └── computer.ts
+│   ├── world.ts             # Worldクラス（tickメソッド付き）
+│   ├── world-state.ts       # 状態管理
+│   ├── object-factory.ts    # オブジェクト生成（ユニット含む）
+│   ├── physics-engine.ts    # 物理演算統合
+│   ├── collision-detector.ts # 衝突検出
+│   ├── separation-force.ts  # 反発力計算
+│   ├── spatial-hash-grid.ts # 空間分割
+│   ├── force-field-system.ts # 力場システム
+│   ├── energy-system.ts     # エネルギー管理
+│   ├── energy-source-manager.ts # エネルギーソース
+│   ├── energy-collector.ts  # エネルギー収集
+│   └── heat-system.ts       # 熱拡散システム
 ├── vm/              # Synthetica Script VM
 │   ├── vm.ts
 │   ├── instructions.ts
