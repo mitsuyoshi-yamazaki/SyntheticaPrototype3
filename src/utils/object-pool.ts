@@ -12,7 +12,6 @@ export class ObjectPool<T extends Poolable> {
   private readonly _factory: () => T
   private readonly _maxSize: number
 
-  /** プールサイズ */
   public get size(): number {
     return this._pool.length
   }
@@ -27,7 +26,6 @@ export class ObjectPool<T extends Poolable> {
     }
   }
 
-  /** オブジェクトを取得 */
   public acquire(): T {
     if (this._pool.length > 0) {
       const item = this._pool.pop()
@@ -39,7 +37,6 @@ export class ObjectPool<T extends Poolable> {
     return this._factory()
   }
 
-  /** オブジェクトを返却 */
   public release(obj: T): void {
     obj.reset()
     if (this._pool.length < this._maxSize) {

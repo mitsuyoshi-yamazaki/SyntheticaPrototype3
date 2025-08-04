@@ -21,7 +21,13 @@ export type Vec2 = {
   readonly y: number
 }
 
-/** ゲームオブジェクトの基本インターフェース */
+/** 
+ * ゲームオブジェクトの基本インターフェース
+ * 
+ * 注: typeプロパティは規約上"case"とすべきだが、
+ * ゲームオブジェクトの型判別には慣習的に"type"が使われるため、
+ * APIの一貫性を優先してtypeを使用している
+ */
 export type GameObject = {
   readonly id: ObjectId
   readonly type: ObjectType

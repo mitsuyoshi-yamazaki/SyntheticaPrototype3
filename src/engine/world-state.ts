@@ -77,13 +77,11 @@ export class WorldStateManager {
     return this._state.nextObjectId++ as ObjectId
   }
 
-  /** オブジェクトを追加 */
   public addObject(obj: GameObject): void {
     this._state.objects.set(obj.id, obj)
     this.updateSpatialIndex(obj)
   }
 
-  /** オブジェクトを削除 */
   public removeObject(id: ObjectId): void {
     const obj = this._state.objects.get(id)
     if (obj != null) {
@@ -97,32 +95,26 @@ export class WorldStateManager {
     return this._state.objects.get(id)
   }
 
-  /** エネルギーソースを追加 */
   public addEnergySource(source: EnergySource): void {
     this._state.energySources.set(source.id, source)
   }
 
-  /** エネルギーソースを削除 */
   public removeEnergySource(id: ObjectId): void {
     this._state.energySources.delete(id)
   }
 
-  /** 力場を追加 */
   public addForceField(field: DirectionalForceField): void {
     this._state.forceFields.set(field.id, field)
   }
 
-  /** 力場を削除 */
   public removeForceField(id: ObjectId): void {
     this._state.forceFields.delete(id)
   }
 
-  /** tickを進める */
   public incrementTick(): void {
     this._state.tick++
   }
 
-  /** パラメータを更新 */
   public updateParameters(params: Partial<WorldParameters>): void {
     Object.assign(this._state.parameters, params)
 

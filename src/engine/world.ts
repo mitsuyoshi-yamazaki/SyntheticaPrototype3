@@ -37,7 +37,6 @@ export class World {
     // オブジェクトファクトリの初期化
     this._objectFactory = new ObjectFactory(config.width, config.height)
 
-    // 初期化処理
     this.initialize(config)
   }
 
@@ -81,17 +80,14 @@ export class World {
     }
   }
 
-  /** パラメータを更新 */
   public updateParameters(params: Partial<WorldParameters>): void {
     this._stateManager.updateParameters(params)
   }
 
-  /** オブジェクトを追加 */
   public addObject(obj: GameObject): void {
     this._stateManager.addObject(obj)
   }
 
-  /** オブジェクトを削除 */
   public removeObject(id: GameObject["id"]): void {
     this._stateManager.removeObject(id)
   }
@@ -109,12 +105,10 @@ export class World {
     }
   }
 
-  /** 力場を追加 */
   public addForceField(field: DirectionalForceField): void {
     this._stateManager.addForceField(field)
   }
 
-  /** 力場を削除 */
   public removeForceField(id: DirectionalForceField["id"]): void {
     this._stateManager.removeForceField(id)
   }

@@ -75,9 +75,6 @@ export class HeatSystem {
     }
   }
 
-  /**
-   * 熱グリッドを取得
-   */
   // eslint-disable-next-line @typescript-eslint/member-ordering
   public get heatGrid(): readonly (readonly number[])[] {
     return this._currentHeat
