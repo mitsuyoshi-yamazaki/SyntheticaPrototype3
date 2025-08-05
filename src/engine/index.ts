@@ -42,3 +42,20 @@ export {
   type ConstructionParameters,
   type ConstructionResult,
 } from "./assembler-construction-system"
+export {
+  CircuitConnectionSystem,
+  UNIT_TYPE_CODES,
+  type UnitIdentifier,
+  type CircuitAccessResult,
+} from "./circuit-connection-system"
+export {
+  createMemoryInterface,
+  HullMemoryInterface,
+  AssemblerMemoryInterface,
+  ComputerMemoryInterface,
+  HULL_MEMORY_MAP,
+  ASSEMBLER_MEMORY_MAP,
+  COMPUTER_MEMORY_MAP,
+  type MemoryMap,
+  type UnitMemoryInterface,
+} from "./unit-memory-interface"
