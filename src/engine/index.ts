@@ -74,3 +74,5 @@ export {
 export type { Instruction, InstructionType } from "./vm-instructions"
 export { InstructionDecoder } from "./vm-decoder"
 export type { DecodedInstruction } from "./vm-decoder"
+export { InstructionExecutor } from "./vm-executor"
+export type { ExecutionResult } from "./vm-executor"
