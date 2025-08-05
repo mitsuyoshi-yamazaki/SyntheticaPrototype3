@@ -59,3 +59,18 @@ export {
   type MemoryMap,
   type UnitMemoryInterface,
 } from "./unit-memory-interface"
+export { VMState, REGISTER_NAMES, FLAG_NAMES } from "./vm-state"
+export type { RegisterName, FlagName } from "./vm-state"
+export {
+  getInstruction,
+  getInstructionLength,
+  isUndefinedInstruction,
+  ALL_INSTRUCTIONS,
+  ONE_BYTE_INSTRUCTIONS,
+  THREE_BYTE_INSTRUCTIONS,
+  FOUR_BYTE_INSTRUCTIONS,
+  FIVE_BYTE_INSTRUCTIONS,
+} from "./vm-instructions"
+export type { Instruction, InstructionType } from "./vm-instructions"
+export { InstructionDecoder } from "./vm-decoder"
+export type { DecodedInstruction } from "./vm-decoder"
