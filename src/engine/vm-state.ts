@@ -43,12 +43,21 @@ export class VMState {
   /** メモリサイズ */
   private readonly _memorySize: number
 
-  public constructor(memorySize: number) {
+  public constructor(memorySize: number, existingMemory?: Uint8Array) {
     if (memorySize < 1 || memorySize > 0x10000) {
       throw new Error(`Invalid memory size: ${memorySize}. Must be 1-65536`)
     }
     this._memorySize = memorySize
-    this._memory = new Uint8Array(memorySize)
+    
+    if (existingMemory != null) {
+      if (existingMemory.length !== memorySize) {
+        throw new Error(`Memory array size ${existingMemory.length} does not match memorySize ${memorySize}`)
+      }
+      this._memory = existingMemory
+    } else {
+      this._memory = new Uint8Array(memorySize)
+    }
+    
     this._registers = new Uint16Array(4) // A, B, C, D
   }
 

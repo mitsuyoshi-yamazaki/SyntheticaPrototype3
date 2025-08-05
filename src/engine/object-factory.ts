@@ -170,6 +170,11 @@ export class ObjectFactory {
       memory,
       programCounter: 0,
       registers: new Uint16Array(8),
+      stackPointer: memorySize - 1, // スタックは最上位から下に向かって成長
+      zeroFlag: false,
+      carryFlag: false,
+      isRunning: false,
+      vmCyclesExecuted: 0,
     }
   }
 

@@ -75,6 +75,12 @@ export type Computer = Unit & {
   memory: Uint8Array // メモリ内容
   programCounter: number // プログラムカウンタ
   registers: Uint16Array // レジスタ（8個）
+  stackPointer: number // スタックポインタ
+  zeroFlag: boolean // ゼロフラグ
+  carryFlag: boolean // キャリーフラグ
+  isRunning: boolean // 実行中フラグ
+  vmCyclesExecuted: number // 現在のtickで実行済みサイクル数
+  vmError?: string // VM実行エラー
 }
 
 /** ユニット仕様 */

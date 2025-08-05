@@ -8,6 +8,7 @@ import { HullEnergyManager } from "./hull-energy-manager"
 import { EnergySourceManager } from "./energy-source-manager"
 import { EnergyCollector } from "./energy-collector"
 import { EnergyDecaySystem } from "./energy-decay-system"
+import { ComputerVMSystem } from "./computer-vm-system"
 import type {
   GameObject,
   EnergySource,
@@ -17,6 +18,7 @@ import type {
   Vec2,
   Hull,
   EnergyObject,
+  Computer,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
@@ -148,8 +150,11 @@ export class World {
       // エネルギーシステムの更新
       this.updateEnergySystem()
 
-      // TODO: ユニットの動作処理
-      // TODO: Synthetica Script VMの実行
+      // ユニットシステムの更新
+      this.updateUnitSystem()
+
+      // VMサイクルカウンタのリセット（次のtick準備）
+      this.resetVMCycleCounters()
     }
   }
 
@@ -266,5 +271,35 @@ export class World {
     const energyObj = this._objectFactory.createEnergyObject(id, position, amount)
 
     this._stateManager.addObject(energyObj)
+  }
+
+  /** ユニットシステムの更新 */
+  private updateUnitSystem(): void {
+    // TODO: ASSEMBLERユニットの構築処理
+
+    // COMPUTERユニットのVM実行
+    this.executeComputerVMs()
+  }
+
+  /** COMPUTERユニットのVM実行 */
+  private executeComputerVMs(): void {
+    const objects = this._stateManager.getAllObjects()
+    
+    for (const obj of objects) {
+      if (obj.type === "COMPUTER") {
+        ComputerVMSystem.executeVM(obj as Computer)
+      }
+    }
+  }
+
+  /** VMサイクルカウンタのリセット */
+  private resetVMCycleCounters(): void {
+    const objects = this._stateManager.getAllObjects()
+    
+    for (const obj of objects) {
+      if (obj.type === "COMPUTER") {
+        ComputerVMSystem.resetCycleCounter(obj as Computer)
+      }
+    }
   }
 }
