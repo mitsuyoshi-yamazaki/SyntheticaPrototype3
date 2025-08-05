@@ -106,6 +106,11 @@ export class VMState {
     return this._memorySize
   }
 
+  /** メモリ配列取得（直接アクセス用） */
+  public getMemoryArray(): Uint8Array {
+    return this._memory
+  }
+
   /**
    * レジスタ読み取り
    * @param register レジスタ名

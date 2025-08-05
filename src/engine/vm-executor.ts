@@ -8,6 +8,7 @@ import type { DecodedInstruction } from "./vm-decoder"
 import type { Unit } from "@/types/game"
 import { CircuitConnectionSystem } from "./circuit-connection-system"
 import { createMemoryInterface } from "./unit-memory-interface"
+import { UnitSelfScanSystem } from "./unit-self-scan"
 
 /** 実行結果 */
 export type ExecutionResult = {
@@ -669,7 +670,7 @@ export const InstructionExecutor = {
   executeSpecial(
     vm: VMState,
     decoded: DecodedInstruction,
-    _unit?: Unit
+    unit?: Unit
   ): ExecutionResult {
     if (decoded.instruction == null) {
       return { success: false, error: "No instruction", cycles: 1 }
@@ -677,7 +678,27 @@ export const InstructionExecutor = {
 
     switch (decoded.instruction.mnemonic) {
       case "SCAN":
-        // TODO: 自身のスペック読み取り実装
+        if (unit == null) {
+          return {
+            success: false,
+            error: "SCAN instruction requires unit context",
+            cycles: 1,
+          }
+        }
+        
+        // オペランドから書き込み先アドレスを取得（バイト1-2）
+        if (!decoded.bytes || decoded.bytes.length < 3) {
+          return {
+            success: false,
+            error: "Invalid SCAN instruction: insufficient bytes",
+            cycles: 1,
+          }
+        }
+        const destAddr = (decoded.bytes[1] | (decoded.bytes[2] << 8)) & 0xffff
+        
+        // 自身のスペックをメモリに書き込み
+        UnitSelfScanSystem.executeScan(unit, vm.getMemoryArray(), destAddr)
+        
         vm.advancePC(decoded.length)
         return { success: true, cycles: 5 }
 
