@@ -728,7 +728,7 @@ export const InstructionExecutor = {
         }
 
         // オペランドから書き込み先アドレスを取得（バイト1-2）
-        if (!decoded.bytes || decoded.bytes.length < 3) {
+        if (decoded.bytes == null || decoded.bytes.length < 3) {
           return {
             success: false,
             error: "Invalid SCAN instruction: insufficient bytes",
@@ -754,7 +754,7 @@ export const InstructionExecutor = {
         }
 
         // オペランドからサブコマンドを取得（バイト1）
-        if (!decoded.bytes || decoded.bytes.length < 2) {
+        if (decoded.bytes == null || decoded.bytes.length < 2) {
           return {
             success: false,
             error: "Invalid ENERGY instruction: insufficient bytes",

@@ -18,10 +18,10 @@ export const ComputerVMSystem = {
     const vm = new VMState(computer.memorySize, computer.memory)
 
     // レジスタの復元
-    vm.setRegister("A", computer.registers[0])
-    vm.setRegister("B", computer.registers[1])
-    vm.setRegister("C", computer.registers[2])
-    vm.setRegister("D", computer.registers[3])
+    vm.setRegister("A", computer.registers[0] ?? 0)
+    vm.setRegister("B", computer.registers[1] ?? 0)
+    vm.setRegister("C", computer.registers[2] ?? 0)
+    vm.setRegister("D", computer.registers[3] ?? 0)
 
     // 状態の復元
     vm.pc = computer.programCounter
@@ -89,7 +89,7 @@ export const ComputerVMSystem = {
 
       if (!result.success) {
         // エラー発生
-        computer.vmError = result.error
+        computer.vmError = result.error ?? "Unknown error"
         computer.isRunning = false
         errorOccurred = true
         break
@@ -127,7 +127,7 @@ export const ComputerVMSystem = {
   startProgram(computer: Computer, startAddress = 0): void {
     computer.programCounter = startAddress
     computer.isRunning = true
-    computer.vmError = undefined
+    delete computer.vmError
     computer.vmCyclesExecuted = 0
   },
 

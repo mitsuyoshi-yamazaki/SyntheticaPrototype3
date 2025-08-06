@@ -156,7 +156,7 @@ export class AssemblerMemoryInterface implements UnitMemoryInterface {
       case 0x06: // productionParam4
       case 0x07: // productionParam5
       case 0x08: // productionParam6
-        return this.productionParams[address - 0x03]
+        return this.productionParams[address - 0x03] ?? null
       case 0x09: // productionState
         return this.assembler.isAssembling ? 1 : 0
       case 0x0a: // repairUnitType
@@ -252,7 +252,7 @@ export class ComputerMemoryInterface implements UnitMemoryInterface {
       case 0x05: // registerB
       case 0x06: // registerC
       case 0x07: // registerD
-        return this.computer.registers[address - 0x04]
+        return this.computer.registers[address - 0x04] ?? null
       default:
         return null
     }

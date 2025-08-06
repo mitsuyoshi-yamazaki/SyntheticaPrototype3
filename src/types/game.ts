@@ -56,6 +56,7 @@ export type Hull = Unit & {
   readonly capacity: number // エネルギー格納容量
   storedEnergy: number // 格納中のエネルギー
   attachedUnits: ObjectId[] // 固定されているユニット
+  collectingEnergy?: boolean // エネルギー収集中フラグ
 }
 
 /** ASSEMBLERユニット */

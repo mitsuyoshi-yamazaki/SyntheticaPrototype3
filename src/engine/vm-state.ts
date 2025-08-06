@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/adjacent-overload-signatures */
 /**
  * Synthetica Script VM の状態管理
  */
@@ -23,7 +24,6 @@ export const FLAG_NAMES = {
 export type FlagName = keyof typeof FLAG_NAMES
 
 /** VM状態 */
-// eslint-disable-next-line @typescript-eslint/member-ordering
 export class VMState {
   /** プログラムカウンタ（16bit） */
   private _pc = 0
@@ -44,6 +44,51 @@ export class VMState {
   /** メモリサイズ */
   private readonly _memorySize: number
 
+  /** プログラムカウンタ取得 */
+  public get pc(): number {
+    return this._pc
+  }
+
+  /** スタックポインタ取得 */
+  public get sp(): number {
+    return this._sp
+  }
+
+  /** ゼロフラグ取得 */
+  public get zeroFlag(): boolean {
+    return this._zeroFlag
+  }
+
+  /** キャリーフラグ取得 */
+  public get carryFlag(): boolean {
+    return this._carryFlag
+  }
+
+  /** メモリサイズ取得 */
+  public get memorySize(): number {
+    return this._memorySize
+  }
+
+  /** プログラムカウンタ設定 */
+  public set pc(value: number) {
+    this._pc = value & 0xffff // 16bitマスク
+  }
+
+  /** スタックポインタ設定 */
+  public set sp(value: number) {
+    this._sp = value & 0xffff // 16bitマスク
+  }
+
+  /** ゼロフラグ設定 */
+  public set zeroFlag(value: boolean) {
+    this._zeroFlag = value
+  }
+
+  /** キャリーフラグ設定 */
+  public set carryFlag(value: boolean) {
+    this._carryFlag = value
+  }
+
   public constructor(memorySize: number, existingMemory?: Uint8Array) {
     if (memorySize < 1 || memorySize > 0x10000) {
       throw new Error(`Invalid memory size: ${memorySize}. Must be 1-65536`)
@@ -62,51 +107,6 @@ export class VMState {
     }
 
     this._registers = new Uint16Array(4) // A, B, C, D
-  }
-
-  /** プログラムカウンタ取得 */
-  public get pc(): number {
-    return this._pc
-  }
-
-  /** プログラムカウンタ設定 */
-  public set pc(value: number) {
-    this._pc = value & 0xffff // 16bitマスク
-  }
-
-  /** スタックポインタ取得 */
-  public get sp(): number {
-    return this._sp
-  }
-
-  /** スタックポインタ設定 */
-  public set sp(value: number) {
-    this._sp = value & 0xffff // 16bitマスク
-  }
-
-  /** ゼロフラグ取得 */
-  public get zeroFlag(): boolean {
-    return this._zeroFlag
-  }
-
-  /** ゼロフラグ設定 */
-  public set zeroFlag(value: boolean) {
-    this._zeroFlag = value
-  }
-
-  /** キャリーフラグ取得 */
-  public get carryFlag(): boolean {
-    return this._carryFlag
-  }
-
-  /** キャリーフラグ設定 */
-  public set carryFlag(value: boolean) {
-    this._carryFlag = value
-  }
-
-  /** メモリサイズ取得 */
-  public get memorySize(): number {
-    return this._memorySize
   }
 
   /** メモリ配列取得（直接アクセス用） */
@@ -163,7 +163,7 @@ export class VMState {
    * @returns メモリ値（8bit）
    */
   public readMemory8(address: number): number {
-    return this._memory[address % this._memorySize]
+    return this._memory[address % this._memorySize] ?? 0
   }
 
   /**

@@ -225,8 +225,8 @@ export class Viewport {
    */
   public endDrag(): void {
     this._state.isDragging = false
-    this._state.dragStartScreen = undefined
-    this._state.dragStartPosition = undefined
+    delete this._state.dragStartScreen
+    delete this._state.dragStartPosition
   }
 
   /**

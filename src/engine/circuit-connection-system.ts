@@ -81,7 +81,7 @@ export class CircuitConnectionSystem {
    * @param identifier ユニット識別子
    * @returns 見つかったユニット、または null
    */
-  public static findUnitInHull(hull: Hull, identifier: UnitIdentifier): Unit | null {
+  public static findUnitInHull(_hull: Hull, identifier: UnitIdentifier): Unit | null {
     const unitType = this.getUnitTypeFromIdentifier(identifier)
     // const index = this.getIndexFromIdentifier(identifier) // TODO: 実装時に使用
 
