@@ -5,7 +5,7 @@
 import { VMState } from "./vm-state"
 import { InstructionDecoder } from "./vm-decoder"
 import type { DecodedInstruction } from "./vm-decoder"
-import type { Unit } from "@/types/game"
+import type { Unit, Assembler } from "@/types/game"
 import { CircuitConnectionSystem } from "./circuit-connection-system"
 import { createMemoryInterface } from "./unit-memory-interface"
 import { UnitSelfScanSystem } from "./unit-self-scan"
@@ -779,6 +779,140 @@ export const InstructionExecutor = {
           vm.setRegister("A", result.value & 0xffff)
         }
 
+        vm.advancePC(decoded.length)
+        return { success: true, cycles: 5 }
+      }
+
+      case "SCANM": {
+        // オペランドから読み取り元アドレスと長さを取得
+        // バイト1-2: 読み取り元アドレス（16bit）
+        // バイト3-4: 書き込み先アドレス（16bit）
+        if (decoded.bytes == null || decoded.bytes.length < 5) {
+          return {
+            success: false,
+            error: "Invalid SCANM instruction: insufficient bytes",
+            cycles: 1,
+          }
+        }
+        
+        const srcAddr = ((decoded.bytes[1] ?? 0) | ((decoded.bytes[2] ?? 0) << 8)) & 0xffff
+        const destAddr = ((decoded.bytes[3] ?? 0) | ((decoded.bytes[4] ?? 0) << 8)) & 0xffff
+        
+        // レジスタCから読み取りバイト数を取得（0の場合は256バイト）
+        const lengthRaw = vm.getRegister("C") & 0xff
+        const length = lengthRaw === 0 ? 256 : lengthRaw
+        
+        // メモリブロックをコピー
+        const memoryArray = vm.getMemoryArray() as Uint8Array
+        const memorySize = memoryArray.length
+        for (let i = 0; i < length; i++) {
+          const srcIndex = (srcAddr + i) % memorySize
+          const destIndex = (destAddr + i) % memorySize
+          const value = memoryArray[srcIndex] ?? 0
+          memoryArray[destIndex] = value
+        }
+        
+        vm.advancePC(decoded.length)
+        return { success: true, cycles: 5 + length } // 基本5サイクル + バイト数
+      }
+
+      case "ASSEMBLE": {
+        if (unit == null) {
+          return {
+            success: false,
+            error: "ASSEMBLE instruction requires unit context",
+            cycles: 1,
+          }
+        }
+
+        // オペランドから対象ASSEMBLERのIDを取得
+        // バイト1: ユニット識別子
+        // バイト2: コマンド（0=開始, 1=停止, 2=状態確認）
+        // バイト3-4: 予約
+        if (decoded.bytes == null || decoded.bytes.length < 5) {
+          return {
+            success: false,
+            error: "Invalid ASSEMBLE instruction: insufficient bytes",
+            cycles: 1,
+          }
+        }
+        
+        const unitId = decoded.bytes[1] ?? 0
+        const command = decoded.bytes[2] ?? 0
+        
+        // ターゲットユニットを識別子から取得
+        const targetUnit = this.findUnitById(unit, unitId)
+        if (targetUnit == null) {
+          return {
+            success: false,
+            error: `Unit not found: 0x${unitId.toString(16).padStart(2, "0")}`,
+            cycles: 1,
+          }
+        }
+        
+        // ASSEMBLERであることを確認
+        if (targetUnit.type !== "ASSEMBLER") {
+          return {
+            success: false,
+            error: "Target unit is not an ASSEMBLER",
+            cycles: 1,
+          }
+        }
+        
+        // アクセス権限チェック
+        if (!CircuitConnectionSystem.canAccess(unit, targetUnit)) {
+          return {
+            success: false,
+            error: "Access denied: units not on same hull",
+            cycles: 1,
+          }
+        }
+        
+        const assembler = targetUnit as Assembler
+        const memInterface = createMemoryInterface(assembler)
+        
+        switch (command) {
+          case 0: { // 生産開始
+            // メモリから生産パラメータを読み取る
+            // const unitType = memInterface?.readMemory(0x01) ?? 0 // productionUnitType
+            // const hullIndex = memInterface?.readMemory(0x02) ?? 0 // productionHullIndex
+            
+            // 生産開始フラグを設定
+            const success = memInterface?.writeMemory(0x0f, 1) ?? false // 生産開始トリガー
+            
+            if (!success) {
+              return {
+                success: false,
+                error: "Failed to start production",
+                cycles: 1,
+              }
+            }
+            
+            // 結果をレジスタAに格納（1=成功）
+            vm.setRegister("A", 1)
+            break
+          }
+            
+          case 1: { // 生産停止
+            // TODO: 生産停止の実装
+            vm.setRegister("A", 0)
+            break
+          }
+            
+          case 2: { // 状態確認
+            const state = memInterface?.readMemory(0x09) ?? 0 // productionState
+            vm.setRegister("A", state)
+            break
+          }
+            
+          default:
+            return {
+              success: false,
+              error: `Invalid ASSEMBLE command: ${command}`,
+              cycles: 1,
+            }
+        }
+        
         vm.advancePC(decoded.length)
         return { success: true, cycles: 5 }
       }

@@ -557,30 +557,44 @@ export const FIVE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
     type: "SPECIAL",
     description: "エネルギー操作",
   },
-  // 拡張演算命令
   0xc2: {
     opcode: 0xc2,
+    mnemonic: "SCANM",
+    length: 5,
+    type: "SPECIAL",
+    description: "メモリブロック読み取り",
+  },
+  0xc3: {
+    opcode: 0xc3,
+    mnemonic: "ASSEMBLE",
+    length: 5,
+    type: "SPECIAL",
+    description: "ユニット構築命令",
+  },
+  // 拡張演算命令
+  0xd0: {
+    opcode: 0xd0,
     mnemonic: "MUL_AB",
     length: 5,
     type: "ARITHMETIC",
     description: "A = (A * B) & 0xFFFF",
   },
-  0xc3: {
-    opcode: 0xc3,
+  0xd1: {
+    opcode: 0xd1,
     mnemonic: "DIV_AB",
     length: 5,
     type: "ARITHMETIC",
     description: "A = A / B, B = A % B",
   },
-  0xc4: {
-    opcode: 0xc4,
+  0xd2: {
+    opcode: 0xd2,
     mnemonic: "SHL",
     length: 5,
     type: "ARITHMETIC",
     description: "A = A << B（論理左シフト）",
   },
-  0xc5: {
-    opcode: 0xc5,
+  0xd3: {
+    opcode: 0xd3,
     mnemonic: "SHR",
     length: 5,
     type: "ARITHMETIC",
