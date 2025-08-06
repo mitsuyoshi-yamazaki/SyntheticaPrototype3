@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import * as PIXI from "pixi.js"
 import { GameWorld } from "@/lib/GameWorld"
+import { Viewport } from "@/engine/viewport"
 
 type GameCanvasProps = {
   width?: number
@@ -18,6 +19,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
   const containerRef = useRef<HTMLDivElement>(null)
   const appRef = useRef<PIXI.Application | null>(null)
   const gameWorldRef = useRef<GameWorld | null>(null)
+  const viewportRef = useRef<Viewport | null>(null)
 
   useEffect(() => {
     if (containerRef.current == null) {
@@ -49,9 +51,24 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       gameWorldRef.current = gameWorld
       console.log("ゲームワールドを初期化しました")
 
+      // Viewportの初期化
+      const viewport = new Viewport({
+        screenWidth: width,
+        screenHeight: height,
+        worldWidth: width,
+        worldHeight: height,
+        minZoom: 0.1,
+        maxZoom: 5.0,
+        initialZoom: 1.0,
+      })
+      viewportRef.current = viewport
+
       // レンダリング用コンテナ
       const gameContainer = new PIXI.Container()
       app.stage.addChild(gameContainer)
+
+      // ViewportにコンテナをセットI
+      viewport.setContainer(gameContainer)
 
       // デバッグ情報用テキスト
       const debugText = new PIXI.Text({
@@ -66,6 +83,33 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       debugText.y = 10
       app.stage.addChild(debugText)
 
+      // マウスイベントの設定
+      app.stage.eventMode = "static"
+      app.stage.hitArea = app.screen
+
+      // パン操作（マウスドラッグ）
+      let isDragging = false
+      app.stage.on("pointerdown", (event: PIXI.FederatedPointerEvent) => {
+        isDragging = true
+        viewport.startDrag({ x: event.global.x, y: event.global.y })
+      })
+
+      app.stage.on("pointermove", (event: PIXI.FederatedPointerEvent) => {
+        if (isDragging) {
+          viewport.drag({ x: event.global.x, y: event.global.y })
+        }
+      })
+
+      app.stage.on("pointerup", () => {
+        isDragging = false
+        viewport.endDrag()
+      })
+
+      app.stage.on("pointerupoutside", () => {
+        isDragging = false
+        viewport.endDrag()
+      })
+
       // 開発用：中央に円を描画
       const centerCircle = new PIXI.Graphics()
       centerCircle.circle(0, 0, 25)
@@ -78,6 +122,24 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       let lastTime = performance.now()
       let frameCount = 0
       let fps = 0
+
+      // ズーム操作（マウスホイール）
+      let wheelHandler: ((event: WheelEvent) => void) | null = null
+      if (app.canvas instanceof HTMLCanvasElement) {
+        wheelHandler = (event: WheelEvent) => {
+          event.preventDefault()
+          const rect = app.canvas.getBoundingClientRect()
+          const mouseX = event.clientX - rect.left
+          const mouseY = event.clientY - rect.top
+
+          if (event.deltaY < 0) {
+            viewport.zoomIn(1.1, { x: mouseX, y: mouseY })
+          } else {
+            viewport.zoomOut(1.1, { x: mouseX, y: mouseY })
+          }
+        }
+        app.canvas.addEventListener("wheel", wheelHandler, { passive: false })
+      }
 
       // ゲームループ
       app.ticker.add(() => {
@@ -100,7 +162,9 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
 
         // デバッグ情報更新
         const objectCount = gameWorld.getObjectCount()
-        debugText.text = `FPS: ${fps}\nTicks per frame: ${ticksPerFrame}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}`
+        const zoom = viewport.zoom.toFixed(2)
+        const { x: posX, y: posY } = viewport.position
+        debugText.text = `FPS: ${fps}\nTicks per frame: ${ticksPerFrame}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}\nZoom: ${zoom}x\nCamera: (${Math.round(posX)}, ${Math.round(posY)})`
       })
     }
 
@@ -113,6 +177,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         appRef.current = null
       }
       gameWorldRef.current = null
+      viewportRef.current = null
     }
   }, [width, height, ticksPerFrame])
 

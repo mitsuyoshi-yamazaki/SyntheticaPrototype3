@@ -11,7 +11,7 @@ describe("メモリ操作命令", () => {
   describe("相対アドレスメモリアクセス", () => {
     test("LOAD_A: PC相対読み込み（バイト）", () => {
       vm.writeMemory8(10, 0x42) // 読み込むデータ
-      
+
       vm.writeMemory8(0, 0x40) // LOAD_A
       vm.writeMemory8(1, 0x07) // offset: +7
       vm.writeMemory8(2, 0x00)
@@ -27,7 +27,7 @@ describe("メモリ操作命令", () => {
 
     test("STORE_A: PC相対書き込み（バイト）", () => {
       vm.setRegister("A", 0x7f)
-      
+
       vm.writeMemory8(0, 0x41) // STORE_A
       vm.writeMemory8(1, 0x05) // offset: +5
       vm.writeMemory8(2, 0x00)
@@ -43,7 +43,7 @@ describe("メモリ操作命令", () => {
 
     test("LOAD_A_W: PC相対読み込み（ワード）", () => {
       vm.writeMemory16(20, 0x1234)
-      
+
       vm.writeMemory8(0, 0x44) // LOAD_A_W
       vm.writeMemory8(1, 0x11) // offset: +17
       vm.writeMemory8(2, 0x00)
@@ -57,7 +57,7 @@ describe("メモリ操作命令", () => {
 
     test("STORE_A_W: PC相対書き込み（ワード）", () => {
       vm.setRegister("A", 0xabcd)
-      
+
       vm.writeMemory8(0, 0x45) // STORE_A_W
       vm.writeMemory8(1, 0x0a) // offset: +10
       vm.writeMemory8(2, 0x00)
@@ -73,7 +73,7 @@ describe("メモリ操作命令", () => {
     test("LOAD_IND: Bレジスタ + オフセット読み込み", () => {
       vm.setRegister("B", 0x50)
       vm.writeMemory8(0x58, 0x99) // B(0x50) + offset(8) = 0x58
-      
+
       vm.writeMemory8(0, 0x42) // LOAD_IND
       vm.writeMemory8(1, 0x08) // offset: +8
       vm.writeMemory8(2, 0x00)
@@ -87,7 +87,7 @@ describe("メモリ操作命令", () => {
     test("STORE_IND: Bレジスタ + オフセット書き込み", () => {
       vm.setRegister("A", 0x55)
       vm.setRegister("B", 0x40)
-      
+
       vm.writeMemory8(0, 0x43) // STORE_IND
       vm.writeMemory8(1, 0x10) // offset: +16
       vm.writeMemory8(2, 0x00)
@@ -105,9 +105,9 @@ describe("メモリ操作命令", () => {
       vm.setRegister("B", 0x40)
       vm.setRegister("C", 0x50)
       vm.setRegister("D", 0x60)
-      
+
       vm.writeMemory8(0x40, 0xaa) // Bレジスタが指すアドレス
-      
+
       vm.writeMemory8(0, 0x50) // LOAD_REG
       vm.writeMemory8(1, 0x01) // register index: 1 (B)
       vm.writeMemory8(2, 0x00)
@@ -121,7 +121,7 @@ describe("メモリ操作命令", () => {
     test("STORE_REG: レジスタ値をアドレスとして書き込み", () => {
       vm.setRegister("A", 0x77)
       vm.setRegister("C", 0x80)
-      
+
       vm.writeMemory8(0, 0x51) // STORE_REG
       vm.writeMemory8(1, 0x02) // register index: 2 (C)
       vm.writeMemory8(2, 0x00)
@@ -136,7 +136,7 @@ describe("メモリ操作命令", () => {
   describe("絶対アドレスメモリアクセス", () => {
     test("LOAD_ABS: 絶対アドレス読み込み（バイト）", () => {
       vm.writeMemory8(0x34, 0xef)
-      
+
       vm.writeMemory8(0, 0x80) // LOAD_ABS
       vm.writeMemory8(1, 0x00) // 未使用
       vm.writeMemory8(2, 0x34) // address: 0x0034
@@ -152,7 +152,7 @@ describe("メモリ操作命令", () => {
 
     test("STORE_ABS: 絶対アドレス書き込み（バイト）", () => {
       vm.setRegister("A", 0xcd)
-      
+
       vm.writeMemory8(0, 0x81) // STORE_ABS
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x50) // address: 0x0050
@@ -168,7 +168,7 @@ describe("メモリ操作命令", () => {
       // メモリサイズを大きくして0x2000を確保
       vm = new VMState(0x3000)
       vm.writeMemory16(0x2000, 0xfeed)
-      
+
       vm.writeMemory8(0, 0x82) // LOAD_ABS_W
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x00) // address: 0x2000（リトルエンディアン）
@@ -182,7 +182,7 @@ describe("メモリ操作命令", () => {
 
     test("STORE_ABS_W: 絶対アドレス書き込み（ワード）", () => {
       vm.setRegister("A", 0xbeef)
-      
+
       vm.writeMemory8(0, 0x83) // STORE_ABS_W
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x30) // address: 0x0030
@@ -203,7 +203,7 @@ describe("メモリ操作命令", () => {
       vm.writeMemory8(arrayBase + 1, 20)
       vm.writeMemory8(arrayBase + 2, 30)
       vm.writeMemory8(arrayBase + 3, 40)
-      
+
       // インデックス3の要素を読み込み
       vm.setRegister("B", arrayBase)
       vm.writeMemory8(0, 0x42) // LOAD_IND
@@ -222,7 +222,7 @@ describe("メモリ操作命令", () => {
       const structAddr = 0x200
       vm.writeMemory16(structAddr + 0, 100) // x
       vm.writeMemory16(structAddr + 2, 200) // y
-      
+
       // yフィールドの下位バイトを読み込み
       vm.setRegister("B", structAddr)
       vm.writeMemory8(0, 0x42) // LOAD_IND
@@ -237,37 +237,37 @@ describe("メモリ操作命令", () => {
       vm.writeMemory8(10, 0x44) // LOAD_A_W
       vm.writeMemory8(11, 0xf2) // offset: -14 (10 + 3 + (-14) = -1 → 0xffff → ラップして 0x1ff)
       vm.writeMemory8(12, 0xff)
-      
+
       // ワード読み込みで構造体のyフィールドを読む
       vm.pc = 0
       vm.writeMemory8(0, 0x82) // LOAD_ABS_W（絶対アドレスで直接指定）
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x02) // address: 0x0202 (structAddr + 2)
       vm.writeMemory8(3, 0x02)
-      
+
       result = InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(200)
     })
 
     test("スタック経由のデータ受け渡し", () => {
       vm.sp = 0x80
-      
+
       // データをスタックに保存
       vm.setRegister("A", 0x1234)
       vm.writeMemory8(0, 0x1f) // PUSH_A
-      
+
       let result = InstructionExecutor.step(vm)
       expect(vm.sp).toBe(0x7e)
-      
+
       // 別の値をAに設定
       vm.setRegister("A", 0xffff)
-      
+
       // スタックから復元（直接メモリ読み込み）
       vm.writeMemory8(1, 0x82) // LOAD_ABS_W
       vm.writeMemory8(2, 0x00)
       vm.writeMemory8(3, 0x7e) // スタックトップアドレス
       vm.writeMemory8(4, 0x00)
-      
+
       result = InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(0x1234)
     })
@@ -278,7 +278,7 @@ describe("メモリ操作命令", () => {
       // メモリ最後尾にワードデータを配置
       vm.writeMemory8(0xfffe, 0x34)
       vm.writeMemory8(0xffff, 0x12)
-      
+
       vm.writeMemory8(0, 0x82) // LOAD_ABS_W
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0xfe) // address: 0xfffe
@@ -292,7 +292,7 @@ describe("メモリ操作命令", () => {
 
     test("メモリ境界でのワード書き込み", () => {
       vm.setRegister("A", 0xabcd)
-      
+
       vm.writeMemory8(0, 0x83) // STORE_ABS_W
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0xff) // address: 0xffff
@@ -308,7 +308,7 @@ describe("メモリ操作命令", () => {
     test("負のオフセット", () => {
       vm.pc = 100
       vm.writeMemory8(90, 0x42) // 読み込むデータ
-      
+
       vm.writeMemory8(100, 0x40) // LOAD_A
       vm.writeMemory8(101, 0xf3) // offset: -13
       vm.writeMemory8(102, 0xff)

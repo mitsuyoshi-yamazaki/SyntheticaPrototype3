@@ -142,7 +142,7 @@ describe("制御フロー命令", () => {
       expect(result.cycles).toBe(3)
       expect(vm.pc).toBe(19) // 0 + 3 + 16
       expect(vm.sp).toBe(0x7e) // スタックポインタが2減少
-      
+
       // リターンアドレスがスタックに保存されているか確認
       const returnAddr = vm.readMemory16(0x7e)
       expect(returnAddr).toBe(3) // 次の命令のアドレス
@@ -161,7 +161,7 @@ describe("制御フロー命令", () => {
       expect(result.cycles).toBe(3)
       expect(vm.pc).toBe(0x5000)
       expect(vm.sp).toBe(0x7e)
-      
+
       const returnAddr = vm.readMemory16(0x7e)
       expect(returnAddr).toBe(4) // 次の命令のアドレス
     })
@@ -170,7 +170,7 @@ describe("制御フロー命令", () => {
       // スタックにリターンアドレスを準備
       vm.sp = 0x7e
       vm.writeMemory16(0x7e, 0x1234)
-      
+
       vm.writeMemory8(0, 0x66) // RET
       vm.writeMemory8(1, 0x00) // 未使用
       vm.writeMemory8(2, 0x00)
@@ -188,7 +188,7 @@ describe("制御フロー命令", () => {
     test("ループカウンタ", () => {
       // カウンタを5から0までデクリメント
       vm.setRegister("A", 5)
-      
+
       // ループ開始位置
       vm.writeMemory8(0, 0x14) // DEC_A
       vm.writeMemory8(1, 0x62) // JNZ
@@ -216,7 +216,7 @@ describe("制御フロー命令", () => {
       // Aレジスタが0の場合、次の命令をスキップしてジャンプ
       vm.setRegister("A", 0)
       vm.zeroFlag = true // A=0なのでゼロフラグをセット
-      
+
       vm.writeMemory8(0, 0x61) // JZ
       vm.writeMemory8(1, 0x04) // offset: +4 (PC=0 + 3(命令長) + 4 = 7)
       vm.writeMemory8(2, 0x00)
@@ -241,7 +241,7 @@ describe("制御フロー命令", () => {
 
     test("サブルーチンコール統合テスト", () => {
       vm.sp = 0xff
-      
+
       // メインルーチン
       vm.writeMemory8(0, 0x70) // MOV_A_IMM
       vm.writeMemory8(1, 0x05)
@@ -252,7 +252,7 @@ describe("制御フロー命令", () => {
       vm.writeMemory8(6, 0x00) // NOP（戻り先）
       vm.writeMemory8(7, 0x00) // NOP
       vm.writeMemory8(8, 0x00) // NOP
-      
+
       // サブルーチン（アドレス11）
       vm.writeMemory8(11, 0x18) // ADD_AB
       vm.writeMemory8(12, 0x66) // RET

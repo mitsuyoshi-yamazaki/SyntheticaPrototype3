@@ -62,7 +62,7 @@ describe("スタック操作命令", () => {
       // スタックに値を準備
       vm.sp = 0x7e
       vm.writeMemory16(0x7e, 0x9876)
-      
+
       vm.writeMemory8(0, 0x2e) // POP_A
 
       const result = InstructionExecutor.step(vm)
@@ -77,7 +77,7 @@ describe("スタック操作命令", () => {
     test("POP_B: スタックからBレジスタにポップ", () => {
       vm.sp = 0x7e
       vm.writeMemory16(0x7e, 0x4321)
-      
+
       vm.writeMemory8(0, 0x2f) // POP_B
 
       const result = InstructionExecutor.step(vm)
@@ -90,7 +90,7 @@ describe("スタック操作命令", () => {
     test("POP_C: スタックからCレジスタにポップ", () => {
       vm.sp = 0x7e
       vm.writeMemory16(0x7e, 0xbcde)
-      
+
       vm.writeMemory8(0, 0x30) // POP_C
 
       const result = InstructionExecutor.step(vm)
@@ -103,7 +103,7 @@ describe("スタック操作命令", () => {
     test("POP_D: スタックからDレジスタにポップ", () => {
       vm.sp = 0x7e
       vm.writeMemory16(0x7e, 0xfade)
-      
+
       vm.writeMemory8(0, 0x31) // POP_D
 
       const result = InstructionExecutor.step(vm)
@@ -170,7 +170,7 @@ describe("スタック操作命令", () => {
     test("レジスタ値の交換", () => {
       vm.setRegister("A", 0xaaaa)
       vm.setRegister("B", 0xbbbb)
-      
+
       // AとBの値を交換
       vm.writeMemory8(0, 0x1f) // PUSH_A
       vm.writeMemory8(1, 0x20) // PUSH_B
@@ -189,11 +189,11 @@ describe("スタック操作命令", () => {
     test("一時保存と復元", () => {
       vm.setRegister("A", 0x1234)
       vm.setRegister("B", 0x5678)
-      
+
       // A, Bの値を保存
       vm.writeMemory8(0, 0x1f) // PUSH_A
       vm.writeMemory8(1, 0x20) // PUSH_B
-      
+
       // 別の値を設定
       vm.writeMemory8(2, 0x70) // MOV_A_IMM
       vm.writeMemory8(3, 0xff)
@@ -201,7 +201,7 @@ describe("スタック操作命令", () => {
       vm.writeMemory8(5, 0x71) // MOV_B_IMM
       vm.writeMemory8(6, 0x00)
       vm.writeMemory8(7, 0x00)
-      
+
       // 元の値を復元
       vm.writeMemory8(8, 0x2f) // POP_B
       vm.writeMemory8(9, 0x2e) // POP_A
@@ -210,13 +210,13 @@ describe("スタック操作命令", () => {
       InstructionExecutor.step(vm) // PUSH_B
       InstructionExecutor.step(vm) // MOV_A_IMM
       InstructionExecutor.step(vm) // MOV_B_IMM
-      
+
       expect(vm.getRegister("A")).toBe(0xffff)
       expect(vm.getRegister("B")).toBe(0x0000)
-      
+
       InstructionExecutor.step(vm) // POP_B
       InstructionExecutor.step(vm) // POP_A
-      
+
       expect(vm.getRegister("A")).toBe(0x1234)
       expect(vm.getRegister("B")).toBe(0x5678)
     })
@@ -226,7 +226,7 @@ describe("スタック操作命令", () => {
     test("スタックアンダーフロー（メモリ境界）", () => {
       vm.sp = 0x02
       vm.setRegister("A", 0xdead)
-      
+
       vm.writeMemory8(0, 0x1f) // PUSH_A
 
       const result = InstructionExecutor.step(vm)
@@ -239,7 +239,7 @@ describe("スタック操作命令", () => {
     test("スタックアンダーフロー（ラップアラウンド）", () => {
       vm.sp = 0x00
       vm.setRegister("A", 0xbeef)
-      
+
       vm.writeMemory8(0, 0x1f) // PUSH_A
 
       const result = InstructionExecutor.step(vm)
@@ -251,7 +251,7 @@ describe("スタック操作命令", () => {
 
     test("スタックオーバーフロー", () => {
       vm.sp = 0xfe
-      
+
       vm.writeMemory16(0xfe, 0xcafe)
       vm.writeMemory8(0, 0x2e) // POP_A
 
@@ -266,7 +266,7 @@ describe("スタック操作命令", () => {
       // メモリ最後尾にスタックポインタを設定
       vm.sp = 0xff
       vm.setRegister("A", 0x1234)
-      
+
       vm.writeMemory8(0, 0x1f) // PUSH_A
 
       const result = InstructionExecutor.step(vm)
@@ -286,11 +286,11 @@ describe("スタック操作命令", () => {
       vm.setRegister("B", 0x2222)
       vm.setRegister("C", 0x3333)
       vm.setRegister("D", 0x4444)
-      
+
       // callee-saved registers
       vm.writeMemory8(0, 0x21) // PUSH_C
       vm.writeMemory8(1, 0x22) // PUSH_D
-      
+
       // 関数内で自由に使用
       vm.writeMemory8(2, 0x72) // MOV_C_IMM
       vm.writeMemory8(3, 0x99)
@@ -298,7 +298,7 @@ describe("スタック操作命令", () => {
       vm.writeMemory8(5, 0x73) // MOV_D_IMM
       vm.writeMemory8(6, 0x88)
       vm.writeMemory8(7, 0x88)
-      
+
       // 関数終了時に復元
       vm.writeMemory8(8, 0x31) // POP_D
       vm.writeMemory8(9, 0x30) // POP_C
@@ -317,16 +317,16 @@ describe("スタック操作命令", () => {
 
     test("ローカル変数スペースの確保", () => {
       const initialSp = vm.sp
-      
+
       // スタックに4ワード分のスペースを確保（手動で調整）
       vm.sp = initialSp - 8
 
       expect(vm.sp).toBe(initialSp - 8)
-      
+
       // ローカル変数への書き込み（スタック相対）
       vm.setRegister("A", 0x1234)
       vm.writeMemory8(0, 0x1f) // PUSH_A
-      
+
       InstructionExecutor.step(vm)
       expect(vm.readMemory16(vm.sp)).toBe(0x1234)
     })

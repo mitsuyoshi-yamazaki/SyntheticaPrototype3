@@ -33,7 +33,7 @@ export class CircuitConnectionSystem {
       throw new Error(`Invalid unit index: ${index}. Must be 0-63`)
     }
     const typeCode = this.getTypeCode(unitType)
-    return (typeCode | index) as UnitIdentifier
+    return typeCode | index
   }
 
   /** ユニット識別子から種別コードを取得 */

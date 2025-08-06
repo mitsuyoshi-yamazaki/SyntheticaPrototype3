@@ -158,7 +158,7 @@ describe("CircuitConnectionSystem", () => {
     })
 
     test("parentHullがないユニットはアクセス不可", () => {
-      const { parentHull: _, ...assemblerBase } = assembler1
+      const { parentHull: _parentHull, ...assemblerBase } = assembler1
       const assemblerWithoutHull = assemblerBase as Assembler
       expect(CircuitConnectionSystem.canAccess(assemblerWithoutHull, computer1)).toBe(false)
       expect(CircuitConnectionSystem.canAccess(computer1, assemblerWithoutHull)).toBe(false)

@@ -205,7 +205,7 @@ describe("算術演算命令", () => {
       // (10 + 20) * 3 = 90
       vm.setRegister("A", 10)
       vm.setRegister("B", 20)
-      
+
       // ADD_AB
       vm.writeMemory8(0, 0x18)
       // MOV_AB
