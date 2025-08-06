@@ -9,6 +9,7 @@ import type { Unit } from "@/types/game"
 import { CircuitConnectionSystem } from "./circuit-connection-system"
 import { createMemoryInterface } from "./unit-memory-interface"
 import { UnitSelfScanSystem } from "./unit-self-scan"
+import { UnitEnergyControlSystem } from "./unit-energy-control"
 
 /** 実行結果 */
 export type ExecutionResult = {
@@ -702,10 +703,44 @@ export const InstructionExecutor = {
         vm.advancePC(decoded.length)
         return { success: true, cycles: 5 }
 
-      case "ENERGY":
-        // TODO: エネルギー操作実装
+      case "ENERGY": {
+        if (unit == null) {
+          return {
+            success: false,
+            error: "ENERGY instruction requires unit context",
+            cycles: 1,
+          }
+        }
+        
+        // オペランドからサブコマンドを取得（バイト1）
+        if (!decoded.bytes || decoded.bytes.length < 2) {
+          return {
+            success: false,
+            error: "Invalid ENERGY instruction: insufficient bytes",
+            cycles: 1,
+          }
+        }
+        const subcommand = decoded.bytes[1]
+        
+        // エネルギー操作を実行
+        const result = UnitEnergyControlSystem.executeEnergyCommand(unit, subcommand)
+        
+        if (!result.success) {
+          return {
+            success: false,
+            error: result.error ?? "Energy operation failed",
+            cycles: 1,
+          }
+        }
+        
+        // 結果をレジスタAに格納
+        if (result.value !== undefined) {
+          vm.setRegister("A", result.value & 0xffff)
+        }
+        
         vm.advancePC(decoded.length)
         return { success: true, cycles: 5 }
+      }
 
       case "HALT":
         // 実行停止
