@@ -22,7 +22,7 @@ export class CircuitConnectionSystem {
   /** ユニット種別からコードを取得 */
   public static getTypeCode(unitType: Unit["type"]): number {
     if (unitType in UNIT_TYPE_CODES) {
-      return UNIT_TYPE_CODES[unitType]
+      return UNIT_TYPE_CODES[unitType as keyof typeof UNIT_TYPE_CODES]
     }
     throw new Error(`Unknown unit type: ${unitType}`)
   }

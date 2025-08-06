@@ -163,8 +163,10 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         // デバッグ情報更新
         const objectCount = gameWorld.getObjectCount()
         const zoom = viewport.zoom.toFixed(2)
-        const { x: posX, y: posY } = viewport.position
-        debugText.text = `FPS: ${fps}\nTicks per frame: ${ticksPerFrame}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}\nZoom: ${zoom}x\nCamera: (${Math.round(posX)}, ${Math.round(posY)})`
+        const viewportPos = viewport.position
+        const posX = Math.round(viewportPos.x)
+        const posY = Math.round(viewportPos.y)
+        debugText.text = `FPS: ${fps}\nTicks per frame: ${ticksPerFrame}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}\nZoom: ${zoom}x\nCamera: (${posX}, ${posY})`
       })
     }
 

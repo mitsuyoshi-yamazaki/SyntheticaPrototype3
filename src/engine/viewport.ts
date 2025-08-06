@@ -4,7 +4,7 @@
  */
 
 import type { Container } from "pixi.js"
-import type { Vec2 } from "@/utils/vec2"
+import type { Vec2 } from "@/types/game"
 
 /** Viewportの設定 */
 export type ViewportConfig = {
@@ -46,6 +46,26 @@ export class Viewport {
   private _state: ViewportState
   private _container: Container | null = null
 
+  /** ビューポート設定の取得 */
+  public get config(): Readonly<Required<ViewportConfig>> {
+    return this._config
+  }
+
+  /** 現在の状態を取得 */
+  public get state(): Readonly<ViewportState> {
+    return this._state
+  }
+
+  /** カメラ位置を取得 */
+  public get position(): Readonly<Vec2> {
+    return { x: this._state.position.x, y: this._state.position.y }
+  }
+
+  /** ズームレベルを取得 */
+  public get zoom(): number {
+    return this._state.zoom
+  }
+
   public constructor(config: ViewportConfig) {
     this._config = {
       screenWidth: config.screenWidth,
@@ -62,30 +82,10 @@ export class Viewport {
     }
 
     this._state = {
-      position: { ...this._config.initialPosition },
+      position: { x: this._config.initialPosition.x, y: this._config.initialPosition.y },
       zoom: this._config.initialZoom,
       isDragging: false,
     }
-  }
-
-  /** ビューポート設定の取得 */
-  public get config(): Readonly<Required<ViewportConfig>> {
-    return this._config
-  }
-
-  /** 現在の状態を取得 */
-  public get state(): Readonly<ViewportState> {
-    return this._state
-  }
-
-  /** カメラ位置を取得 */
-  public get position(): Readonly<Vec2> {
-    return this._state.position
-  }
-
-  /** ズームレベルを取得 */
-  public get zoom(): number {
-    return this._state.zoom
   }
 
   /**
@@ -102,7 +102,8 @@ export class Viewport {
    * @param position 新しい位置（ワールド座標）
    */
   public setPosition(position: Vec2): void {
-    this._state.position = this.clampPosition(position)
+    const clamped = this.clampPosition(position)
+    this._state.position = { x: clamped.x, y: clamped.y }
     this.updateTransform()
   }
 
@@ -128,10 +129,7 @@ export class Viewport {
 
     // ズームの中心点を基準に位置を調整
     if (center != null && oldZoom !== this._state.zoom) {
-      const screenCenter = center ?? {
-        x: this._config.screenWidth / 2,
-        y: this._config.screenHeight / 2,
-      }
+      const screenCenter: Vec2 = center
 
       // スクリーン座標をワールド座標に変換
       const worldBefore = this.screenToWorld(screenCenter, oldZoom)
@@ -186,8 +184,8 @@ export class Viewport {
    */
   public startDrag(screenPos: Vec2): void {
     this._state.isDragging = true
-    this._state.dragStartScreen = { ...screenPos }
-    this._state.dragStartPosition = { ...this._state.position }
+    this._state.dragStartScreen = { x: screenPos.x, y: screenPos.y }
+    this._state.dragStartPosition = { x: this._state.position.x, y: this._state.position.y }
   }
 
   /**
@@ -265,11 +263,12 @@ export class Viewport {
     const halfWidth = this._config.screenWidth / 2 / this._state.zoom
     const halfHeight = this._config.screenHeight / 2 / this._state.zoom
 
+    const pos = this._state.position
     return {
-      left: this._state.position.x - halfWidth,
-      top: this._state.position.y - halfHeight,
-      right: this._state.position.x + halfWidth,
-      bottom: this._state.position.y + halfHeight,
+      left: pos.x - halfWidth,
+      top: pos.y - halfHeight,
+      right: pos.x + halfWidth,
+      bottom: pos.y + halfHeight,
     }
   }
 

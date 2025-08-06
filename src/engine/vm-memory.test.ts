@@ -229,7 +229,7 @@ describe("メモリ操作命令", () => {
       vm.writeMemory8(1, 0x02) // offset: +2 (yフィールド)
       vm.writeMemory8(2, 0x00)
 
-      let result = InstructionExecutor.step(vm)
+      InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(200 & 0xff) // 下位バイトのみ（リトルエンディアン）
 
       // ワード読み込みの場合
@@ -245,7 +245,7 @@ describe("メモリ操作命令", () => {
       vm.writeMemory8(2, 0x02) // address: 0x0202 (structAddr + 2)
       vm.writeMemory8(3, 0x02)
 
-      result = InstructionExecutor.step(vm)
+      InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(200)
     })
 
@@ -256,7 +256,7 @@ describe("メモリ操作命令", () => {
       vm.setRegister("A", 0x1234)
       vm.writeMemory8(0, 0x1f) // PUSH_A
 
-      let result = InstructionExecutor.step(vm)
+      InstructionExecutor.step(vm)
       expect(vm.sp).toBe(0x7e)
 
       // 別の値をAに設定
@@ -268,7 +268,7 @@ describe("メモリ操作命令", () => {
       vm.writeMemory8(3, 0x7e) // スタックトップアドレス
       vm.writeMemory8(4, 0x00)
 
-      result = InstructionExecutor.step(vm)
+      InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(0x1234)
     })
   })

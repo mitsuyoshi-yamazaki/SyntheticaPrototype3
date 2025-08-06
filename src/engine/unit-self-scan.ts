@@ -78,8 +78,8 @@ export const UnitSelfScanSystem = {
     const addr = (offset: number) => (startAddress + offset) % memory.length
 
     // ユニット種別
-    const unitType = UNIT_TYPE_CODES[unit.type]
-    memory[addr(SCAN_RESULT_ADDRESSES.UNIT_TYPE)] = unitType
+    const unitType = UNIT_TYPE_CODES[unit.type as keyof typeof UNIT_TYPE_CODES]
+    memory[addr(SCAN_RESULT_ADDRESSES.UNIT_TYPE)] = unitType ?? 0
 
     // 構築エネルギー（16bit）
     memory[addr(SCAN_RESULT_ADDRESSES.BUILD_ENERGY)] = unit.buildEnergy & 0xff

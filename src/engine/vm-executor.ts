@@ -833,7 +833,7 @@ export const InstructionExecutor = {
       const result = this.step(vm, unit)
       totalCycles += result.cycles
 
-      if (!result.success || result.halted) {
+      if (!result.success || (result.halted === true)) {
         break
       }
     }

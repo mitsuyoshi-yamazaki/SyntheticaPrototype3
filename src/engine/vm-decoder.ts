@@ -38,6 +38,7 @@ export type DecodedInstruction = {
 }
 
 /** 命令デコーダ */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class InstructionDecoder {
   /**
    * 現在のPCから命令をデコード
@@ -65,7 +66,7 @@ export class InstructionDecoder {
       const byte2 = vm.readMemory8(address + 1)
       const byte3 = vm.readMemory8(address + 2)
 
-      if (instruction) {
+      if (instruction != null) {
         switch (instruction.mnemonic) {
           // メモリアクセス命令（PC相対）
           case "LOAD_A":
@@ -118,7 +119,7 @@ export class InstructionDecoder {
     if (length >= 4) {
       // 4バイト命令
 
-      if (instruction) {
+      if (instruction != null) {
         switch (instruction.mnemonic) {
           // 絶対アドレス命令
           case "LOAD_ABS":
@@ -182,7 +183,7 @@ export class InstructionDecoder {
       return `${addr}: ${hex} <undefined 0x${decoded.opcode.toString(16).padStart(2, "0")}>`
     }
 
-    if (!decoded.instruction) {
+    if (decoded.instruction == null) {
       return `${addr}: ${hex} ???`
     }
 

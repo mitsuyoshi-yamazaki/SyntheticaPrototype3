@@ -196,13 +196,13 @@ describe("制御フロー命令", () => {
       vm.writeMemory8(3, 0xff)
       vm.writeMemory8(4, 0x00) // NOP（ループ終了後）
 
-      let _cycles = 0
+      // let _cycles = 0
       let stepCount = 0
       // 最大20ステップで安全停止
       while (stepCount < 20 && vm.pc !== 4) {
         const result = InstructionExecutor.step(vm)
         expect(result.success).toBe(true)
-        _cycles += result.cycles
+        // _cycles += result.cycles
         stepCount++
       }
 
@@ -262,19 +262,19 @@ describe("制御フロー命令", () => {
       vm.setRegister("B", 3)
 
       // MOV_A_IMM実行
-      let result = InstructionExecutor.step(vm)
+      InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(5)
 
       // CALL実行
-      result = InstructionExecutor.step(vm)
+      InstructionExecutor.step(vm)
       expect(vm.pc).toBe(11) // サブルーチンへジャンプ
 
       // ADD_AB実行
-      result = InstructionExecutor.step(vm)
+      InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(8) // 5 + 3
 
       // RET実行
-      const _result = InstructionExecutor.step(vm)
+      InstructionExecutor.step(vm)
       expect(vm.pc).toBe(6) // 戻り先
     })
   })

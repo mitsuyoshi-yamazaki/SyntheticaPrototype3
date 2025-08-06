@@ -41,7 +41,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0, 0x03) // MOV_AB
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("B")).toBe(0xabcd)
       expect(vm.pc).toBe(1)
@@ -52,7 +52,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0, 0x0d) // MOV_SP
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x8000)
     })
@@ -62,7 +62,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0, 0x0e) // SET_SP
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.sp).toBe(0x7fff)
     })
@@ -87,7 +87,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0, 0x10) // INC_A
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x0100)
       expect(vm.zeroFlag).toBe(false)
@@ -99,7 +99,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0, 0x10) // INC_A
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x0000)
       expect(vm.zeroFlag).toBe(true)
@@ -111,7 +111,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0, 0x14) // DEC_A
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x00ff)
       expect(vm.zeroFlag).toBe(false)
@@ -124,7 +124,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0, 0x18) // ADD_AB
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x68ac)
       expect(vm.zeroFlag).toBe(false)
@@ -137,7 +137,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0, 0x19) // SUB_AB
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x4444)
       expect(vm.zeroFlag).toBe(false)
@@ -150,7 +150,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0, 0x1a) // XOR_AB
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0xf0f0)
       expect(vm.carryFlag).toBe(false)
@@ -162,7 +162,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0, 0x1e) // CMP_AB
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x1000) // 値は変更されない
       expect(vm.zeroFlag).toBe(true)
@@ -176,7 +176,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(2, 0x12)
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x2234)
       expect(vm.pc).toBe(3)
@@ -235,7 +235,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(2, 0x00)
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.readMemory8(0x13)).toBe(0x34) // 下位バイトのみ
     })
@@ -248,7 +248,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0x210, 0x99) // B + offset
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x99)
     })
@@ -261,7 +261,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(2, 0x00)
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x77)
     })
@@ -274,7 +274,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(3, 0x12) // address high
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0x88)
       expect(vm.pc).toBe(4)
@@ -288,7 +288,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(3, 0x12)
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.getRegister("A")).toBe(0xabcd)
     })
@@ -342,7 +342,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(0x102, 0x00)
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.pc).toBe(0x153) // 0x100 + 3 + 0x50
       expect(vm.sp).toBe(0xfffc)
@@ -357,7 +357,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(2, 0x00)
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.pc).toBe(0x200)
       expect(vm.sp).toBe(0xfffe)
@@ -370,7 +370,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(3, 0x12)
 
       const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
+      InstructionExecutor.execute(vm, decoded)
 
       expect(vm.pc).toBe(0x1234)
     })

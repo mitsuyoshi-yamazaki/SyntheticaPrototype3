@@ -158,6 +158,8 @@ describe("CircuitConnectionSystem", () => {
     })
 
     test("parentHullがないユニットはアクセス不可", () => {
+      // parentHullを除外したアセンブラーを作成
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { parentHull: _parentHull, ...assemblerBase } = assembler1
       const assemblerWithoutHull = assemblerBase as Assembler
       expect(CircuitConnectionSystem.canAccess(assemblerWithoutHull, computer1)).toBe(false)

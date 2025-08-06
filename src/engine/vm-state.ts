@@ -23,6 +23,7 @@ export const FLAG_NAMES = {
 export type FlagName = keyof typeof FLAG_NAMES
 
 /** VM状態 */
+// eslint-disable-next-line @typescript-eslint/member-ordering
 export class VMState {
   /** プログラムカウンタ（16bit） */
   private _pc = 0
