@@ -33,7 +33,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       await app.init({
         width,
         height,
-        backgroundColor: 0xf0f0f0,
+        backgroundColor: 0x101010, // デザイン仕様: 背景色 #101010
         antialias: true,
         resolution: window.devicePixelRatio !== 0 ? window.devicePixelRatio : 1,
         autoDensity: true,
@@ -110,13 +110,6 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         viewport.endDrag()
       })
 
-      // 開発用：中央に円を描画
-      const centerCircle = new PIXI.Graphics()
-      centerCircle.circle(0, 0, 25)
-      centerCircle.fill(0x6496c8)
-      centerCircle.x = width / 2
-      centerCircle.y = height / 2
-      gameContainer.addChild(centerCircle)
 
       // FPS計測用
       let lastTime = performance.now()

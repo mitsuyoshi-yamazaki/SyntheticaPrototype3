@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js"
 import { World } from "@/engine"
-import type { ObjectId } from "@/types/game"
+import type { ObjectId, Hull, Assembler, Computer } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { SELF_REPLICATOR_PRESET } from "@/engine/presets/self-replicator-preset"
 
@@ -79,76 +79,188 @@ export class GameWorld {
     // コンテナをクリア
     container.removeChildren()
 
+    // 背景色設定（デザイン仕様: #101010）
+    const background = new PIXI.Graphics()
+    background.rect(0, 0, this.width, this.height)
+    background.fill(0x101010)
+    container.addChild(background)
+
     // 世界の境界線を描画
     const border = new PIXI.Graphics()
     border.rect(0, 0, this.width, this.height)
-    border.stroke({ width: 2, color: 0xcccccc })
+    border.stroke({ width: 2, color: 0x333333 })
     container.addChild(border)
 
-    // 力場を描画（半透明）
+    // 力場を描画（デザイン仕様外だが視覚的に必要）
     for (const field of this._world.state.forceFields.values()) {
       const fieldGraphics = new PIXI.Graphics()
 
-      // 力場の種類に応じた色
+      // 力場の種類に応じた色（補助視覚要素として控えめに）
       let color = 0x808080
-      const alpha = 0.2
+      const alpha = 0.1
       switch (field.type) {
         case "LINEAR":
           color = 0x00ffff
           break
         case "RADIAL":
-          color = field.strength > 0 ? 0xff8080 : 0x8080ff // 斥力は赤、引力は青
+          color = field.strength > 0 ? 0xff6060 : 0x6060ff // 斥力は赤系、引力は青系
           break
         case "SPIRAL":
           color = 0xff00ff
           break
       }
 
-      // 力場の範囲を円で表示
+      // 力場の範囲を点線風に表示（控えめに）
+      const segments = 32
+      const angleStep = (Math.PI * 2) / segments
+      for (let i = 0; i < segments; i += 2) {
+        const angle1 = angleStep * i
+        const angle2 = angleStep * (i + 1)
+        const x1 = field.position.x + Math.cos(angle1) * field.radius
+        const y1 = field.position.y + Math.sin(angle1) * field.radius
+        const x2 = field.position.x + Math.cos(angle2) * field.radius
+        const y2 = field.position.y + Math.sin(angle2) * field.radius
+        
+        fieldGraphics.moveTo(x1, y1)
+        fieldGraphics.lineTo(x2, y2)
+      }
+      fieldGraphics.stroke({ width: 1, color, alpha: alpha * 2 })
+
+      // 範囲を薄く塗りつぶし
       fieldGraphics.circle(field.position.x, field.position.y, field.radius)
       fieldGraphics.fill({ color, alpha })
 
-      // 中心点
-      fieldGraphics.circle(field.position.x, field.position.y, 5)
-      fieldGraphics.fill(color)
+      // 中心点（小さく）
+      fieldGraphics.circle(field.position.x, field.position.y, 3)
+      fieldGraphics.fill({ color, alpha: 0.5 })
 
       container.addChild(fieldGraphics)
     }
 
-    // エネルギーソースを描画
+    // エネルギーソースを描画（デザイン仕様: エネルギー色 #FFD700）
     for (const source of this._world.state.energySources.values()) {
       const sourceGraphics = new PIXI.Graphics()
+      
+      // 外周グロー効果
+      sourceGraphics.circle(0, 0, 15)
+      sourceGraphics.fill({ color: 0xffd700, alpha: 0.3 })
+      
+      // メイン円
       sourceGraphics.circle(0, 0, 10)
-      sourceGraphics.fill(0xffff00)
-      sourceGraphics.stroke({ width: 2, color: 0xff8800 })
+      sourceGraphics.fill(0xffd700)
+      
+      // 内部の輝き
+      sourceGraphics.circle(-3, -3, 3)
+      sourceGraphics.fill({ color: 0xffffff, alpha: 0.6 })
+      
       sourceGraphics.x = source.position.x
       sourceGraphics.y = source.position.y
       container.addChild(sourceGraphics)
     }
 
-    // ゲームオブジェクトを描画
+    // ゲームオブジェクトを描画（デザイン仕様準拠）
     for (const obj of this._world.state.objects.values()) {
       const objGraphics = new PIXI.Graphics()
 
-      // タイプに応じた色
-      let color = 0x808080
+      // タイプに応じた描画
       switch (obj.type) {
-        case "ENERGY":
-          color = 0x00ff00
+        case "ENERGY": {
+          // エネルギーオブジェクト（デザイン仕様: #FFD700）
+          // グロー効果
+          objGraphics.circle(0, 0, obj.radius + 3)
+          objGraphics.fill({ color: 0xffd700, alpha: 0.4 })
+          
+          // メイン
+          objGraphics.circle(0, 0, obj.radius)
+          objGraphics.fill(0xffd700)
           break
-        case "HULL":
-          color = 0x0080ff
+        }
+        
+        case "HULL": {
+          // HULL（デザイン仕様: #2C3E50、六角形/丸角長方形）
+          const hull = obj as Hull
+          const healthRatio = hull.currentEnergy / hull.buildEnergy
+          
+          // 六角形を描画
+          const hexRadius = obj.radius
+          for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 3) * i
+            const x = Math.cos(angle) * hexRadius
+            const y = Math.sin(angle) * hexRadius
+            if (i === 0) {
+              objGraphics.moveTo(x, y)
+            } else {
+              objGraphics.lineTo(x, y)
+            }
+          }
+          objGraphics.closePath()
+          objGraphics.fill(0x2c3e50)
+          
+          // HP減少時は縁に赤み
+          if (healthRatio < 0.5) {
+            objGraphics.stroke({ width: 2, color: 0xff0000, alpha: 1 - healthRatio })
+          }
+          
+          // ボーダー
+          objGraphics.stroke({ width: 2, color: 0x1a252f })
           break
-        case "ASSEMBLER":
-          color = 0xff8000
+        }
+        
+        case "ASSEMBLER": {
+          // ASSEMBLER（デザイン仕様: #D35400、四角＋下向きピン）
+          const size = obj.radius * 1.5
+          
+          // メイン四角
+          objGraphics.rect(-size/2, -size/2, size, size)
+          objGraphics.fill(0xd35400)
+          
+          // 下向きピン
+          objGraphics.moveTo(-size/4, size/2)
+          objGraphics.lineTo(0, size/2 + size/3)
+          objGraphics.lineTo(size/4, size/2)
+          objGraphics.fill(0xa04000)
+          
+          // ボーダー
+          objGraphics.rect(-size/2, -size/2, size, size)
+          objGraphics.stroke({ width: 2, color: 0x8a2e00 })
+          
+          // 活動中は下部が光る
+          const assembler = obj as Assembler
+          if (assembler.isAssembling) {
+            objGraphics.rect(-size/2, size/2 - 4, size, 4)
+            objGraphics.fill({ color: 0xffa500, alpha: 0.8 })
+          }
           break
-        case "COMPUTER":
-          color = 0xff00ff
+        }
+        
+        case "COMPUTER": {
+          // COMPUTER（デザイン仕様: #F39C12、正方形）
+          const size = obj.radius * 2
+          
+          // メイン正方形
+          objGraphics.rect(-size/2, -size/2, size, size)
+          objGraphics.fill(0xf39c12)
+          
+          // ボーダー
+          objGraphics.rect(-size/2, -size/2, size, size)
+          objGraphics.stroke({ width: 2, color: 0xc87f0a })
+          
+          // 活動中は中央が点滅（簡易版: 常に表示）
+          const computer = obj as Computer
+          if (computer.isRunning) {
+            objGraphics.circle(0, 0, 3)
+            objGraphics.fill({ color: 0xffffff, alpha: 0.8 })
+          }
           break
+        }
+        
+        default:
+          // 未定義のタイプは灰色の円
+          objGraphics.circle(0, 0, obj.radius)
+          objGraphics.fill(0x808080)
+          objGraphics.stroke({ width: 1, color: 0x404040 })
       }
 
-      objGraphics.circle(0, 0, obj.radius)
-      objGraphics.fill(color)
       objGraphics.x = obj.position.x
       objGraphics.y = obj.position.y
       container.addChild(objGraphics)
