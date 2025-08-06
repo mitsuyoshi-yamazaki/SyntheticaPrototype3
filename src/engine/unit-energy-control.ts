@@ -22,7 +22,7 @@ export const ENERGY_SUBCOMMANDS = {
   GET_BUILD_ENERGY: 0x21,
 } as const
 
-export type EnergySubcommand = typeof ENERGY_SUBCOMMANDS[keyof typeof ENERGY_SUBCOMMANDS]
+export type EnergySubcommand = (typeof ENERGY_SUBCOMMANDS)[keyof typeof ENERGY_SUBCOMMANDS]
 
 /** ENERGY命令の実行結果 */
 export type EnergyOperationResult = {
@@ -43,25 +43,25 @@ export const UnitEnergyControlSystem = {
     switch (subcommand) {
       case ENERGY_SUBCOMMANDS.GET_HULL_ENERGY:
         return this.getHullEnergy(unit)
-      
+
       case ENERGY_SUBCOMMANDS.GET_HULL_CAPACITY:
         return this.getHullCapacity(unit)
-      
+
       case ENERGY_SUBCOMMANDS.GET_COLLECTING_STATE:
         return this.getCollectingState(unit)
-      
+
       case ENERGY_SUBCOMMANDS.START_COLLECTING:
         return this.startCollecting(unit)
-      
+
       case ENERGY_SUBCOMMANDS.STOP_COLLECTING:
         return this.stopCollecting(unit)
-      
+
       case ENERGY_SUBCOMMANDS.GET_UNIT_ENERGY:
         return this.getUnitEnergy(unit)
-      
+
       case ENERGY_SUBCOMMANDS.GET_BUILD_ENERGY:
         return this.getBuildEnergy(unit)
-      
+
       default:
         return {
           success: false,
@@ -76,7 +76,7 @@ export const UnitEnergyControlSystem = {
   getHullEnergy(unit: Unit): EnergyOperationResult {
     // ユニットが所属するHULLを取得
     const hull = this.getParentHull(unit)
-    if (!hull) {
+    if (hull == null) {
       return {
         success: false,
         error: "Unit is not attached to a HULL",
@@ -94,7 +94,7 @@ export const UnitEnergyControlSystem = {
    */
   getHullCapacity(unit: Unit): EnergyOperationResult {
     const hull = this.getParentHull(unit)
-    if (!hull) {
+    if (hull == null) {
       return {
         success: false,
         error: "Unit is not attached to a HULL",
@@ -112,7 +112,7 @@ export const UnitEnergyControlSystem = {
    */
   getCollectingState(unit: Unit): EnergyOperationResult {
     const hull = this.getParentHull(unit)
-    if (!hull) {
+    if (hull == null) {
       return {
         success: false,
         error: "Unit is not attached to a HULL",
@@ -121,7 +121,7 @@ export const UnitEnergyControlSystem = {
 
     return {
       success: true,
-      value: hull.collectingEnergy ? 1 : 0,
+      value: hull.collectingEnergy === true ? 1 : 0,
     }
   },
 
@@ -130,7 +130,7 @@ export const UnitEnergyControlSystem = {
    */
   startCollecting(unit: Unit): EnergyOperationResult {
     const hull = this.getParentHull(unit)
-    if (!hull) {
+    if (hull == null) {
       return {
         success: false,
         error: "Unit is not attached to a HULL",
@@ -149,7 +149,7 @@ export const UnitEnergyControlSystem = {
    */
   stopCollecting(unit: Unit): EnergyOperationResult {
     const hull = this.getParentHull(unit)
-    if (!hull) {
+    if (hull == null) {
       return {
         success: false,
         error: "Unit is not attached to a HULL",
@@ -188,7 +188,7 @@ export const UnitEnergyControlSystem = {
    * @param unit ユニット
    * @returns HULLまたはnull
    */
-  getParentHull(unit: Unit): Hull | null {
+  getParentHull(_unit: Unit): Hull | null {
     // TODO: 実際の実装では、WorldStateManagerからHULLを検索
     // 現在は仮実装としてnullを返す
     return null

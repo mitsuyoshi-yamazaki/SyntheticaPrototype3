@@ -106,6 +106,11 @@ export class WorldStateManager {
     return this._state.objects.get(id)
   }
 
+  /** 全オブジェクトを取得 */
+  public getAllObjects(): GameObject[] {
+    return Array.from(this._state.objects.values())
+  }
+
   public addEnergySource(source: EnergySource): void {
     this._state.energySources.set(source.id, source)
   }

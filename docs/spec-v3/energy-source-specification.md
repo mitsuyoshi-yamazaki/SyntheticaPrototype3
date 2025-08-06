@@ -224,6 +224,7 @@ struct EnergySource {
 ## エネルギーの持続性
 
 生成されたエネルギーオブジェクトは自然崩壊により徐々に熱に変換されます：
+
 - 崩壊量 = `ceil(sqrt(エネルギー量) / 10)` E/tick
 - 詳細は`energy-decay-specification.md`参照
 

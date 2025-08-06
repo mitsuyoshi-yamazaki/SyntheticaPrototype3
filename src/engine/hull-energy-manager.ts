@@ -136,7 +136,7 @@ export class HullEnergyManager {
   ): HullEnergyResult & { updatedTarget: GameObject } {
     // 転送レート制限
     const limitedAmount = Math.min(amount, this._parameters.maxTransferRate)
-    
+
     // エネルギーチェック
     if (hull.storedEnergy < limitedAmount) {
       return {

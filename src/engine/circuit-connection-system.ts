@@ -1,4 +1,4 @@
-import type { ObjectId, Unit, Hull, GameObject } from "@/types/game"
+import type { ObjectId, Unit, Hull } from "@/types/game"
 
 /** ユニット種別コード */
 export const UNIT_TYPE_CODES = {
@@ -21,7 +21,10 @@ export type CircuitAccessResult = {
 export class CircuitConnectionSystem {
   /** ユニット種別からコードを取得 */
   public static getTypeCode(unitType: Unit["type"]): number {
-    return UNIT_TYPE_CODES[unitType]
+    if (unitType in UNIT_TYPE_CODES) {
+      return UNIT_TYPE_CODES[unitType]
+    }
+    throw new Error(`Unknown unit type: ${unitType}`)
   }
 
   /** ユニット識別子を生成 */
@@ -58,13 +61,13 @@ export class CircuitConnectionSystem {
     }
   }
 
-  /** 
+  /**
    * 回路接続が可能かチェック
    * 同一HULLに固定されているユニット間でのみ可能
    */
   public static canAccess(sourceUnit: Unit, targetUnit: Unit): boolean {
     // 両方のユニットが固定されているか確認
-    if (!sourceUnit.parentHull || !targetUnit.parentHull) {
+    if (sourceUnit.parentHull == null || targetUnit.parentHull == null) {
       return false
     }
 
@@ -80,20 +83,20 @@ export class CircuitConnectionSystem {
    */
   public static findUnitInHull(hull: Hull, identifier: UnitIdentifier): Unit | null {
     const unitType = this.getUnitTypeFromIdentifier(identifier)
-    const index = this.getIndexFromIdentifier(identifier)
+    // const index = this.getIndexFromIdentifier(identifier) // TODO: 実装時に使用
 
-    if (!unitType) {
+    if (unitType == null) {
       return null
     }
 
     // 固定されているユニットから検索
-    let currentIndex = 0
-    for (const unitId of hull.attachedUnits) {
-      // ここでは実際のユニットオブジェクトが必要
-      // WorldStateから取得する必要があるため、このメソッドは
-      // 実際にはWorldStateと連携して動作する必要がある
-      // 今は型定義のみ
-    }
+    // TODO: 実装時に以下のロジックを追加
+    // let currentIndex = 0
+    // for (const unitId of hull.attachedUnits) {
+    //   // ここでは実際のユニットオブジェクトが必要
+    //   // WorldStateから取得する必要があるため、このメソッドは
+    //   // 実際にはWorldStateと連携して動作する必要がある
+    // }
 
     return null
   }
@@ -185,7 +188,7 @@ export class CircuitConnectionSystem {
    * @param unitType フィルタするユニット種別（省略時は全種別）
    * @returns ユニットIDとインデックスのペア配列
    */
-  enumerateUnitsInHull(
+  public enumerateUnitsInHull(
     _hull: Hull,
     _unitType?: Unit["type"]
   ): { unitId: ObjectId; index: number; type: Unit["type"] }[] {
@@ -205,7 +208,7 @@ export class CircuitConnectionSystem {
     separatedUnits: ObjectId[]
   ): { remainingUnits: ObjectId[]; separatedCircuit: ObjectId[] } {
     const remainingUnits = originalHull.attachedUnits.filter(
-      (unitId) => !separatedUnits.includes(unitId)
+      unitId => !separatedUnits.includes(unitId)
     )
 
     return {
@@ -231,34 +234,31 @@ export class CircuitConnectionSystem {
    * @param units ユニット情報マップ
    * @returns デバッグ文字列
    */
-  public static debugCircuitState(
-    hull: Hull,
-    units: Map<ObjectId, Unit>
-  ): string {
+  public static debugCircuitState(hull: Hull, units: Map<ObjectId, Unit>): string {
     const lines: string[] = [`Hull[ID: ${hull.id}]`]
-    
+
     // 固定ユニット（回路接続可能）
     lines.push("├─ Attached Units (回路接続可能):")
-    
+
     const attachedByType = new Map<Unit["type"], number[]>()
-    
+
     for (const unitId of hull.attachedUnits) {
       const unit = units.get(unitId)
-      if (unit) {
+      if (unit != null) {
         const indices = attachedByType.get(unit.type) ?? []
         indices.push(indices.length)
         attachedByType.set(unit.type, indices)
-        
+
         const isLast = unitId === hull.attachedUnits[hull.attachedUnits.length - 1]
         const prefix = isLast ? "│  └─" : "│  ├─"
         lines.push(`${prefix} ${unit.type}[${indices.length - 1}]`)
       }
     }
-    
+
     // 格納オブジェクト（回路接続不可）
     lines.push("└─ Contained Objects (回路接続不可):")
     lines.push("   └─ (実装待機中)")
-    
+
     return lines.join("\n")
   }
 }

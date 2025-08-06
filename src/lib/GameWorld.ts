@@ -82,7 +82,7 @@ export class GameWorld {
     // 力場を描画（半透明）
     for (const field of this._world.state.forceFields.values()) {
       const fieldGraphics = new PIXI.Graphics()
-      
+
       // 力場の種類に応じた色
       let color = 0x808080
       const alpha = 0.2
@@ -101,11 +101,11 @@ export class GameWorld {
       // 力場の範囲を円で表示
       fieldGraphics.circle(field.position.x, field.position.y, field.radius)
       fieldGraphics.fill({ color, alpha })
-      
+
       // 中心点
       fieldGraphics.circle(field.position.x, field.position.y, 5)
       fieldGraphics.fill(color)
-      
+
       container.addChild(fieldGraphics)
     }
 

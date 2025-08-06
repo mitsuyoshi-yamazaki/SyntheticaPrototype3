@@ -1,5 +1,5 @@
 import { CircuitConnectionSystem } from "./circuit-connection-system"
-import type { ObjectId, Hull, Assembler, Computer } from "@/types/game"
+import type { ObjectId, Hull, Assembler, Computer, Unit } from "@/types/game"
 import { Vec2 } from "@/utils/vec2"
 
 describe("CircuitConnectionSystem", () => {
@@ -138,6 +138,11 @@ describe("CircuitConnectionSystem", () => {
         memory: new Uint8Array(64),
         programCounter: 0,
         registers: new Uint16Array(8),
+        stackPointer: 0,
+        zeroFlag: false,
+        carryFlag: false,
+        isRunning: false,
+        vmCyclesExecuted: 0,
         parentHull: hull1.id,
       }
     })
@@ -153,9 +158,10 @@ describe("CircuitConnectionSystem", () => {
     })
 
     test("parentHullがないユニットはアクセス不可", () => {
-      assembler1.parentHull = undefined
-      expect(CircuitConnectionSystem.canAccess(assembler1, computer1)).toBe(false)
-      expect(CircuitConnectionSystem.canAccess(computer1, assembler1)).toBe(false)
+      const { parentHull: _, ...assemblerBase } = assembler1
+      const assemblerWithoutHull = assemblerBase as Assembler
+      expect(CircuitConnectionSystem.canAccess(assemblerWithoutHull, computer1)).toBe(false)
+      expect(CircuitConnectionSystem.canAccess(computer1, assemblerWithoutHull)).toBe(false)
     })
 
     test("自己参照は可能", () => {
@@ -201,6 +207,11 @@ describe("CircuitConnectionSystem", () => {
         memory: new Uint8Array(64),
         programCounter: 0,
         registers: new Uint16Array(8),
+        stackPointer: 0,
+        zeroFlag: false,
+        carryFlag: false,
+        isRunning: false,
+        vmCyclesExecuted: 0,
         parentHull: hullId,
       }
     })
@@ -213,8 +224,8 @@ describe("CircuitConnectionSystem", () => {
     })
 
     test("接続されていないユニットからの読み取りは失敗", () => {
-      computer.parentHull = 99 as ObjectId
-      const result = CircuitConnectionSystem.readUnitMemory(computer, assembler, 0x00)
+      const computerDifferentHull = { ...computer, parentHull: 99 as ObjectId }
+      const result = CircuitConnectionSystem.readUnitMemory(computerDifferentHull, assembler, 0x00)
       expect(result.success).toBe(false)
       expect(result.error).toContain("not on same HULL")
     })
@@ -314,7 +325,7 @@ describe("CircuitConnectionSystem", () => {
         attachedUnits: [2, 3, 4] as ObjectId[],
       }
 
-      const units = new Map([
+      const units = new Map<ObjectId, Unit>([
         [2 as ObjectId, { type: "ASSEMBLER" } as Assembler],
         [3 as ObjectId, { type: "ASSEMBLER" } as Assembler],
         [4 as ObjectId, { type: "COMPUTER" } as Computer],

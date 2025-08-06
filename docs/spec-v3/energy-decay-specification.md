@@ -43,6 +43,7 @@
 ### 処理タイミング
 
 tick処理の「環境処理フェーズ」内で実行：
+
 1. エネルギーソースからエネルギー生成
 2. **エネルギーの自然崩壊処理**（新規）
 
@@ -53,10 +54,10 @@ function processEnergyDecay(energyObjects) {
   for (const energyObj of energyObjects) {
     // 崩壊量の計算
     const decayAmount = calculateDecayAmount(energyObj.energy)
-    
+
     // エネルギーを減少
     const newEnergy = energyObj.energy - decayAmount
-    
+
     if (newEnergy <= 0) {
       // エネルギーが完全に崩壊
       removeObject(energyObj)
@@ -64,7 +65,7 @@ function processEnergyDecay(energyObjects) {
     } else {
       // 部分的な崩壊
       energyObj.energy = newEnergy
-      energyObj.mass = newEnergy  // 質量も同時に更新
+      energyObj.mass = newEnergy // 質量も同時に更新
       addHeatToCell(energyObj.position, decayAmount)
     }
   }
@@ -86,6 +87,7 @@ function calculateDecayAmount(energy) {
 ### サイズと質量の更新
 
 エネルギーオブジェクトの崩壊に伴い：
+
 - 質量 = エネルギー量（常に等価）
 - サイズ（半径）= エネルギー量に応じて再計算（`energy-object-physics.md`参照）
 
@@ -100,7 +102,7 @@ function calculateDecayAmount(energy) {
 
 ```javascript
 // 崩壊率の調整可能パラメータ
-const DECAY_RATE_DIVISOR = 10  // 崩壊量計算の除数（大きいほど崩壊が遅い）
+const DECAY_RATE_DIVISOR = 10 // 崩壊量計算の除数（大きいほど崩壊が遅い）
 ```
 
 ### 期待される効果

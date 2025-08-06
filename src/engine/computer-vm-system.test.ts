@@ -47,12 +47,12 @@ describe("ComputerVMSystem", () => {
     test("メモリ内容が共有される", () => {
       computer.memory[0] = 0x42
       const vm = ComputerVMSystem.createVMState(computer)
-      
+
       expect(vm.readMemory8(0)).toBe(0x42)
-      
+
       // VMで変更
       vm.writeMemory8(0, 0x99)
-      
+
       // computerのメモリも変更される
       expect(computer.memory[0]).toBe(0x99)
     })
@@ -61,7 +61,7 @@ describe("ComputerVMSystem", () => {
   describe("syncVMState", () => {
     test("VMStateをCOMPUTERユニットに同期", () => {
       const vm = new VMState(256)
-      
+
       // VM状態を設定
       vm.setRegister("A", 0xaaaa)
       vm.setRegister("B", 0xbbbb)
@@ -116,7 +116,7 @@ describe("ComputerVMSystem", () => {
       computer.memory[4] = 0x00
       computer.memory[5] = 0x00
       computer.memory[6] = 0x00
-      
+
       computer.isRunning = true
       computer.registers[0] = 5 // A = 5
 
@@ -134,7 +134,7 @@ describe("ComputerVMSystem", () => {
       for (let i = 0; i < 20; i++) {
         computer.memory[i] = 0x10 // INC_A
       }
-      
+
       computer.isRunning = true
       computer.processingPower = 5 // 5サイクル/tick
       computer.registers[0] = 0
@@ -150,7 +150,7 @@ describe("ComputerVMSystem", () => {
     test("既に実行済みサイクルがある場合", () => {
       computer.memory[0] = 0x10 // INC_A
       computer.memory[1] = 0x10 // INC_A
-      
+
       computer.isRunning = true
       computer.processingPower = 10
       computer.vmCyclesExecuted = 9 // 既に9サイクル実行済み
@@ -181,14 +181,14 @@ describe("ComputerVMSystem", () => {
       computer.memory[2] = 0x00
       computer.memory[3] = 0x00 // NOP（スキップされる）
       computer.memory[4] = 0x00 // NOP（スキップされる）
-      computer.memory[5] = 0x00 // NOP（スキップされる） 
+      computer.memory[5] = 0x00 // NOP（スキップされる）
       computer.memory[6] = 0x10 // INC_A（アドレス6: PC=0 + 命令長3 + offset3 = 6）
       computer.memory[7] = 0xc2 // HALT
       computer.memory[8] = 0x00
       computer.memory[9] = 0x00
       computer.memory[10] = 0x00
       computer.memory[11] = 0x00
-      
+
       computer.isRunning = true
       computer.processingPower = 10
       computer.registers[0] = 0

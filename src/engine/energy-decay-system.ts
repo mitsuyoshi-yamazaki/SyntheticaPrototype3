@@ -48,10 +48,10 @@ export class EnergyDecaySystem {
     for (const [id, energyObj] of energyObjects.entries()) {
       // 崩壊量の計算
       const decayAmount = this.calculateDecayAmount(energyObj.energy)
-      
+
       // エネルギーを減少
       const newEnergy = energyObj.energy - decayAmount
-      
+
       if (newEnergy <= 0) {
         // エネルギーが完全に崩壊
         removedIds.push(id)

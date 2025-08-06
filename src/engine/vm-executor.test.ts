@@ -1,7 +1,6 @@
 import { VMState } from "./vm-state"
 import { InstructionDecoder } from "./vm-decoder"
 import { InstructionExecutor } from "./vm-executor"
-import type { Unit } from "@/types/game"
 
 describe("InstructionExecutor", () => {
   let vm: VMState

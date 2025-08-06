@@ -18,7 +18,13 @@ describe("ENERGY命令", () => {
       256 // メモリサイズ
     )
     computer.currentEnergy = 2500
-    computer.buildEnergy = 3000
+    // buildEnergyは読み取り専用なので、特定の値をテストしたい場合は
+    // 手動でオブジェクトを作成する必要がある
+    const computerWithCustomBuildEnergy = {
+      ...computer,
+      buildEnergy: 3000,
+    }
+    computer = computerWithCustomBuildEnergy
     vm = new VMState(256, computer.memory)
   })
 
@@ -67,7 +73,7 @@ describe("ENERGY命令", () => {
 
   test("不明なサブコマンド", () => {
     vm.writeMemory8(0, 0xc1) // ENERGY
-    vm.writeMemory8(1, 0xFF) // 不明なサブコマンド
+    vm.writeMemory8(1, 0xff) // 不明なサブコマンド
     vm.writeMemory8(2, 0x00)
     vm.writeMemory8(3, 0x00)
     vm.writeMemory8(4, 0x00)

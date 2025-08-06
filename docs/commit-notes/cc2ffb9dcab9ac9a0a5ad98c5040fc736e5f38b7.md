@@ -14,7 +14,7 @@ TypeScriptコードベースで中括弧が省略されているif/for/while文�
 
 2. **修正したファイル**:
    - `src/utils/torus-math.ts`: 4箇所のif文
-   - `src/utils/vec2.ts`: 2箇所のif文  
+   - `src/utils/vec2.ts`: 2箇所のif文
    - `src/engine/energy-system.ts`: 3箇所のif文
    - `src/engine/energy-collector.ts`: 3箇所のif文
    - `src/engine/heat-system.ts`: 5箇所のif文

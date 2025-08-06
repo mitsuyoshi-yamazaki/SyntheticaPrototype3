@@ -26,24 +26,24 @@ describe("UnitEnergyControlSystem", () => {
   describe("executeEnergyCommand", () => {
     test("GET_UNIT_ENERGY", () => {
       unit.currentEnergy = 500
-      
+
       const result = UnitEnergyControlSystem.executeEnergyCommand(
         unit,
         ENERGY_SUBCOMMANDS.GET_UNIT_ENERGY
       )
-      
+
       expect(result.success).toBe(true)
       expect(result.value).toBe(500)
     })
 
     test("GET_BUILD_ENERGY", () => {
       unit.buildEnergy = 1234
-      
+
       const result = UnitEnergyControlSystem.executeEnergyCommand(
         unit,
         ENERGY_SUBCOMMANDS.GET_BUILD_ENERGY
       )
-      
+
       expect(result.success).toBe(true)
       expect(result.value).toBe(1234)
     })
@@ -51,9 +51,9 @@ describe("UnitEnergyControlSystem", () => {
     test("不明なサブコマンド", () => {
       const result = UnitEnergyControlSystem.executeEnergyCommand(
         unit,
-        0xFF // 不明なサブコマンド
+        0xff // 不明なサブコマンド
       )
-      
+
       expect(result.success).toBe(false)
       expect(result.error).toContain("Unknown energy subcommand")
       expect(result.error).toContain("0xff")
@@ -66,7 +66,7 @@ describe("UnitEnergyControlSystem", () => {
         unit,
         ENERGY_SUBCOMMANDS.GET_HULL_ENERGY
       )
-      
+
       expect(result.success).toBe(false)
       expect(result.error).toContain("not attached to a HULL")
     })
@@ -76,7 +76,7 @@ describe("UnitEnergyControlSystem", () => {
         unit,
         ENERGY_SUBCOMMANDS.GET_HULL_CAPACITY
       )
-      
+
       expect(result.success).toBe(false)
     })
 
@@ -85,7 +85,7 @@ describe("UnitEnergyControlSystem", () => {
         unit,
         ENERGY_SUBCOMMANDS.GET_COLLECTING_STATE
       )
-      
+
       expect(result.success).toBe(false)
     })
 
@@ -94,7 +94,7 @@ describe("UnitEnergyControlSystem", () => {
         unit,
         ENERGY_SUBCOMMANDS.START_COLLECTING
       )
-      
+
       expect(result.success).toBe(false)
     })
 
@@ -103,7 +103,7 @@ describe("UnitEnergyControlSystem", () => {
         unit,
         ENERGY_SUBCOMMANDS.STOP_COLLECTING
       )
-      
+
       expect(result.success).toBe(false)
     })
   })

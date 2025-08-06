@@ -75,10 +75,7 @@ describe("AssemblerConstructionSystem", () => {
 
   beforeEach(() => {
     nextId = 1
-    system = new AssemblerConstructionSystem(
-      {},
-      () => nextId++ as ObjectId
-    )
+    system = new AssemblerConstructionSystem({}, () => nextId++ as ObjectId)
   })
 
   describe("startProduction", () => {
@@ -232,7 +229,7 @@ describe("AssemblerConstructionSystem", () => {
       // 修理コスト計算
       const cost = system.calculateRepairCost(hull, 50)
       // const productionRatio = 0.05
-      const expectedRepairCost = Math.ceil((50 * 10 / 200) * 1.1) // (50 * 生産エネルギー10 / 構成200) * 1.1
+      const expectedRepairCost = Math.ceil(((50 * 10) / 200) * 1.1) // (50 * 生産エネルギー10 / 構成200) * 1.1
       expect(cost.energyCost).toBe(50)
       expect(cost.repairCost).toBe(expectedRepairCost)
 
@@ -274,7 +271,7 @@ describe("AssemblerConstructionSystem", () => {
       const result = system.repair(assembler, 50, 1000)
       expect(result.success).toBe(true)
       expect(assembler.currentEnergy).toBe(850) // 50修理
-      
+
       // 修理コスト: 50 + ceil((50 * 200 / 1000) * 1.1) = 50 + 11 = 61
       expect(result.energyConsumed).toBe(61)
     })

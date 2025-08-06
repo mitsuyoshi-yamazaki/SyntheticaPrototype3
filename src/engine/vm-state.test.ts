@@ -1,4 +1,4 @@
-import { VMState, REGISTER_NAMES } from "./vm-state"
+import { VMState } from "./vm-state"
 
 describe("VMState", () => {
   let vm: VMState
@@ -128,7 +128,7 @@ describe("VMState", () => {
     test("メモリブロック読み書き", () => {
       const data = new Uint8Array([0x11, 0x22, 0x33, 0x44])
       vm.writeMemoryBlock(0x20, data)
-      
+
       const read = vm.readMemoryBlock(0x20, 4)
       expect(Array.from(read)).toEqual([0x11, 0x22, 0x33, 0x44])
     })
@@ -159,7 +159,7 @@ describe("VMState", () => {
       vm.push16(0x1111)
       vm.push16(0x2222)
       vm.push16(0x3333)
-      
+
       expect(vm.pop16()).toBe(0x3333)
       expect(vm.pop16()).toBe(0x2222)
       expect(vm.pop16()).toBe(0x1111)

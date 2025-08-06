@@ -250,6 +250,7 @@ interface WorldParameters {
 ## 実装状況
 
 ### 完了済み
+
 - ✅ ゲームエンジンコア（World、WorldStateManager）
 - ✅ 物理エンジン（衝突検出、反発力、力場）
 - ✅ エネルギーシステム（生成、結合、収集）
@@ -258,6 +259,7 @@ interface WorldParameters {
 - ✅ PixiJS統合とレンダリング
 
 ### 未実装
+
 - ⏳ Synthetica Script VM
 - ⏳ ユニット動作ロジック（エネルギー管理、構築）
 - ⏳ 高度なUI（パラメータエディタ、デバッグツール）

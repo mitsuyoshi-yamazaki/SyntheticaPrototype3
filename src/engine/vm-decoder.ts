@@ -117,7 +117,6 @@ export class InstructionDecoder {
 
     if (length >= 4) {
       // 4バイト命令
-      const byte4 = vm.readMemory8(address + 3)
 
       if (instruction) {
         switch (instruction.mnemonic) {
@@ -129,14 +128,14 @@ export class InstructionDecoder {
           case "JMP_ABS":
           case "CALL_ABS":
             // byte2,3が16bitアドレス（リトルエンディアン）
-            operands.address16 = bytes[2] | (bytes[3] << 8)
+            operands.address16 = (bytes[2] ?? 0) | ((bytes[3] ?? 0) << 8)
             break
 
           // ユニット制御命令
           case "UNIT_MEM_READ":
           case "UNIT_MEM_WRITE":
-            operands.unitId = bytes[2]
-            operands.unitMemAddr = bytes[3]
+            operands.unitId = bytes[2] ?? 0
+            operands.unitMemAddr = bytes[3] ?? 0
             break
         }
       }

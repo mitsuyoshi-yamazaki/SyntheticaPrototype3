@@ -1,6 +1,5 @@
 import { VMState } from "./vm-state"
 import { InstructionDecoder } from "./vm-decoder"
-import type { DecodedInstruction } from "./vm-decoder"
 
 describe("InstructionDecoder", () => {
   let vm: VMState

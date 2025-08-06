@@ -48,16 +48,18 @@ export class VMState {
       throw new Error(`Invalid memory size: ${memorySize}. Must be 1-65536`)
     }
     this._memorySize = memorySize
-    
+
     if (existingMemory != null) {
       if (existingMemory.length !== memorySize) {
-        throw new Error(`Memory array size ${existingMemory.length} does not match memorySize ${memorySize}`)
+        throw new Error(
+          `Memory array size ${existingMemory.length} does not match memorySize ${memorySize}`
+        )
       }
       this._memory = existingMemory
     } else {
       this._memory = new Uint8Array(memorySize)
     }
-    
+
     this._registers = new Uint16Array(4) // A, B, C, D
   }
 
@@ -117,7 +119,7 @@ export class VMState {
    * @returns レジスタ値（16bit）
    */
   public getRegister(register: RegisterName): number {
-    return this._registers[REGISTER_NAMES[register]]
+    return this._registers[REGISTER_NAMES[register]] ?? 0
   }
 
   /**
@@ -126,7 +128,8 @@ export class VMState {
    * @param value 値（16bitマスクされる）
    */
   public setRegister(register: RegisterName, value: number): void {
-    this._registers[REGISTER_NAMES[register]] = value & 0xffff
+    const index = REGISTER_NAMES[register]
+    this._registers[index] = value & 0xffff
   }
 
   /**
@@ -138,7 +141,7 @@ export class VMState {
     if (index < 0 || index > 3) {
       throw new Error(`Invalid register index: ${index}`)
     }
-    return this._registers[index]
+    return this._registers[index] ?? 0
   }
 
   /**
@@ -214,7 +217,7 @@ export class VMState {
    */
   public writeMemoryBlock(address: number, data: Uint8Array): void {
     for (let i = 0; i < data.length; i++) {
-      this.writeMemory8(address + i, data[i])
+      this.writeMemory8(address + i, data[i] ?? 0)
     }
   }
 

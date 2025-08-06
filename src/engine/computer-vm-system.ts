@@ -16,19 +16,19 @@ export const ComputerVMSystem = {
   createVMState(computer: Computer): VMState {
     // COMPUTERユニットの既存メモリ配列を使用してVMStateを作成
     const vm = new VMState(computer.memorySize, computer.memory)
-    
+
     // レジスタの復元
     vm.setRegister("A", computer.registers[0])
     vm.setRegister("B", computer.registers[1])
     vm.setRegister("C", computer.registers[2])
     vm.setRegister("D", computer.registers[3])
-    
+
     // 状態の復元
     vm.pc = computer.programCounter
     vm.sp = computer.stackPointer
     vm.zeroFlag = computer.zeroFlag
     vm.carryFlag = computer.carryFlag
-    
+
     return vm
   },
 
@@ -39,13 +39,13 @@ export const ComputerVMSystem = {
    */
   syncVMState(vm: VMState, computer: Computer): void {
     // メモリの同期（VMStateとComputerは同じ配列を参照しているので不要）
-    
+
     // レジスタの同期
     computer.registers[0] = vm.getRegister("A")
     computer.registers[1] = vm.getRegister("B")
     computer.registers[2] = vm.getRegister("C")
     computer.registers[3] = vm.getRegister("D")
-    
+
     // 状態の同期
     computer.programCounter = vm.pc
     computer.stackPointer = vm.sp
@@ -84,7 +84,7 @@ export const ComputerVMSystem = {
     // 残りサイクル分だけ実行
     while (cyclesUsed < remainingCycles) {
       const result = InstructionExecutor.step(vm, computer)
-      
+
       cyclesUsed += result.cycles
 
       if (!result.success) {

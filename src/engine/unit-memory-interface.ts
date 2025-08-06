@@ -1,11 +1,14 @@
 import type { Hull, Assembler, Computer, Unit } from "@/types/game"
 
 /** 操作メモリのアドレスマップ基底インターフェース */
-export type MemoryMap = Record<number, {
-  readonly name: string
-  readonly access: "R" | "RW" // Read-only or Read-Write
-  readonly description: string
-}>
+export type MemoryMap = Record<
+  number,
+  {
+    readonly name: string
+    readonly access: "R" | "RW" // Read-only or Read-Write
+    readonly description: string
+  }
+>
 
 /** HULL操作メモリマップ */
 export const HULL_MEMORY_MAP: MemoryMap = {
@@ -36,7 +39,11 @@ export const ASSEMBLER_MEMORY_MAP: MemoryMap = {
   0x0c: { name: "repairState", access: "RW", description: "修理状態" },
   0x0d: { name: "lastProducedType", access: "R", description: "最後に生産したユニット種別" },
   0x0e: { name: "lastProducedIndex", access: "R", description: "最後に生産したユニットindex" },
-  0x0f: { name: "resetLastProduced", access: "RW", description: "最後に生産したユニット情報をリセット" },
+  0x0f: {
+    name: "resetLastProduced",
+    access: "RW",
+    description: "最後に生産したユニット情報をリセット",
+  },
 }
 
 /** COMPUTER操作メモリマップ */

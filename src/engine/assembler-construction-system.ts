@@ -56,10 +56,7 @@ export const UnitCostCalculator = {
   },
 
   /** COMPUTERの構成エネルギー計算 */
-  calculateComputerBuildEnergy(
-    processingPower: number,
-    memorySize: number
-  ): number {
+  calculateComputerBuildEnergy(processingPower: number, memorySize: number): number {
     const frequencyTerm = Math.ceil(Math.pow(processingPower / 5, 2) * 100)
     return 500 + frequencyTerm + memorySize * 50
   },
@@ -105,10 +102,7 @@ export class AssemblerConstructionSystem {
   private readonly _parameters: ConstructionParameters
   private readonly _nextId: () => ObjectId
 
-  public constructor(
-    parameters: Partial<ConstructionParameters> = {},
-    nextId: () => ObjectId
-  ) {
+  public constructor(parameters: Partial<ConstructionParameters> = {}, nextId: () => ObjectId) {
     this._parameters = {
       producingUnitRatio: parameters.producingUnitRatio ?? 0.05,
       repairCostMultiplier: parameters.repairCostMultiplier ?? 1.1,
@@ -166,7 +160,7 @@ export class AssemblerConstructionSystem {
   ): ConstructionResult {
     // 1tickで蓄積できるエネルギー量（assemblePowerに依存）
     const energyPerTick = Math.min(assemblePower, availableEnergy)
-    
+
     if (energyPerTick === 0) {
       return {
         success: false,
@@ -178,7 +172,7 @@ export class AssemblerConstructionSystem {
     // エネルギーを蓄積
     const remainingEnergy = producingUnit.requiredEnergy - producingUnit.accumulatedEnergy
     const energyToAdd = Math.min(energyPerTick, remainingEnergy)
-    
+
     producingUnit.accumulatedEnergy += energyToAdd
     producingUnit.mass += energyToAdd
 
@@ -253,12 +247,12 @@ export class AssemblerConstructionSystem {
     const spec = this.getUnitSpec(unit)
     const productionEnergy = UnitCostCalculator.calculateProductionEnergy(spec)
     const buildEnergy = UnitCostCalculator.calculateBuildEnergy(spec)
-    
+
     // 修理コスト = n + (n × 生産エネルギー / 構成エネルギー) × 1.1
     const repairCost = Math.ceil(
-      (damageAmount * productionEnergy / buildEnergy) * this._parameters.repairCostMultiplier
+      ((damageAmount * productionEnergy) / buildEnergy) * this._parameters.repairCostMultiplier
     )
-    
+
     return {
       energyCost: damageAmount, // 実際の修復エネルギー
       repairCost, // 修理作業コスト
@@ -266,11 +260,7 @@ export class AssemblerConstructionSystem {
   }
 
   /** 修理実行 */
-  public repair(
-    unit: Unit,
-    assemblePower: number,
-    availableEnergy: number
-  ): ConstructionResult {
+  public repair(unit: Unit, assemblePower: number, availableEnergy: number): ConstructionResult {
     const damage = unit.buildEnergy - unit.currentEnergy
     if (damage === 0) {
       return {
@@ -307,14 +297,14 @@ export class AssemblerConstructionSystem {
   /** ユニットの半径計算 */
   private calculateUnitRadius(spec: UnitSpec): number {
     const buildEnergy = UnitCostCalculator.calculateBuildEnergy(spec)
-    
+
     if (spec.type === "HULL") {
       // HULLは容積も考慮
       const volumeRadius = Math.sqrt(spec.capacity / Math.PI)
       const energyRadius = Math.sqrt(buildEnergy / Math.PI)
       return volumeRadius + energyRadius
     }
-    
+
     // その他のユニットは構成エネルギーのみ
     return Math.sqrt(buildEnergy / Math.PI)
   }
@@ -364,6 +354,8 @@ export class AssemblerConstructionSystem {
           processingPower: (unit as Computer).processingPower,
           memorySize: (unit as Computer).memorySize,
         }
+      default:
+        throw new Error(`Unknown unit type: ${unit.type}`)
     }
   }
 

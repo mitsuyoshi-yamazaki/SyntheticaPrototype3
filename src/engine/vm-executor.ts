@@ -32,11 +32,7 @@ export const InstructionExecutor = {
    * @param unit 実行ユニット（ユニット制御命令で必要）
    * @returns 実行結果
    */
-  execute(
-    vm: VMState,
-    decoded: DecodedInstruction,
-    unit?: Unit
-  ): ExecutionResult {
+  execute(vm: VMState, decoded: DecodedInstruction, unit?: Unit): ExecutionResult {
     // 未定義命令
     if (decoded.isUndefined || decoded.instruction == null) {
       return {
@@ -138,7 +134,7 @@ export const InstructionExecutor = {
       case "SET_SP":
         vm.sp = vm.getRegister("A")
         break
-      
+
       // 即値ロード
       case "MOV_A_IMM":
         if (decoded.operands.immediate16 !== undefined) {
@@ -160,7 +156,7 @@ export const InstructionExecutor = {
           vm.setRegister("D", decoded.operands.immediate16)
         }
         break
-      
+
       default:
         return {
           success: false,
@@ -573,11 +569,7 @@ export const InstructionExecutor = {
   },
 
   /** ユニット制御命令実行 */
-  executeUnit(
-    vm: VMState,
-    decoded: DecodedInstruction,
-    unit?: Unit
-  ): ExecutionResult {
+  executeUnit(vm: VMState, decoded: DecodedInstruction, unit?: Unit): ExecutionResult {
     if (decoded.instruction == null) {
       return { success: false, error: "No instruction", cycles: 1 }
     }
@@ -632,7 +624,7 @@ export const InstructionExecutor = {
 
     switch (decoded.instruction.mnemonic) {
       case "UNIT_MEM_READ": {
-        const value = memInterface.read(memAddr)
+        const value = memInterface.readMemory(memAddr)
         if (value == null) {
           return {
             success: false,
@@ -645,7 +637,7 @@ export const InstructionExecutor = {
       }
       case "UNIT_MEM_WRITE": {
         const value = vm.getRegister("C") & 0xff
-        const success = memInterface.write(memAddr, value)
+        const success = memInterface.writeMemory(memAddr, value)
         if (!success) {
           return {
             success: false,
@@ -668,17 +660,13 @@ export const InstructionExecutor = {
   },
 
   /** 特殊命令実行 */
-  executeSpecial(
-    vm: VMState,
-    decoded: DecodedInstruction,
-    unit?: Unit
-  ): ExecutionResult {
+  executeSpecial(vm: VMState, decoded: DecodedInstruction, unit?: Unit): ExecutionResult {
     if (decoded.instruction == null) {
       return { success: false, error: "No instruction", cycles: 1 }
     }
 
     switch (decoded.instruction.mnemonic) {
-      case "SCAN":
+      case "SCAN": {
         if (unit == null) {
           return {
             success: false,
@@ -686,7 +674,7 @@ export const InstructionExecutor = {
             cycles: 1,
           }
         }
-        
+
         // オペランドから書き込み先アドレスを取得（バイト1-2）
         if (!decoded.bytes || decoded.bytes.length < 3) {
           return {
@@ -695,13 +683,14 @@ export const InstructionExecutor = {
             cycles: 1,
           }
         }
-        const destAddr = (decoded.bytes[1] | (decoded.bytes[2] << 8)) & 0xffff
-        
+        const destAddr = ((decoded.bytes[1] ?? 0) | ((decoded.bytes[2] ?? 0) << 8)) & 0xffff
+
         // 自身のスペックをメモリに書き込み
         UnitSelfScanSystem.executeScan(unit, vm.getMemoryArray(), destAddr)
-        
+
         vm.advancePC(decoded.length)
         return { success: true, cycles: 5 }
+      }
 
       case "ENERGY": {
         if (unit == null) {
@@ -711,7 +700,7 @@ export const InstructionExecutor = {
             cycles: 1,
           }
         }
-        
+
         // オペランドからサブコマンドを取得（バイト1）
         if (!decoded.bytes || decoded.bytes.length < 2) {
           return {
@@ -720,11 +709,11 @@ export const InstructionExecutor = {
             cycles: 1,
           }
         }
-        const subcommand = decoded.bytes[1]
-        
+        const subcommand = decoded.bytes[1] ?? 0
+
         // エネルギー操作を実行
         const result = UnitEnergyControlSystem.executeEnergyCommand(unit, subcommand)
-        
+
         if (!result.success) {
           return {
             success: false,
@@ -732,12 +721,12 @@ export const InstructionExecutor = {
             cycles: 1,
           }
         }
-        
+
         // 結果をレジスタAに格納
         if (result.value !== undefined) {
           vm.setRegister("A", result.value & 0xffff)
         }
-        
+
         vm.advancePC(decoded.length)
         return { success: true, cycles: 5 }
       }

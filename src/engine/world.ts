@@ -173,9 +173,8 @@ export class World {
   /** エネルギーソースからエネルギーを生成 */
   private generateEnergyFromSources(): void {
     for (const source of this._stateManager.state.energySources.values()) {
-      const result = this._energySourceManager.generateEnergy(
-        source,
-        () => this._stateManager.generateObjectId()
+      const result = this._energySourceManager.generateEnergy(source, () =>
+        this._stateManager.generateObjectId()
       )
 
       // 生成されたエネルギーオブジェクトを追加
@@ -207,7 +206,7 @@ export class World {
       if (result.collectedIds.length > 0) {
         // HULLにエネルギーを追加
         const energyResult = this._hullEnergyManager.addEnergy(hull, result.totalEnergy)
-        
+
         // HULLを更新
         this._stateManager.updateObject(energyResult.updatedHull)
 
@@ -284,7 +283,7 @@ export class World {
   /** COMPUTERユニットのVM実行 */
   private executeComputerVMs(): void {
     const objects = this._stateManager.getAllObjects()
-    
+
     for (const obj of objects) {
       if (obj.type === "COMPUTER") {
         ComputerVMSystem.executeVM(obj as Computer)
@@ -295,7 +294,7 @@ export class World {
   /** VMサイクルカウンタのリセット */
   private resetVMCycleCounters(): void {
     const objects = this._stateManager.getAllObjects()
-    
+
     for (const obj of objects) {
       if (obj.type === "COMPUTER") {
         ComputerVMSystem.resetCycleCounter(obj as Computer)
