@@ -378,7 +378,7 @@ describe("InstructionExecutor", () => {
 
   describe("特殊命令", () => {
     test("HALT（実行停止）", () => {
-      vm.writeMemory8(0, 0xc2) // HALT
+      vm.writeMemory8(0, 0xff) // HALT
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x00)
       vm.writeMemory8(3, 0x00)
@@ -440,7 +440,7 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(2, 0x00)
       vm.writeMemory8(3, 0x10) // INC_A
       vm.writeMemory8(4, 0x10) // INC_A
-      vm.writeMemory8(5, 0xc2) // HALT
+      vm.writeMemory8(5, 0xff) // HALT
       vm.writeMemory8(6, 0x00)
       vm.writeMemory8(7, 0x00)
       vm.writeMemory8(8, 0x00)
@@ -455,7 +455,7 @@ describe("InstructionExecutor", () => {
 
     test("HALT命令で停止", () => {
       vm.writeMemory8(0, 0x10) // INC_A
-      vm.writeMemory8(1, 0xc2) // HALT
+      vm.writeMemory8(1, 0xff) // HALT
       vm.writeMemory8(2, 0x00)
       vm.writeMemory8(3, 0x00)
       vm.writeMemory8(4, 0x00)

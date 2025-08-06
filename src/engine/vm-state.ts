@@ -25,17 +25,17 @@ export type FlagName = keyof typeof FLAG_NAMES
 /** VM状態 */
 export class VMState {
   /** プログラムカウンタ（16bit） */
-  private _pc: number = 0
+  private _pc = 0
 
   /** ワーキングレジスタ（A, B, C, D 各16bit） */
   private readonly _registers: Uint16Array
 
   /** スタックポインタ（16bit） */
-  private _sp: number = 0xffff
+  private _sp = 0xffff
 
   /** フラグ */
-  private _zeroFlag: boolean = false
-  private _carryFlag: boolean = false
+  private _zeroFlag = false
+  private _carryFlag = false
 
   /** メモリ（最大64KB） */
   private readonly _memory: Uint8Array

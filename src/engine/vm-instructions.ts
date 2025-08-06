@@ -557,11 +557,42 @@ export const FIVE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
     type: "SPECIAL",
     description: "エネルギー操作",
   },
-  0xc2: { opcode: 0xc2, mnemonic: "HALT", length: 5, type: "SPECIAL", description: "実行停止" },
+  // 拡張演算命令
+  0xc2: {
+    opcode: 0xc2,
+    mnemonic: "MUL_AB",
+    length: 5,
+    type: "ARITHMETIC",
+    description: "A = (A * B) & 0xFFFF",
+  },
+  0xc3: {
+    opcode: 0xc3,
+    mnemonic: "DIV_AB",
+    length: 5,
+    type: "ARITHMETIC",
+    description: "A = A / B, B = A % B",
+  },
+  0xc4: {
+    opcode: 0xc4,
+    mnemonic: "SHL",
+    length: 5,
+    type: "ARITHMETIC",
+    description: "A = A << B（論理左シフト）",
+  },
+  0xc5: {
+    opcode: 0xc5,
+    mnemonic: "SHR",
+    length: 5,
+    type: "ARITHMETIC",
+    description: "A = A >> B（論理右シフト）",
+  },
+  
+  // 特殊命令
+  0xff: { opcode: 0xff, mnemonic: "HALT", length: 5, type: "SPECIAL", description: "実行停止" },
 }
 
 /** 全命令マップ */
-export const ALL_INSTRUCTIONS: Map<number, Instruction> = new Map([
+export const ALL_INSTRUCTIONS = new Map<number, Instruction>([
   ...Object.entries(ONE_BYTE_INSTRUCTIONS).map(([k, v]) => [Number(k), v] as [number, Instruction]),
   ...Object.entries(THREE_BYTE_INSTRUCTIONS).map(
     ([k, v]) => [Number(k), v] as [number, Instruction]
@@ -576,10 +607,10 @@ export const ALL_INSTRUCTIONS: Map<number, Instruction> = new Map([
 
 /** 命令長判定 */
 export function getInstructionLength(opcode: number): number {
-  if (opcode >= 0x00 && opcode <= 0x3f) return 1
-  if (opcode >= 0x40 && opcode <= 0x7f) return 3
-  if (opcode >= 0x80 && opcode <= 0xbf) return 4
-  if (opcode >= 0xc0 && opcode <= 0xff) return 5
+  if (opcode >= 0x00 && opcode <= 0x3f) {return 1}
+  if (opcode >= 0x40 && opcode <= 0x7f) {return 3}
+  if (opcode >= 0x80 && opcode <= 0xbf) {return 4}
+  if (opcode >= 0xc0 && opcode <= 0xff) {return 5}
   return 1 // 未定義命令も1バイトとして扱う
 }
 

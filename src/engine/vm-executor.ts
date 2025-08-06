@@ -330,6 +330,53 @@ export const InstructionExecutor = {
         }
         break
 
+      // 拡張演算命令（5バイト命令）
+      case "MUL_AB": {
+        const a = vm.getRegister("A")
+        const b = vm.getRegister("B")
+        result = (a * b) & 0xffff
+        vm.setRegister("A", result)
+        vm.updateZeroFlag(result)
+        vm.carryFlag = false
+        break
+      }
+      case "DIV_AB": {
+        const a = vm.getRegister("A")
+        const b = vm.getRegister("B")
+        if (b === 0) {
+          return {
+            success: false,
+            error: "Division by zero",
+            cycles: 1,
+          }
+        }
+        const quotient = Math.floor(a / b) & 0xffff
+        const remainder = a % b
+        vm.setRegister("A", quotient)
+        vm.setRegister("B", remainder)
+        vm.updateZeroFlag(quotient)
+        vm.carryFlag = false
+        break
+      }
+      case "SHL": {
+        const a = vm.getRegister("A")
+        const b = vm.getRegister("B") & 0x0f // 下位4ビットのみ使用（0-15）
+        result = (a << b) & 0xffff
+        vm.setRegister("A", result)
+        vm.updateZeroFlag(result)
+        vm.carryFlag = false
+        break
+      }
+      case "SHR": {
+        const a = vm.getRegister("A")
+        const b = vm.getRegister("B") & 0x0f // 下位4ビットのみ使用（0-15）
+        result = (a >>> b) & 0xffff // 論理右シフト
+        vm.setRegister("A", result)
+        vm.updateZeroFlag(result)
+        vm.carryFlag = false
+        break
+      }
+
       default:
         return {
           success: false,
@@ -339,7 +386,10 @@ export const InstructionExecutor = {
     }
 
     vm.advancePC(decoded.length)
-    return { success: true, cycles: 1 }
+    // 命令長に基づいてサイクル数を決定
+    let cycles = 1
+    if (decoded.length === 3) {cycles = 2} // 3バイト命令は2サイクル
+    return { success: true, cycles }
   },
 
   /** スタック操作命令実行 */

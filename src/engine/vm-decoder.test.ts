@@ -192,7 +192,7 @@ describe("InstructionDecoder", () => {
         { opcode: 0x3e, expectedLength: 1 },
         { opcode: 0x7f, expectedLength: 3 },
         { opcode: 0xbf, expectedLength: 4 },
-        { opcode: 0xff, expectedLength: 5 },
+        { opcode: 0xfe, expectedLength: 5 },
       ]
 
       for (const { opcode, expectedLength } of testCases) {
