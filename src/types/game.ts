@@ -159,19 +159,3 @@ export type WorldState = {
   nextObjectId: number
 }
 
-/** エージェント定義（初期化用） */
-export type AgentDefinition = {
-  name: string
-  hull: {
-    capacity: number
-    position?: Vec2
-  }
-  units: {
-    type: AssemblerType | ComputerType
-    assemblePower?: number
-    processingPower?: number
-    memorySize?: number
-    program?: Uint8Array
-  }[]
-  position?: Vec2
-}

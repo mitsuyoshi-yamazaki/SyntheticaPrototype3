@@ -611,6 +611,7 @@ describe("InstructionExecutor", () => {
         const memory = vm.getMemoryArray()
         
         // モックユニット
+        /*
         const hull: Hull = {
           id: "hull-1" as ObjectId,
           type: "HULL",
@@ -623,6 +624,7 @@ describe("InstructionExecutor", () => {
           storedEnergy: 0,
           attachedUnits: ["computer-1" as ObjectId, "assembler-1" as ObjectId],
         }
+        */
         
         const computer: Computer = {
           id: "computer-1" as ObjectId,
@@ -662,7 +664,9 @@ describe("InstructionExecutor", () => {
         // findUnitByIdモック
         const originalFindUnitById = InstructionExecutor.findUnitById
         InstructionExecutor.findUnitById = jest.fn((currentUnit, unitId) => {
-          if (unitId === 0x40) return assembler
+          if (unitId === 0x40) {
+            return assembler
+          }
           return null
         })
         

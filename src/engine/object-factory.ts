@@ -11,7 +11,6 @@ import type {
   ObjectId,
   Vec2,
   UnitSpec,
-  AgentDefinition,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { wrapPosition } from "@/utils/torus-math"
@@ -201,55 +200,4 @@ export class ObjectFactory {
     }
   }
 
-  /** エージェント定義からオブジェクト群を作成 */
-  public createAgent(
-    generateId: () => ObjectId,
-    definition: AgentDefinition,
-    position?: Vec2
-  ): GameObject[] {
-    const objects: GameObject[] = []
-
-    // 位置を決定
-    const agentPos =
-      position ??
-      definition.position ??
-      Vec2Utils.create(Math.random() * this._worldWidth, Math.random() * this._worldHeight)
-
-    // HULLを作成
-    const hullId = generateId()
-    const hull = this.createHull(hullId, agentPos, definition.hull.capacity)
-    objects.push(hull)
-
-    // ユニットを作成してHULLに固定
-    for (const unitDef of definition.units) {
-      const unitId = generateId()
-
-      let unit: GameObject
-      switch (unitDef.type) {
-        case "ASSEMBLER":
-          unit = this.createAssembler(unitId, agentPos, unitDef.assemblePower ?? 1, hullId)
-          break
-
-        case "COMPUTER":
-          unit = this.createComputer(
-            unitId,
-            agentPos,
-            unitDef.processingPower ?? 1,
-            unitDef.memorySize ?? 0,
-            hullId,
-            Vec2Utils.create(0, 0),
-            unitDef.program
-          )
-          break
-
-        default:
-          throw new Error(`Unknown unit type: ${String(unitDef.type)}`)
-      }
-
-      objects.push(unit)
-      hull.attachedUnits.push(unitId)
-    }
-
-    return objects
-  }
 }

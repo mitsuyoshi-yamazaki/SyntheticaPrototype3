@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js"
 import { World } from "@/engine"
 import type { ObjectId } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
+import { SELF_REPLICATOR_PRESET } from "@/engine/presets/self-replicator-preset"
 
 /**
  * ゲーム世界の基本クラス
@@ -23,7 +24,7 @@ export class GameWorld {
   }
 
   public constructor(width: number, height: number) {
-    // デモ用設定：エージェントなし、エネルギーソースと力場のみ
+    // デモ用設定：自己複製エージェント、エネルギーソース、力場を配置
     this._world = new World({
       width,
       height,
@@ -33,7 +34,12 @@ export class GameWorld {
         energySourceMaxRate: 150,
         ticksPerFrame: 1,
       },
-      initialAgents: [], // エージェントなし
+      defaultAgentPresets: [
+        {
+          preset: SELF_REPLICATOR_PRESET,
+          position: Vec2Utils.create(width * 0.3, height * 0.5),
+        },
+      ],
     })
 
     // 中央に渦巻き力場を追加

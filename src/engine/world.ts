@@ -9,24 +9,26 @@ import { EnergySourceManager } from "./energy-source-manager"
 import { EnergyCollector } from "./energy-collector"
 import { EnergyDecaySystem } from "./energy-decay-system"
 import { ComputerVMSystem } from "./computer-vm-system"
+import { AgentFactory } from "./agent-factory"
 import type {
   GameObject,
   EnergySource,
   DirectionalForceField,
   WorldParameters,
-  AgentDefinition,
-  Vec2,
   Hull,
   EnergyObject,
   Computer,
+  Vec2,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
+
+import type { AgentPresetPlacement } from "./presets/types"
 
 export type WorldConfig = {
   width: number
   height: number
   parameters?: Partial<WorldParameters>
-  initialAgents?: AgentDefinition[]
+  defaultAgentPresets?: readonly AgentPresetPlacement[]
 }
 
 export class World {
@@ -69,16 +71,30 @@ export class World {
     // エネルギーソースの配置
     this.placeEnergySources()
 
-    // 初期エージェントの配置
-    if (config.initialAgents != null) {
-      for (const agentDef of config.initialAgents) {
-        this.addAgent(agentDef)
-      }
+    // デフォルトエージェントの配置
+    if (config.defaultAgentPresets != null && config.defaultAgentPresets.length > 0) {
+      this.placeDefaultAgents(config.defaultAgentPresets)
     }
 
     console.log(`World initialized: ${config.width}x${config.height}`)
     console.log(`Energy sources: ${this._stateManager.state.energySources.size}`)
     console.log(`Initial objects: ${this._stateManager.state.objects.size}`)
+  }
+
+  /** デフォルトエージェントを配置 */
+  private placeDefaultAgents(presets: readonly AgentPresetPlacement[]): void {
+    for (const placement of presets) {
+      const objects = AgentFactory.createFromPreset(
+        placement.preset,
+        placement.position,
+        this._stateManager.state.width,
+        this._stateManager.state.height,
+        () => this._stateManager.generateObjectId()
+      )
+      
+      // エージェントを追加
+      this.addAgent(objects, placement.position)
+    }
   }
 
   /** エネルギーソースを配置 */
@@ -116,15 +132,18 @@ export class World {
     this._stateManager.removeObject(id)
   }
 
-  /** エージェントを追加 */
-  public addAgent(definition: AgentDefinition, position?: Vec2): void {
-    const objects = this._objectFactory.createAgent(
-      () => this._stateManager.generateObjectId(),
-      definition,
-      position
-    )
-
+  /**
+   * エージェント（Hull及び関連ユニット）を追加
+   * @param objects エージェントを構成するオブジェクト群
+   * @param position 配置位置（既にオブジェクトに設定済みの場合は無視）
+   */
+  public addAgent(objects: GameObject[], position?: Vec2): void {
+    // 全てのオブジェクトを追加
     for (const obj of objects) {
+      // positionが指定されていて、オブジェクトの位置が原点の場合は位置を更新
+      if (position != null && obj.position.x === 0 && obj.position.y === 0) {
+        obj.position = Vec2Utils.create(position.x, position.y)
+      }
       this._stateManager.addObject(obj)
     }
   }
@@ -282,6 +301,7 @@ export class World {
 
   /** COMPUTERユニットのVM実行 */
   private executeComputerVMs(): void {
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     const objects = this._stateManager.getAllObjects()
 
     for (const obj of objects) {
@@ -289,10 +309,12 @@ export class World {
         ComputerVMSystem.executeVM(obj as Computer)
       }
     }
+    /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   }
 
   /** VMサイクルカウンタのリセット */
   private resetVMCycleCounters(): void {
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     const objects = this._stateManager.getAllObjects()
 
     for (const obj of objects) {
@@ -300,5 +322,6 @@ export class World {
         ComputerVMSystem.resetCycleCounter(obj as Computer)
       }
     }
+    /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   }
 }
