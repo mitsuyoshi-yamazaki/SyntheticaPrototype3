@@ -64,7 +64,7 @@ export const Energy: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -118,7 +118,7 @@ export const EnergySource: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -168,7 +168,7 @@ export const Hull: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -223,7 +223,7 @@ export const HullDamaged: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -273,7 +273,7 @@ export const Assembler: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -328,7 +328,7 @@ export const AssemblerActive: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -377,7 +377,7 @@ export const Computer: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -431,7 +431,7 @@ export const ComputerRunning: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -488,7 +488,7 @@ export const ForceField: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -560,7 +560,7 @@ export const Agent: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {

@@ -77,7 +77,7 @@ export const DebugInfo: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -137,7 +137,7 @@ export const PerformanceMetrics: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {
@@ -254,7 +254,7 @@ export const FullUI: Story = {
       void setup()
     }, [containerRef, appRef])
 
-    return null
+    return <></>
   },
   parameters: {
     docs: {

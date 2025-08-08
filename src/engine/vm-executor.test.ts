@@ -1,6 +1,7 @@
 import { VMState } from "./vm-state"
 import { InstructionDecoder } from "./vm-decoder"
 import { InstructionExecutor } from "./vm-executor"
+import type { ObjectId, Assembler, Computer } from "@/types/game"
 
 describe("InstructionExecutor", () => {
   let vm: VMState
@@ -663,7 +664,7 @@ describe("InstructionExecutor", () => {
         
         // findUnitByIdモック
         const originalFindUnitById = InstructionExecutor.findUnitById
-        InstructionExecutor.findUnitById = jest.fn((currentUnit, unitId) => {
+        InstructionExecutor.findUnitById = jest.fn((_currentUnit, unitId) => {
           if (unitId === 0x40) {
             return assembler
           }
