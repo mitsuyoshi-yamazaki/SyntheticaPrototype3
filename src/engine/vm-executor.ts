@@ -803,7 +803,7 @@ export const InstructionExecutor = {
         const length = lengthRaw === 0 ? 256 : lengthRaw
         
         // メモリブロックをコピー
-        /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+         
         const memoryArray = vm.getMemoryArray()
         const memorySize = memoryArray.length
         for (let i = 0; i < length; i++) {
@@ -812,7 +812,7 @@ export const InstructionExecutor = {
           const value = memoryArray[srcIndex] ?? 0
           memoryArray[destIndex] = value
         }
-        /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+         
         
         vm.advancePC(decoded.length)
         return { success: true, cycles: 5 + length } // 基本5サイクル + バイト数

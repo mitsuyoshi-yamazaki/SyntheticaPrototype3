@@ -43,11 +43,27 @@ export type EnergyObject = GameObject & {
   readonly type: EnergyType
 }
 
+/**
+ * 視覚表示用データ
+ * ゲーム仕様には存在しない、描画のためだけの情報
+ */
+export type VisualData = {
+  // HULL内での配置角度（ASSEMBLER用、0-360度）
+  angle?: number
+  // HULL内での半径位置
+  radius?: number
+  // ピザカット分割での開始角度（COMPUTER用、0-360度）
+  startAngle?: number
+  // ピザカット分割での終了角度（COMPUTER用、0-360度）
+  endAngle?: number
+}
+
 /** ユニットの基本インターフェース */
 export type Unit = GameObject & {
   readonly buildEnergy: number // 構成エネルギー
   currentEnergy: number // 現在のエネルギー（ダメージを受けると減少）
   readonly parentHull?: ObjectId // 所属するHULL
+  visualData?: VisualData // 視覚表示用データ（オプショナル）
 }
 
 /** HULLユニット */

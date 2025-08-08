@@ -301,7 +301,7 @@ export class World {
 
   /** COMPUTERユニットのVM実行 */
   private executeComputerVMs(): void {
-    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+     
     const objects = this._stateManager.getAllObjects()
 
     for (const obj of objects) {
@@ -309,12 +309,12 @@ export class World {
         ComputerVMSystem.executeVM(obj as Computer)
       }
     }
-    /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+     
   }
 
   /** VMサイクルカウンタのリセット */
   private resetVMCycleCounters(): void {
-    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+     
     const objects = this._stateManager.getAllObjects()
 
     for (const obj of objects) {
@@ -322,6 +322,6 @@ export class World {
         ComputerVMSystem.resetCycleCounter(obj as Computer)
       }
     }
-    /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+     
   }
 }

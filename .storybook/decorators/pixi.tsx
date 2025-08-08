@@ -6,7 +6,7 @@ import { Decorator } from '@storybook/react'
  * PixiJSアプリケーションをStorybookで使用するためのデコレータ
  * WebGLコンテキストのメモリリークを防ぐため、適切なクリーンアップを行う
  */
-export const withPixi: Decorator = (Story, context) => {
+export const withPixi: Decorator = (_Story, context) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const appRef = useRef<PIXI.Application | null>(null)
 
@@ -25,9 +25,9 @@ export const withPixi: Decorator = (Story, context) => {
     // PixiJSアプリケーションを初期化
     const initApp = async () => {
       // ストーリーのargs（パラメータ）を取得
-      const width = context.args?.width || 400
-      const height = context.args?.height || 300
-      const backgroundColor = context.args?.backgroundColor || 0x101010
+      const width = (context.args?.['width'] as number) || 400
+      const height = (context.args?.['height'] as number) || 300
+      const backgroundColor = (context.args?.['backgroundColor'] as number) || 0x101010
 
       const app = new PIXI.Application()
       await app.init({
@@ -47,8 +47,8 @@ export const withPixi: Decorator = (Story, context) => {
 
       // ストーリーコンポーネントに描画ロジックを委譲
       // renderFunctionがargs内に定義されている場合、それを実行
-      if (context.args?.renderFunction && typeof context.args.renderFunction === 'function') {
-        context.args.renderFunction(app)
+      if (context.args?.['renderFunction'] && typeof context.args['renderFunction'] === 'function') {
+        context.args['renderFunction'](app)
       }
     }
 
