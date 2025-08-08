@@ -22,6 +22,38 @@ export const withPixi: Decorator = (Story, context) => {
       return
     }
 
+    // PixiJSアプリケーションを初期化
+    const initApp = async () => {
+      // ストーリーのargs（パラメータ）を取得
+      const width = context.args?.width || 400
+      const height = context.args?.height || 300
+      const backgroundColor = context.args?.backgroundColor || 0x101010
+
+      const app = new PIXI.Application()
+      await app.init({
+        width,
+        height,
+        backgroundColor,
+        antialias: true,
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
+      })
+
+      if (app.canvas instanceof HTMLCanvasElement && containerRef.current) {
+        containerRef.current.appendChild(app.canvas)
+      }
+
+      appRef.current = app
+
+      // ストーリーコンポーネントに描画ロジックを委譲
+      // renderFunctionがargs内に定義されている場合、それを実行
+      if (context.args?.renderFunction && typeof context.args.renderFunction === 'function') {
+        context.args.renderFunction(app)
+      }
+    }
+
+    void initApp()
+
     // クリーンアップ関数
     return () => {
       if (appRef.current) {
@@ -29,19 +61,17 @@ export const withPixi: Decorator = (Story, context) => {
         appRef.current = null
       }
     }
-  }, [context.id]) // ストーリーが変わるたびに再実行
+  }, [context.id, context.args]) // ストーリーまたはパラメータが変わるたびに再実行
 
   return (
     <div style={{ padding: '20px' }}>
-      <div ref={containerRef}>
-        <Story {...context} containerRef={containerRef} appRef={appRef} />
-      </div>
+      <div ref={containerRef} />
     </div>
   )
 }
 
 /**
- * PixiJSアプリケーションのセットアップヘルパー
+ * PixiJSアプリケーションのセットアップヘルパー（互換性のため残す）
  * 各ストーリーで共通のPixiJS初期化処理を提供
  */
 export const setupPixiApp = async (

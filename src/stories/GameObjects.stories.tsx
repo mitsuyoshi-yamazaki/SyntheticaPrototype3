@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 import * as PIXI from 'pixi.js'
-import { withPixi, setupPixiApp } from '../../.storybook/decorators/pixi'
+import { withPixi } from '../../.storybook/decorators/pixi'
 
 /**
  * ゲームオブジェクトの描画確認用ストーリー
@@ -22,30 +21,17 @@ const meta: Meta = {
 export default meta
 
 type Story = StoryObj<{
-  containerRef: React.RefObject<HTMLDivElement>
-  appRef: React.RefObject<PIXI.Application | null>
+  width?: number
+  height?: number
+  backgroundColor?: number
+  renderFunction?: (app: PIXI.Application) => void
 }>
 
-// コンポーネントの型定義
-type PixiComponentProps = {
-  containerRef: React.RefObject<HTMLDivElement>
-  appRef: React.RefObject<PIXI.Application | null>
-}
-
-// エネルギーオブジェクト
-const EnergyComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 200,
-        height: 200,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const Energy: Story = {
+  args: {
+    width: 200,
+    height: 200,
+    renderFunction: (app: PIXI.Application) => {
       // エネルギーオブジェクトを描画
       const energy = new PIXI.Graphics()
       energy.circle(0, 0, 10)
@@ -66,16 +52,8 @@ const EnergyComponent = ({ containerRef, appRef }: PixiComponentProps) => {
       label.x = 100 - label.width / 2
       label.y = 130
       app.stage.addChild(label)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const Energy: Story = {
-  render: (args) => <EnergyComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -85,20 +63,11 @@ export const Energy: Story = {
   },
 }
 
-// エネルギーソース
-const EnergySourceComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 200,
-        height: 200,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const EnergySource: Story = {
+  args: {
+    width: 200,
+    height: 200,
+    renderFunction: (app: PIXI.Application) => {
       // エネルギーソースを描画（太陽型）
       const source = new PIXI.Graphics()
       source.star(0, 0, 8, 20, 12) // 8点の星形、外径20、内径12
@@ -124,16 +93,8 @@ const EnergySourceComponent = ({ containerRef, appRef }: PixiComponentProps) => 
       label.x = 100 - label.width / 2
       label.y = 140
       app.stage.addChild(label)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const EnergySource: Story = {
-  render: (args) => <EnergySourceComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -143,20 +104,11 @@ export const EnergySource: Story = {
   },
 }
 
-// HULL
-const HullComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 200,
-        height: 200,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const Hull: Story = {
+  args: {
+    width: 200,
+    height: 200,
+    renderFunction: (app: PIXI.Application) => {
       // HULLを描画（四角形）
       const hull = new PIXI.Graphics()
       const size = 30
@@ -178,16 +130,8 @@ const HullComponent = ({ containerRef, appRef }: PixiComponentProps) => {
       label.x = 100 - label.width / 2
       label.y = 130
       app.stage.addChild(label)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const Hull: Story = {
-  render: (args) => <HullComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -197,20 +141,11 @@ export const Hull: Story = {
   },
 }
 
-// HULL（ダメージ状態）
-const HullDamagedComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 200,
-        height: 200,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const HullDamaged: Story = {
+  args: {
+    width: 200,
+    height: 200,
+    renderFunction: (app: PIXI.Application) => {
       // ダメージを受けたHULLを描画
       const hull = new PIXI.Graphics()
       const size = 30
@@ -237,16 +172,8 @@ const HullDamagedComponent = ({ containerRef, appRef }: PixiComponentProps) => {
       label.x = 100 - label.width / 2
       label.y = 130
       app.stage.addChild(label)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const HullDamaged: Story = {
-  render: (args) => <HullDamagedComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -256,20 +183,11 @@ export const HullDamaged: Story = {
   },
 }
 
-// ASSEMBLER
-const AssemblerComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 200,
-        height: 200,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const Assembler: Story = {
+  args: {
+    width: 200,
+    height: 200,
+    renderFunction: (app: PIXI.Application) => {
       // ASSEMBLERを描画（正方形）
       const assembler = new PIXI.Graphics()
       const size = 30
@@ -291,16 +209,8 @@ const AssemblerComponent = ({ containerRef, appRef }: PixiComponentProps) => {
       label.x = 100 - label.width / 2
       label.y = 130
       app.stage.addChild(label)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const Assembler: Story = {
-  render: (args) => <AssemblerComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -310,20 +220,11 @@ export const Assembler: Story = {
   },
 }
 
-// ASSEMBLER（活動中）
-const AssemblerActiveComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 200,
-        height: 200,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const AssemblerActive: Story = {
+  args: {
+    width: 200,
+    height: 200,
+    renderFunction: (app: PIXI.Application) => {
       // 活動中のASSEMBLERを描画
       const assembler = new PIXI.Graphics()
       const size = 30
@@ -350,16 +251,8 @@ const AssemblerActiveComponent = ({ containerRef, appRef }: PixiComponentProps) 
       label.x = 100 - label.width / 2
       label.y = 130
       app.stage.addChild(label)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const AssemblerActive: Story = {
-  render: (args) => <AssemblerActiveComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -369,20 +262,11 @@ export const AssemblerActive: Story = {
   },
 }
 
-// COMPUTER
-const ComputerComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 200,
-        height: 200,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const Computer: Story = {
+  args: {
+    width: 200,
+    height: 200,
+    renderFunction: (app: PIXI.Application) => {
       // COMPUTERを描画（円形）
       const computer = new PIXI.Graphics()
       computer.circle(0, 0, 15)
@@ -403,16 +287,8 @@ const ComputerComponent = ({ containerRef, appRef }: PixiComponentProps) => {
       label.x = 100 - label.width / 2
       label.y = 130
       app.stage.addChild(label)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const Computer: Story = {
-  render: (args) => <ComputerComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -422,20 +298,11 @@ export const Computer: Story = {
   },
 }
 
-// COMPUTER（動作中）
-const ComputerRunningComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 200,
-        height: 200,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const ComputerRunning: Story = {
+  args: {
+    width: 200,
+    height: 200,
+    renderFunction: (app: PIXI.Application) => {
       // 動作中のCOMPUTERを描画
       const computer = new PIXI.Graphics()
       computer.circle(0, 0, 15)
@@ -461,16 +328,8 @@ const ComputerRunningComponent = ({ containerRef, appRef }: PixiComponentProps) 
       label.x = 100 - label.width / 2
       label.y = 130
       app.stage.addChild(label)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const ComputerRunning: Story = {
-  render: (args) => <ComputerRunningComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -480,20 +339,11 @@ export const ComputerRunning: Story = {
   },
 }
 
-// 力場
-const ForceFieldComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 300,
-        height: 300,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const ForceField: Story = {
+  args: {
+    width: 300,
+    height: 300,
+    renderFunction: (app: PIXI.Application) => {
       // 力場を描画（薄い円形）
       const field = new PIXI.Graphics()
       field.circle(0, 0, 80)
@@ -522,16 +372,8 @@ const ForceFieldComponent = ({ containerRef, appRef }: PixiComponentProps) => {
       label.x = 150 - label.width / 2
       label.y = 250
       app.stage.addChild(label)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const ForceField: Story = {
-  render: (args) => <ForceFieldComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -541,20 +383,11 @@ export const ForceField: Story = {
   },
 }
 
-// 複数オブジェクトの組み合わせ（エージェント）
-const AgentComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 400,
-        height: 300,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const Agent: Story = {
+  args: {
+    width: 400,
+    height: 300,
+    renderFunction: (app: PIXI.Application) => {
       // エージェント（HULL + ASSEMBLER + COMPUTER）
       const agent = new PIXI.Container()
       agent.x = 200
@@ -598,16 +431,8 @@ const AgentComponent = ({ containerRef, appRef }: PixiComponentProps) => {
       label.x = 200 - label.width / 2
       label.y = 210
       app.stage.addChild(label)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const Agent: Story = {
-  render: (args) => <AgentComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {

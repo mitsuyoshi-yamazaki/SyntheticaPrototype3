@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 import * as PIXI from 'pixi.js'
-import { withPixi, setupPixiApp } from '../../.storybook/decorators/pixi'
+import { withPixi } from '../../.storybook/decorators/pixi'
 
 /**
  * UI要素の描画確認用ストーリー
@@ -22,30 +21,17 @@ const meta: Meta = {
 export default meta
 
 type Story = StoryObj<{
-  containerRef: React.RefObject<HTMLDivElement>
-  appRef: React.RefObject<PIXI.Application | null>
+  width?: number
+  height?: number
+  backgroundColor?: number
+  renderFunction?: (app: PIXI.Application) => void
 }>
 
-// コンポーネントの型定義
-type PixiComponentProps = {
-  containerRef: React.RefObject<HTMLDivElement>
-  appRef: React.RefObject<PIXI.Application | null>
-}
-
-// デバッグ情報表示
-const DebugInfoComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 400,
-        height: 300,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const DebugInfo: Story = {
+  args: {
+    width: 400,
+    height: 300,
+    renderFunction: (app: PIXI.Application) => {
       // 背景のゲーム要素（サンプル）
       const backgroundElements = new PIXI.Container()
       
@@ -79,16 +65,8 @@ const DebugInfoComponent = ({ containerRef, appRef }: PixiComponentProps) => {
       debugText.x = 10
       debugText.y = 10
       app.stage.addChild(debugText)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const DebugInfo: Story = {
-  render: (args) => <DebugInfoComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -98,20 +76,11 @@ export const DebugInfo: Story = {
   },
 }
 
-// パフォーマンス表示
-const PerformanceMetricsComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 400,
-        height: 300,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const PerformanceMetrics: Story = {
+  args: {
+    width: 400,
+    height: 300,
+    renderFunction: (app: PIXI.Application) => {
       // パフォーマンスメトリクス用背景
       const perfBg = new PIXI.Graphics()
       perfBg.rect(5, 5, 150, 80)
@@ -143,16 +112,8 @@ const PerformanceMetricsComponent = ({ containerRef, appRef }: PixiComponentProp
       warningText.x = 10
       warningText.y = 70
       app.stage.addChild(warningText)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const PerformanceMetrics: Story = {
-  render: (args) => <PerformanceMetricsComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -162,20 +123,11 @@ export const PerformanceMetrics: Story = {
   },
 }
 
-// 複数のUI要素の組み合わせ
-const FullUIComponent = ({ containerRef, appRef }: PixiComponentProps) => {
-  useEffect(() => {
-    if (!containerRef?.current) return
-
-    const setup = async () => {
-      const app = await setupPixiApp(containerRef.current, {
-        width: 600,
-        height: 400,
-      })
-      if (appRef?.current !== undefined) {
-        appRef.current = app
-      }
-
+export const FullUI: Story = {
+  args: {
+    width: 600,
+    height: 400,
+    renderFunction: (app: PIXI.Application) => {
       // 背景に力場を表示
       const field = new PIXI.Graphics()
       field.circle(300, 200, 100)
@@ -264,16 +216,8 @@ const FullUIComponent = ({ containerRef, appRef }: PixiComponentProps) => {
       hintText.x = 10
       hintText.y = 372
       app.stage.addChild(hintText)
-    }
-
-    void setup()
-  }, [containerRef, appRef])
-
-  return <></>
-}
-
-export const FullUI: Story = {
-  render: (args) => <FullUIComponent {...args} />,
+    },
+  },
   parameters: {
     docs: {
       description: {
