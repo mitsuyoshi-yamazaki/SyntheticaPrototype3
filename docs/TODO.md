@@ -24,7 +24,7 @@
 - ✅ エージェントの外観の調整
 - 😀 スクリーンショットのダウンロード機能
 - HULLの外観が変化しない間は描画処理をキャッシュできるか？
-- `GameWorld.constructor()` にデモ用のForceField生成処理が書かれているので、アプリケーション層へ移す
+- ✅ `GameWorld.constructor()` にデモ用のForceField生成処理が書かれているので、アプリケーション層へ移す
 - nullチェックに関する `docs/coding-guidelines.md` の変更に追従する
 
 ## フェーズ1: 基盤 (必須)

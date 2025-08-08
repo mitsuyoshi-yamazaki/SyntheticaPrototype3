@@ -6,6 +6,7 @@ import { GameWorld } from "@/lib/GameWorld"
 import { Viewport } from "@/engine/viewport"
 import type { ObjectId } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
+import { SELF_REPLICATOR_PRESET } from "../engine/presets/self-replicator-preset"
 
 type GameCanvasProps = {
   width?: number
@@ -50,7 +51,22 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       appRef.current = app
 
       // GameWorldの初期化
-      const gameWorld = new GameWorld(width, height)
+      const gameWorld = new GameWorld({
+        width,
+        height,
+        parameters: {
+          energySourceCount: 5, // エネルギーソースを5つ配置
+          energySourceMinRate: 50,
+          energySourceMaxRate: 150,
+          ticksPerFrame: 1,
+        },
+        defaultAgentPresets: [
+          {
+            preset: SELF_REPLICATOR_PRESET,
+            position: Vec2Utils.create(width * 0.3, height * 0.5),
+          },
+        ],
+      })
       gameWorldRef.current = gameWorld
       console.log("ゲームワールドを初期化しました")
 

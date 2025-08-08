@@ -1,8 +1,6 @@
 import * as PIXI from "pixi.js"
-import { World } from "@/engine"
+import { World, WorldConfig } from "@/engine"
 import type { DirectionalForceField } from "@/types/game"
-import { Vec2 as Vec2Utils } from "@/utils/vec2"
-import { SELF_REPLICATOR_PRESET } from "@/engine/presets/self-replicator-preset"
 import { drawEnergySource, drawForceField, drawObject } from "./render-utils"
 import { HeatMapRenderer } from "./heat-map-renderer"
 
@@ -25,33 +23,18 @@ export class GameWorld {
   public get height(): number {
     return this._world.state.height
   }
-  
+
   /** 熱マップの表示状態を取得 */
   public get isHeatMapVisible(): boolean {
     return this._heatMapRenderer.visible
   }
 
-  public constructor(width: number, height: number) {
+  public constructor(config: WorldConfig) {
     // 熱マップレンダラーの初期化
     this._heatMapRenderer = new HeatMapRenderer(10) // 1グリッド = 10ピクセル
-    
+
     // ワールドの初期化（デモ用設定を含む）
-    this._world = new World({
-      width,
-      height,
-      parameters: {
-        energySourceCount: 5, // エネルギーソースを5つ配置
-        energySourceMinRate: 50,
-        energySourceMaxRate: 150,
-        ticksPerFrame: 1,
-      },
-      defaultAgentPresets: [
-        {
-          preset: SELF_REPLICATOR_PRESET,
-          position: Vec2Utils.create(width * 0.3, height * 0.5),
-        },
-      ],
-    })
+    this._world = new World(config)
   }
 
   /** ゲームオブジェクトの総数を取得 */
@@ -62,7 +45,7 @@ export class GameWorld {
   public renderPixi(container: PIXI.Container): void {
     // コンテナをクリア
     container.removeChildren()
-    
+
     // 熱マップレイヤーを追加（一番下に描画）
     const heatSystem = this._world.heatSystem
     this._heatMapRenderer.update(heatSystem)
@@ -113,22 +96,22 @@ export class GameWorld {
   public spawnRandomEnergy(amount: number): void {
     this._world.spawnRandomEnergy(amount)
   }
-  
+
   /** 熱マップの表示状態を切り替え */
   public toggleHeatMap(): void {
     this._heatMapRenderer.visible = !this._heatMapRenderer.visible
   }
-  
+
   /** 熱マップの表示状態を設定 */
   public setHeatMapVisible(visible: boolean): void {
     this._heatMapRenderer.visible = visible
   }
-  
+
   /** 熱マップの透明度を設定 */
   public setHeatMapAlpha(alpha: number): void {
     this._heatMapRenderer.alpha = alpha
   }
-  
+
   /** 力場を追加 */
   public addForceField(field: DirectionalForceField): void {
     this._world.addForceField(field)
