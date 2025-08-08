@@ -25,7 +25,7 @@ export const withPixi: Decorator = (_Story, context) => {
     // PixiJSアプリケーションを初期化
     const initApp = async () => {
       // ストーリーのargs（パラメータ）を取得
-      const width = (context.args?.["width"] as number) || 400
+      const width = (context.args?.["width"] as number) || 300
       const height = (context.args?.["height"] as number) || 300
       const backgroundColor = (context.args?.["backgroundColor"] as number) || 0x101010
 

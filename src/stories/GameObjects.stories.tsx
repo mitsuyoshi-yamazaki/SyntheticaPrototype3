@@ -30,6 +30,9 @@ const meta: Meta = {
 
 export default meta
 
+const defaultSize = Vec2Utils.create(300, 300)
+const defaultCenter = Vec2Utils.scale(defaultSize, 0.5)
+
 type Story = StoryObj<{
   width?: number
   height?: number
@@ -49,11 +52,7 @@ export const Energy: EnergyStory = {
       const factory = new ObjectFactory(800, 600)
 
       // エネルギーオブジェクトを作成
-      const energyObj = factory.createEnergyObject(
-        1 as ObjectId,
-        { x: 100, y: 100 },
-        this.energyAmount
-      )
+      const energyObj = factory.createEnergyObject(1 as ObjectId, defaultCenter, this.energyAmount)
 
       // エネルギーオブジェクトを描画
       const energy = new PIXI.Graphics()
@@ -71,8 +70,8 @@ export const Energy: EnergyStory = {
           fontFamily: "Courier New, monospace",
         },
       })
-      label.x = 100 - label.width / 2
-      label.y = 130
+      label.x = defaultCenter.x - label.width / 2
+      label.y = defaultSize.y * 0.8
       app.stage.addChild(label)
     },
   },
@@ -91,15 +90,20 @@ export const Energy: EnergyStory = {
   },
 }
 
-export const EnergySource: Story = {
+type EnergySourceStory = StoryObj<{
+  energyPerTick: number
+  renderFunction?: (app: PIXI.Application) => void
+}>
+
+export const EnergySource: EnergySourceStory = {
   args: {
-    renderFunction: (app: PIXI.Application) => {
+    renderFunction(this: { energyPerTick: number }, app: PIXI.Application): void {
       // エネルギーソースを描画（太陽型）
       const sourceGraphics = new PIXI.Graphics()
       const source: EnergySourceType = {
         id: 1000001 as ObjectId, // 固定ID使用
-        position: Vec2Utils.create(200, 150),
-        energyPerTick: 400,
+        position: defaultCenter,
+        energyPerTick: this.energyPerTick,
       }
 
       drawEnergySource(sourceGraphics, source)
@@ -115,9 +119,15 @@ export const EnergySource: Story = {
           fontFamily: "Courier New, monospace",
         },
       })
-      label.x = 100 - label.width / 2
-      label.y = 140
+      label.x = defaultCenter.x - label.width / 2
+      label.y = defaultSize.y * 0.8
       app.stage.addChild(label)
+    },
+  },
+  argTypes: {
+    energyPerTick: {
+      control: { type: "range", min: 100, max: 100000, step: 100 },
+      description: "エネルギー算出量",
     },
   },
   parameters: {
@@ -129,15 +139,22 @@ export const EnergySource: Story = {
   },
 }
 
-export const Hull: Story = {
+type HullStory = StoryObj<{
+  capacity: number
+  renderFunction?: (app: PIXI.Application) => void
+}>
+
+export const Hull: HullStory = {
   args: {
-    width: 200,
-    height: 200,
-    renderFunction: (app: PIXI.Application) => {
+    renderFunction(this: { capacity: number }, app: PIXI.Application): void {
       const factory = new ObjectFactory(800, 600)
 
       // HULLを作成
-      const hullObj = factory.createHull(1 as ObjectId, { x: 100, y: 100 }, 100)
+      const hullObj = factory.createHull(
+        1 as ObjectId,
+        Vec2Utils.copy(defaultCenter),
+        this.capacity
+      )
 
       // HULLを描画
       const hull = new PIXI.Graphics()
@@ -155,9 +172,15 @@ export const Hull: Story = {
           fontFamily: "Courier New, monospace",
         },
       })
-      label.x = 100 - label.width / 2
-      label.y = 130
+      label.x = defaultCenter.x - label.width / 2
+      label.y = defaultSize.y * 0.8
       app.stage.addChild(label)
+    },
+  },
+  argTypes: {
+    capacity: {
+      control: { type: "range", min: 100, max: 100000, step: 100 },
+      description: "HULL容量",
     },
   },
   parameters: {
@@ -169,16 +192,24 @@ export const Hull: Story = {
   },
 }
 
-export const HullDamaged: Story = {
+type HullDamagedStory = StoryObj<{
+  capacity: number
+  damage: number
+  renderFunction?: (app: PIXI.Application) => void
+}>
+
+export const HullDamaged: HullDamagedStory = {
   args: {
-    width: 200,
-    height: 200,
-    renderFunction: (app: PIXI.Application) => {
+    renderFunction(this: { capacity: number; damage: number }, app: PIXI.Application): void {
       const factory = new ObjectFactory(800, 600)
 
       // ダメージを受けたHULLを作成
-      const hullObj = factory.createHull(1 as ObjectId, { x: 100, y: 100 }, 100)
-      hullObj.currentEnergy = hullObj.buildEnergy * 0.3 // HPを30%に減らす
+      const hullObj = factory.createHull(
+        1 as ObjectId,
+        Vec2Utils.copy(defaultCenter),
+        this.capacity
+      )
+      hullObj.currentEnergy *= 1 - this.damage
 
       // HULLを描画
       const hull = new PIXI.Graphics()
@@ -196,9 +227,19 @@ export const HullDamaged: Story = {
           fontFamily: "Courier New, monospace",
         },
       })
-      label.x = 100 - label.width / 2
-      label.y = 130
+      label.x = defaultCenter.x - label.width / 2
+      label.y = defaultSize.y * 0.8
       app.stage.addChild(label)
+    },
+  },
+  argTypes: {
+    capacity: {
+      control: { type: "range", min: 100, max: 100000, step: 100 },
+      description: "HULL容量",
+    },
+    damage: {
+      control: { type: "range", min: 0, max: 1, step: 0.1 },
+      description: "ダメージ割合",
     },
   },
   parameters: {
@@ -210,15 +251,22 @@ export const HullDamaged: Story = {
   },
 }
 
-export const Assembler: Story = {
+type AssemblerStory = StoryObj<{
+  assemblerPower: number
+  renderFunction?: (app: PIXI.Application) => void
+}>
+
+export const Assembler: AssemblerStory = {
   args: {
-    width: 200,
-    height: 200,
-    renderFunction: (app: PIXI.Application) => {
+    renderFunction(this: { assemblerPower: number }, app: PIXI.Application): void {
       const factory = new ObjectFactory(800, 600)
 
       // ASSEMBLERを作成（parentHullなし）
-      const assemblerObj = factory.createAssembler(1 as ObjectId, { x: 100, y: 100 }, 1)
+      const assemblerObj = factory.createAssembler(
+        1 as ObjectId,
+        Vec2Utils.copy(defaultCenter),
+        this.assemblerPower
+      )
 
       // ASSEMBLERを描画
       const assembler = new PIXI.Graphics()
@@ -236,9 +284,15 @@ export const Assembler: Story = {
           fontFamily: "Courier New, monospace",
         },
       })
-      label.x = 100 - label.width / 2
-      label.y = 130
+      label.x = defaultCenter.x - label.width / 2
+      label.y = defaultSize.y * 0.8
       app.stage.addChild(label)
+    },
+  },
+  argTypes: {
+    assemblerPower: {
+      control: { type: "range", min: 1, max: 100, step: 1 },
+      description: "Assembler Power",
     },
   },
   parameters: {
@@ -250,15 +304,22 @@ export const Assembler: Story = {
   },
 }
 
-export const AssemblerActive: Story = {
+type AssemblerActiveStory = StoryObj<{
+  assemblerPower: number
+  renderFunction?: (app: PIXI.Application) => void
+}>
+
+export const AssemblerActive: AssemblerActiveStory = {
   args: {
-    width: 200,
-    height: 200,
-    renderFunction: (app: PIXI.Application) => {
+    renderFunction(this: { assemblerPower: number }, app: PIXI.Application): void {
       const factory = new ObjectFactory(800, 600)
 
       // 活動中のASSEMBLERを作成
-      const assemblerObj = factory.createAssembler(1 as ObjectId, { x: 100, y: 100 }, 1)
+      const assemblerObj = factory.createAssembler(
+        1 as ObjectId,
+        Vec2Utils.copy(defaultCenter),
+        this.assemblerPower
+      )
       assemblerObj.isAssembling = true // 活動中に設定
 
       // ASSEMBLERを描画
@@ -278,8 +339,14 @@ export const AssemblerActive: Story = {
         },
       })
       label.x = 100 - label.width / 2
-      label.y = 130
+      label.y = defaultSize.y * 0.8
       app.stage.addChild(label)
+    },
+  },
+  argTypes: {
+    assemblerPower: {
+      control: { type: "range", min: 1, max: 100, step: 1 },
+      description: "Assembler Power",
     },
   },
   parameters: {
@@ -291,15 +358,27 @@ export const AssemblerActive: Story = {
   },
 }
 
-export const Computer: Story = {
+type ComputerStory = StoryObj<{
+  processingPower: number
+  memorySize: number
+  renderFunction?: (app: PIXI.Application) => void
+}>
+
+export const Computer: ComputerStory = {
   args: {
-    width: 200,
-    height: 200,
-    renderFunction: (app: PIXI.Application) => {
+    renderFunction(
+      this: { processingPower: number; memorySize: number },
+      app: PIXI.Application
+    ): void {
       const factory = new ObjectFactory(800, 600)
 
       // COMPUTERを作成
-      const computerObj = factory.createComputer(1 as ObjectId, { x: 100, y: 100 }, 1, 64)
+      const computerObj = factory.createComputer(
+        1 as ObjectId,
+        Vec2Utils.copy(defaultCenter),
+        this.processingPower,
+        this.memorySize
+      )
 
       // COMPUTERを描画
       const computer = new PIXI.Graphics()
@@ -317,9 +396,19 @@ export const Computer: Story = {
           fontFamily: "Courier New, monospace",
         },
       })
-      label.x = 100 - label.width / 2
-      label.y = 130
+      label.x = defaultCenter.x - label.width / 2
+      label.y = defaultSize.y * 0.8
       app.stage.addChild(label)
+    },
+  },
+  argTypes: {
+    processingPower: {
+      control: { type: "range", min: 1, max: 100, step: 1 },
+      description: "動作周波数",
+    },
+    memorySize: {
+      control: { type: "range", min: 1, max: 60000, step: 10 },
+      description: "メモリ容量",
     },
   },
   parameters: {
