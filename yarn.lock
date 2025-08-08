@@ -2123,11 +2123,6 @@
   dependencies:
     "@sinonjs/commons" "^3.0.1"
 
-"@storybook/addon-controls@^9.0.8":
-  version "9.0.8"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-controls/-/addon-controls-9.0.8.tgz#b294e1583efe18c13c494d6f0024ab3401a777c6"
-  integrity sha512-6MY9QeBv2vNmBXH+ONmbpp/Gu/odSxriN1+BAY+il9OyXZBMq3OiDsjoH7xY5V7PGr+0XhZfOLkamvx3q+lQTg==
-
 "@storybook/addon-docs@^9.1.1":
   version "9.1.1"
   resolved "https://registry.yarnpkg.com/@storybook/addon-docs/-/addon-docs-9.1.1.tgz#3d0284c861e7775d99cb1f08ddb6a755b0702450"
@@ -2145,11 +2140,6 @@
   version "9.1.1"
   resolved "https://registry.yarnpkg.com/@storybook/addon-onboarding/-/addon-onboarding-9.1.1.tgz#df2302e898965f6b4caab9e996b4900366d2bd81"
   integrity sha512-QHkirYjgHqhJMmD2riVJ4qvkwNif79phEJuMd+Zna2niT5MMkmFSd+lfLgbEYr6ufbL2OWnsoUmxRY5s3RgKQw==
-
-"@storybook/addon-viewport@^9.0.8":
-  version "9.0.8"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-viewport/-/addon-viewport-9.0.8.tgz#def767425a92a4bab91c2a09e884fbfb1810e3c5"
-  integrity sha512-HgIFDzNXvMx0zQBM5mhwBoAJlrF9KRlxNCZnJbqrFLCJO4Ps2PMtB0HRGHcg0gm3RLcqyps0DpiF7wll3udb7Q==
 
 "@storybook/builder-vite@9.1.1":
   version "9.1.1"

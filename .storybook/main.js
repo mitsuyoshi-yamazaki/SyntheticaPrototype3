@@ -5,9 +5,7 @@ const config = {
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
   addons: [
-    "@storybook/addon-controls",
     "@storybook/addon-docs",
-    "@storybook/addon-viewport",
     "@chromatic-com/storybook",
     "@storybook/addon-onboarding"
   ],
