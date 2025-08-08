@@ -12,7 +12,9 @@ import type {
   GameObject,
   Hull,
   DirectionalForceField,
+  EnergySource,
 } from "@/types/game"
+import { calculateEnergySourceSize } from "../engine/object-factory"
 
 /**
  * Pill shape（カプセル形状）を描画
@@ -354,6 +356,18 @@ export const drawObject = (
       break
     }
   }
+}
+
+/**
+ * エネルギーソースを描画
+ * @param graphics 描画先のGraphicsオブジェクト
+ * @param source 描画するエネルギーソース
+ */
+export const drawEnergySource = (graphics: PIXI.Graphics, source: EnergySource): void => {
+  const size = calculateEnergySourceSize(source)
+  const halfSize = size / 2
+  graphics.roundRect(source.position.x - halfSize, source.position.y - halfSize, size, size, 2)
+  graphics.fill({ color: 0xffd700, alpha: 0.8 })
 }
 
 /**

@@ -1,13 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs"
 import * as PIXI from "pixi.js"
 import { withPixi } from "../../.storybook/decorators/pixi"
-import { drawForceField, drawObject } from "@/lib/render-utils"
+import { drawEnergySource, drawForceField, drawObject } from "@/lib/render-utils"
 import { ObjectFactory } from "@/engine/object-factory"
 import type {
   LinearForceField as LinearForceFieldType,
   RadialForceField as RadialForceFieldType,
   SpiralForceField as SpiralForceFieldType,
   ObjectId,
+  EnergySource as EnergySourceType,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
@@ -78,21 +79,18 @@ export const Energy: Story = {
 
 export const EnergySource: Story = {
   args: {
-    width: 200,
-    height: 200,
     renderFunction: (app: PIXI.Application) => {
       // エネルギーソースを描画（太陽型）
-      const source = new PIXI.Graphics()
-      source.star(0, 0, 8, 20, 12) // 8点の星形、外径20、内径12
-      source.fill(0xffb700) // #FFB700
+      const sourceGraphics = new PIXI.Graphics()
+      const source: EnergySourceType = {
+        id: 1000001 as ObjectId, // 固定ID使用
+        position: Vec2Utils.create(200, 150),
+        energyPerTick: 400,
+      }
 
-      // 中心の円
-      source.circle(0, 0, 8)
-      source.fill({ color: 0xffd700, alpha: 0.8 })
+      drawEnergySource(sourceGraphics, source)
 
-      source.x = 100
-      source.y = 100
-      app.stage.addChild(source)
+      app.stage.addChild(sourceGraphics)
 
       // ラベル
       const label = new PIXI.Text({

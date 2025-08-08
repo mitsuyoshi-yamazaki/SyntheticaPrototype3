@@ -11,14 +11,21 @@ import type {
   ObjectId,
   Vec2,
   UnitSpec,
+  EnergySource,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { wrapPosition } from "@/utils/torus-math"
 
+const ENERGY_TO_AREA_RATIO = 0.05
+
 /** エネルギー量から半径を計算 */
 export const calculateEnergyRadius = (energy: number): number => {
-  const area = energy * 1.0 // ENERGY_TO_AREA_RATIO
+  const area = energy * ENERGY_TO_AREA_RATIO
   return Math.sqrt(area / Math.PI)
+}
+
+export const calculateEnergySourceSize = (energySource: EnergySource): number => {
+  return Math.sqrt(energySource.energyPerTick * ENERGY_TO_AREA_RATIO * 20)
 }
 
 /** ユニットの半径を計算 */
