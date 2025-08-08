@@ -5,7 +5,7 @@
 import { VMState } from "./vm-state"
 import { InstructionDecoder } from "./vm-decoder"
 import type { DecodedInstruction } from "./vm-decoder"
-import type { Unit, Assembler } from "@/types/game"
+import type { Unit, Assembler, UnitSpec } from "@/types/game"
 import { CircuitConnectionSystem } from "./circuit-connection-system"
 import { createMemoryInterface } from "./unit-memory-interface"
 import { UnitSelfScanSystem } from "./unit-self-scan"
@@ -875,36 +875,79 @@ export const InstructionExecutor = {
         switch (command) {
           case 0: {
             // 生産開始
+            // ASSEMBLERが既に生産中でないか確認
+            if (assembler.isAssembling) {
+              vm.setRegister("A", 0) // 失敗
+              vm.advancePC(decoded.length)
+              return { success: true, cycles: 1 }
+            }
+
             // メモリから生産パラメータを読み取る
-            // const unitType = memInterface?.readMemory(0x01) ?? 0 // productionUnitType
-            // const hullIndex = memInterface?.readMemory(0x02) ?? 0 // productionHullIndex
+            const unitType = memInterface?.readMemory(0x01) ?? 0 // productionUnitType
+            const param1 = memInterface?.readMemory(0x03) ?? 0 // productionParam1 (capacity/power)
+            const param2 = memInterface?.readMemory(0x04) ?? 0 // productionParam2 (memSize for COMPUTER)
+
+            // ユニット仕様を作成
+            let targetSpec: UnitSpec | null = null
+            switch (unitType) {
+              case 1: // HULL
+                targetSpec = { type: "HULL", capacity: param1 !== 0 ? param1 : 100 }
+                break
+              case 2: // ASSEMBLER
+                targetSpec = { type: "ASSEMBLER", assemblePower: param1 !== 0 ? param1 : 1 }
+                break
+              case 3: // COMPUTER
+                targetSpec = {
+                  type: "COMPUTER",
+                  processingPower: param1 !== 0 ? param1 : 1,
+                  memorySize: param2 !== 0 ? param2 : 64,
+                }
+                break
+            }
+
+            if (targetSpec == null) {
+              vm.setRegister("A", 0) // 失敗
+              vm.advancePC(decoded.length)
+              return { success: true, cycles: 1 }
+            }
+
+            // 生産開始
+            assembler.isAssembling = true
+            assembler.targetSpec = targetSpec
+            assembler.progress = 0
 
             // 生産開始フラグを設定
             const success = memInterface?.writeMemory(0x0f, 1) ?? false // 生産開始トリガー
-
-            if (!success) {
-              return {
-                success: false,
-                error: "Failed to start production",
-                cycles: 1,
-              }
+            if (success) {
+              memInterface?.writeMemory(0x09, 1) // productionState = 生産中
             }
 
             // 結果をレジスタAに格納（1=成功）
-            vm.setRegister("A", 1)
+            vm.setRegister("A", success ? 1 : 0)
             break
           }
 
           case 1: {
             // 生産停止
-            // TODO: 生産停止の実装
-            vm.setRegister("A", 0)
+            assembler.isAssembling = false
+            delete assembler.targetSpec
+            assembler.progress = 0
+
+            // 生産状態をクリア
+            memInterface?.writeMemory(0x0f, 0) // 生産停止トリガー
+            memInterface?.writeMemory(0x09, 0) // productionState = 停止
+
+            vm.setRegister("A", 1) // 成功
             break
           }
 
           case 2: {
             // 状態確認
-            const state = memInterface?.readMemory(0x09) ?? 0 // productionState
+            // 状態コード: 0=停止, 1=生産中, 2=完了
+            let state = 0
+            if (assembler.isAssembling) {
+              state = assembler.progress >= 1.0 ? 2 : 1
+            }
             vm.setRegister("A", state)
             break
           }
