@@ -253,12 +253,23 @@ export const drawObject = (
 
           // 扇形を描画
           const sectorGraphics = new PIXI.Graphics()
-          if (computerRadius > 0) {
-            drawSector(sectorGraphics, 0, 0, hullRadius, startAngle, endAngle, computerRadius)
-          } else {
-            drawSector(sectorGraphics, 0, 0, hullRadius, startAngle, endAngle)
-          }
-          sectorGraphics.fill(0xff8c00)
+          const innerRadius =
+            computerRadius === 0 ? 5 : computerRadius + RenderingParameters.attachedUnit.strokeWidth
+          drawSector(
+            sectorGraphics,
+            0,
+            0,
+            hullRadius - RenderingParameters.independentUnit.strokeWidth,
+            startAngle,
+            endAngle,
+            innerRadius
+          )
+          sectorGraphics.stroke({
+            width: RenderingParameters.attachedUnit.strokeWidth,
+            color: RenderingParameters.assembler.strokeColor,
+            alpha: 1,
+          })
+          sectorGraphics.fill(RenderingParameters.assembler.fillColor)
 
           currentAngle = endAngle
 
