@@ -37,15 +37,23 @@ type Story = StoryObj<{
   renderFunction?: (app: PIXI.Application) => void
 }>
 
-export const Energy: Story = {
+type EnergyStory = StoryObj<{
+  energyAmount: number
+  renderFunction?: (app: PIXI.Application) => void
+}>
+
+export const Energy: EnergyStory = {
   args: {
-    width: 200,
-    height: 200,
-    renderFunction: (app: PIXI.Application) => {
+    energyAmount: 10000,
+    renderFunction(this: { energyAmount: number }, app: PIXI.Application): void {
       const factory = new ObjectFactory(800, 600)
 
       // エネルギーオブジェクトを作成
-      const energyObj = factory.createEnergyObject(1 as ObjectId, { x: 100, y: 100 }, 10000)
+      const energyObj = factory.createEnergyObject(
+        1 as ObjectId,
+        { x: 100, y: 100 },
+        this.energyAmount
+      )
 
       // エネルギーオブジェクトを描画
       const energy = new PIXI.Graphics()
@@ -66,6 +74,12 @@ export const Energy: Story = {
       label.x = 100 - label.width / 2
       label.y = 130
       app.stage.addChild(label)
+    },
+  },
+  argTypes: {
+    energyAmount: {
+      control: { type: "range", min: 100, max: 100000, step: 100 },
+      description: "エネルギー量",
     },
   },
   parameters: {
