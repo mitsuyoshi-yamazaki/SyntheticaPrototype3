@@ -92,7 +92,7 @@ export class World {
         this._stateManager.state.height,
         () => this._stateManager.generateObjectId()
       )
-      
+
       // エージェントを追加
       this.addAgent(objects, placement.position)
     }
@@ -301,7 +301,6 @@ export class World {
 
   /** COMPUTERユニットのVM実行 */
   private executeComputerVMs(): void {
-     
     const objects = this._stateManager.getAllObjects()
 
     for (const obj of objects) {
@@ -309,12 +308,10 @@ export class World {
         ComputerVMSystem.executeVM(obj as Computer)
       }
     }
-     
   }
 
   /** VMサイクルカウンタのリセット */
   private resetVMCycleCounters(): void {
-     
     const objects = this._stateManager.getAllObjects()
 
     for (const obj of objects) {
@@ -322,6 +319,5 @@ export class World {
         ComputerVMSystem.resetCycleCounter(obj as Computer)
       }
     }
-     
   }
 }

@@ -221,9 +221,7 @@ export class CircuitConnectionSystem {
     separatedUnits: ObjectId[]
   ): { remainingUnits: ObjectId[]; separatedCircuit: ObjectId[] } {
     const allUnits = this.getAllUnitIds(originalHull.attachedUnits)
-    const remainingUnits = allUnits.filter(
-      unitId => !separatedUnits.includes(unitId)
-    )
+    const remainingUnits = allUnits.filter(unitId => !separatedUnits.includes(unitId))
 
     return {
       remainingUnits,
@@ -259,7 +257,9 @@ export class CircuitConnectionSystem {
     const allUnitIds = this.getAllUnitIds(hull.attachedUnits)
     for (let i = 0; i < allUnitIds.length; i++) {
       const unitId = allUnitIds[i]
-      if (unitId === undefined) { continue }
+      if (unitId === undefined) {
+        continue
+      }
       const unit = units.get(unitId)
       if (unit != null) {
         const indices = attachedByType.get(unit.type) ?? []

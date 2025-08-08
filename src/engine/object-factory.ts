@@ -203,5 +203,4 @@ export class ObjectFactory {
         throw new Error(`Unknown object type: ${spec.type}`)
     }
   }
-
 }

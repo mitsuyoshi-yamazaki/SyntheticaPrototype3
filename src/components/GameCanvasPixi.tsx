@@ -116,7 +116,6 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         viewport.endDrag()
       })
 
-
       // FPS計測用
       let lastTime = performance.now()
       let frameCount = 0

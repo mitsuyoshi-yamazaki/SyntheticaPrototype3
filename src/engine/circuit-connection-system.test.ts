@@ -307,12 +307,8 @@ describe("CircuitConnectionSystem", () => {
         storedEnergy: 0,
         attachedUnits: {
           hulls: [],
-          assemblers: [
-            { id: 2 as ObjectId, visualData: { angle: 0 } },
-          ],
-          computers: [
-            { id: 3 as ObjectId, visualData: { startAngle: 0, endAngle: 360 } },
-          ],
+          assemblers: [{ id: 2 as ObjectId, visualData: { angle: 0 } }],
+          computers: [{ id: 3 as ObjectId, visualData: { startAngle: 0, endAngle: 360 } }],
         },
       }
 
@@ -330,12 +326,8 @@ describe("CircuitConnectionSystem", () => {
         storedEnergy: 0,
         attachedUnits: {
           hulls: [],
-          assemblers: [
-            { id: 11 as ObjectId, visualData: { angle: 0 } },
-          ],
-          computers: [
-            { id: 12 as ObjectId, visualData: { startAngle: 0, endAngle: 360 } },
-          ],
+          assemblers: [{ id: 11 as ObjectId, visualData: { angle: 0 } }],
+          computers: [{ id: 12 as ObjectId, visualData: { startAngle: 0, endAngle: 360 } }],
         },
       }
 
@@ -364,9 +356,7 @@ describe("CircuitConnectionSystem", () => {
             { id: 2 as ObjectId, visualData: { angle: 0 } },
             { id: 3 as ObjectId, visualData: { angle: 180 } },
           ],
-          computers: [
-            { id: 4 as ObjectId, visualData: { startAngle: 0, endAngle: 360 } },
-          ],
+          computers: [{ id: 4 as ObjectId, visualData: { startAngle: 0, endAngle: 360 } }],
         },
       }
 

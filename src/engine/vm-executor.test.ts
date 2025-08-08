@@ -397,7 +397,7 @@ describe("InstructionExecutor", () => {
     describe("SCANM命令", () => {
       test("メモリブロックのコピーが正しく動作する", () => {
         const memory = vm.getMemoryArray()
-        
+
         // ソースデータを設定
         for (let i = 0; i < 10; i++) {
           memory[0x10 + i] = i + 1
@@ -433,7 +433,7 @@ describe("InstructionExecutor", () => {
 
       test("レジスタCが0の場合は256バイトコピー", () => {
         const memory = vm.getMemoryArray()
-        
+
         // SCANM命令を配置
         memory[0] = 0xc2 // SCANM
         memory[1] = 0x10 // src低位
@@ -464,7 +464,7 @@ describe("InstructionExecutor", () => {
 
       test("最大256バイトまでコピー可能", () => {
         const memory = vm.getMemoryArray()
-        
+
         // SCANM命令を配置
         memory[0] = 0xc2 // SCANM
         memory[1] = 0x00 // src低位
@@ -485,7 +485,7 @@ describe("InstructionExecutor", () => {
 
       test("レジスタCの下位8ビットのみが使用される", () => {
         const memory = vm.getMemoryArray()
-        
+
         // SCANM命令を配置
         memory[0] = 0xc2 // SCANM
         memory[1] = 0x00 // src低位
@@ -506,7 +506,7 @@ describe("InstructionExecutor", () => {
 
       test("メモリの循環バッファとして動作する", () => {
         const memory = vm.getMemoryArray()
-        
+
         // メモリ末尾付近にデータを配置
         memory[1022] = 0xaa
         memory[1023] = 0xbb
@@ -539,7 +539,7 @@ describe("InstructionExecutor", () => {
 
       test("プログラムカウンタが正しく進む", () => {
         const memory = vm.getMemoryArray()
-        
+
         // SCANM命令を配置
         memory[0] = 0xc2 // SCANM
         memory[1] = 0x00
@@ -559,7 +559,7 @@ describe("InstructionExecutor", () => {
 
       test("自己複製コードの例", () => {
         const memory = vm.getMemoryArray()
-        
+
         // 簡単なプログラム
         memory[0x10] = 0x03 // MOV_AB
         memory[0x11] = 0x04 // MOV_AD
@@ -592,7 +592,7 @@ describe("InstructionExecutor", () => {
     describe("ASSEMBLE命令", () => {
       test("ユニットコンテキストなしでエラー", () => {
         const memory = vm.getMemoryArray()
-        
+
         // ASSEMBLE命令を配置
         memory[0] = 0xc3 // ASSEMBLE
         memory[1] = 0x40 // ユニットID (ASSEMBLER[0])
@@ -610,7 +610,7 @@ describe("InstructionExecutor", () => {
 
       test("無効なコマンドでエラー", () => {
         const memory = vm.getMemoryArray()
-        
+
         // モックユニット
         /*
         const hull: Hull = {
@@ -626,7 +626,7 @@ describe("InstructionExecutor", () => {
           attachedUnits: ["computer-1" as ObjectId, "assembler-1" as ObjectId],
         }
         */
-        
+
         const computer: Computer = {
           id: "computer-1" as ObjectId,
           type: "COMPUTER",
@@ -647,7 +647,7 @@ describe("InstructionExecutor", () => {
           isRunning: true,
           vmCyclesExecuted: 0,
         }
-        
+
         const assembler: Assembler = {
           id: "assembler-1" as ObjectId,
           type: "ASSEMBLER",
@@ -661,7 +661,7 @@ describe("InstructionExecutor", () => {
           isAssembling: false,
           progress: 0,
         }
-        
+
         // findUnitByIdモック
         const originalFindUnitById = InstructionExecutor.findUnitById
         InstructionExecutor.findUnitById = jest.fn((_currentUnit, unitId) => {
@@ -670,7 +670,7 @@ describe("InstructionExecutor", () => {
           }
           return null
         })
-        
+
         // ASSEMBLE命令を配置
         memory[0] = 0xc3 // ASSEMBLE
         memory[1] = 0x40 // ユニットID (ASSEMBLER[0])
@@ -684,7 +684,7 @@ describe("InstructionExecutor", () => {
 
         expect(result.success).toBe(false)
         expect(result.error).toContain("Invalid ASSEMBLE command: 255")
-        
+
         // モックを元に戻す
         InstructionExecutor.findUnitById = originalFindUnitById
       })

@@ -3,7 +3,7 @@ import { World } from "@/engine"
 import type { ObjectId } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { SELF_REPLICATOR_PRESET } from "@/engine/presets/self-replicator-preset"
-import { drawObject } from './render-utils'
+import { drawObject } from "./render-utils"
 
 /**
  * ゲーム世界の基本クラス
@@ -100,15 +100,15 @@ export class GameWorld {
     // エネルギーソースを描画（デザイン仕様: #FFB700、太陽型）
     for (const source of this._world.state.energySources.values()) {
       const sourceGraphics = new PIXI.Graphics()
-      
+
       // 太陽型（放射状の星形）を描画
-      sourceGraphics.star(0, 0, 8, 12, 8)  // 8点の星形、外径12、内径8
+      sourceGraphics.star(0, 0, 8, 12, 8) // 8点の星形、外径12、内径8
       sourceGraphics.fill(0xffb700)
-      
+
       // 中心の円（より明るく）
       sourceGraphics.circle(0, 0, 5)
       sourceGraphics.fill({ color: 0xffd700, alpha: 0.8 })
-      
+
       sourceGraphics.x = source.position.x
       sourceGraphics.y = source.position.y
       container.addChild(sourceGraphics)
@@ -119,7 +119,7 @@ export class GameWorld {
       const objGraphics = new PIXI.Graphics()
 
       // drawObjectを使用して描画
-      drawObject(objGraphics, obj, (id) => this._world.state.objects.get(id))
+      drawObject(objGraphics, obj, id => this._world.state.objects.get(id))
 
       objGraphics.x = obj.position.x
       objGraphics.y = obj.position.y

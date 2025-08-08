@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react'
-import * as PIXI from 'pixi.js'
-import { Decorator } from '@storybook/react'
+import React, { useEffect, useRef } from "react"
+import * as PIXI from "pixi.js"
+import { Decorator } from "@storybook/react"
 
 /**
  * PixiJSアプリケーションをStorybookで使用するためのデコレータ
@@ -25,9 +25,9 @@ export const withPixi: Decorator = (_Story, context) => {
     // PixiJSアプリケーションを初期化
     const initApp = async () => {
       // ストーリーのargs（パラメータ）を取得
-      const width = (context.args?.['width'] as number) || 400
-      const height = (context.args?.['height'] as number) || 300
-      const backgroundColor = (context.args?.['backgroundColor'] as number) || 0x101010
+      const width = (context.args?.["width"] as number) || 400
+      const height = (context.args?.["height"] as number) || 300
+      const backgroundColor = (context.args?.["backgroundColor"] as number) || 0x101010
 
       const app = new PIXI.Application()
       await app.init({
@@ -47,9 +47,12 @@ export const withPixi: Decorator = (_Story, context) => {
 
       // ストーリーコンポーネントに描画ロジックを委譲
       // renderFunctionがargs内に定義されている場合、それを実行
-      if (context.args?.['renderFunction'] && typeof context.args['renderFunction'] === 'function') {
+      if (
+        context.args?.["renderFunction"] &&
+        typeof context.args["renderFunction"] === "function"
+      ) {
         // renderFunctionをバインドして、this contextとしてargsを設定
-        context.args['renderFunction'].call(context.args, app)
+        context.args["renderFunction"].call(context.args, app)
       }
     }
 
@@ -65,7 +68,7 @@ export const withPixi: Decorator = (_Story, context) => {
   }, [context.id, context.args]) // ストーリーまたはパラメータが変わるたびに再実行
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: "20px" }}>
       <div ref={containerRef} />
     </div>
   )
@@ -80,7 +83,7 @@ export const setupPixiApp = async (
   options: Partial<PIXI.ApplicationOptions> = {}
 ): Promise<PIXI.Application> => {
   const app = new PIXI.Application()
-  
+
   await app.init({
     width: 400,
     height: 300,

@@ -193,6 +193,7 @@ src/stories/
 #### ストーリー構成
 
 **GameObjects.stories.tsx**
+
 - Energy: エネルギーオブジェクト（#FFD700）
 - EnergySource: エネルギーソース（#FFB700、星形）
 - Hull: 通常/ダメージ状態（#A9A9A9）
@@ -202,6 +203,7 @@ src/stories/
 - Agent: 複数ユニット結合例
 
 **UIOverlay.stories.tsx**
+
 - DebugInfo: デバッグ情報表示
 - PerformanceMetrics: パフォーマンス表示
 - FullUI: 完全なUI構成例
@@ -386,11 +388,11 @@ src/
     └── game.ts
 ```
 
-.storybook/         # Storybook設定
+.storybook/ # Storybook設定
 ├── main.js
 ├── preview.js
 └── decorators/
-    └── pixi.tsx     # PixiJS用デコレータ
+└── pixi.tsx # PixiJS用デコレータ
 
 ## 実装優先順位
 

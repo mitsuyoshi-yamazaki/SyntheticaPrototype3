@@ -346,7 +346,6 @@ describe("ObjectFactory", () => {
     // union typeにより、必須パラメータが明示的になったため、デフォルト値のテストは不要
   })
 
-
   describe("境界値テスト", () => {
     test("エネルギー0のオブジェクト", () => {
       const obj = factory.createEnergyObject(generateId(), Vec2Utils.create(0, 0), 0)

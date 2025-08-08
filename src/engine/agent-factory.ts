@@ -28,13 +28,13 @@ export class AgentFactory {
   ): GameObject[] {
     const factory = new ObjectFactory(worldWidth, worldHeight)
     const objects: GameObject[] = []
-    
+
     // 1. HULLを検索（最初のHULLユニットを使用）
     const hullDef = preset.units.find(unit => unit.type === "HULL")
     if (hullDef == null) {
       throw new Error("プリセットにHULLが含まれていません")
     }
-    
+
     // 2. HULLを生成
     const hullId = generateId()
     const hull = factory.createHull(
@@ -43,18 +43,18 @@ export class AgentFactory {
       hullDef.parameters.type === "HULL" ? hullDef.parameters.capacity : 0
     )
     objects.push(hull)
-    
+
     // 3. 他のユニットを生成して配置
     let computerUnit: GameObject | null = null
-    
+
     for (const unitDef of preset.units) {
       if (unitDef.type === "HULL") {
         continue // HULLは既に生成済み
       }
-      
+
       const unitId = generateId()
       let unit: GameObject
-      
+
       switch (unitDef.type) {
         case "ASSEMBLER":
           if (unitDef.parameters.type !== "ASSEMBLER") {
@@ -67,7 +67,7 @@ export class AgentFactory {
             unitDef.isAttached ? hullId : undefined
           )
           break
-          
+
         case "COMPUTER":
           if (unitDef.parameters.type !== "COMPUTER") {
             throw new Error("ユニットタイプとパラメータタイプが一致しません")
@@ -83,23 +83,23 @@ export class AgentFactory {
           )
           computerUnit = unit
           break
-          
+
         default:
           throw new Error(`未対応のユニットタイプ: ${String(unitDef.type)}`)
       }
-      
+
       objects.push(unit)
-      
+
       // 4. attachedフラグに基づいて接続
       // 注: 実際の接続は後で createAttachedUnitsInfo を使用して行う必要がある
       // ここでは単にparentHullを設定するだけ
     }
-    
+
     // 5. COMPUTERにプログラムがロード済みなので、実行を開始
     if (computerUnit != null && computerUnit.type === "COMPUTER") {
       ComputerVMSystem.startProgram(computerUnit as Computer)
     }
-    
+
     return objects
   }
 }

@@ -5,18 +5,18 @@ const preview = {
   parameters: {
     controls: {
       matchers: {
-       color: /(background|color)$/i,
-       date: /Date$/i,
+        color: /(background|color)$/i,
+        date: /Date$/i,
       },
     },
     backgrounds: {
-      default: 'dark',
+      default: "dark",
       values: [
-        { name: 'dark', value: '#101010' },
-        { name: 'light', value: '#ffffff' },
+        { name: "dark", value: "#101010" },
+        { name: "light", value: "#ffffff" },
       ],
     },
   },
-};
+}
 
-export default preview;
+export default preview

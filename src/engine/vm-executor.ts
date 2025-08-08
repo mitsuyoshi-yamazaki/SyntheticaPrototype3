@@ -794,16 +794,16 @@ export const InstructionExecutor = {
             cycles: 1,
           }
         }
-        
+
         const srcAddr = ((decoded.bytes[1] ?? 0) | ((decoded.bytes[2] ?? 0) << 8)) & 0xffff
         const destAddr = ((decoded.bytes[3] ?? 0) | ((decoded.bytes[4] ?? 0) << 8)) & 0xffff
-        
+
         // レジスタCから読み取りバイト数を取得（0の場合は256バイト）
         const lengthRaw = vm.getRegister("C") & 0xff
         const length = lengthRaw === 0 ? 256 : lengthRaw
-        
+
         // メモリブロックをコピー
-         
+
         const memoryArray = vm.getMemoryArray()
         const memorySize = memoryArray.length
         for (let i = 0; i < length; i++) {
@@ -812,8 +812,7 @@ export const InstructionExecutor = {
           const value = memoryArray[srcIndex] ?? 0
           memoryArray[destIndex] = value
         }
-         
-        
+
         vm.advancePC(decoded.length)
         return { success: true, cycles: 5 + length } // 基本5サイクル + バイト数
       }
@@ -838,10 +837,10 @@ export const InstructionExecutor = {
             cycles: 1,
           }
         }
-        
+
         const unitId = decoded.bytes[1] ?? 0
         const command = decoded.bytes[2] ?? 0
-        
+
         // ターゲットユニットを識別子から取得
         const targetUnit = this.findUnitById(unit, unitId)
         if (targetUnit == null) {
@@ -851,7 +850,7 @@ export const InstructionExecutor = {
             cycles: 1,
           }
         }
-        
+
         // ASSEMBLERであることを確認
         if (targetUnit.type !== "ASSEMBLER") {
           return {
@@ -860,7 +859,7 @@ export const InstructionExecutor = {
             cycles: 1,
           }
         }
-        
+
         // アクセス権限チェック
         if (!CircuitConnectionSystem.canAccess(unit, targetUnit)) {
           return {
@@ -869,19 +868,20 @@ export const InstructionExecutor = {
             cycles: 1,
           }
         }
-        
+
         const assembler = targetUnit as Assembler
         const memInterface = createMemoryInterface(assembler)
-        
+
         switch (command) {
-          case 0: { // 生産開始
+          case 0: {
+            // 生産開始
             // メモリから生産パラメータを読み取る
             // const unitType = memInterface?.readMemory(0x01) ?? 0 // productionUnitType
             // const hullIndex = memInterface?.readMemory(0x02) ?? 0 // productionHullIndex
-            
+
             // 生産開始フラグを設定
             const success = memInterface?.writeMemory(0x0f, 1) ?? false // 生産開始トリガー
-            
+
             if (!success) {
               return {
                 success: false,
@@ -889,24 +889,26 @@ export const InstructionExecutor = {
                 cycles: 1,
               }
             }
-            
+
             // 結果をレジスタAに格納（1=成功）
             vm.setRegister("A", 1)
             break
           }
-            
-          case 1: { // 生産停止
+
+          case 1: {
+            // 生産停止
             // TODO: 生産停止の実装
             vm.setRegister("A", 0)
             break
           }
-            
-          case 2: { // 状態確認
+
+          case 2: {
+            // 状態確認
             const state = memInterface?.readMemory(0x09) ?? 0 // productionState
             vm.setRegister("A", state)
             break
           }
-            
+
           default:
             return {
               success: false,
@@ -914,7 +916,7 @@ export const InstructionExecutor = {
               cycles: 1,
             }
         }
-        
+
         vm.advancePC(decoded.length)
         return { success: true, cycles: 5 }
       }
@@ -969,7 +971,7 @@ export const InstructionExecutor = {
       const result = this.step(vm, unit)
       totalCycles += result.cycles
 
-      if (!result.success || (result.halted === true)) {
+      if (!result.success || result.halted === true) {
         break
       }
     }
