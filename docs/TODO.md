@@ -22,6 +22,12 @@
 - ✅ `docs/実装計画/Agents.stories.tsxへargを追加.md` を実施
 - ✅ `docs/coding-guidelines.md` の const over function 違反の修正
 - 😀 エージェントの外観の調整
+  - 変更箇所：
+    - visualDataを削除
+- 😀 スクリーンショットのダウンロード機能
+- HULLの外観が変化しない間は描画処理をキャッシュできるか？
+- `GameWorld.constructor()` にデモ用のForceField生成処理が書かれているので、アプリケーション層へ移す
+- nullチェックに関する `docs/coding-guidelines.md` の変更に追従する
 
 ## フェーズ1: 基盤 (必須)
 
