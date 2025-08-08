@@ -22,7 +22,6 @@ export function createTestAssembler(overrides: Partial<Assembler> = {}): Assembl
     assemblePower: 1,
     isAssembling: false,
     progress: 0,
-    visualData: { angle: 0 },
     ...overrides,
   }
 }
@@ -51,7 +50,6 @@ export function createTestComputer(overrides: Partial<Computer> = {}): Computer 
     carryFlag: false,
     isRunning: false,
     vmCyclesExecuted: 0,
-    visualData: { startAngle: 0, endAngle: 360 },
     ...overrides,
   }
 }
@@ -72,7 +70,11 @@ export function createTestHull(overrides: Partial<Hull> = {}): Hull {
     currentEnergy: 200,
     capacity: 100,
     storedEnergy: 0,
-    attachedUnits: [],
+    attachedUnits: {
+      hulls: [],
+      assemblers: [],
+      computers: [],
+    },
     ...overrides,
   }
 }

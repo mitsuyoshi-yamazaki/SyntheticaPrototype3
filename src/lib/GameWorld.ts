@@ -3,7 +3,7 @@ import { World } from "@/engine"
 import type { ObjectId, Hull, Assembler, Computer } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { SELF_REPLICATOR_PRESET } from "@/engine/presets/self-replicator-preset"
-import { drawPillShape, drawSector, calculatePillShapeSize, redistributeVisualPositions } from './render-utils'
+import { drawPillShape, drawSector, calculatePillShapeSize } from './render-utils'
 
 /**
  * ゲーム世界の基本クラス
@@ -144,34 +144,20 @@ export class GameWorld {
           }
           
           // 固定されているユニットを描画
-          if (hull.attachedUnits.length > 0) {
-            // 固定ユニットの視覚データを初期化（必要に応じて）
-            const attachedObjects = hull.attachedUnits
-              .map(id => this._world.state.objects.get(id))
-              .filter(Boolean)
-            
-            // 視覚データがない場合は初期化
-            const needsInit = attachedObjects.some(u => {
-              if (u?.type === 'ASSEMBLER') {
-                return false // AssemblerはvisualDataが必須なので常にfalse
-              }
-              if (u?.type === 'COMPUTER') {
-                return false // ComputerはvisualDataが必須なので常にfalse
-              }
-              return false
-            })
-            if (needsInit) {
-              redistributeVisualPositions(attachedObjects as (Assembler | Computer | Hull)[])
-            }
-            
+          const attachedInfo = hull.attachedUnits
+          const hasAttached = attachedInfo.hulls.length > 0 || 
+                              attachedInfo.assemblers.length > 0 || 
+                              attachedInfo.computers.length > 0
+          
+          if (hasAttached) {
             // HULL内のASSEMBLERを描画
-            const assemblers = attachedObjects.filter(u => u?.type === 'ASSEMBLER')
-            const computers = attachedObjects.filter(u => u?.type === 'COMPUTER')
-            const hasComputers = computers.length > 0
+            const hasComputers = attachedInfo.computers.length > 0
             
-            assemblers.forEach(assembler => {
-              const assemblerUnit = assembler as Assembler
-              const angle = assemblerUnit.visualData.angle
+            attachedInfo.assemblers.forEach(assemblerInfo => {
+              const assembler = this._world.state.objects.get(assemblerInfo.id) as Assembler | undefined
+              if (!assembler) return
+              
+              const angle = assemblerInfo.visualData.angle
               const innerRadius = hasComputers ? height * 0.3 : 0  // COMPUTERがある場合は先端を欠く
               const outerRadius = Math.min(width, height) * 0.45
               
@@ -181,7 +167,7 @@ export class GameWorld {
               sectorGraphics.fill(0xff8c00)
               
               // 活動中は明るく
-              if ((assembler as Assembler).isAssembling) {
+              if (assembler.isAssembling) {
                 sectorGraphics.circle(outerRadius * 0.7 * Math.cos(angle * Math.PI / 180),
                                     outerRadius * 0.7 * Math.sin(angle * Math.PI / 180), 3)
                 sectorGraphics.fill({ color: 0xffd700, alpha: 0.5 })
@@ -194,10 +180,12 @@ export class GameWorld {
             if (hasComputers) {
               const computerRadius = height * 0.25
               
-              computers.forEach(computer => {
-                const computerUnit = computer as Computer
-                const startAngle = computerUnit.visualData.startAngle
-                const endAngle = computerUnit.visualData.endAngle
+              attachedInfo.computers.forEach(computerInfo => {
+                const computer = this._world.state.objects.get(computerInfo.id) as Computer | undefined
+                if (!computer) return
+                
+                const startAngle = computerInfo.visualData.startAngle
+                const endAngle = computerInfo.visualData.endAngle
                 
                 // ピザカット形状を描画
                 const computerGraphics = new PIXI.Graphics()
@@ -205,7 +193,7 @@ export class GameWorld {
                 computerGraphics.fill(0x00bfff)
                 
                 // 活動中は中央に白い点
-                if ((computer as Computer).isRunning) {
+                if (computer.isRunning) {
                   const midAngle = (startAngle + endAngle) / 2
                   computerGraphics.circle(
                     computerRadius * 0.5 * Math.cos(midAngle * Math.PI / 180),

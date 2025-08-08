@@ -11,6 +11,7 @@ import type {
   ObjectId,
   Vec2,
   UnitSpec,
+  AttachedUnitsInfo,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { wrapPosition } from "@/utils/torus-math"
@@ -103,7 +104,11 @@ export class ObjectFactory {
       currentEnergy: buildEnergy,
       capacity,
       storedEnergy: 0,
-      attachedUnits: [],
+      attachedUnits: {
+        hulls: [],
+        assemblers: [],
+        computers: [],
+      },
     }
   }
 
@@ -132,9 +137,6 @@ export class ObjectFactory {
       assemblePower,
       isAssembling: false,
       progress: 0,
-      visualData: {
-        angle: 0, // 初期値、後でredistributeVisualPositionsで再計算される
-      },
     }
   }
 
@@ -177,10 +179,6 @@ export class ObjectFactory {
       carryFlag: false,
       isRunning: false,
       vmCyclesExecuted: 0,
-      visualData: {
-        startAngle: 0, // 初期値、後でredistributeVisualPositionsで再計算される
-        endAngle: 360, // 初期値、後でredistributeVisualPositionsで再計算される
-      },
     }
   }
 

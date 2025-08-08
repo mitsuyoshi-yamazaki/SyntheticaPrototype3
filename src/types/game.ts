@@ -51,12 +51,32 @@ export type BaseUnit = GameObject & {
   readonly parentHull?: ObjectId // 所属するHULL
 }
 
+/** HULL内でのユニット配置情報 */
+export type AttachedUnitsInfo = {
+  readonly hulls: ReadonlyArray<{
+    readonly id: ObjectId
+  }>
+  readonly assemblers: ReadonlyArray<{
+    readonly id: ObjectId
+    readonly visualData: {
+      readonly angle: number // HULL内での配置角度
+    }
+  }>
+  readonly computers: ReadonlyArray<{
+    readonly id: ObjectId
+    readonly visualData: {
+      readonly startAngle: number // ピザカット分割での開始角度
+      readonly endAngle: number // ピザカット分割での終了角度
+    }
+  }>
+}
+
 /** HULLユニット */
 export type Hull = BaseUnit & {
   readonly type: HullType
   readonly capacity: number // エネルギー格納容量
   storedEnergy: number // 格納中のエネルギー
-  attachedUnits: ObjectId[] // 固定されているユニット
+  attachedUnits: AttachedUnitsInfo // 固定されているユニット
   collectingEnergy?: boolean // エネルギー収集中フラグ
 }
 
@@ -67,10 +87,6 @@ export type Assembler = BaseUnit & {
   isAssembling: boolean
   targetSpec?: UnitSpec // 組立中のユニット仕様
   progress: number // 組立進捗（0-1）
-
-  visualData: {
-    readonly angle: number // HULL内での配置角度
-  }
 }
 
 /** COMPUTERユニット */
@@ -87,11 +103,6 @@ export type Computer = BaseUnit & {
   isRunning: boolean // 実行中フラグ
   vmCyclesExecuted: number // 現在のtickで実行済みサイクル数
   vmError?: string // VM実行エラー
-
-  visualData: {
-    readonly startAngle: number // ピザカット分割での開始角度
-    readonly endAngle: number // ピザカット分割での開始角度
-  }
 }
 
 export type Unit = Hull | Assembler | Computer

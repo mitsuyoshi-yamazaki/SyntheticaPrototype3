@@ -227,7 +227,6 @@ export class AssemblerConstructionSystem {
           assemblePower: producingUnit.targetSpec.assemblePower,
           isAssembling: false,
           progress: 0,
-          visualData: { angle: 0 },
         } as Assembler
       case "COMPUTER":
         return {
@@ -243,7 +242,6 @@ export class AssemblerConstructionSystem {
           carryFlag: false,
           isRunning: false,
           vmCyclesExecuted: 0,
-          visualData: { startAngle: 0, endAngle: 360 },
         } as Computer
     }
   }
@@ -325,7 +323,11 @@ export class AssemblerConstructionSystem {
         return {
           capacity: spec.capacity,
           storedEnergy: 0,
-          attachedUnits: [],
+          attachedUnits: {
+            hulls: [],
+            assemblers: [],
+            computers: [],
+          },
         } as Partial<Hull>
       case "ASSEMBLER":
         return {
@@ -346,7 +348,6 @@ export class AssemblerConstructionSystem {
           carryFlag: false,
           isRunning: false,
           vmCyclesExecuted: 0,
-          visualData: { startAngle: 0, endAngle: 360 },
         } as Partial<Computer>
     }
   }

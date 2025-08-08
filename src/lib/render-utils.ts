@@ -4,7 +4,7 @@
  */
 
 import * as PIXI from 'pixi.js'
-import type { Assembler, Computer, Hull } from '@/types/game'
+import type { Assembler, Computer, ObjectId, AttachedUnitsInfo, GameObject } from '@/types/game'
 
 /**
  * Pill shape（カプセル形状）を描画
@@ -123,34 +123,67 @@ export function calculatePillShapeSize(capacity: number): { width: number; heigh
 }
 
 /**
- * 視覚データを初期化・再計算
- * @param attachedUnits 固定されているユニット
+ * AttachedUnitsInfoを生成
+ * @param unitIds 固定されているユニットのIDリスト
+ * @param getUnit IDからユニットを取得する関数
+ * @returns 新しいAttachedUnitsInfo
  */
-export function redistributeVisualPositions(
-  attachedUnits: (Assembler | Computer | Hull)[]
-): void {
-  const assemblers = attachedUnits.filter((u): u is Assembler => u.type === 'ASSEMBLER')
-  const computers = attachedUnits.filter((u): u is Computer => u.type === 'COMPUTER')
+export function createAttachedUnitsInfo(
+  unitIds: ObjectId[],
+  getUnit: (id: ObjectId) => GameObject | undefined
+): AttachedUnitsInfo {
+  const hulls: { readonly id: ObjectId }[] = []
+  const assemblers: { readonly id: ObjectId; readonly visualData: { readonly angle: number } }[] = []
+  const computers: { readonly id: ObjectId; readonly visualData: { readonly startAngle: number; readonly endAngle: number } }[] = []
+  
+  // ユニットを種別ごとに分類
+  const assemblerUnits: Assembler[] = []
+  const computerUnits: Computer[] = []
+  
+  for (const id of unitIds) {
+    const unit = getUnit(id)
+    if (!unit) continue
+    
+    switch (unit.type) {
+      case 'HULL':
+        hulls.push({ id })
+        break
+      case 'ASSEMBLER':
+        assemblerUnits.push(unit as Assembler)
+        break
+      case 'COMPUTER':
+        computerUnits.push(unit as Computer)
+        break
+    }
+  }
   
   // ASSEMBLERの角度を均等配分
-  assemblers.forEach((assembler, index) => {
-    assembler.visualData = {
-      angle: (360 / assemblers.length) * index
-    }
+  assemblerUnits.forEach((assembler, index) => {
+    assemblers.push({
+      id: assembler.id,
+      visualData: {
+        angle: (360 / assemblerUnits.length) * index
+      }
+    })
   })
   
   // COMPUTERのピザカット角度を計算
-  if (computers.length > 0) {
-    const totalComputerEnergy = computers.reduce((sum, c) => sum + c.buildEnergy, 0)
+  if (computerUnits.length > 0) {
+    const totalComputerEnergy = computerUnits.reduce((sum, c) => sum + c.buildEnergy, 0)
     let currentAngle = 0
     
-    computers.forEach(computer => {
+    computerUnits.forEach(computer => {
       const angleSize = (computer.buildEnergy / totalComputerEnergy) * 360
-      computer.visualData = {
-        startAngle: currentAngle,
-        endAngle: currentAngle + angleSize
-      }
+      computers.push({
+        id: computer.id,
+        visualData: {
+          startAngle: currentAngle,
+          endAngle: currentAngle + angleSize
+        }
+      })
       currentAngle += angleSize
     })
   }
+  
+  return { hulls, assemblers, computers }
 }

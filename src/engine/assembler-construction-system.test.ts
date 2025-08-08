@@ -188,7 +188,6 @@ describe("AssemblerConstructionSystem", () => {
       expect(completedUnit.assemblePower).toBe(2)
       expect(completedUnit.isAssembling).toBe(false)
       expect(completedUnit.progress).toBe(0)
-      expect(completedUnit.visualData).toEqual({ angle: 0 })
     })
 
     test("COMPUTER完成", () => {
@@ -207,7 +206,6 @@ describe("AssemblerConstructionSystem", () => {
       expect(completedUnit.memory.length).toBe(64)
       expect(completedUnit.programCounter).toBe(0)
       expect(completedUnit.registers.length).toBe(8)
-      expect(completedUnit.visualData).toEqual({ startAngle: 0, endAngle: 360 })
     })
   })
 
@@ -225,7 +223,11 @@ describe("AssemblerConstructionSystem", () => {
         currentEnergy: 150, // 50ダメージ
         capacity: 100,
         storedEnergy: 0,
-        attachedUnits: [],
+        attachedUnits: {
+          hulls: [],
+          assemblers: [],
+          computers: [],
+        },
       }
 
       // 修理コスト計算
@@ -267,7 +269,6 @@ describe("AssemblerConstructionSystem", () => {
         assemblePower: 1,
         isAssembling: false,
         progress: 0,
-        visualData: { angle: 0 },
       }
 
       // assemblePowerで制限される修理
@@ -300,7 +301,11 @@ describe("AssemblerConstructionSystem", () => {
         currentEnergy: 200,
         capacity: 100,
         storedEnergy: 0,
-        attachedUnits: [],
+        attachedUnits: {
+          hulls: [],
+          assemblers: [],
+          computers: [],
+        },
       }
 
       expect(AssemblerConstructionSystem.isProducingUnit(normalUnit)).toBe(false)

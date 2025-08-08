@@ -1,4 +1,4 @@
-import type { ObjectId, Unit, Hull } from "@/types/game"
+import type { ObjectId, Unit, Hull, AttachedUnitsInfo } from "@/types/game"
 
 /** ユニット種別コード */
 export const UNIT_TYPE_CODES = {
@@ -198,6 +198,19 @@ export class CircuitConnectionSystem {
   }
 
   /**
+   * AttachedUnitsInfoから全てのユニットIDを取得
+   * @param attachedUnits AttachedUnitsInfo
+   * @returns ユニットIDの配列
+   */
+  private static getAllUnitIds(attachedUnits: AttachedUnitsInfo): ObjectId[] {
+    return [
+      ...attachedUnits.hulls.map(h => h.id),
+      ...attachedUnits.assemblers.map(a => a.id),
+      ...attachedUnits.computers.map(c => c.id),
+    ]
+  }
+
+  /**
    * HULL分離時の回路再構成
    * @param originalHull 元のHULL
    * @param separatedUnits 分離されるユニットID配列
@@ -207,7 +220,8 @@ export class CircuitConnectionSystem {
     originalHull: Hull,
     separatedUnits: ObjectId[]
   ): { remainingUnits: ObjectId[]; separatedCircuit: ObjectId[] } {
-    const remainingUnits = originalHull.attachedUnits.filter(
+    const allUnits = this.getAllUnitIds(originalHull.attachedUnits)
+    const remainingUnits = allUnits.filter(
       unitId => !separatedUnits.includes(unitId)
     )
 
@@ -225,7 +239,7 @@ export class CircuitConnectionSystem {
    */
   public static mergeCircuits(hull1: Hull, hull2: Hull): ObjectId[] {
     // 両HULLの固定ユニットを結合
-    return [...hull1.attachedUnits, ...hull2.attachedUnits]
+    return [...this.getAllUnitIds(hull1.attachedUnits), ...this.getAllUnitIds(hull2.attachedUnits)]
   }
 
   /**
@@ -242,14 +256,16 @@ export class CircuitConnectionSystem {
 
     const attachedByType = new Map<Unit["type"], number[]>()
 
-    for (const unitId of hull.attachedUnits) {
+    const allUnitIds = this.getAllUnitIds(hull.attachedUnits)
+    for (let i = 0; i < allUnitIds.length; i++) {
+      const unitId = allUnitIds[i]
       const unit = units.get(unitId)
       if (unit != null) {
         const indices = attachedByType.get(unit.type) ?? []
         indices.push(indices.length)
         attachedByType.set(unit.type, indices)
 
-        const isLast = unitId === hull.attachedUnits[hull.attachedUnits.length - 1]
+        const isLast = i === allUnitIds.length - 1
         const prefix = isLast ? "│  └─" : "│  ├─"
         lines.push(`${prefix} ${unit.type}[${indices.length - 1}]`)
       }
