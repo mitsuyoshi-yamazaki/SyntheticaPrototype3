@@ -70,11 +70,7 @@ export const createTestHull = (overrides: Partial<Hull> = {}): Hull => {
     currentEnergy: 200,
     capacity: 100,
     storedEnergy: 0,
-    attachedUnits: {
-      hulls: [],
-      assemblers: [],
-      computers: [],
-    },
+    attachedUnitIds: [],
     ...overrides,
   }
 }

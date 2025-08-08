@@ -218,11 +218,7 @@ export class AssemblerConstructionSystem {
           type: "HULL",
           capacity: producingUnit.targetSpec.capacity,
           storedEnergy: 0,
-          attachedUnits: {
-            hulls: [],
-            assemblers: [],
-            computers: [],
-          },
+          attachedUnitIds: [],
         } as Hull
       case "ASSEMBLER":
         return {
@@ -327,11 +323,7 @@ export class AssemblerConstructionSystem {
         return {
           capacity: spec.capacity,
           storedEnergy: 0,
-          attachedUnits: {
-            hulls: [],
-            assemblers: [],
-            computers: [],
-          },
+          attachedUnitIds: [],
         } as Partial<Hull>
       case "ASSEMBLER":
         return {

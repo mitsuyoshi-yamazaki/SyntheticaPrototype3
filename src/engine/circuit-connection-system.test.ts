@@ -73,11 +73,7 @@ describe("CircuitConnectionSystem", () => {
         currentEnergy: 200,
         capacity: 100,
         storedEnergy: 0,
-        attachedUnits: {
-          hulls: [],
-          assemblers: [{ id: 2 as ObjectId, visualData: { angle: 0 } }],
-          computers: [{ id: 3 as ObjectId, visualData: { startAngle: 0, endAngle: 360 } }],
-        },
+        attachedUnitIds: [2, 3] as ObjectId[],
       }
 
       hull2 = {
@@ -92,11 +88,7 @@ describe("CircuitConnectionSystem", () => {
         currentEnergy: 200,
         capacity: 100,
         storedEnergy: 0,
-        attachedUnits: {
-          hulls: [],
-          assemblers: [{ id: 11 as ObjectId, visualData: { angle: 0 } }],
-          computers: [],
-        },
+        attachedUnitIds: [1] as ObjectId[],
       }
 
       assembler1 = {
@@ -272,17 +264,7 @@ describe("CircuitConnectionSystem", () => {
         currentEnergy: 200,
         capacity: 100,
         storedEnergy: 0,
-        attachedUnits: {
-          hulls: [],
-          assemblers: [
-            { id: 2 as ObjectId, visualData: { angle: 0 } },
-            { id: 5 as ObjectId, visualData: { angle: 180 } },
-          ],
-          computers: [
-            { id: 3 as ObjectId, visualData: { startAngle: 0, endAngle: 180 } },
-            { id: 4 as ObjectId, visualData: { startAngle: 180, endAngle: 360 } },
-          ],
-        },
+        attachedUnitIds: [2, 3, 4, 5] as ObjectId[],
       }
 
       const separatedUnits = [3, 4] as ObjectId[]
@@ -305,11 +287,7 @@ describe("CircuitConnectionSystem", () => {
         currentEnergy: 200,
         capacity: 100,
         storedEnergy: 0,
-        attachedUnits: {
-          hulls: [],
-          assemblers: [{ id: 2 as ObjectId, visualData: { angle: 0 } }],
-          computers: [{ id: 3 as ObjectId, visualData: { startAngle: 0, endAngle: 360 } }],
-        },
+        attachedUnitIds: [2, 3] as ObjectId[],
       }
 
       const hull2: Hull = {
@@ -324,11 +302,7 @@ describe("CircuitConnectionSystem", () => {
         currentEnergy: 200,
         capacity: 100,
         storedEnergy: 0,
-        attachedUnits: {
-          hulls: [],
-          assemblers: [{ id: 11 as ObjectId, visualData: { angle: 0 } }],
-          computers: [{ id: 12 as ObjectId, visualData: { startAngle: 0, endAngle: 360 } }],
-        },
+        attachedUnitIds: [11, 12] as ObjectId[],
       }
 
       const mergedUnits = CircuitConnectionSystem.mergeCircuits(hull1, hull2)
@@ -350,14 +324,7 @@ describe("CircuitConnectionSystem", () => {
         currentEnergy: 200,
         capacity: 100,
         storedEnergy: 0,
-        attachedUnits: {
-          hulls: [],
-          assemblers: [
-            { id: 2 as ObjectId, visualData: { angle: 0 } },
-            { id: 3 as ObjectId, visualData: { angle: 180 } },
-          ],
-          computers: [{ id: 4 as ObjectId, visualData: { startAngle: 0, endAngle: 360 } }],
-        },
+        attachedUnitIds: [2, 3, 4] as ObjectId[],
       }
 
       const units = new Map<ObjectId, Unit>([

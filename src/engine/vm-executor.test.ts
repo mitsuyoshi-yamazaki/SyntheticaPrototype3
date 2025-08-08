@@ -623,7 +623,7 @@ describe("InstructionExecutor", () => {
           currentEnergy: 100,
           capacity: 200,
           storedEnergy: 0,
-          attachedUnits: ["computer-1" as ObjectId, "assembler-1" as ObjectId],
+          attachedUnitIds: ["computer-1" as ObjectId, "assembler-1" as ObjectId],
         }
         */
 

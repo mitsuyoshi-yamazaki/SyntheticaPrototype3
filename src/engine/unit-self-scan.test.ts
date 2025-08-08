@@ -20,7 +20,7 @@ describe("UnitSelfScanSystem", () => {
       )
 
       // ユニットを2つ接続
-      hull.attachedUnits.push(2 as ObjectId, 3 as ObjectId)
+      hull.attachedUnitIds.push(2 as ObjectId, 3 as ObjectId)
 
       const bytesWritten = UnitSelfScanSystem.executeScan(hull, memory, 0)
 

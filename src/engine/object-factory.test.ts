@@ -158,7 +158,7 @@ describe("ObjectFactory", () => {
         currentEnergy: expectedBuildEnergy,
         capacity,
         storedEnergy: 0,
-        attachedUnits: [],
+        attachedUnitIds: [],
       })
     })
 

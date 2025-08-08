@@ -109,7 +109,7 @@ describe("SCAN命令", () => {
     )
 
     // HULLに複数ユニットを接続
-    hull.attachedUnits.push(1 as ObjectId, 3 as ObjectId, 4 as ObjectId)
+    hull.attachedUnitIds.push(1 as ObjectId, 3 as ObjectId, 4 as ObjectId)
 
     const hullMemory = new Uint8Array(256)
     const hullVm = new VMState(256, hullMemory)

@@ -8,13 +8,36 @@ import type {
   Assembler,
   Computer,
   ObjectId,
-  AttachedUnitsInfo,
   GameObject,
   Hull,
   DirectionalForceField,
   EnergySource,
 } from "@/types/game"
-import { calculateEnergySourceSize } from "../engine/object-factory"
+import { calculateEnergySourceSize, calculateUnitRadius } from "../engine/object-factory"
+import { isAssembler, isComputer, isHull } from "../utils/type-guards"
+
+const RenderingParameters = {
+  world: {
+    backgroundColor: 0x101010,
+  },
+  independentUnit: {
+    strokeWidth: 4,
+  },
+  attachedUnit: {
+    strokeWidth: 3,
+  },
+  hull: {
+    strokeColor: 0x2c3e50,
+    damagedColor: 0xff0000,
+  },
+  computer: {
+    color: 0x00bfff,
+  },
+  assembler: {
+    fillColor: 0x882114,
+    strokeColor: 0xe14628,
+  },
+}
 
 /**
  * Pill shape（カプセル形状）を描画
@@ -132,78 +155,6 @@ export const calculatePillShapeSize = (capacity: number): { width: number; heigh
 }
 
 /**
- * AttachedUnitsInfoを生成
- * @param unitIds 固定されているユニットのIDリスト
- * @param getUnit IDからユニットを取得する関数
- * @returns 新しいAttachedUnitsInfo
- */
-export const createAttachedUnitsInfo = (
-  unitIds: ObjectId[],
-  getUnit: (id: ObjectId) => GameObject | undefined
-): AttachedUnitsInfo => {
-  const hulls: { readonly id: ObjectId }[] = []
-  const assemblers: { readonly id: ObjectId; readonly visualData: { readonly angle: number } }[] =
-    []
-  const computers: {
-    readonly id: ObjectId
-    readonly visualData: { readonly startAngle: number; readonly endAngle: number }
-  }[] = []
-
-  // ユニットを種別ごとに分類
-  const assemblerUnits: Assembler[] = []
-  const computerUnits: Computer[] = []
-
-  for (const id of unitIds) {
-    const unit = getUnit(id)
-    if (unit === undefined) {
-      continue
-    }
-
-    switch (unit.type) {
-      case "HULL":
-        hulls.push({ id })
-        break
-      case "ASSEMBLER":
-        assemblerUnits.push(unit as Assembler)
-        break
-      case "COMPUTER":
-        computerUnits.push(unit as Computer)
-        break
-    }
-  }
-
-  // ASSEMBLERの角度を均等配分
-  assemblerUnits.forEach((assembler, index) => {
-    assemblers.push({
-      id: assembler.id,
-      visualData: {
-        angle: (360 / assemblerUnits.length) * index,
-      },
-    })
-  })
-
-  // COMPUTERのピザカット角度を計算
-  if (computerUnits.length > 0) {
-    const totalComputerEnergy = computerUnits.reduce((sum, c) => sum + c.buildEnergy, 0)
-    let currentAngle = 0
-
-    computerUnits.forEach(computer => {
-      const angleSize = (computer.buildEnergy / totalComputerEnergy) * 360
-      computers.push({
-        id: computer.id,
-        visualData: {
-          startAngle: currentAngle,
-          endAngle: currentAngle + angleSize,
-        },
-      })
-      currentAngle += angleSize
-    })
-  }
-
-  return { hulls, assemblers, computers }
-}
-
-/**
  * ゲームオブジェクトを描画
  * @param graphics 描画先のGraphicsオブジェクト
  * @param gameObject 描画するゲームオブジェクト
@@ -219,99 +170,108 @@ export const drawObject = (
       // エネルギーオブジェクト（デザイン仕様: #FFD700、小さな円形）
       graphics.circle(0, 0, gameObject.radius)
       graphics.fill(0xffd700)
-      break
+      return
     }
 
     case "HULL": {
       // HULL（デザイン仕様v2: #A9A9A9、pill shape）
       const hull = gameObject as Hull
-      const { width, height } = calculatePillShapeSize(hull.capacity)
+      const hullRadius = calculateUnitRadius(hull.buildEnergy)
 
-      // Pill shapeを描画
-      drawPillShape(graphics, 0, 0, width, height)
-      graphics.fill(0x101010)
-      graphics.stroke({ width: 4, color: 0x2c3e50, alpha: 1 })
+      graphics.circle(0, 0, hullRadius)
+      graphics.fill(RenderingParameters.world.backgroundColor)
+      graphics.stroke({
+        width: RenderingParameters.independentUnit.strokeWidth,
+        color: RenderingParameters.hull.strokeColor,
+      })
 
       // HP減少時は縁に赤み
       const healthRatio = hull.currentEnergy / hull.buildEnergy
       if (healthRatio < 0.7) {
-        drawPillShape(graphics, 0, 0, width, height)
-        graphics.stroke({ width: 2, color: 0xff0000, alpha: 1 - healthRatio })
+        graphics.circle(0, 0, hullRadius)
+        graphics.stroke({
+          width: RenderingParameters.independentUnit.strokeWidth,
+          color: RenderingParameters.hull.damagedColor,
+          alpha: 1 - healthRatio,
+        })
+      }
+
+      if (hull.attachedUnitIds.length <= 0 || getUnit == null) {
+        return
       }
 
       // 固定されているユニットを描画
-      const attachedInfo = hull.attachedUnits
-      const hasAttached =
-        attachedInfo.hulls.length > 0 ||
-        attachedInfo.assemblers.length > 0 ||
-        attachedInfo.computers.length > 0
+      const attachedAssemblers: Assembler[] = []
+      const attachedComputers: Computer[] = []
+      const attachedHulls: Hull[] = []
 
-      if (hasAttached && getUnit !== undefined) {
-        // HULL内のASSEMBLERを描画
-        const hasComputers = attachedInfo.computers.length > 0
+      hull.attachedUnitIds.forEach(unitId => {
+        const unit = getUnit(unitId)
+        if (unit == null) {
+          return
+        }
 
-        attachedInfo.assemblers.forEach(assemblerInfo => {
-          const assembler = getUnit(assemblerInfo.id) as Assembler | undefined
-          if (assembler === undefined) {
-            return
-          }
+        if (isAssembler(unit)) {
+          attachedAssemblers.push(unit)
+          return
+        }
+        if (isComputer(unit)) {
+          attachedComputers.push(unit)
+          return
+        }
+        if (isHull(unit)) {
+          attachedHulls.push(unit)
+          return
+        }
+      })
 
-          const angle = assemblerInfo.visualData.angle
-          const innerRadius = hasComputers ? height * 0.3 : 0 // COMPUTERがある場合は先端を欠く
-          const outerRadius = Math.min(width, height) * 0.45
+      // HULL内のCOMPUTERを描画
+      const [totalComputerBuildEnergy, computerRadius] = ((): [number, number] => {
+        const totalBuildEnergy = attachedComputers.reduce(
+          (result, current) => result + current.buildEnergy,
+          0
+        )
+        if (totalBuildEnergy <= 0) {
+          return [0, 0]
+        }
+        return [totalBuildEnergy, calculateUnitRadius(totalBuildEnergy)]
+      })()
+
+      if (totalComputerBuildEnergy > 0) {
+        graphics.circle(0, 0, computerRadius)
+        graphics.fill(RenderingParameters.computer.color)
+      }
+
+      // HULL内のASSEMBLERを描画
+      let currentAngle = 0
+      const fillableMaxBuildEnergy = hull.buildEnergy - totalComputerBuildEnergy
+      if (fillableMaxBuildEnergy > 0) {
+        attachedAssemblers.forEach(assembler => {
+          const buildEnergyRatio = assembler.buildEnergy / fillableMaxBuildEnergy
+          const startAngle = currentAngle
+          const endAngle = startAngle + buildEnergyRatio * Math.PI * 2
 
           // 扇形を描画
           const sectorGraphics = new PIXI.Graphics()
-          drawSector(sectorGraphics, 0, 0, outerRadius, angle - 30, angle + 30, innerRadius)
+          if (computerRadius > 0) {
+            drawSector(sectorGraphics, 0, 0, hullRadius, startAngle, endAngle, computerRadius)
+          } else {
+            drawSector(sectorGraphics, 0, 0, hullRadius, startAngle, endAngle)
+          }
           sectorGraphics.fill(0xff8c00)
 
-          // 活動中は明るく
+          currentAngle = endAngle
+
           if (assembler.isAssembling) {
-            sectorGraphics.circle(
-              outerRadius * 0.7 * Math.cos((angle * Math.PI) / 180),
-              outerRadius * 0.7 * Math.sin((angle * Math.PI) / 180),
-              3
-            )
-            sectorGraphics.fill({ color: 0xffd700, alpha: 0.5 })
+            // TODO:活動中のインジケータ描画
           }
 
           graphics.addChild(sectorGraphics)
         })
-
-        // HULL内のCOMPUTERを描画
-        if (hasComputers) {
-          const computerRadius = height * 0.25
-
-          attachedInfo.computers.forEach(computerInfo => {
-            const computer = getUnit(computerInfo.id) as Computer | undefined
-            if (computer === undefined) {
-              return
-            }
-
-            const startAngle = computerInfo.visualData.startAngle
-            const endAngle = computerInfo.visualData.endAngle
-
-            // ピザカット形状を描画
-            const computerGraphics = new PIXI.Graphics()
-            drawSector(computerGraphics, 0, 0, computerRadius, startAngle, endAngle)
-            computerGraphics.fill(0x00bfff)
-
-            // 活動中は中央に白い点
-            if (computer.isRunning) {
-              const midAngle = (startAngle + endAngle) / 2
-              computerGraphics.circle(
-                computerRadius * 0.5 * Math.cos((midAngle * Math.PI) / 180),
-                computerRadius * 0.5 * Math.sin((midAngle * Math.PI) / 180),
-                2
-              )
-              computerGraphics.fill({ color: 0xffffff, alpha: 0.9 })
-            }
-
-            graphics.addChild(computerGraphics)
-          })
-        }
       }
-      break
+
+      // TODO: 接続しているHULLを描画する
+      return
     }
 
     case "ASSEMBLER": {
@@ -323,8 +283,12 @@ export const drawObject = (
       if (assembler.parentHull === undefined) {
         // 角丸長方形を描画
         graphics.roundRect(-size / 2, -size / 2, size, size, 5)
-        graphics.stroke({ width: 4, color: 0xe14628, alpha: 1 })
-        graphics.fill(0x882114)
+        graphics.stroke({
+          width: RenderingParameters.independentUnit.strokeWidth,
+          color: RenderingParameters.assembler.strokeColor,
+          alpha: 1,
+        })
+        graphics.fill(RenderingParameters.assembler.fillColor)
 
         // 活動中はドットを描く
         if (assembler.isAssembling) {
@@ -344,7 +308,7 @@ export const drawObject = (
       if (computer.parentHull === undefined) {
         // 円形を描画
         graphics.circle(0, 0, gameObject.radius)
-        graphics.fill(0x00bfff)
+        graphics.fill(RenderingParameters.computer.color)
       }
       // HULLに固定されている場合はHULL側で描画される
       break

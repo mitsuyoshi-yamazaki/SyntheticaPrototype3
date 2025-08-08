@@ -32,7 +32,7 @@ const createTestHull = (
     currentEnergy: 100,
     capacity: 10000,
     storedEnergy: energy,
-    attachedUnits: [],
+    attachedUnitIds: [],
   }
 }
 

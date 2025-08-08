@@ -253,11 +253,7 @@ export class HullEnergyManager {
     let totalSupplied = 0
 
     // アタッチされたユニットに順番に供給
-    const allUnitIds = [
-      ...hull.attachedUnits.hulls.map(h => h.id),
-      ...hull.attachedUnits.assemblers.map(a => a.id),
-      ...hull.attachedUnits.computers.map(c => c.id),
-    ]
+    const allUnitIds = [...hull.attachedUnitIds]
     for (const unitId of allUnitIds) {
       if (remainingEnergy <= 0) {
         break

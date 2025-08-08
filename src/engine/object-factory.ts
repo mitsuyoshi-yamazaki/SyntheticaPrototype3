@@ -110,11 +110,7 @@ export class ObjectFactory {
       currentEnergy: buildEnergy,
       capacity,
       storedEnergy: 0,
-      attachedUnits: {
-        hulls: [],
-        assemblers: [],
-        computers: [],
-      },
+      attachedUnitIds: [],
     }
   }
 

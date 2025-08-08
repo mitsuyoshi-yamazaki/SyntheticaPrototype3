@@ -103,10 +103,7 @@ export const UnitSelfScanSystem = {
     memory[addr(SCAN_RESULT_ADDRESSES.HULL_CAPACITY_H)] = (hull.capacity >> 8) & 0xff
 
     // 接続ユニット数
-    const attachedCount =
-      hull.attachedUnits.hulls.length +
-      hull.attachedUnits.assemblers.length +
-      hull.attachedUnits.computers.length
+    const attachedCount = hull.attachedUnitIds.length
     memory[addr(SCAN_RESULT_ADDRESSES.ATTACHED_UNITS)] = attachedCount & 0xff
 
     return 3 // 書き込んだバイト数

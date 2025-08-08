@@ -33,7 +33,7 @@ const createTestHull = (
     currentEnergy: currentEnergy ?? actualBuildEnergy,
     capacity,
     storedEnergy,
-    attachedUnits: [],
+    attachedUnitIds: [],
   }
 }
 
@@ -233,7 +233,7 @@ describe("HullEnergyManager", () => {
   describe("アタッチユニットへの供給", () => {
     test("単一ユニットへの供給", () => {
       const hull = createTestHull("hull1", 1000, 500)
-      hull.attachedUnits = [createTestObjectId("unit1")]
+      hull.attachedUnitIds = [createTestObjectId("unit1")]
 
       const units = new Map<ObjectId, GameObject>()
       units.set(createTestObjectId("unit1"), createTestObject("unit1", 100))
@@ -250,7 +250,7 @@ describe("HullEnergyManager", () => {
 
     test("複数ユニットへの供給", () => {
       const hull = createTestHull("hull1", 1000, 500)
-      hull.attachedUnits = [createTestObjectId("unit1"), createTestObjectId("unit2")]
+      hull.attachedUnitIds = [createTestObjectId("unit1"), createTestObjectId("unit2")]
 
       const units = new Map<ObjectId, GameObject>()
       units.set(createTestObjectId("unit1"), createTestObject("unit1", 100))
@@ -270,7 +270,7 @@ describe("HullEnergyManager", () => {
 
     test("転送レート制限での供給", () => {
       const hull = createTestHull("hull1", 1000, 500)
-      hull.attachedUnits = [createTestObjectId("unit1"), createTestObjectId("unit2")]
+      hull.attachedUnitIds = [createTestObjectId("unit1"), createTestObjectId("unit2")]
 
       const units = new Map<ObjectId, GameObject>()
       units.set(createTestObjectId("unit1"), createTestObject("unit1", 100))

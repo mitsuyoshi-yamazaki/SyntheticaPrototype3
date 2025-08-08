@@ -27,7 +27,7 @@ describe("HullMemoryInterface", () => {
       currentEnergy: 400,
       capacity: 200,
       storedEnergy: 150,
-      attachedUnits: [],
+      attachedUnitIds: [],
     }
     memInterface = new HullMemoryInterface(hull)
   })
@@ -247,7 +247,7 @@ describe("createMemoryInterface", () => {
       currentEnergy: 200,
       capacity: 100,
       storedEnergy: 0,
-      attachedUnits: [],
+      attachedUnitIds: [],
     }
 
     const memInterface = createMemoryInterface(hull)

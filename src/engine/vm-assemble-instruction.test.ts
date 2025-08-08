@@ -34,11 +34,7 @@ describe("ASSEMBLE命令", () => {
       currentEnergy: 100,
       capacity: 200,
       storedEnergy: 50,
-      attachedUnits: {
-        hulls: [],
-        assemblers: [{ id: "assembler-1" as ObjectId, visualData: { angle: 0 } }],
-        computers: [{ id: "computer-1" as ObjectId, visualData: { startAngle: 0, endAngle: 180 } }],
-      },
+      attachedUnitIds: [],
     }
 
     assembler = {
@@ -105,8 +101,12 @@ describe("ASSEMBLE命令", () => {
       assembler.memory = new Uint8Array(256)
       const memInterface = {
         readMemory: jest.fn((addr: number) => {
-          if (addr === 0x01) return 1 // unitType = HULL
-          if (addr === 0x03) return 200 // capacity = 200
+          if (addr === 0x01) {
+            return 1
+          } // unitType = HULL
+          if (addr === 0x03) {
+            return 200
+          } // capacity = 200
           return 0
         }),
         writeMemory: jest.fn(() => true),
@@ -141,8 +141,12 @@ describe("ASSEMBLE命令", () => {
       assembler.memory = new Uint8Array(256)
       const memInterface = {
         readMemory: jest.fn((addr: number) => {
-          if (addr === 0x01) return 2 // unitType = ASSEMBLER
-          if (addr === 0x03) return 10 // assemblePower = 10
+          if (addr === 0x01) {
+            return 2
+          } // unitType = ASSEMBLER
+          if (addr === 0x03) {
+            return 10
+          } // assemblePower = 10
           return 0
         }),
         writeMemory: jest.fn(() => true),
@@ -174,9 +178,15 @@ describe("ASSEMBLE命令", () => {
       assembler.memory = new Uint8Array(256)
       const memInterface = {
         readMemory: jest.fn((addr: number) => {
-          if (addr === 0x01) return 3 // unitType = COMPUTER
-          if (addr === 0x03) return 20 // processingPower = 20
-          if (addr === 0x04) return 128 // memorySize = 128
+          if (addr === 0x01) {
+            return 3
+          } // unitType = COMPUTER
+          if (addr === 0x03) {
+            return 20
+          } // processingPower = 20
+          if (addr === 0x04) {
+            return 128
+          } // memorySize = 128
           return 0
         }),
         writeMemory: jest.fn(() => true),
@@ -237,7 +247,9 @@ describe("ASSEMBLE命令", () => {
       assembler.memory = new Uint8Array(256)
       const memInterface = {
         readMemory: jest.fn((addr: number) => {
-          if (addr === 0x01) return 99 // 無効なunitType
+          if (addr === 0x01) {
+            return 99
+          } // 無効なunitType
           return 0
         }),
         writeMemory: jest.fn(() => true),

@@ -52,11 +52,7 @@ describe("熱システム統合", () => {
         currentEnergy: 100,
         capacity: 200,
         storedEnergy: 0,
-        attachedUnits: {
-          hulls: [],
-          assemblers: [],
-          computers: [],
-        },
+        attachedUnitIds: [],
         collectingEnergy: true,
       }
       world.addObject(hull)
@@ -214,11 +210,7 @@ describe("熱システム統合", () => {
         currentEnergy: 50, // 損傷状態
         capacity: 200,
         storedEnergy: 0,
-        attachedUnits: {
-          hulls: [],
-          assemblers: [],
-          computers: [],
-        },
+        attachedUnitIds: [],
       }
       world.addObject(hull)
 

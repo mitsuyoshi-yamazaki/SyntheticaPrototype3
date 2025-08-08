@@ -1,4 +1,4 @@
-import type { ObjectId, Unit, Hull, AttachedUnitsInfo } from "@/types/game"
+import type { ObjectId, Unit, Hull } from "@/types/game"
 
 /** ユニット種別コード */
 export const UNIT_TYPE_CODES = {
@@ -198,19 +198,6 @@ export class CircuitConnectionSystem {
   }
 
   /**
-   * AttachedUnitsInfoから全てのユニットIDを取得
-   * @param attachedUnits AttachedUnitsInfo
-   * @returns ユニットIDの配列
-   */
-  private static getAllUnitIds(attachedUnits: AttachedUnitsInfo): ObjectId[] {
-    return [
-      ...attachedUnits.hulls.map(h => h.id),
-      ...attachedUnits.assemblers.map(a => a.id),
-      ...attachedUnits.computers.map(c => c.id),
-    ]
-  }
-
-  /**
    * HULL分離時の回路再構成
    * @param originalHull 元のHULL
    * @param separatedUnits 分離されるユニットID配列
@@ -220,7 +207,7 @@ export class CircuitConnectionSystem {
     originalHull: Hull,
     separatedUnits: ObjectId[]
   ): { remainingUnits: ObjectId[]; separatedCircuit: ObjectId[] } {
-    const allUnits = this.getAllUnitIds(originalHull.attachedUnits)
+    const allUnits = originalHull.attachedUnitIds
     const remainingUnits = allUnits.filter(unitId => !separatedUnits.includes(unitId))
 
     return {
@@ -237,7 +224,7 @@ export class CircuitConnectionSystem {
    */
   public static mergeCircuits(hull1: Hull, hull2: Hull): ObjectId[] {
     // 両HULLの固定ユニットを結合
-    return [...this.getAllUnitIds(hull1.attachedUnits), ...this.getAllUnitIds(hull2.attachedUnits)]
+    return [...hull1.attachedUnitIds, ...hull2.attachedUnitIds]
   }
 
   /**
@@ -254,7 +241,7 @@ export class CircuitConnectionSystem {
 
     const attachedByType = new Map<Unit["type"], number[]>()
 
-    const allUnitIds = this.getAllUnitIds(hull.attachedUnits)
+    const allUnitIds = hull.attachedUnitIds
     for (let i = 0; i < allUnitIds.length; i++) {
       const unitId = allUnitIds[i]
       if (unitId === undefined) {

@@ -170,7 +170,7 @@ describe("AssemblerConstructionSystem", () => {
       expect(completedUnit.buildEnergy).toBe(200)
       expect(completedUnit.capacity).toBe(100)
       expect(completedUnit.storedEnergy).toBe(0)
-      expect(completedUnit.attachedUnits).toEqual([])
+      expect(completedUnit.attachedUnitIds).toEqual([])
     })
 
     test("ASSEMBLER完成", () => {
@@ -223,11 +223,7 @@ describe("AssemblerConstructionSystem", () => {
         currentEnergy: 150, // 50ダメージ
         capacity: 100,
         storedEnergy: 0,
-        attachedUnits: {
-          hulls: [],
-          assemblers: [],
-          computers: [],
-        },
+        attachedUnitIds: [],
       }
 
       // 修理コスト計算
@@ -301,11 +297,7 @@ describe("AssemblerConstructionSystem", () => {
         currentEnergy: 200,
         capacity: 100,
         storedEnergy: 0,
-        attachedUnits: {
-          hulls: [],
-          assemblers: [],
-          computers: [],
-        },
+        attachedUnitIds: [],
       }
 
       expect(AssemblerConstructionSystem.isProducingUnit(normalUnit)).toBe(false)
