@@ -14,13 +14,13 @@ import type { Assembler, Computer, ObjectId, AttachedUnitsInfo, GameObject, Hull
  * @param width 幅（直線部分を含む全体幅）
  * @param height 高さ（半円の直径）
  */
-export function drawPillShape(
+export const drawPillShape = (
   graphics: PIXI.Graphics,
   x: number,
   y: number,
   width: number,
   height: number
-): void {
+): void => {
   const radius = height / 2
   
   if (width <= height) {
@@ -53,7 +53,7 @@ export function drawPillShape(
  * @param endAngle 終了角度（度）
  * @param innerRadius 内側の半径（0の場合は通常の扇形、0より大きい場合は先端が欠けた扇形）
  */
-export function drawSector(
+export const drawSector = (
   graphics: PIXI.Graphics,
   centerX: number,
   centerY: number,
@@ -61,7 +61,7 @@ export function drawSector(
   startAngle: number,
   endAngle: number,
   innerRadius = 0
-): void {
+): void => {
   const startRad = (startAngle * Math.PI) / 180
   const endRad = (endAngle * Math.PI) / 180
   
@@ -98,7 +98,7 @@ export function drawSector(
  * @param capacity 容量
  * @returns { width, height } pill shapeの幅と高さ
  */
-export function calculatePillShapeSize(capacity: number): { width: number; height: number } {
+export const calculatePillShapeSize = (capacity: number): { width: number; height: number } => {
   // 仮の実装：容量に基づいてサイズを計算
   // TODO: 実装時に適切な閾値a, bを決定
   const minRadius = 15  // 最小半径
@@ -128,10 +128,10 @@ export function calculatePillShapeSize(capacity: number): { width: number; heigh
  * @param getUnit IDからユニットを取得する関数
  * @returns 新しいAttachedUnitsInfo
  */
-export function createAttachedUnitsInfo(
+export const createAttachedUnitsInfo = (
   unitIds: ObjectId[],
   getUnit: (id: ObjectId) => GameObject | undefined
-): AttachedUnitsInfo {
+): AttachedUnitsInfo => {
   const hulls: { readonly id: ObjectId }[] = []
   const assemblers: { readonly id: ObjectId; readonly visualData: { readonly angle: number } }[] = []
   const computers: { readonly id: ObjectId; readonly visualData: { readonly startAngle: number; readonly endAngle: number } }[] = []
@@ -194,11 +194,11 @@ export function createAttachedUnitsInfo(
  * @param gameObject 描画するゲームオブジェクト
  * @param getUnit Hull内のユニットを取得する関数（Hull描画時のみ必要）
  */
-export function drawObject(
+export const drawObject = (
   graphics: PIXI.Graphics,
   gameObject: GameObject,
   getUnit?: (id: ObjectId) => GameObject | undefined
-): void {
+): void => {
   switch (gameObject.type) {
     case "ENERGY": {
       // エネルギーオブジェクト（デザイン仕様: #FFD700、小さな円形）

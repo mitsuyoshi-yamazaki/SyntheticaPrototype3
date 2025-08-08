@@ -23,21 +23,43 @@ const meta: Meta = {
 
 export default meta
 
-type Story = StoryObj<{
-  width?: number
-  height?: number
+type HullWithAssemblerStory = StoryObj<{
+  backgroundColor?: number
+  hullCapacity: number
+  assemblerCount: number
+  firstAssemblerPower: number
+  renderFunction?: (app: PIXI.Application) => void
+}>
+
+type HullWithComputerStory = StoryObj<{
+  backgroundColor?: number
+  hullCapacity: number
+  computerCount: number
+  firstComputerPower: number
+  renderFunction?: (app: PIXI.Application) => void
+}>
+
+type HullWithBothStory = StoryObj<{
+  backgroundColor?: number
+  hullCapacity: number
+  assemblerCount: number
+  computerCount: number
+  renderFunction?: (app: PIXI.Application) => void
+}>
+
+type ConnectedHullsStory = StoryObj<{
   backgroundColor?: number
   renderFunction?: (app: PIXI.Application) => void
 }>
 
 // 描画用ヘルパー関数
-function drawHullWithAttached(
+const drawHullWithAttached = (
   app: PIXI.Application, 
   hull: Hull,
   getUnit: (id: ObjectId) => Assembler | Computer | Hull | null,
   x: number,
   y: number
-) {
+) => {
   const container = new PIXI.Container()
   container.x = x
   container.y = y
@@ -60,31 +82,46 @@ function drawHullWithAttached(
   app.stage.addChild(container)
 }
 
-export const HullWithAssembler: Story = {
+export const HullWithAssembler: HullWithAssemblerStory = {
   args: {
-    width: 300,
-    height: 300,
-    renderFunction: (app: PIXI.Application) => {
+    hullCapacity: 100,
+    assemblerCount: 1,
+    firstAssemblerPower: 1,
+    renderFunction(this: { hullCapacity: number; assemblerCount: number; firstAssemblerPower: number }, app: PIXI.Application) {
       const factory = new ObjectFactory(800, 600)
       
+      // arg値の範囲制限
+      const hullCapacity = Math.max(50, Math.min(500, this.hullCapacity))
+      const assemblerCount = Math.max(1, Math.min(8, this.assemblerCount))
+      const firstAssemblerPower = Math.max(1, Math.min(10, this.firstAssemblerPower))
+      
       // HULLを作成
-      const hull = factory.createHull(1 as ObjectId, { x: 0, y: 0 }, 100)
+      const hull = factory.createHull(1 as ObjectId, { x: 0, y: 0 }, hullCapacity)
       
       // ASSEMBLERを作成
-      const assembler = factory.createAssembler(2 as ObjectId, { x: 0, y: 0 }, 1, hull.id)
+      const assemblers: Assembler[] = []
+      const assemblerInfos: { id: ObjectId; visualData: { angle: number } }[] = []
+      
+      for (let i = 0; i < assemblerCount; i++) {
+        const power = i === 0 ? firstAssemblerPower : 1
+        const assembler = factory.createAssembler((i + 2) as ObjectId, { x: 0, y: 0 }, power, hull.id)
+        assemblers.push(assembler)
+        assemblerInfos.push({
+          id: assembler.id,
+          visualData: { angle: (360 / assemblerCount) * i }
+        })
+      }
       
       // HULLに接続
       hull.attachedUnits = {
         hulls: [],
-        assemblers: [
-          { id: assembler.id, visualData: { angle: 0 } }
-        ],
+        assemblers: assemblerInfos,
         computers: [],
       }
       
       // 描画
       const units = new Map<ObjectId, Assembler | Computer>()
-      units.set(assembler.id, assembler)
+      assemblers.forEach(a => units.set(a.id, a))
       drawHullWithAttached(app, hull, (id) => units.get(id) ?? null, 150, 150)
       
       // ラベル
@@ -101,6 +138,20 @@ export const HullWithAssembler: Story = {
       app.stage.addChild(label)
     },
   },
+  argTypes: {
+    hullCapacity: {
+      control: { type: 'range', min: 50, max: 500, step: 10 },
+      description: 'HULLの容量',
+    },
+    assemblerCount: {
+      control: { type: 'range', min: 1, max: 8, step: 1 },
+      description: 'ASSEMBLERの個数',
+    },
+    firstAssemblerPower: {
+      control: { type: 'range', min: 1, max: 10, step: 1 },
+      description: '最初のASSEMBLERのパワー',
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -110,31 +161,50 @@ export const HullWithAssembler: Story = {
   },
 }
 
-export const HullWithComputer: Story = {
+export const HullWithComputer: HullWithComputerStory = {
   args: {
-    width: 300,
-    height: 300,
-    renderFunction: (app: PIXI.Application) => {
+    hullCapacity: 100,
+    computerCount: 1,
+    firstComputerPower: 1,
+    renderFunction(this: { hullCapacity: number; computerCount: number; firstComputerPower: number }, app: PIXI.Application) {
       const factory = new ObjectFactory(800, 600)
       
+      // arg値の範囲制限
+      const hullCapacity = Math.max(50, Math.min(500, this.hullCapacity))
+      const computerCount = Math.max(1, Math.min(8, this.computerCount))
+      const firstComputerPower = Math.max(1, Math.min(10, this.firstComputerPower))
+      
       // HULLを作成
-      const hull = factory.createHull(1 as ObjectId, { x: 0, y: 0 }, 100)
+      const hull = factory.createHull(1 as ObjectId, { x: 0, y: 0 }, hullCapacity)
       
       // COMPUTERを作成
-      const computer = factory.createComputer(2 as ObjectId, { x: 0, y: 0 }, 1, 64, hull.id)
+      const computers: Computer[] = []
+      const computerInfos: { id: ObjectId; visualData: { startAngle: number; endAngle: number } }[] = []
+      
+      const anglePerComputer = 360 / computerCount
+      for (let i = 0; i < computerCount; i++) {
+        const power = i === 0 ? firstComputerPower : 1
+        const computer = factory.createComputer((i + 2) as ObjectId, { x: 0, y: 0 }, power, 64, hull.id)
+        computers.push(computer)
+        computerInfos.push({
+          id: computer.id,
+          visualData: { 
+            startAngle: anglePerComputer * i,
+            endAngle: anglePerComputer * (i + 1)
+          }
+        })
+      }
       
       // HULLに接続
       hull.attachedUnits = {
         hulls: [],
         assemblers: [],
-        computers: [
-          { id: computer.id, visualData: { startAngle: 0, endAngle: 360 } }
-        ],
+        computers: computerInfos,
       }
       
       // 描画
       const units = new Map<ObjectId, Assembler | Computer>()
-      units.set(computer.id, computer)
+      computers.forEach(c => units.set(c.id, c))
       drawHullWithAttached(app, hull, (id) => units.get(id) ?? null, 150, 150)
       
       // ラベル
@@ -151,6 +221,20 @@ export const HullWithComputer: Story = {
       app.stage.addChild(label)
     },
   },
+  argTypes: {
+    hullCapacity: {
+      control: { type: 'range', min: 50, max: 500, step: 10 },
+      description: 'HULLの容量',
+    },
+    computerCount: {
+      control: { type: 'range', min: 1, max: 8, step: 1 },
+      description: 'COMPUTERの個数',
+    },
+    firstComputerPower: {
+      control: { type: 'range', min: 1, max: 10, step: 1 },
+      description: '最初のCOMPUTERのパワー',
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -160,37 +244,63 @@ export const HullWithComputer: Story = {
   },
 }
 
-export const HullWithBoth: Story = {
+export const HullWithBoth: HullWithBothStory = {
   args: {
-    width: 300,
-    height: 300,
-    renderFunction: (app: PIXI.Application) => {
+    hullCapacity: 100,
+    assemblerCount: 1,
+    computerCount: 1,
+    renderFunction(this: { hullCapacity: number; assemblerCount: number; computerCount: number }, app: PIXI.Application) {
       const factory = new ObjectFactory(800, 600)
       
+      // arg値の範囲制限
+      const hullCapacity = Math.max(50, Math.min(500, this.hullCapacity))
+      const assemblerCount = Math.max(1, Math.min(4, this.assemblerCount))
+      const computerCount = Math.max(1, Math.min(4, this.computerCount))
+      
       // HULLを作成
-      const hull = factory.createHull(1 as ObjectId, { x: 0, y: 0 }, 100)
+      const hull = factory.createHull(1 as ObjectId, { x: 0, y: 0 }, hullCapacity)
       
       // ASSEMBLERを作成
-      const assembler = factory.createAssembler(2 as ObjectId, { x: 0, y: 0 }, 1, hull.id)
+      const assemblers: Assembler[] = []
+      const assemblerInfos: { id: ObjectId; visualData: { angle: number } }[] = []
+      
+      for (let i = 0; i < assemblerCount; i++) {
+        const assembler = factory.createAssembler((i + 2) as ObjectId, { x: 0, y: 0 }, 1, hull.id)
+        assemblers.push(assembler)
+        assemblerInfos.push({
+          id: assembler.id,
+          visualData: { angle: (360 / assemblerCount) * i }
+        })
+      }
       
       // COMPUTERを作成
-      const computer = factory.createComputer(3 as ObjectId, { x: 0, y: 0 }, 1, 64, hull.id)
+      const computers: Computer[] = []
+      const computerInfos: { id: ObjectId; visualData: { startAngle: number; endAngle: number } }[] = []
+      
+      const anglePerComputer = 360 / computerCount
+      for (let i = 0; i < computerCount; i++) {
+        const computer = factory.createComputer((i + assemblerCount + 2) as ObjectId, { x: 0, y: 0 }, 1, 64, hull.id)
+        computers.push(computer)
+        computerInfos.push({
+          id: computer.id,
+          visualData: { 
+            startAngle: anglePerComputer * i,
+            endAngle: anglePerComputer * (i + 1)
+          }
+        })
+      }
       
       // HULLに接続
       hull.attachedUnits = {
         hulls: [],
-        assemblers: [
-          { id: assembler.id, visualData: { angle: 0 } }
-        ],
-        computers: [
-          { id: computer.id, visualData: { startAngle: 0, endAngle: 360 } }
-        ],
+        assemblers: assemblerInfos,
+        computers: computerInfos,
       }
       
       // 描画
       const units = new Map<ObjectId, Assembler | Computer>()
-      units.set(assembler.id, assembler)
-      units.set(computer.id, computer)
+      assemblers.forEach(a => units.set(a.id, a))
+      computers.forEach(c => units.set(c.id, c))
       drawHullWithAttached(app, hull, (id) => units.get(id) ?? null, 150, 150)
       
       // ラベル
@@ -207,6 +317,20 @@ export const HullWithBoth: Story = {
       app.stage.addChild(label)
     },
   },
+  argTypes: {
+    hullCapacity: {
+      control: { type: 'range', min: 50, max: 500, step: 10 },
+      description: 'HULLの容量',
+    },
+    assemblerCount: {
+      control: { type: 'range', min: 1, max: 4, step: 1 },
+      description: 'ASSEMBLERの個数',
+    },
+    computerCount: {
+      control: { type: 'range', min: 1, max: 4, step: 1 },
+      description: 'COMPUTERの個数',
+    },
+  },
   parameters: {
     docs: {
       description: {
@@ -216,10 +340,8 @@ export const HullWithBoth: Story = {
   },
 }
 
-export const NestedHulls: Story = {
+export const ConnectedHulls: ConnectedHullsStory = {
   args: {
-    width: 500,
-    height: 300,
     renderFunction: (app: PIXI.Application) => {
       const factory = new ObjectFactory(800, 600)
       
@@ -279,7 +401,7 @@ export const NestedHulls: Story = {
       
       // ラベル
       const label = new PIXI.Text({
-        text: 'Nested HULLs (Parent + Child)',
+        text: 'Connected HULLs',
         style: {
           fontSize: 14,
           fill: 0xffffff,

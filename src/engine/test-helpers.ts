@@ -8,7 +8,7 @@ import type { ObjectId, Assembler, Computer, Hull } from "@/types/game"
 /**
  * テスト用のAssemblerを作成
  */
-export function createTestAssembler(overrides: Partial<Assembler> = {}): Assembler {
+export const createTestAssembler = (overrides: Partial<Assembler> = {}): Assembler => {
   return {
     id: 1 as ObjectId,
     type: "ASSEMBLER",
@@ -29,7 +29,7 @@ export function createTestAssembler(overrides: Partial<Assembler> = {}): Assembl
 /**
  * テスト用のComputerを作成
  */
-export function createTestComputer(overrides: Partial<Computer> = {}): Computer {
+export const createTestComputer = (overrides: Partial<Computer> = {}): Computer => {
   return {
     id: 1 as ObjectId,
     type: "COMPUTER",
@@ -57,7 +57,7 @@ export function createTestComputer(overrides: Partial<Computer> = {}): Computer 
 /**
  * テスト用のHullを作成
  */
-export function createTestHull(overrides: Partial<Hull> = {}): Hull {
+export const createTestHull = (overrides: Partial<Hull> = {}): Hull => {
   return {
     id: 1 as ObjectId,
     type: "HULL",

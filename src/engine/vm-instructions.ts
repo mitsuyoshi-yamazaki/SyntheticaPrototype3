@@ -620,7 +620,7 @@ export const ALL_INSTRUCTIONS = new Map<number, Instruction>([
 ])
 
 /** 命令長判定 */
-export function getInstructionLength(opcode: number): number {
+export const getInstructionLength = (opcode: number): number => {
   if (opcode >= 0x00 && opcode <= 0x3f) {
     return 1
   }
@@ -637,11 +637,11 @@ export function getInstructionLength(opcode: number): number {
 }
 
 /** 命令取得 */
-export function getInstruction(opcode: number): Instruction | null {
+export const getInstruction = (opcode: number): Instruction | null => {
   return ALL_INSTRUCTIONS.get(opcode) ?? null
 }
 
 /** 未定義命令チェック */
-export function isUndefinedInstruction(opcode: number): boolean {
+export const isUndefinedInstruction = (opcode: number): boolean => {
   return !ALL_INSTRUCTIONS.has(opcode)
 }

@@ -48,7 +48,8 @@ export const withPixi: Decorator = (_Story, context) => {
       // ストーリーコンポーネントに描画ロジックを委譲
       // renderFunctionがargs内に定義されている場合、それを実行
       if (context.args?.['renderFunction'] && typeof context.args['renderFunction'] === 'function') {
-        context.args['renderFunction'](app)
+        // renderFunctionをバインドして、this contextとしてargsを設定
+        context.args['renderFunction'].call(context.args, app)
       }
     }
 

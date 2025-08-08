@@ -18,64 +18,64 @@ import type {
 } from "@/types/game"
 
 // GameObject型ガード
-export function isEnergyObject(obj: GameObject): obj is EnergyObject {
+export const isEnergyObject = (obj: GameObject): obj is EnergyObject => {
   return obj.type === "ENERGY"
 }
 
 // Unit型ガード
-export function isUnit(obj: GameObject): obj is Unit {
+export const isUnit = (obj: GameObject): obj is Unit => {
   return obj.type === "HULL" || obj.type === "ASSEMBLER" || obj.type === "COMPUTER"
 }
 
-export function isHull(obj: GameObject | BaseUnit): obj is Hull {
+export const isHull = (obj: GameObject | BaseUnit): obj is Hull => {
   return obj.type === "HULL"
 }
 
-export function isAssembler(obj: GameObject | BaseUnit): obj is Assembler {
+export const isAssembler = (obj: GameObject | BaseUnit): obj is Assembler => {
   return obj.type === "ASSEMBLER"
 }
 
-export function isComputer(obj: GameObject | BaseUnit): obj is Computer {
+export const isComputer = (obj: GameObject | BaseUnit): obj is Computer => {
   return obj.type === "COMPUTER"
 }
 
 // DirectionalForceField型ガード
-export function isLinearForceField(field: DirectionalForceField): field is LinearForceField {
+export const isLinearForceField = (field: DirectionalForceField): field is LinearForceField => {
   return field.type === "LINEAR"
 }
 
-export function isRadialForceField(field: DirectionalForceField): field is RadialForceField {
+export const isRadialForceField = (field: DirectionalForceField): field is RadialForceField => {
   return field.type === "RADIAL"
 }
 
-export function isSpiralForceField(field: DirectionalForceField): field is SpiralForceField {
+export const isSpiralForceField = (field: DirectionalForceField): field is SpiralForceField => {
   return field.type === "SPIRAL"
 }
 
 // Assembler状態ガード
-export function isAssemblerAssembling(assembler: Assembler): boolean {
+export const isAssemblerAssembling = (assembler: Assembler): boolean => {
   return assembler.isAssembling && assembler.targetSpec !== undefined
 }
 
 // Computer状態ガード
-export function isComputerRunning(computer: Computer): boolean {
+export const isComputerRunning = (computer: Computer): boolean => {
   return computer.isRunning
 }
 
-export function isComputerError(computer: Computer): boolean {
+export const isComputerError = (computer: Computer): boolean => {
   return computer.vmError !== undefined
 }
 
 // Hull状態ガード
-export function isHullCollectingEnergy(hull: Hull): boolean {
+export const isHullCollectingEnergy = (hull: Hull): boolean => {
   return hull.collectingEnergy === true
 }
 
 // parentHull関連ガード
-export function hasParentHull(unit: BaseUnit): boolean {
+export const hasParentHull = (unit: BaseUnit): boolean => {
   return unit.parentHull !== undefined
 }
 
-export function isIndependentUnit(unit: BaseUnit): boolean {
+export const isIndependentUnit = (unit: BaseUnit): boolean => {
   return unit.parentHull === undefined
 }

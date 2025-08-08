@@ -285,14 +285,14 @@ export class ComputerMemoryInterface implements UnitMemoryInterface {
 }
 
 /** ユニット種別に応じたメモリインターフェースを生成 */
-export function createMemoryInterface(unit: Unit): UnitMemoryInterface | null {
+export const createMemoryInterface = (unit: Unit): UnitMemoryInterface | null => {
   switch (unit.type) {
     case "HULL":
-      return new HullMemoryInterface(unit as Hull)
+      return new HullMemoryInterface(unit)
     case "ASSEMBLER":
-      return new AssemblerMemoryInterface(unit as Assembler)
+      return new AssemblerMemoryInterface(unit)
     case "COMPUTER":
-      return new ComputerMemoryInterface(unit as Computer)
+      return new ComputerMemoryInterface(unit)
     default:
       return null
   }
