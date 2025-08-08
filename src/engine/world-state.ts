@@ -48,6 +48,11 @@ export class WorldStateManager {
   public get state(): Readonly<WorldState> {
     return this._state
   }
+  
+  /** 熱システムを取得 */
+  public get heatSystem(): HeatSystem {
+    return this._heatSystem
+  }
 
   public constructor(width: number, height: number, parameters?: Partial<WorldParameters>) {
     this._state = {
@@ -274,10 +279,4 @@ export class WorldStateManager {
     this._heatSystem.addHeatAt(position, heat)
   }
   
-  /**
-   * 熱システムを取得
-   */
-  public get heatSystem(): HeatSystem {
-    return this._heatSystem
-  }
 }

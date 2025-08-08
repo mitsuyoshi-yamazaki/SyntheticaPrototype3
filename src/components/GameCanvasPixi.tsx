@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import * as PIXI from "pixi.js"
 import { GameWorld } from "@/lib/GameWorld"
 import { Viewport } from "@/engine/viewport"
@@ -20,6 +20,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
   const appRef = useRef<PIXI.Application | null>(null)
   const gameWorldRef = useRef<GameWorld | null>(null)
   const viewportRef = useRef<Viewport | null>(null)
+  const [isHeatMapVisible, setIsHeatMapVisible] = useState(false)
 
   useEffect(() => {
     if (containerRef.current == null) {
@@ -72,7 +73,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
 
       // UI背景（デザイン仕様: rgba(0, 0, 0, 0.6)）
       const uiBg = new PIXI.Graphics()
-      uiBg.rect(5, 5, 180, 100)
+      uiBg.rect(5, 5, 180, 120)
       uiBg.fill({ color: 0x000000, alpha: 0.6 })
       app.stage.addChild(uiBg)
 
@@ -164,7 +165,8 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         const viewportPos = viewport.position
         const posX = Math.round(viewportPos.x)
         const posY = Math.round(viewportPos.y)
-        debugText.text = `FPS: ${fps}\nTicks per frame: ${ticksPerFrame}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}\nZoom: ${zoom}x\nCamera: (${posX}, ${posY})`
+        const heatMapStatus = gameWorld.isHeatMapVisible ? "ON" : "OFF"
+        debugText.text = `FPS: ${fps}\nTicks per frame: ${ticksPerFrame}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}\nZoom: ${zoom}x\nCamera: (${posX}, ${posY})\nHeat Map: ${heatMapStatus}`
       })
     }
 
@@ -180,10 +182,25 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       viewportRef.current = null
     }
   }, [width, height, ticksPerFrame])
+  
+  // 熱マップ表示状態の変更を反映
+  useEffect(() => {
+    if (gameWorldRef.current != null) {
+      gameWorldRef.current.setHeatMapVisible(isHeatMapVisible)
+    }
+  }, [isHeatMapVisible])
 
   return (
-    <div className="flex justify-center">
+    <div className="flex flex-col items-center gap-4">
       <div ref={containerRef} className="border border-gray-300 rounded-lg" />
+      <div className="flex gap-4">
+        <button
+          onClick={() => setIsHeatMapVisible(!isHeatMapVisible)}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+        >
+          熱マップ: {isHeatMapVisible ? "ON" : "OFF"}
+        </button>
+      </div>
     </div>
   )
 }

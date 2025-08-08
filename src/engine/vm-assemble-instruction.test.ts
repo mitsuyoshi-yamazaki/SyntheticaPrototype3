@@ -77,7 +77,6 @@ describe("ASSEMBLE命令", () => {
     }
 
     // findUnitByIdモック
-    const originalFindUnitById = InstructionExecutor.findUnitById
     InstructionExecutor.findUnitById = jest.fn((_currentUnit, unitId) => {
       if (unitId === 0x40) {
         // ASSEMBLER[0]
@@ -111,7 +110,7 @@ describe("ASSEMBLE命令", () => {
         }),
         writeMemory: jest.fn(() => true),
       }
-      const { createMemoryInterface } = require("./unit-memory-interface")
+      const { createMemoryInterface } = jest.requireMock("./unit-memory-interface")
       createMemoryInterface.mockReturnValue(memInterface)
 
       // ASSEMBLE命令を配置
@@ -151,7 +150,7 @@ describe("ASSEMBLE命令", () => {
         }),
         writeMemory: jest.fn(() => true),
       }
-      const { createMemoryInterface } = require("./unit-memory-interface")
+      const { createMemoryInterface } = jest.requireMock("./unit-memory-interface")
       createMemoryInterface.mockReturnValue(memInterface)
 
       // ASSEMBLE命令を配置
@@ -191,7 +190,7 @@ describe("ASSEMBLE命令", () => {
         }),
         writeMemory: jest.fn(() => true),
       }
-      const { createMemoryInterface } = require("./unit-memory-interface")
+      const { createMemoryInterface } = jest.requireMock("./unit-memory-interface")
       createMemoryInterface.mockReturnValue(memInterface)
 
       // ASSEMBLE命令を配置
@@ -254,7 +253,7 @@ describe("ASSEMBLE命令", () => {
         }),
         writeMemory: jest.fn(() => true),
       }
-      const { createMemoryInterface } = require("./unit-memory-interface")
+      const { createMemoryInterface } = jest.requireMock("./unit-memory-interface")
       createMemoryInterface.mockReturnValue(memInterface)
 
       // ASSEMBLE命令を配置
@@ -288,7 +287,7 @@ describe("ASSEMBLE命令", () => {
         readMemory: jest.fn(() => 0),
         writeMemory: jest.fn(() => true),
       }
-      const { createMemoryInterface } = require("./unit-memory-interface")
+      const { createMemoryInterface } = jest.requireMock("./unit-memory-interface")
       createMemoryInterface.mockReturnValue(memInterface)
 
       // ASSEMBLE命令を配置
@@ -323,7 +322,7 @@ describe("ASSEMBLE命令", () => {
         readMemory: jest.fn(() => 0),
         writeMemory: jest.fn(() => true),
       }
-      const { createMemoryInterface } = require("./unit-memory-interface")
+      const { createMemoryInterface } = jest.requireMock("./unit-memory-interface")
       createMemoryInterface.mockReturnValue(memInterface)
 
       // ASSEMBLE命令を配置

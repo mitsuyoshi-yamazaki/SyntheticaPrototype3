@@ -22,6 +22,7 @@ import type {
   Assembler,
   Vec2,
 } from "@/types/game"
+import type { HeatSystem } from "./heat-system"
 import { isHull, isEnergyObject } from "@/utils/type-guards"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
@@ -45,6 +46,11 @@ export class World {
   /** ワールド状態を取得 */
   public get state() {
     return this._stateManager.state
+  }
+  
+  /** 熱システムを取得 */
+  public get heatSystem(): HeatSystem {
+    return this._stateManager.heatSystem
   }
 
   public constructor(config: WorldConfig) {

@@ -5,7 +5,7 @@
 import { VMState } from "./vm-state"
 import { InstructionDecoder } from "./vm-decoder"
 import type { DecodedInstruction } from "./vm-decoder"
-import type { Unit, Assembler, UnitSpec } from "@/types/game"
+import type { Unit, UnitSpec } from "@/types/game"
 import { CircuitConnectionSystem } from "./circuit-connection-system"
 import { createMemoryInterface } from "./unit-memory-interface"
 import { UnitSelfScanSystem } from "./unit-self-scan"
@@ -869,7 +869,7 @@ export const InstructionExecutor = {
           }
         }
 
-        const assembler = targetUnit as Assembler
+        const assembler = targetUnit
         const memInterface = createMemoryInterface(assembler)
 
         switch (command) {

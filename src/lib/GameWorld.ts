@@ -4,6 +4,7 @@ import type { ObjectId } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { SELF_REPLICATOR_PRESET } from "@/engine/presets/self-replicator-preset"
 import { drawEnergySource, drawForceField, drawObject } from "./render-utils"
+import { HeatMapRenderer } from "./heat-map-renderer"
 
 /**
  * ゲーム世界の基本クラス
@@ -11,6 +12,7 @@ import { drawEnergySource, drawForceField, drawObject } from "./render-utils"
  */
 export class GameWorld {
   private readonly _world: World
+  private readonly _heatMapRenderer: HeatMapRenderer
 
   public get tickCount(): number {
     return this._world.state.tick
@@ -23,8 +25,16 @@ export class GameWorld {
   public get height(): number {
     return this._world.state.height
   }
+  
+  /** 熱マップの表示状態を取得 */
+  public get isHeatMapVisible(): boolean {
+    return this._heatMapRenderer.visible
+  }
 
   public constructor(width: number, height: number) {
+    // 熱マップレンダラーの初期化
+    this._heatMapRenderer = new HeatMapRenderer(10) // 1グリッド = 10ピクセル
+    
     // デモ用設定：自己複製エージェント、エネルギーソース、力場を配置
     this._world = new World({
       width,
@@ -79,6 +89,11 @@ export class GameWorld {
   public renderPixi(container: PIXI.Container): void {
     // コンテナをクリア
     container.removeChildren()
+    
+    // 熱マップレイヤーを追加（一番下に描画）
+    const heatSystem = this._world.heatSystem
+    this._heatMapRenderer.update(heatSystem)
+    container.addChild(this._heatMapRenderer.graphics)
 
     // 世界の境界線を描画
     const border = new PIXI.Graphics()
@@ -124,5 +139,20 @@ export class GameWorld {
   /** デバッグ用：ランダムエネルギー生成 */
   public spawnRandomEnergy(amount: number): void {
     this._world.spawnRandomEnergy(amount)
+  }
+  
+  /** 熱マップの表示状態を切り替え */
+  public toggleHeatMap(): void {
+    this._heatMapRenderer.visible = !this._heatMapRenderer.visible
+  }
+  
+  /** 熱マップの表示状態を設定 */
+  public setHeatMapVisible(visible: boolean): void {
+    this._heatMapRenderer.visible = visible
+  }
+  
+  /** 熱マップの透明度を設定 */
+  public setHeatMapAlpha(alpha: number): void {
+    this._heatMapRenderer.alpha = alpha
   }
 }

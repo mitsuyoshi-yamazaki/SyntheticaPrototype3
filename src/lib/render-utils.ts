@@ -326,9 +326,10 @@ export const drawObject = (
     }
 
     default: {
-      // @ts-expect-error TS6133: '_' is declared but its value is never read.
-      const _: never = gameObject.type
-      break
+      // Exhaustive check
+      const exhaustiveCheck: never = gameObject.type
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      throw new Error(`Unknown game object type: ${exhaustiveCheck}`)
     }
   }
 }
