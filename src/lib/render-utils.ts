@@ -4,7 +4,7 @@
  */
 
 import * as PIXI from 'pixi.js'
-import type { Assembler, Computer, ObjectId, AttachedUnitsInfo, GameObject } from '@/types/game'
+import type { Assembler, Computer, ObjectId, AttachedUnitsInfo, GameObject, Hull } from '@/types/game'
 
 /**
  * Pill shape（カプセル形状）を描画
@@ -142,7 +142,7 @@ export function createAttachedUnitsInfo(
   
   for (const id of unitIds) {
     const unit = getUnit(id)
-    if (!unit) continue
+    if (unit === undefined) { continue }
     
     switch (unit.type) {
       case 'HULL':
@@ -186,4 +186,155 @@ export function createAttachedUnitsInfo(
   }
   
   return { hulls, assemblers, computers }
+}
+
+/**
+ * ゲームオブジェクトを描画
+ * @param graphics 描画先のGraphicsオブジェクト
+ * @param gameObject 描画するゲームオブジェクト
+ * @param getUnit Hull内のユニットを取得する関数（Hull描画時のみ必要）
+ */
+export function drawObject(
+  graphics: PIXI.Graphics,
+  gameObject: GameObject,
+  getUnit?: (id: ObjectId) => GameObject | undefined
+): void {
+  switch (gameObject.type) {
+    case "ENERGY": {
+      // エネルギーオブジェクト（デザイン仕様: #FFD700、小さな円形）
+      graphics.circle(0, 0, gameObject.radius)
+      graphics.fill(0xffd700)
+      break
+    }
+    
+    case "HULL": {
+      // HULL（デザイン仕様v2: #A9A9A9、pill shape）
+      const hull = gameObject as Hull
+      const { width, height } = calculatePillShapeSize(hull.capacity)
+      
+      // Pill shapeを描画
+      drawPillShape(graphics, 0, 0, width, height)
+      graphics.fill(0xa9a9a9)
+      
+      // HP減少時は縁に赤み
+      const healthRatio = hull.currentEnergy / hull.buildEnergy
+      if (healthRatio < 0.7) {
+        drawPillShape(graphics, 0, 0, width, height)
+        graphics.stroke({ width: 2, color: 0xff0000, alpha: 1 - healthRatio })
+      }
+      
+      // 固定されているユニットを描画
+      const attachedInfo = hull.attachedUnits
+      const hasAttached = attachedInfo.hulls.length > 0 || 
+                          attachedInfo.assemblers.length > 0 || 
+                          attachedInfo.computers.length > 0
+      
+      if (hasAttached && getUnit !== undefined) {
+        // HULL内のASSEMBLERを描画
+        const hasComputers = attachedInfo.computers.length > 0
+        
+        attachedInfo.assemblers.forEach(assemblerInfo => {
+          const assembler = getUnit(assemblerInfo.id) as Assembler | undefined
+          if (assembler === undefined) { return }
+          
+          const angle = assemblerInfo.visualData.angle
+          const innerRadius = hasComputers ? height * 0.3 : 0  // COMPUTERがある場合は先端を欠く
+          const outerRadius = Math.min(width, height) * 0.45
+          
+          // 扇形を描画
+          const sectorGraphics = new PIXI.Graphics()
+          drawSector(sectorGraphics, 0, 0, outerRadius, angle - 30, angle + 30, innerRadius)
+          sectorGraphics.fill(0xff8c00)
+          
+          // 活動中は明るく
+          if (assembler.isAssembling) {
+            sectorGraphics.circle(outerRadius * 0.7 * Math.cos(angle * Math.PI / 180),
+                                outerRadius * 0.7 * Math.sin(angle * Math.PI / 180), 3)
+            sectorGraphics.fill({ color: 0xffd700, alpha: 0.5 })
+          }
+          
+          graphics.addChild(sectorGraphics)
+        })
+        
+        // HULL内のCOMPUTERを描画
+        if (hasComputers) {
+          const computerRadius = height * 0.25
+          
+          attachedInfo.computers.forEach(computerInfo => {
+            const computer = getUnit(computerInfo.id) as Computer | undefined
+            if (computer === undefined) { return }
+            
+            const startAngle = computerInfo.visualData.startAngle
+            const endAngle = computerInfo.visualData.endAngle
+            
+            // ピザカット形状を描画
+            const computerGraphics = new PIXI.Graphics()
+            drawSector(computerGraphics, 0, 0, computerRadius, startAngle, endAngle)
+            computerGraphics.fill(0x00bfff)
+            
+            // 活動中は中央に白い点
+            if (computer.isRunning) {
+              const midAngle = (startAngle + endAngle) / 2
+              computerGraphics.circle(
+                computerRadius * 0.5 * Math.cos(midAngle * Math.PI / 180),
+                computerRadius * 0.5 * Math.sin(midAngle * Math.PI / 180),
+                2
+              )
+              computerGraphics.fill({ color: 0xffffff, alpha: 0.9 })
+            }
+            
+            graphics.addChild(computerGraphics)
+          })
+        }
+      }
+      break
+    }
+    
+    case "ASSEMBLER": {
+      // ASSEMBLER（デザイン仕様v2: #FF8C00、角丸長方形）
+      const assembler = gameObject as Assembler
+      const size = gameObject.radius * 2
+      
+      // HULLに固定されていない場合のみネイティブデザインを描画
+      if (assembler.parentHull === undefined) {
+        // 角丸長方形を描画
+        graphics.roundRect(-size/2, -size/2, size, size, 5)
+        graphics.fill(0xff8c00)
+        
+        // 活動中は明るく
+        if (assembler.isAssembling) {
+          graphics.roundRect(-size/2 + 2, -size/2 + 2, size - 4, size - 4, 3)
+          graphics.fill({ color: 0xffd700, alpha: 0.3 })
+        }
+      }
+      // HULLに固定されている場合はHULL側で描画される
+      break
+    }
+    
+    case "COMPUTER": {
+      // COMPUTER（デザイン仕様v2: #00BFFF、円形）
+      const computer = gameObject as Computer
+      
+      // HULLに固定されていない場合のみネイティブデザインを描画
+      if (computer.parentHull === undefined) {
+        // 円形を描画
+        graphics.circle(0, 0, gameObject.radius)
+        graphics.fill(0x00bfff)
+        
+        // 活動中は中央に白い点
+        if (computer.isRunning) {
+          graphics.circle(0, 0, 2)
+          graphics.fill({ color: 0xffffff, alpha: 0.9 })
+        }
+      }
+      // HULLに固定されている場合はHULL側で描画される
+      break
+    }
+    
+    default:
+      // 未定義のタイプは灰色の円
+      graphics.circle(0, 0, gameObject.radius)
+      graphics.fill(0x808080)
+      graphics.stroke({ width: 1, color: 0x404040 })
+  }
 }

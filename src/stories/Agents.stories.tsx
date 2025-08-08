@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
 import * as PIXI from 'pixi.js'
 import { withPixi } from '../../.storybook/decorators/pixi'
-import { drawPillShape, drawSector, calculatePillShapeSize } from '@/lib/render-utils'
+import { drawObject } from '@/lib/render-utils'
 import { ObjectFactory } from '@/engine/object-factory'
 import type { Hull, Assembler, Computer, ObjectId } from '@/types/game'
 
@@ -42,78 +42,18 @@ function drawHullWithAttached(
   container.x = x
   container.y = y
 
-  // HULLの描画
+  // HULLの描画（drawObjectを使用）
   const hullGraphics = new PIXI.Graphics()
-  const { width, height } = calculatePillShapeSize(hull.capacity)
-  drawPillShape(hullGraphics, 0, 0, width, height)
-  hullGraphics.fill(0xa9a9a9)
+  drawObject(hullGraphics, hull, (id) => getUnit(id) ?? undefined)
   container.addChild(hullGraphics)
 
-  // 固定されているユニットを描画
-  const attachedInfo = hull.attachedUnits
-  const hasComputers = attachedInfo.computers.length > 0
-
-  // ASSEMBLERの描画
-  attachedInfo.assemblers.forEach(assemblerInfo => {
-    const assembler = getUnit(assemblerInfo.id) as Assembler | null
-    if (!assembler) return
-
-    const angle = assemblerInfo.visualData.angle
-    const innerRadius = hasComputers ? height * 0.3 : 0
-    const outerRadius = Math.min(width, height) * 0.45
-
-    const sectorGraphics = new PIXI.Graphics()
-    drawSector(sectorGraphics, 0, 0, outerRadius, angle - 30, angle + 30, innerRadius)
-    sectorGraphics.fill(0xff8c00)
-    
-    if (assembler.isAssembling) {
-      sectorGraphics.circle(
-        outerRadius * 0.7 * Math.cos(angle * Math.PI / 180),
-        outerRadius * 0.7 * Math.sin(angle * Math.PI / 180), 
-        3
-      )
-      sectorGraphics.fill({ color: 0xffd700, alpha: 0.5 })
-    }
-    
-    container.addChild(sectorGraphics)
-  })
-
-  // COMPUTERの描画
-  if (hasComputers) {
-    const computerRadius = height * 0.25
-
-    attachedInfo.computers.forEach(computerInfo => {
-      const computer = getUnit(computerInfo.id) as Computer | null
-      if (!computer) return
-
-      const startAngle = computerInfo.visualData.startAngle
-      const endAngle = computerInfo.visualData.endAngle
-
-      const computerGraphics = new PIXI.Graphics()
-      drawSector(computerGraphics, 0, 0, computerRadius, startAngle, endAngle)
-      computerGraphics.fill(0x00bfff)
-
-      if (computer.isRunning) {
-        const midAngle = (startAngle + endAngle) / 2
-        computerGraphics.circle(
-          computerRadius * 0.5 * Math.cos(midAngle * Math.PI / 180),
-          computerRadius * 0.5 * Math.sin(midAngle * Math.PI / 180),
-          2
-        )
-        computerGraphics.fill({ color: 0xffffff, alpha: 0.9 })
-      }
-
-      container.addChild(computerGraphics)
-    })
-  }
-
   // 入れ子のHULLの描画
-  attachedInfo.hulls.forEach(hullInfo => {
+  hull.attachedUnits.hulls.forEach(hullInfo => {
     const childHull = getUnit(hullInfo.id) as Hull | null
-    if (!childHull) return
+    if (childHull == null) { return }
 
-    // 子HULLは親HULLの横に配置
-    const offsetX = width * 0.8
+    // 子HULLは親HULLの横に配置（簡易的にサイズを30として計算）
+    const offsetX = 30 * 2.5
     drawHullWithAttached(app, childHull, getUnit, x + offsetX, y)
   })
 
@@ -145,7 +85,7 @@ export const HullWithAssembler: Story = {
       // 描画
       const units = new Map<ObjectId, Assembler | Computer>()
       units.set(assembler.id, assembler)
-      drawHullWithAttached(app, hull, (id) => units.get(id) || null, 150, 150)
+      drawHullWithAttached(app, hull, (id) => units.get(id) ?? null, 150, 150)
       
       // ラベル
       const label = new PIXI.Text({
@@ -195,7 +135,7 @@ export const HullWithComputer: Story = {
       // 描画
       const units = new Map<ObjectId, Assembler | Computer>()
       units.set(computer.id, computer)
-      drawHullWithAttached(app, hull, (id) => units.get(id) || null, 150, 150)
+      drawHullWithAttached(app, hull, (id) => units.get(id) ?? null, 150, 150)
       
       // ラベル
       const label = new PIXI.Text({
@@ -251,7 +191,7 @@ export const HullWithBoth: Story = {
       const units = new Map<ObjectId, Assembler | Computer>()
       units.set(assembler.id, assembler)
       units.set(computer.id, computer)
-      drawHullWithAttached(app, hull, (id) => units.get(id) || null, 150, 150)
+      drawHullWithAttached(app, hull, (id) => units.get(id) ?? null, 150, 150)
       
       // ラベル
       const label = new PIXI.Text({
@@ -332,7 +272,7 @@ export const NestedHulls: Story = {
       drawHullWithAttached(
         app, 
         parentHull, 
-        (id) => units.get(id) || null,
+        (id) => units.get(id) ?? null,
         180,
         150
       )

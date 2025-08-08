@@ -201,7 +201,7 @@ export class ForceFieldSystem {
       } else {
         const field: DirectionalForceField = {
           id: idGenerator(),
-          type: type as "RADIAL" | "SPIRAL",
+          type,
           position,
           radius,
           strength,

@@ -53,22 +53,22 @@ export type BaseUnit = GameObject & {
 
 /** HULL内でのユニット配置情報 */
 export type AttachedUnitsInfo = {
-  readonly hulls: ReadonlyArray<{
+  readonly hulls: readonly {
     readonly id: ObjectId
-  }>
-  readonly assemblers: ReadonlyArray<{
+  }[]
+  readonly assemblers: readonly {
     readonly id: ObjectId
     readonly visualData: {
       readonly angle: number // HULL内での配置角度
     }
-  }>
-  readonly computers: ReadonlyArray<{
+  }[]
+  readonly computers: readonly {
     readonly id: ObjectId
     readonly visualData: {
       readonly startAngle: number // ピザカット分割での開始角度
       readonly endAngle: number // ピザカット分割での終了角度
     }
-  }>
+  }[]
 }
 
 /** HULLユニット */

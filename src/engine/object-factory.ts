@@ -11,7 +11,6 @@ import type {
   ObjectId,
   Vec2,
   UnitSpec,
-  AttachedUnitsInfo,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { wrapPosition } from "@/utils/torus-math"
