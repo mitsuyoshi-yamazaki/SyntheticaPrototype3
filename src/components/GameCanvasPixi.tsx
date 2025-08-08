@@ -53,7 +53,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       const gameWorld = new GameWorld(width, height)
       gameWorldRef.current = gameWorld
       console.log("ゲームワールドを初期化しました")
-      
+
       // デモ用の力場を追加
       // 中央に渦巻き力場を追加
       gameWorld.addForceField({
@@ -64,13 +64,14 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         strength: 20,
       })
 
-      // 左上に放射状力場を追加（引力）
+      // 左上に直線状力場を追加
       gameWorld.addForceField({
         id: 1000002 as ObjectId,
-        type: "RADIAL",
+        type: "LINEAR",
         position: Vec2Utils.create(width * 0.2, height * 0.2),
         radius: 150,
-        strength: -15, // 負の値で引力
+        strength: 15,
+        direction: Vec2Utils.create(1, 0),
       })
 
       // 右下に放射状力場を追加（斥力）
@@ -212,7 +213,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       viewportRef.current = null
     }
   }, [width, height, ticksPerFrame])
-  
+
   // 熱マップ表示状態の変更を反映
   useEffect(() => {
     if (gameWorldRef.current != null) {
