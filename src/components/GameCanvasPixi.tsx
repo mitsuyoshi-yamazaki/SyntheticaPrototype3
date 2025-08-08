@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react"
 import * as PIXI from "pixi.js"
 import { GameWorld } from "@/lib/GameWorld"
 import { Viewport } from "@/engine/viewport"
+import type { ObjectId } from "@/types/game"
+import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 type GameCanvasProps = {
   width?: number
@@ -51,6 +53,34 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       const gameWorld = new GameWorld(width, height)
       gameWorldRef.current = gameWorld
       console.log("ゲームワールドを初期化しました")
+      
+      // デモ用の力場を追加
+      // 中央に渦巻き力場を追加
+      gameWorld.addForceField({
+        id: 1000001 as ObjectId, // 固定ID使用
+        type: "SPIRAL",
+        position: Vec2Utils.create(width / 2, height / 2),
+        radius: Math.min(width, height) * 0.4,
+        strength: 20,
+      })
+
+      // 左上に放射状力場を追加（引力）
+      gameWorld.addForceField({
+        id: 1000002 as ObjectId,
+        type: "RADIAL",
+        position: Vec2Utils.create(width * 0.2, height * 0.2),
+        radius: 150,
+        strength: -15, // 負の値で引力
+      })
+
+      // 右下に放射状力場を追加（斥力）
+      gameWorld.addForceField({
+        id: 1000003 as ObjectId,
+        type: "RADIAL",
+        position: Vec2Utils.create(width * 0.8, height * 0.8),
+        radius: 150,
+        strength: 25, // 正の値で斥力
+      })
 
       // Viewportの初期化
       const viewport = new Viewport({

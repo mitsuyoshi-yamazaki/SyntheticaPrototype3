@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js"
 import { World } from "@/engine"
-import type { ObjectId } from "@/types/game"
+import type { DirectionalForceField } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { SELF_REPLICATOR_PRESET } from "@/engine/presets/self-replicator-preset"
 import { drawEnergySource, drawForceField, drawObject } from "./render-utils"
@@ -35,7 +35,7 @@ export class GameWorld {
     // 熱マップレンダラーの初期化
     this._heatMapRenderer = new HeatMapRenderer(10) // 1グリッド = 10ピクセル
     
-    // デモ用設定：自己複製エージェント、エネルギーソース、力場を配置
+    // ワールドの初期化（デモ用設定を含む）
     this._world = new World({
       width,
       height,
@@ -51,33 +51,6 @@ export class GameWorld {
           position: Vec2Utils.create(width * 0.3, height * 0.5),
         },
       ],
-    })
-
-    // 中央に渦巻き力場を追加
-    this._world.addForceField({
-      id: 1000001 as ObjectId, // 固定ID使用
-      type: "SPIRAL",
-      position: Vec2Utils.create(width / 2, height / 2),
-      radius: Math.min(width, height) * 0.4,
-      strength: 20,
-    })
-
-    // 左上に放射状力場を追加（引力）
-    this._world.addForceField({
-      id: 1000002 as ObjectId,
-      type: "RADIAL",
-      position: Vec2Utils.create(width * 0.2, height * 0.2),
-      radius: 150,
-      strength: -15, // 負の値で引力
-    })
-
-    // 右下に放射状力場を追加（斥力）
-    this._world.addForceField({
-      id: 1000003 as ObjectId,
-      type: "RADIAL",
-      position: Vec2Utils.create(width * 0.8, height * 0.8),
-      radius: 150,
-      strength: 25, // 正の値で斥力
     })
   }
 
@@ -154,5 +127,10 @@ export class GameWorld {
   /** 熱マップの透明度を設定 */
   public setHeatMapAlpha(alpha: number): void {
     this._heatMapRenderer.alpha = alpha
+  }
+  
+  /** 力場を追加 */
+  public addForceField(field: DirectionalForceField): void {
+    this._world.addForceField(field)
   }
 }
