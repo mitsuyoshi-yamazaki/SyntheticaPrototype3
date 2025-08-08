@@ -2,7 +2,7 @@
  * エージェント生成ファクトリ
  */
 
-import type { GameObject, ObjectId, Vec2, Computer } from "@/types/game"
+import type { GameObject, ObjectId, Vec2, Computer, Assembler } from "@/types/game"
 import type { AgentPreset } from "./presets/types"
 import { ObjectFactory } from "./object-factory"
 import { ComputerVMSystem } from "./computer-vm-system"
@@ -53,7 +53,7 @@ export class AgentFactory {
       }
 
       const unitId = generateId()
-      let unit: GameObject
+      let unit: Assembler | Computer
 
       switch (unitDef.type) {
         case "ASSEMBLER":
@@ -90,9 +90,9 @@ export class AgentFactory {
 
       objects.push(unit)
 
-      // 4. attachedフラグに基づいて接続
-      // 注: 実際の接続は後で createAttachedUnitsInfo を使用して行う必要がある
-      // ここでは単にparentHullを設定するだけ
+      if (unit.parentHull != null) {
+        hull.attachedUnitIds.push(unit.id)
+      }
     }
 
     // 5. COMPUTERにプログラムがロード済みなので、実行を開始
