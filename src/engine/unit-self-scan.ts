@@ -58,13 +58,13 @@ export const UnitSelfScanSystem = {
     // ユニット種別に応じた固有情報の書き込み
     switch (unit.type) {
       case "HULL":
-        bytesWritten += this.writeHullInfo(unit as Hull, memory, startAddress)
+        bytesWritten += this.writeHullInfo(unit, memory, startAddress)
         break
       case "ASSEMBLER":
-        bytesWritten += this.writeAssemblerInfo(unit as Assembler, memory, startAddress)
+        bytesWritten += this.writeAssemblerInfo(unit, memory, startAddress)
         break
       case "COMPUTER":
-        bytesWritten += this.writeComputerInfo(unit as Computer, memory, startAddress)
+        bytesWritten += this.writeComputerInfo(unit, memory, startAddress)
         break
     }
 
@@ -78,7 +78,7 @@ export const UnitSelfScanSystem = {
     const addr = (offset: number) => (startAddress + offset) % memory.length
 
     // ユニット種別
-    const unitType = UNIT_TYPE_CODES[unit.type as keyof typeof UNIT_TYPE_CODES]
+    const unitType = UNIT_TYPE_CODES[unit.type]
     memory[addr(SCAN_RESULT_ADDRESSES.UNIT_TYPE)] = unitType ?? 0
 
     // 構築エネルギー（16bit）
@@ -103,7 +103,10 @@ export const UnitSelfScanSystem = {
     memory[addr(SCAN_RESULT_ADDRESSES.HULL_CAPACITY_H)] = (hull.capacity >> 8) & 0xff
 
     // 接続ユニット数
-    memory[addr(SCAN_RESULT_ADDRESSES.ATTACHED_UNITS)] = hull.attachedUnits.length & 0xff
+    const attachedCount = hull.attachedUnits.hulls.length + 
+                          hull.attachedUnits.assemblers.length + 
+                          hull.attachedUnits.computers.length
+    memory[addr(SCAN_RESULT_ADDRESSES.ATTACHED_UNITS)] = attachedCount & 0xff
 
     return 3 // 書き込んだバイト数
   },

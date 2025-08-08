@@ -259,6 +259,7 @@ export class CircuitConnectionSystem {
     const allUnitIds = this.getAllUnitIds(hull.attachedUnits)
     for (let i = 0; i < allUnitIds.length; i++) {
       const unitId = allUnitIds[i]
+      if (unitId === undefined) { continue }
       const unit = units.get(unitId)
       if (unit != null) {
         const indices = attachedByType.get(unit.type) ?? []

@@ -91,9 +91,8 @@ export class AgentFactory {
       objects.push(unit)
       
       // 4. attachedフラグに基づいて接続
-      if (unitDef.isAttached) {
-        hull.attachedUnits.push(unitId)
-      }
+      // 注: 実際の接続は後で createAttachedUnitsInfo を使用して行う必要がある
+      // ここでは単にparentHullを設定するだけ
     }
     
     // 5. COMPUTERにプログラムがロード済みなので、実行を開始

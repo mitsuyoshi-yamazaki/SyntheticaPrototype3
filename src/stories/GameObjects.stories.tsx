@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs'
 import * as PIXI from 'pixi.js'
 import { withPixi } from '../../.storybook/decorators/pixi'
+import { drawObject } from '@/lib/render-utils'
+import { ObjectFactory } from '@/engine/object-factory'
+import type { ObjectId } from '@/types/game'
 
 /**
  * ゲームオブジェクトの描画確認用ストーリー
@@ -32,12 +35,16 @@ export const Energy: Story = {
     width: 200,
     height: 200,
     renderFunction: (app: PIXI.Application) => {
+      const factory = new ObjectFactory(800, 600)
+      
+      // エネルギーオブジェクトを作成
+      const energyObj = factory.createEnergyObject(1 as ObjectId, { x: 100, y: 100 }, 10)
+      
       // エネルギーオブジェクトを描画
       const energy = new PIXI.Graphics()
-      energy.circle(0, 0, 10)
-      energy.fill(0xffd700) // #FFD700
-      energy.x = 100
-      energy.y = 100
+      drawObject(energy, energyObj)
+      energy.x = energyObj.position.x
+      energy.y = energyObj.position.y
       app.stage.addChild(energy)
 
       // ラベル
@@ -109,13 +116,16 @@ export const Hull: Story = {
     width: 200,
     height: 200,
     renderFunction: (app: PIXI.Application) => {
-      // HULLを描画（四角形）
+      const factory = new ObjectFactory(800, 600)
+      
+      // HULLを作成
+      const hullObj = factory.createHull(1 as ObjectId, { x: 100, y: 100 }, 100)
+      
+      // HULLを描画
       const hull = new PIXI.Graphics()
-      const size = 30
-      hull.rect(-size/2, -size/2, size, size)
-      hull.fill(0xa9a9a9) // #A9A9A9
-      hull.x = 100
-      hull.y = 100
+      drawObject(hull, hullObj)
+      hull.x = hullObj.position.x
+      hull.y = hullObj.position.y
       app.stage.addChild(hull)
 
       // ラベル
@@ -146,18 +156,17 @@ export const HullDamaged: Story = {
     width: 200,
     height: 200,
     renderFunction: (app: PIXI.Application) => {
-      // ダメージを受けたHULLを描画
+      const factory = new ObjectFactory(800, 600)
+      
+      // ダメージを受けたHULLを作成
+      const hullObj = factory.createHull(1 as ObjectId, { x: 100, y: 100 }, 100)
+      hullObj.currentEnergy = hullObj.buildEnergy * 0.3 // HPを30%に減らす
+      
+      // HULLを描画
       const hull = new PIXI.Graphics()
-      const size = 30
-      hull.rect(-size/2, -size/2, size, size)
-      hull.fill(0xa9a9a9) // #A9A9A9
-      
-      // HP減少時の赤い縁
-      hull.rect(-size/2, -size/2, size, size)
-      hull.stroke({ width: 2, color: 0xff0000, alpha: 0.6 })
-      
-      hull.x = 100
-      hull.y = 100
+      drawObject(hull, hullObj)
+      hull.x = hullObj.position.x
+      hull.y = hullObj.position.y
       app.stage.addChild(hull)
 
       // ラベル
@@ -188,13 +197,16 @@ export const Assembler: Story = {
     width: 200,
     height: 200,
     renderFunction: (app: PIXI.Application) => {
-      // ASSEMBLERを描画（正方形）
+      const factory = new ObjectFactory(800, 600)
+      
+      // ASSEMBLERを作成（parentHullなし）
+      const assemblerObj = factory.createAssembler(1 as ObjectId, { x: 100, y: 100 }, 1)
+      
+      // ASSEMBLERを描画
       const assembler = new PIXI.Graphics()
-      const size = 30
-      assembler.rect(-size/2, -size/2, size, size)
-      assembler.fill(0xff8c00) // #FF8C00
-      assembler.x = 100
-      assembler.y = 100
+      drawObject(assembler, assemblerObj)
+      assembler.x = assemblerObj.position.x
+      assembler.y = assemblerObj.position.y
       app.stage.addChild(assembler)
 
       // ラベル
@@ -225,18 +237,17 @@ export const AssemblerActive: Story = {
     width: 200,
     height: 200,
     renderFunction: (app: PIXI.Application) => {
-      // 活動中のASSEMBLERを描画
+      const factory = new ObjectFactory(800, 600)
+      
+      // 活動中のASSEMBLERを作成
+      const assemblerObj = factory.createAssembler(1 as ObjectId, { x: 100, y: 100 }, 1)
+      assemblerObj.isAssembling = true // 活動中に設定
+      
+      // ASSEMBLERを描画
       const assembler = new PIXI.Graphics()
-      const size = 30
-      assembler.rect(-size/2, -size/2, size, size)
-      assembler.fill(0xff8c00) // #FF8C00
-      
-      // 活動中の明るい内側
-      assembler.rect(-size/2 + 2, -size/2 + 2, size - 4, size - 4)
-      assembler.fill({ color: 0xffd700, alpha: 0.3 })
-      
-      assembler.x = 100
-      assembler.y = 100
+      drawObject(assembler, assemblerObj)
+      assembler.x = assemblerObj.position.x
+      assembler.y = assemblerObj.position.y
       app.stage.addChild(assembler)
 
       // ラベル
@@ -267,12 +278,16 @@ export const Computer: Story = {
     width: 200,
     height: 200,
     renderFunction: (app: PIXI.Application) => {
-      // COMPUTERを描画（円形）
+      const factory = new ObjectFactory(800, 600)
+      
+      // COMPUTERを作成
+      const computerObj = factory.createComputer(1 as ObjectId, { x: 100, y: 100 }, 1, 64)
+      
+      // COMPUTERを描画
       const computer = new PIXI.Graphics()
-      computer.circle(0, 0, 15)
-      computer.fill(0x00bfff) // #00BFFF
-      computer.x = 100
-      computer.y = 100
+      drawObject(computer, computerObj)
+      computer.x = computerObj.position.x
+      computer.y = computerObj.position.y
       app.stage.addChild(computer)
 
       // ラベル
@@ -303,17 +318,17 @@ export const ComputerRunning: Story = {
     width: 200,
     height: 200,
     renderFunction: (app: PIXI.Application) => {
-      // 動作中のCOMPUTERを描画
+      const factory = new ObjectFactory(800, 600)
+      
+      // 動作中のCOMPUTERを作成
+      const computerObj = factory.createComputer(1 as ObjectId, { x: 100, y: 100 }, 1, 64)
+      computerObj.isRunning = true // 動作中に設定
+      
+      // COMPUTERを描画
       const computer = new PIXI.Graphics()
-      computer.circle(0, 0, 15)
-      computer.fill(0x00bfff) // #00BFFF
-      
-      // 動作中の白い点
-      computer.circle(0, 0, 3)
-      computer.fill({ color: 0xffffff, alpha: 0.9 })
-      
-      computer.x = 100
-      computer.y = 100
+      drawObject(computer, computerObj)
+      computer.x = computerObj.position.x
+      computer.y = computerObj.position.y
       app.stage.addChild(computer)
 
       // ラベル
