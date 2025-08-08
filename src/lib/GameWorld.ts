@@ -3,7 +3,7 @@ import { World } from "@/engine"
 import type { ObjectId } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { SELF_REPLICATOR_PRESET } from "@/engine/presets/self-replicator-preset"
-import { drawObject } from "./render-utils"
+import { drawForceField, drawObject } from "./render-utils"
 
 /**
  * ゲーム世界の基本クラス
@@ -90,9 +90,7 @@ export class GameWorld {
     for (const field of this._world.state.forceFields.values()) {
       const fieldGraphics = new PIXI.Graphics()
 
-      // 力場の範囲を薄く塗りつぶし
-      fieldGraphics.circle(field.position.x, field.position.y, field.radius)
-      fieldGraphics.fill({ color: 0xadd8e6, alpha: 0.2 })
+      drawForceField(fieldGraphics, field)
 
       container.addChild(fieldGraphics)
     }

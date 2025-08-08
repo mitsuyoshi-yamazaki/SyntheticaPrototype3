@@ -1,9 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/nextjs"
 import * as PIXI from "pixi.js"
 import { withPixi } from "../../.storybook/decorators/pixi"
-import { drawObject } from "@/lib/render-utils"
+import { drawForceField, drawObject } from "@/lib/render-utils"
 import { ObjectFactory } from "@/engine/object-factory"
-import type { ObjectId } from "@/types/game"
+import type {
+  LinearForceField as LinearForceFieldType,
+  RadialForceField as RadialForceFieldType,
+  SpiralForceField as SpiralForceFieldType,
+  ObjectId,
+} from "@/types/game"
+import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 /**
  * ゲームオブジェクトの描画確認用ストーリー
@@ -38,7 +44,7 @@ export const Energy: Story = {
       const factory = new ObjectFactory(800, 600)
 
       // エネルギーオブジェクトを作成
-      const energyObj = factory.createEnergyObject(1 as ObjectId, { x: 100, y: 100 }, 10)
+      const energyObj = factory.createEnergyObject(1 as ObjectId, { x: 100, y: 100 }, 10000)
 
       // エネルギーオブジェクトを描画
       const energy = new PIXI.Graphics()
@@ -313,67 +319,22 @@ export const Computer: Story = {
   },
 }
 
-export const ComputerRunning: Story = {
+export const LinearForceField: Story = {
   args: {
-    width: 200,
-    height: 200,
-    renderFunction: (app: PIXI.Application) => {
-      const factory = new ObjectFactory(800, 600)
-
-      // 動作中のCOMPUTERを作成
-      const computerObj = factory.createComputer(1 as ObjectId, { x: 100, y: 100 }, 1, 64)
-      computerObj.isRunning = true // 動作中に設定
-
-      // COMPUTERを描画
-      const computer = new PIXI.Graphics()
-      drawObject(computer, computerObj)
-      computer.x = computerObj.position.x
-      computer.y = computerObj.position.y
-      app.stage.addChild(computer)
-
-      // ラベル
-      const label = new PIXI.Text({
-        text: "COMPUTER (Running)",
-        style: {
-          fontSize: 14,
-          fill: 0xffffff,
-          fontFamily: "Courier New, monospace",
-        },
-      })
-      label.x = 100 - label.width / 2
-      label.y = 130
-      app.stage.addChild(label)
-    },
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: "COMPUTER（動作中）: プログラム実行中は中央に白い点が表示される",
-      },
-    },
-  },
-}
-
-export const ForceField: Story = {
-  args: {
-    width: 300,
-    height: 300,
     renderFunction: (app: PIXI.Application) => {
       // 力場を描画（薄い円形）
       const field = new PIXI.Graphics()
-      field.circle(0, 0, 80)
-      field.fill({ color: 0xadd8e6, alpha: 0.2 }) // rgba(173,216,230,0.2)
-      field.x = 150
-      field.y = 150
-      app.stage.addChild(field)
+      const forceField: LinearForceFieldType = {
+        id: 1000001 as ObjectId, // 固定ID使用
+        type: "LINEAR",
+        position: Vec2Utils.create(200, 150),
+        radius: 300 * 0.4,
+        strength: 20,
+        direction: Vec2Utils.create(1, 0),
+      }
+      drawForceField(field, forceField)
 
-      // 力場の中心点
-      const center = new PIXI.Graphics()
-      center.circle(0, 0, 3)
-      center.fill(0xadd8e6)
-      center.x = 150
-      center.y = 150
-      app.stage.addChild(center)
+      app.stage.addChild(field)
 
       // ラベル
       const label = new PIXI.Text({
@@ -384,7 +345,85 @@ export const ForceField: Story = {
           fontFamily: "Courier New, monospace",
         },
       })
-      label.x = 150 - label.width / 2
+      label.x = 200 - label.width / 2
+      label.y = 250
+      app.stage.addChild(label)
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "力場: rgba(173,216,230,0.2)の薄い円形領域",
+      },
+    },
+  },
+}
+
+export const RadialForceField: Story = {
+  args: {
+    renderFunction: (app: PIXI.Application) => {
+      // 力場を描画（薄い円形）
+      const field = new PIXI.Graphics()
+      const forceField: RadialForceFieldType = {
+        id: 1000001 as ObjectId, // 固定ID使用
+        type: "RADIAL",
+        position: Vec2Utils.create(200, 150),
+        radius: 300 * 0.4,
+        strength: 20,
+      }
+      drawForceField(field, forceField)
+
+      app.stage.addChild(field)
+
+      // ラベル
+      const label = new PIXI.Text({
+        text: "Force Field",
+        style: {
+          fontSize: 14,
+          fill: 0xffffff,
+          fontFamily: "Courier New, monospace",
+        },
+      })
+      label.x = 200 - label.width / 2
+      label.y = 250
+      app.stage.addChild(label)
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "力場: rgba(173,216,230,0.2)の薄い円形領域",
+      },
+    },
+  },
+}
+
+export const SpiralForceField: Story = {
+  args: {
+    renderFunction: (app: PIXI.Application) => {
+      // 力場を描画（薄い円形）
+      const field = new PIXI.Graphics()
+      const forceField: SpiralForceFieldType = {
+        id: 1000001 as ObjectId, // 固定ID使用
+        type: "SPIRAL",
+        position: Vec2Utils.create(200, 150),
+        radius: 300 * 0.4,
+        strength: 20,
+      }
+      drawForceField(field, forceField)
+
+      app.stage.addChild(field)
+
+      // ラベル
+      const label = new PIXI.Text({
+        text: "Force Field",
+        style: {
+          fontSize: 14,
+          fill: 0xffffff,
+          fontFamily: "Courier New, monospace",
+        },
+      })
+      label.x = 200 - label.width / 2
       label.y = 250
       app.stage.addChild(label)
     },

@@ -11,6 +11,7 @@ import type {
   AttachedUnitsInfo,
   GameObject,
   Hull,
+  DirectionalForceField,
 } from "@/types/game"
 
 /**
@@ -40,7 +41,6 @@ export const drawPillShape = (
     // 左の半円
     graphics.arc(x - halfWidth, y, radius, Math.PI / 2, Math.PI * 1.5)
     // 上の直線
-    graphics.moveTo(x - halfWidth, y - radius)
     graphics.lineTo(x + halfWidth, y - radius)
     // 右の半円
     graphics.arc(x + halfWidth, y, radius, -Math.PI / 2, Math.PI / 2)
@@ -227,7 +227,8 @@ export const drawObject = (
 
       // Pill shapeを描画
       drawPillShape(graphics, 0, 0, width, height)
-      graphics.fill(0xa9a9a9)
+      graphics.fill(0x101010)
+      graphics.stroke({ width: 4, color: 0x2c3e50, alpha: 1 })
 
       // HP減少時は縁に赤み
       const healthRatio = hull.currentEnergy / hull.buildEnergy
@@ -320,12 +321,13 @@ export const drawObject = (
       if (assembler.parentHull === undefined) {
         // 角丸長方形を描画
         graphics.roundRect(-size / 2, -size / 2, size, size, 5)
-        graphics.fill(0xff8c00)
+        graphics.stroke({ width: 4, color: 0xe14628, alpha: 1 })
+        graphics.fill(0x882114)
 
-        // 活動中は明るく
+        // 活動中はドットを描く
         if (assembler.isAssembling) {
-          graphics.roundRect(-size / 2 + 2, -size / 2 + 2, size - 4, size - 4, 3)
-          graphics.fill({ color: 0xffd700, alpha: 0.3 })
+          graphics.circle(0, 0, gameObject.radius / 3)
+          graphics.fill({ color: 0xf3b449, alpha: 1 })
         }
       }
       // HULLに固定されている場合はHULL側で描画される
@@ -341,21 +343,39 @@ export const drawObject = (
         // 円形を描画
         graphics.circle(0, 0, gameObject.radius)
         graphics.fill(0x00bfff)
-
-        // 活動中は中央に白い点
-        if (computer.isRunning) {
-          graphics.circle(0, 0, 2)
-          graphics.fill({ color: 0xffffff, alpha: 0.9 })
-        }
       }
       // HULLに固定されている場合はHULL側で描画される
       break
     }
 
-    default:
-      // 未定義のタイプは灰色の円
-      graphics.circle(0, 0, gameObject.radius)
-      graphics.fill(0x808080)
-      graphics.stroke({ width: 1, color: 0x404040 })
+    default: {
+      // @ts-expect-error TS6133: '_' is declared but its value is never read.
+      const _: never = gameObject.type
+      break
+    }
   }
+}
+
+/**
+ * 方向性力場を描画
+ * @param graphics 描画先のGraphicsオブジェクト
+ * @param forceField 描画する方向性力場
+ */
+export const drawForceField = (
+  graphics: PIXI.Graphics,
+  forceField: DirectionalForceField
+): void => {
+  graphics.circle(forceField.position.x, forceField.position.y, forceField.radius)
+  const fillColor: number = (() => {
+    switch (forceField.type) {
+      case "LINEAR":
+        return 0xadd8e6
+      case "RADIAL":
+        return 0xd8e6ad
+      case "SPIRAL":
+        return 0xe6add8
+    }
+  })()
+
+  graphics.fill({ color: fillColor, alpha: 0.2 })
 }
