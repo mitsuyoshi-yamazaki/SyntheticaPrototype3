@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js"
 import { World } from "@/engine"
-import type { ObjectId, Hull, Assembler, Computer, Unit } from "@/types/game"
+import type { ObjectId, Hull, Assembler, Computer } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { SELF_REPLICATOR_PRESET } from "@/engine/presets/self-replicator-preset"
 import { drawPillShape, drawSector, calculatePillShapeSize, redistributeVisualPositions } from './render-utils'
@@ -151,9 +151,17 @@ export class GameWorld {
               .filter(Boolean)
             
             // 視覚データがない場合は初期化
-            const needsInit = attachedObjects.some(u => (u as Unit).visualData === undefined)
+            const needsInit = attachedObjects.some(u => {
+              if (u?.type === 'ASSEMBLER') {
+                return false // AssemblerはvisualDataが必須なので常にfalse
+              }
+              if (u?.type === 'COMPUTER') {
+                return false // ComputerはvisualDataが必須なので常にfalse
+              }
+              return false
+            })
             if (needsInit) {
-              redistributeVisualPositions(attachedObjects as Unit[])
+              redistributeVisualPositions(attachedObjects as (Assembler | Computer | Hull)[])
             }
             
             // HULL内のASSEMBLERを描画
@@ -162,26 +170,24 @@ export class GameWorld {
             const hasComputers = computers.length > 0
             
             assemblers.forEach(assembler => {
-              const unitAssembler = assembler as Unit
-              if (unitAssembler?.visualData?.angle !== undefined) {
-                const angle = unitAssembler.visualData.angle
-                const innerRadius = hasComputers ? height * 0.3 : 0  // COMPUTERがある場合は先端を欠く
-                const outerRadius = Math.min(width, height) * 0.45
-                
-                // 扇形を描画
-                const sectorGraphics = new PIXI.Graphics()
-                drawSector(sectorGraphics, 0, 0, outerRadius, angle - 30, angle + 30, innerRadius)
-                sectorGraphics.fill(0xff8c00)
-                
-                // 活動中は明るく
-                if ((assembler as Assembler).isAssembling) {
-                  sectorGraphics.circle(outerRadius * 0.7 * Math.cos(angle * Math.PI / 180),
-                                      outerRadius * 0.7 * Math.sin(angle * Math.PI / 180), 3)
-                  sectorGraphics.fill({ color: 0xffd700, alpha: 0.5 })
-                }
-                
-                objGraphics.addChild(sectorGraphics)
+              const assemblerUnit = assembler as Assembler
+              const angle = assemblerUnit.visualData.angle
+              const innerRadius = hasComputers ? height * 0.3 : 0  // COMPUTERがある場合は先端を欠く
+              const outerRadius = Math.min(width, height) * 0.45
+              
+              // 扇形を描画
+              const sectorGraphics = new PIXI.Graphics()
+              drawSector(sectorGraphics, 0, 0, outerRadius, angle - 30, angle + 30, innerRadius)
+              sectorGraphics.fill(0xff8c00)
+              
+              // 活動中は明るく
+              if ((assembler as Assembler).isAssembling) {
+                sectorGraphics.circle(outerRadius * 0.7 * Math.cos(angle * Math.PI / 180),
+                                    outerRadius * 0.7 * Math.sin(angle * Math.PI / 180), 3)
+                sectorGraphics.fill({ color: 0xffd700, alpha: 0.5 })
               }
+              
+              objGraphics.addChild(sectorGraphics)
             })
             
             // HULL内のCOMPUTERを描画
@@ -189,30 +195,27 @@ export class GameWorld {
               const computerRadius = height * 0.25
               
               computers.forEach(computer => {
-                const unitComputer = computer as Unit
-                if (unitComputer?.visualData?.startAngle !== undefined && 
-                    unitComputer?.visualData?.endAngle !== undefined) {
-                  const startAngle = unitComputer.visualData.startAngle
-                  const endAngle = unitComputer.visualData.endAngle
-                  
-                  // ピザカット形状を描画
-                  const computerGraphics = new PIXI.Graphics()
-                  drawSector(computerGraphics, 0, 0, computerRadius, startAngle, endAngle)
-                  computerGraphics.fill(0x00bfff)
-                  
-                  // 活動中は中央に白い点
-                  if ((computer as Computer).isRunning) {
-                    const midAngle = (startAngle + endAngle) / 2
-                    computerGraphics.circle(
-                      computerRadius * 0.5 * Math.cos(midAngle * Math.PI / 180),
-                      computerRadius * 0.5 * Math.sin(midAngle * Math.PI / 180),
-                      2
-                    )
-                    computerGraphics.fill({ color: 0xffffff, alpha: 0.9 })
-                  }
-                  
-                  objGraphics.addChild(computerGraphics)
+                const computerUnit = computer as Computer
+                const startAngle = computerUnit.visualData.startAngle
+                const endAngle = computerUnit.visualData.endAngle
+                
+                // ピザカット形状を描画
+                const computerGraphics = new PIXI.Graphics()
+                drawSector(computerGraphics, 0, 0, computerRadius, startAngle, endAngle)
+                computerGraphics.fill(0x00bfff)
+                
+                // 活動中は中央に白い点
+                if ((computer as Computer).isRunning) {
+                  const midAngle = (startAngle + endAngle) / 2
+                  computerGraphics.circle(
+                    computerRadius * 0.5 * Math.cos(midAngle * Math.PI / 180),
+                    computerRadius * 0.5 * Math.sin(midAngle * Math.PI / 180),
+                    2
+                  )
+                  computerGraphics.fill({ color: 0xffffff, alpha: 0.9 })
                 }
+                
+                objGraphics.addChild(computerGraphics)
               })
             }
           }

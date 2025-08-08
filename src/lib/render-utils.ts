@@ -4,6 +4,7 @@
  */
 
 import * as PIXI from 'pixi.js'
+import type { Assembler, Computer, Hull } from '@/types/game'
 
 /**
  * Pill shape（カプセル形状）を描画
@@ -126,15 +127,16 @@ export function calculatePillShapeSize(capacity: number): { width: number; heigh
  * @param attachedUnits 固定されているユニット
  */
 export function redistributeVisualPositions(
-  attachedUnits: { type: string; visualData?: { angle?: number; startAngle?: number; endAngle?: number }; buildEnergy: number }[]
+  attachedUnits: (Assembler | Computer | Hull)[]
 ): void {
-  const assemblers = attachedUnits.filter(u => u.type === 'ASSEMBLER')
-  const computers = attachedUnits.filter(u => u.type === 'COMPUTER')
+  const assemblers = attachedUnits.filter((u): u is Assembler => u.type === 'ASSEMBLER')
+  const computers = attachedUnits.filter((u): u is Computer => u.type === 'COMPUTER')
   
   // ASSEMBLERの角度を均等配分
   assemblers.forEach((assembler, index) => {
-    assembler.visualData ??= {}
-    assembler.visualData.angle = (360 / assemblers.length) * index
+    assembler.visualData = {
+      angle: (360 / assemblers.length) * index
+    }
   })
   
   // COMPUTERのピザカット角度を計算
@@ -143,10 +145,11 @@ export function redistributeVisualPositions(
     let currentAngle = 0
     
     computers.forEach(computer => {
-      computer.visualData ??= {}
       const angleSize = (computer.buildEnergy / totalComputerEnergy) * 360
-      computer.visualData.startAngle = currentAngle
-      computer.visualData.endAngle = currentAngle + angleSize
+      computer.visualData = {
+        startAngle: currentAngle,
+        endAngle: currentAngle + angleSize
+      }
       currentAngle += angleSize
     })
   }

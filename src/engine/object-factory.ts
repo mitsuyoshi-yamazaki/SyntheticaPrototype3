@@ -132,6 +132,9 @@ export class ObjectFactory {
       assemblePower,
       isAssembling: false,
       progress: 0,
+      visualData: {
+        angle: 0, // 初期値、後でredistributeVisualPositionsで再計算される
+      },
     }
   }
 
@@ -174,6 +177,10 @@ export class ObjectFactory {
       carryFlag: false,
       isRunning: false,
       vmCyclesExecuted: 0,
+      visualData: {
+        startAngle: 0, // 初期値、後でredistributeVisualPositionsで再計算される
+        endAngle: 360, // 初期値、後でredistributeVisualPositionsで再計算される
+      },
     }
   }
 
