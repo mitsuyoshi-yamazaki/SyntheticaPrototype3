@@ -70,13 +70,19 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       // ViewportにコンテナをセットI
       viewport.setContainer(gameContainer)
 
-      // デバッグ情報用テキスト
+      // UI背景（デザイン仕様: rgba(0, 0, 0, 0.6)）
+      const uiBg = new PIXI.Graphics()
+      uiBg.rect(5, 5, 180, 100)
+      uiBg.fill({ color: 0x000000, alpha: 0.6 })
+      app.stage.addChild(uiBg)
+
+      // デバッグ情報用テキスト（デザイン仕様: 白文字、等幅フォント）
       const debugText = new PIXI.Text({
         text: "",
         style: {
-          fontFamily: "Arial",
-          fontSize: 14,
-          fill: 0x000000,
+          fontFamily: "Courier New, monospace",
+          fontSize: 12,
+          fill: 0xffffff,
         },
       })
       debugText.x = 10
