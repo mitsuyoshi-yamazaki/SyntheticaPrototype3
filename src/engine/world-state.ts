@@ -12,6 +12,8 @@ import type {
 } from "@/types/game"
 import { PhysicsEngine, DEFAULT_PHYSICS_PARAMETERS } from "./physics-engine"
 import type { PhysicsParameters, PhysicsParametersUpdate } from "./physics-engine"
+import { HeatSystem, DEFAULT_HEAT_PARAMETERS } from "./heat-system"
+import type { HeatSystemParameters } from "./heat-system"
 
 /** デフォルトのワールドパラメータ */
 export const DEFAULT_PARAMETERS: WorldParameters = {
@@ -40,6 +42,7 @@ export const SPATIAL_CELL_SIZE = 100
 export class WorldStateManager {
   private readonly _state: WorldState
   private readonly _physicsEngine: PhysicsEngine
+  private readonly _heatSystem: HeatSystem
 
   /** 現在の状態を取得 */
   public get state(): Readonly<WorldState> {
@@ -70,6 +73,16 @@ export class WorldStateManager {
       },
     }
     this._physicsEngine = new PhysicsEngine(SPATIAL_CELL_SIZE, width, height, physicsParams)
+    
+    // 熱システムの初期化
+    // グリッドサイズを世界サイズから計算（1グリッド = 10ユニット）
+    const gridWidth = Math.ceil(width / 10)
+    const gridHeight = Math.ceil(height / 10)
+    const heatParams: HeatSystemParameters = {
+      ...DEFAULT_HEAT_PARAMETERS,
+      // TODO: パラメータから熱システム設定を取得
+    }
+    this._heatSystem = new HeatSystem(gridWidth, gridHeight, heatParams)
   }
 
   /** 次のオブジェクトIDを生成 */
@@ -253,15 +266,18 @@ export class WorldStateManager {
   }
 
   /**
-   * 指定位置のセルに熱を追加（熱システム統合時に実装予定）
+   * 指定位置のセルに熱を追加
    * @param position 座標
    * @param heat 追加する熱量
    */
   public addHeatToCell(position: { x: number; y: number }, heat: number): void {
-    // TODO: 熱システムの実装時に完全実装
-    // 現在は熱システムが未実装のため、ログ出力のみ
-    if (heat > 0) {
-      console.debug(`Heat generated at (${position.x}, ${position.y}): ${heat}`)
-    }
+    this._heatSystem.addHeatAt(position, heat)
+  }
+  
+  /**
+   * 熱システムを取得
+   */
+  public get heatSystem(): HeatSystem {
+    return this._heatSystem
   }
 }

@@ -18,6 +18,8 @@ import type {
   Hull,
   EnergyObject,
   Computer,
+  Unit,
+  Assembler,
   Vec2,
 } from "@/types/game"
 import { isHull, isEnergyObject } from "@/utils/type-guards"
@@ -132,6 +134,13 @@ export class World {
   public removeObject(id: GameObject["id"]): void {
     this._stateManager.removeObject(id)
   }
+  
+  /** 指定位置にエネルギーオブジェクトを作成 */
+  public createEnergyObject(position: Vec2, amount: number): void {
+    const id = this._stateManager.generateObjectId()
+    const energyObj = this._objectFactory.createEnergyObject(id, position, amount)
+    this._stateManager.addObject(energyObj)
+  }
 
   /**
    * エージェント（Hull及び関連ユニット）を追加
@@ -172,6 +181,9 @@ export class World {
 
       // ユニットシステムの更新
       this.updateUnitSystem()
+      
+      // 熱システムの更新
+      this.updateHeatSystem()
 
       // VMサイクルカウンタのリセット（次のtick準備）
       this.resetVMCycleCounters()
@@ -317,6 +329,66 @@ export class World {
     for (const obj of objects) {
       if (obj.type === "COMPUTER") {
         ComputerVMSystem.resetCycleCounter(obj as Computer)
+      }
+    }
+  }
+  
+  /** 熱システムの更新 */
+  private updateHeatSystem(): void {
+    // 熱拡散の計算（セルオートマトン）
+    this._stateManager.heatSystem.updateDiffusion()
+    
+    // 放熱処理
+    this._stateManager.heatSystem.updateRadiation()
+    
+    // 熱によるダメージ処理
+    this.applyHeatDamage()
+  }
+  
+  /** 熱によるダメージをユニットに適用 */
+  private applyHeatDamage(): void {
+    const objects = this._stateManager.getAllObjects()
+    
+    for (const obj of objects) {
+      // ユニットのみ熱ダメージを受ける
+      if (obj.type === "HULL" || obj.type === "ASSEMBLER" || obj.type === "COMPUTER") {
+        const unit = obj as Unit
+        
+        // ユニットの位置から熱グリッド座標を計算
+        const gridX = Math.floor(unit.position.x / 10)
+        const gridY = Math.floor(unit.position.y / 10)
+        
+        // ダメージフラグを判定
+        const isDamaged = unit.currentEnergy < unit.buildEnergy
+        const isProducing = obj.type === "ASSEMBLER" && (obj as Assembler).isAssembling
+        
+        // 熱ダメージを計算
+        const damage = this._stateManager.heatSystem.calculateHeatDamage(
+          gridX,
+          gridY,
+          isDamaged,
+          isProducing
+        )
+        
+        if (damage > 0) {
+          // ダメージを適用（currentEnergyを減少）
+          unit.currentEnergy = Math.max(0, unit.currentEnergy - damage)
+          
+          // energyも同期（質量保存の法則）
+          unit.energy = Math.min(unit.energy, unit.currentEnergy)
+          
+          // オブジェクトを更新
+          this._stateManager.updateObject(unit)
+          
+          // ユニットが破壊された場合
+          if (unit.currentEnergy === 0) {
+            this._stateManager.removeObject(unit.id)
+            
+            // 破壊による熱の追加（エネルギーの10%が熱に変換）
+            const heatGenerated = Math.floor(unit.buildEnergy * 0.1)
+            this._stateManager.addHeatToCell(unit.position, heatGenerated)
+          }
+        }
       }
     }
   }
