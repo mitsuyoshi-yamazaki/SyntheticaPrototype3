@@ -143,7 +143,11 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
 
       // パン操作（マウスドラッグ）
       let isDragging = false
+      let dragStartPos = { x: 0, y: 0 }
+      const DRAG_THRESHOLD = 5 // ピクセル
+      
       app.stage.on("pointerdown", (event: PIXI.FederatedPointerEvent) => {
+        dragStartPos = { x: event.global.x, y: event.global.y }
         isDragging = true
         viewport.startDrag({ x: event.global.x, y: event.global.y })
       })
@@ -154,7 +158,19 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         }
       })
 
-      app.stage.on("pointerup", () => {
+      app.stage.on("pointerup", (event: PIXI.FederatedPointerEvent) => {
+        // ドラッグではなくクリックだった場合、オブジェクト選択
+        const dragDistance = Math.sqrt(
+          Math.pow(event.global.x - dragStartPos.x, 2) +
+          Math.pow(event.global.y - dragStartPos.y, 2)
+        )
+        
+        if (dragDistance < DRAG_THRESHOLD) {
+          // スクリーン座標からワールド座標へ変換
+          const worldPos = viewport.screenToWorld({ x: event.global.x, y: event.global.y })
+          gameWorld.selectObjectAt(worldPos.x, worldPos.y)
+        }
+        
         isDragging = false
         viewport.endDrag()
       })
