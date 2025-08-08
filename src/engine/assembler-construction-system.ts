@@ -7,11 +7,12 @@ import type {
   Computer,
   UnitSpec,
   Vec2,
+  BaseUnit,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 /** 生産中ユニットの状態 */
-export type ProducingUnit = Unit & {
+export type ProducingUnit = BaseUnit & {
   readonly isProducing: true
   readonly targetSpec: UnitSpec
   readonly requiredEnergy: number // 完成に必要な総エネルギー
@@ -196,7 +197,7 @@ export class AssemblerConstructionSystem {
 
   /** 生産完了（ユニット有効化） */
   private completeProduction(producingUnit: ProducingUnit): Unit {
-    const unit: Unit = {
+    const baseUnit: BaseUnit = {
       id: producingUnit.id,
       type: producingUnit.type,
       position: producingUnit.position,
@@ -212,7 +213,7 @@ export class AssemblerConstructionSystem {
     switch (producingUnit.targetSpec.type) {
       case "HULL":
         return {
-          ...unit,
+          ...baseUnit,
           type: "HULL",
           capacity: producingUnit.targetSpec.capacity,
           storedEnergy: 0,
@@ -220,21 +221,28 @@ export class AssemblerConstructionSystem {
         } as Hull
       case "ASSEMBLER":
         return {
-          ...unit,
+          ...baseUnit,
           type: "ASSEMBLER",
           assemblePower: producingUnit.targetSpec.assemblePower,
           isAssembling: false,
           progress: 0,
+          visualData: { angle: 0 },
         } as Assembler
       case "COMPUTER":
         return {
-          ...unit,
+          ...baseUnit,
           type: "COMPUTER",
           processingPower: producingUnit.targetSpec.processingPower,
           memorySize: producingUnit.targetSpec.memorySize,
           memory: new Uint8Array(producingUnit.targetSpec.memorySize),
           programCounter: 0,
           registers: new Uint16Array(8),
+          stackPointer: producingUnit.targetSpec.memorySize - 1,
+          zeroFlag: false,
+          carryFlag: false,
+          isRunning: false,
+          vmCyclesExecuted: 0,
+          visualData: { startAngle: 0, endAngle: 360 },
         } as Computer
     }
   }
@@ -286,7 +294,7 @@ export class AssemblerConstructionSystem {
     // 修理実行
     unit.currentEnergy = Math.min(unit.currentEnergy + repairPerTick, unit.buildEnergy)
     unit.energy = unit.currentEnergy
-    unit.mass = unit.currentEnergy + (unit.type === "HULL" ? (unit as Hull).storedEnergy : 0)
+    unit.mass = unit.currentEnergy + (unit.type === "HULL" ? unit.storedEnergy : 0)
 
     return {
       success: true,
@@ -323,6 +331,7 @@ export class AssemblerConstructionSystem {
           assemblePower: spec.assemblePower,
           isAssembling: false,
           progress: 0,
+          visualData: { angle: 0 },
         } as Partial<Assembler>
       case "COMPUTER":
         return {
@@ -331,6 +340,12 @@ export class AssemblerConstructionSystem {
           memory: new Uint8Array(spec.memorySize),
           programCounter: 0,
           registers: new Uint16Array(8),
+          stackPointer: spec.memorySize - 1,
+          zeroFlag: false,
+          carryFlag: false,
+          isRunning: false,
+          vmCyclesExecuted: 0,
+          visualData: { startAngle: 0, endAngle: 360 },
         } as Partial<Computer>
     }
   }
@@ -341,21 +356,21 @@ export class AssemblerConstructionSystem {
       case "HULL":
         return {
           type: "HULL",
-          capacity: (unit as Hull).capacity,
+          capacity: unit.capacity,
         }
       case "ASSEMBLER":
         return {
           type: "ASSEMBLER",
-          assemblePower: (unit as Assembler).assemblePower,
+          assemblePower: unit.assemblePower,
         }
       case "COMPUTER":
         return {
           type: "COMPUTER",
-          processingPower: (unit as Computer).processingPower,
-          memorySize: (unit as Computer).memorySize,
+          processingPower: unit.processingPower,
+          memorySize: unit.memorySize,
         }
       default:
-        throw new Error(`Unknown unit type: ${unit.type}`)
+        throw new Error(`Unknown unit type: ${(unit as { type?: string }).type}`)
     }
   }
 

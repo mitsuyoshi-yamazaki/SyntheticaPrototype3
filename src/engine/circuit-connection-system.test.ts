@@ -105,6 +105,7 @@ describe("CircuitConnectionSystem", () => {
         isAssembling: false,
         progress: 0,
         parentHull: hull1.id,
+        visualData: { angle: 0 },
       }
 
       assembler2 = {
@@ -121,6 +122,7 @@ describe("CircuitConnectionSystem", () => {
         isAssembling: false,
         progress: 0,
         parentHull: hull2.id,
+        visualData: { angle: 0 },
       }
 
       computer1 = {
@@ -144,6 +146,7 @@ describe("CircuitConnectionSystem", () => {
         isRunning: false,
         vmCyclesExecuted: 0,
         parentHull: hull1.id,
+        visualData: { startAngle: 0, endAngle: 360 },
       }
     })
 
@@ -192,6 +195,7 @@ describe("CircuitConnectionSystem", () => {
         isAssembling: false,
         progress: 0,
         parentHull: hullId,
+        visualData: { angle: 0 },
       }
 
       computer = {
@@ -215,6 +219,7 @@ describe("CircuitConnectionSystem", () => {
         isRunning: false,
         vmCyclesExecuted: 0,
         parentHull: hullId,
+        visualData: { startAngle: 0, endAngle: 360 },
       }
     })
 

@@ -28,6 +28,7 @@ jest.mock("../engine", () => ({
     },
     start: jest.fn(),
     spawnRandomEnergy: jest.fn(),
+    addForceField: jest.fn(),
   })),
 }))
 

@@ -44,14 +44,15 @@ export type EnergyObject = GameObject & {
 }
 
 /** ユニットの基本インターフェース */
-export type Unit = GameObject & {
+export type BaseUnit = GameObject & {
+  readonly type: UnitType
   readonly buildEnergy: number // 構成エネルギー
   currentEnergy: number // 現在のエネルギー（ダメージを受けると減少）
   readonly parentHull?: ObjectId // 所属するHULL
 }
 
 /** HULLユニット */
-export type Hull = Unit & {
+export type Hull = BaseUnit & {
   readonly type: HullType
   readonly capacity: number // エネルギー格納容量
   storedEnergy: number // 格納中のエネルギー
@@ -60,7 +61,7 @@ export type Hull = Unit & {
 }
 
 /** ASSEMBLERユニット */
-export type Assembler = Unit & {
+export type Assembler = BaseUnit & {
   readonly type: AssemblerType
   readonly assemblePower: number // 組立能力
   isAssembling: boolean
@@ -73,7 +74,7 @@ export type Assembler = Unit & {
 }
 
 /** COMPUTERユニット */
-export type Computer = Unit & {
+export type Computer = BaseUnit & {
   readonly type: ComputerType
   readonly processingPower: number // 処理能力（命令/tick）
   readonly memorySize: number // メモリサイズ（バイト）
@@ -92,6 +93,8 @@ export type Computer = Unit & {
     readonly endAngle: number // ピザカット分割での開始角度
   }
 }
+
+export type Unit = Hull | Assembler | Computer
 
 /** ユニット仕様 */
 export type HullSpec = {
