@@ -10,6 +10,7 @@ import type {
   BaseUnit,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
+import { isHull } from "@/utils/type-guards"
 
 /** 生産中ユニットの状態 */
 export type ProducingUnit = BaseUnit & {
@@ -294,7 +295,7 @@ export class AssemblerConstructionSystem {
     // 修理実行
     unit.currentEnergy = Math.min(unit.currentEnergy + repairPerTick, unit.buildEnergy)
     unit.energy = unit.currentEnergy
-    unit.mass = unit.currentEnergy + (unit.type === "HULL" ? unit.storedEnergy : 0)
+    unit.mass = unit.currentEnergy + (isHull(unit) ? unit.storedEnergy : 0)
 
     return {
       success: true,

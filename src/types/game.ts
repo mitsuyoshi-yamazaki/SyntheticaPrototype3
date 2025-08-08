@@ -143,15 +143,36 @@ export type EnergySource = {
   energyPerTick: number
 }
 
-/** 方向性力場 */
-export type DirectionalForceField = {
+/** 線形力場 */
+export type LinearForceField = {
   readonly id: ObjectId
-  readonly type: "LINEAR" | "RADIAL" | "SPIRAL"
+  readonly type: "LINEAR"
   position: Vec2
   radius: number
   strength: number
-  direction?: Vec2 // LINEAR用
+  direction: Vec2 // 必須
 }
+
+/** 放射状力場 */
+export type RadialForceField = {
+  readonly id: ObjectId
+  readonly type: "RADIAL"
+  position: Vec2
+  radius: number
+  strength: number
+}
+
+/** 渦巻き力場 */
+export type SpiralForceField = {
+  readonly id: ObjectId
+  readonly type: "SPIRAL"
+  position: Vec2
+  radius: number
+  strength: number
+}
+
+/** 方向性力場 */
+export type DirectionalForceField = LinearForceField | RadialForceField | SpiralForceField
 
 /** 空間ハッシュグリッドのセル */
 export type SpatialCell = {

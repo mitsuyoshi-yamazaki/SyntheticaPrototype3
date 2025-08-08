@@ -2,7 +2,13 @@
  * 方向性力場システム - 環境要素として力場を管理
  */
 
-import type { Vec2, DirectionalForceField, GameObject, ObjectId } from "@/types/game"
+import type {
+  Vec2,
+  DirectionalForceField,
+  LinearForceField,
+  GameObject,
+  ObjectId,
+} from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 /** 力場システムのパラメータ */
@@ -87,8 +93,7 @@ export class ForceFieldSystem {
     switch (field.type) {
       case "LINEAR": {
         // 線形力場: 一定方向の力
-        force =
-          field.direction !== undefined ? Vec2Utils.copy(field.direction) : Vec2Utils.create(0, 0)
+        force = Vec2Utils.copy(field.direction)
         break
       }
 
@@ -181,25 +186,28 @@ export class ForceFieldSystem {
       const type = types[typeIndex] ?? "LINEAR"
 
       // 方向ベクトル（LINEAR用）
-      let direction: Vec2 | undefined
       if (type === "LINEAR") {
         const angle = Math.random() * Math.PI * 2
-        direction = Vec2Utils.create(Math.cos(angle) * strength, Math.sin(angle) * strength)
+        const direction = Vec2Utils.create(Math.cos(angle) * strength, Math.sin(angle) * strength)
+        const field: LinearForceField = {
+          id: idGenerator(),
+          type: "LINEAR",
+          position,
+          radius,
+          strength: 1, // LINEARの場合はdirectionで強度を表現
+          direction,
+        }
+        fields.push(field)
+      } else {
+        const field: DirectionalForceField = {
+          id: idGenerator(),
+          type: type as "RADIAL" | "SPIRAL",
+          position,
+          radius,
+          strength,
+        }
+        fields.push(field)
       }
-
-      const field: DirectionalForceField = {
-        id: idGenerator(),
-        type,
-        position,
-        radius,
-        strength: type === "LINEAR" ? 1 : strength, // LINEARの場合はdirectionで強度を表現
-      }
-
-      if (direction !== undefined) {
-        field.direction = direction
-      }
-
-      fields.push(field)
     }
 
     return fields

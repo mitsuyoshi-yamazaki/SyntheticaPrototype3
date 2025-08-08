@@ -20,6 +20,7 @@ import type {
   Computer,
   Vec2,
 } from "@/types/game"
+import { isHull, isEnergyObject } from "@/utils/type-guards"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 import type { AgentPresetPlacement } from "./presets/types"
@@ -210,11 +211,10 @@ export class World {
 
     // HULLとエネルギーオブジェクトを分類
     for (const obj of this._stateManager.state.objects.values()) {
-      if (obj.type === "HULL") {
-        hulls.push(obj as Hull)
-      } else if (obj.type === "ENERGY") {
-        const energyObj = obj as EnergyObject
-        energyObjectsMap.set(energyObj.id, energyObj)
+      if (isHull(obj)) {
+        hulls.push(obj)
+      } else if (isEnergyObject(obj)) {
+        energyObjectsMap.set(obj.id, obj)
       }
     }
 
