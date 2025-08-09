@@ -21,6 +21,12 @@ import type {
   ComputerSpec,
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
+import { setGameLawParameters, TEST_PARAMETERS } from "@/config/game-law-parameters"
+
+// テスト用パラメータを設定
+beforeAll(() => {
+  setGameLawParameters(TEST_PARAMETERS)
+})
 
 // テスト用のObjectId生成関数
 const createTestObjectId = (value: string | number): ObjectId => {
@@ -46,15 +52,18 @@ describe("ObjectFactory", () => {
 
   describe("半径計算関数", () => {
     test("calculateEnergyRadius - エネルギー量から半径を計算", () => {
-      expect(calculateEnergyRadius(100)).toBeCloseTo(5.642, 2)
-      expect(calculateEnergyRadius(400)).toBeCloseTo(11.284, 2)
+      // ENERGY_TO_AREA_RATIO = 0.05の場合
+      // area = 100 * 0.05 = 5, radius = sqrt(5/π) ≈ 1.262
+      expect(calculateEnergyRadius(100)).toBeCloseTo(1.262, 2)
+      // area = 400 * 0.05 = 20, radius = sqrt(20/π) ≈ 2.523
+      expect(calculateEnergyRadius(400)).toBeCloseTo(2.523, 2)
       expect(calculateEnergyRadius(0)).toBe(0)
     })
 
     test("calculateUnitRadius - ユニットの半径を計算", () => {
       // calculateEnergyRadiusと同じ計算式
-      expect(calculateUnitRadius(100)).toBeCloseTo(5.642, 2)
-      expect(calculateUnitRadius(400)).toBeCloseTo(11.284, 2)
+      expect(calculateUnitRadius(100)).toBeCloseTo(1.262, 2)
+      expect(calculateUnitRadius(400)).toBeCloseTo(2.523, 2)
     })
 
     test("calculateHullRadius - HULLの半径を計算", () => {
@@ -77,9 +86,10 @@ describe("ObjectFactory", () => {
     })
 
     test("calculateAssemblerBuildEnergy - ASSEMBLERの構成エネルギーを計算", () => {
-      expect(calculateAssemblerBuildEnergy(1)).toBe(10000)
-      expect(calculateAssemblerBuildEnergy(5)).toBe(18000)
-      expect(calculateAssemblerBuildEnergy(10)).toBe(28000)
+      // TEST_PARAMETERS: assemblerBaseEnergy: 800, assemblerEnergyPerPower: 200
+      expect(calculateAssemblerBuildEnergy(1)).toBe(1000)  // 800 + 1 * 200
+      expect(calculateAssemblerBuildEnergy(5)).toBe(1800)  // 800 + 5 * 200
+      expect(calculateAssemblerBuildEnergy(10)).toBe(2800) // 800 + 10 * 200
     })
 
     test("calculateComputerBuildEnergy - COMPUTERの構成エネルギーを計算", () => {
@@ -357,7 +367,9 @@ describe("ObjectFactory", () => {
     test("非常に大きなエネルギー値", () => {
       const energy = 1000000
       const obj = factory.createEnergyObject(generateId(), Vec2Utils.create(0, 0), energy)
-      expect(obj.radius).toBeCloseTo(Math.sqrt(energy / Math.PI), 2)
+      // ENERGY_TO_AREA_RATIO = 0.05
+      // area = 1000000 * 0.05 = 50000, radius = sqrt(50000/π) ≈ 126.16
+      expect(obj.radius).toBeCloseTo(126.16, 1)
       expect(obj.energy).toBe(energy)
     })
 

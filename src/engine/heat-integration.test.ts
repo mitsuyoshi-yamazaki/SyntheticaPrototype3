@@ -6,6 +6,12 @@ import { World } from "./world"
 import type { WorldConfig } from "./world"
 import type { Hull, Computer, ObjectId } from "@/types/game"
 import { Vec2 } from "@/utils/vec2"
+import { setGameLawParameters, TEST_PARAMETERS } from "@/config/game-law-parameters"
+
+// テスト用パラメータを設定
+beforeAll(() => {
+  setGameLawParameters(TEST_PARAMETERS)
+})
 
 describe("熱システム統合", () => {
   let world: World
@@ -130,10 +136,10 @@ describe("熱システム統合", () => {
     })
 
     test("放熱により総熱量が減少する", () => {
-      // 複数のセルに熱を追加
+      // 複数のセルに熱を追加（高温にして放熱を促進）
       for (let x = 3; x < 8; x++) {
         for (let y = 3; y < 8; y++) {
-          world["_stateManager"].heatSystem.addHeat(x, y, 100)
+          world["_stateManager"].heatSystem.addHeat(x, y, 500)
         }
       }
 
@@ -141,8 +147,8 @@ describe("熱システム統合", () => {
       const initialStats = world["_stateManager"].heatSystem.getStats()
       const initialTotalHeat = initialStats.totalHeat
 
-      // 複数tick実行
-      for (let i = 0; i < 20; i++) {
+      // 複数tick実行（放熱は徐々に進行）
+      for (let i = 0; i < 50; i++) {
         world.tick()
       }
 

@@ -11,7 +11,7 @@ import type {
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { isHull } from "@/utils/type-guards"
-import { getEnergyParameters } from "@/config/energy-parameters"
+import { getGameLawParameters } from "@/config/game-law-parameters"
 
 /** 生産中ユニットの状態 */
 export type ProducingUnit = BaseUnit & {
@@ -40,31 +40,31 @@ export type ConstructionResult = {
 export const UnitCostCalculator = {
   /** HULLの構成エネルギー計算 */
   calculateHullBuildEnergy(capacity: number): number {
-    const params = getEnergyParameters()
+    const params = getGameLawParameters()
     return capacity * params.hullEnergyPerCapacity
   },
 
   /** HULLの生産エネルギー計算 */
   calculateHullProductionEnergy(buildEnergy: number): number {
-    const params = getEnergyParameters()
+    const params = getGameLawParameters()
     return Math.ceil(buildEnergy * params.hullProductionRatio)
   },
 
   /** ASSEMBLERの構成エネルギー計算 */
   calculateAssemblerBuildEnergy(assemblePower: number): number {
-    const params = getEnergyParameters()
+    const params = getGameLawParameters()
     return params.assemblerBaseEnergy + assemblePower * params.assemblerEnergyPerPower
   },
 
   /** ASSEMBLERの生産エネルギー計算 */
   calculateAssemblerProductionEnergy(buildEnergy: number): number {
-    const params = getEnergyParameters()
+    const params = getGameLawParameters()
     return Math.ceil(buildEnergy * params.assemblerProductionRatio)
   },
 
   /** COMPUTERの構成エネルギー計算 */
   calculateComputerBuildEnergy(processingPower: number, memorySize: number): number {
-    const params = getEnergyParameters()
+    const params = getGameLawParameters()
     const frequencyTerm = Math.ceil(
       Math.pow(processingPower / params.computerFrequencyDivisor, 2) * params.computerFrequencyEnergyMultiplier
     )
@@ -73,7 +73,7 @@ export const UnitCostCalculator = {
 
   /** COMPUTERの生産エネルギー計算 */
   calculateComputerProductionEnergy(buildEnergy: number): number {
-    const params = getEnergyParameters()
+    const params = getGameLawParameters()
     return Math.ceil(buildEnergy * params.computerProductionRatio)
   },
 
@@ -114,10 +114,10 @@ export class AssemblerConstructionSystem {
 
   // パラメータは直接EnergyParametersから取得
   private get parameters(): ConstructionParameters {
-    const energyParams = getEnergyParameters()
+    const lawParams = getGameLawParameters()
     return {
-      producingUnitRatio: energyParams.productionStartCostRatio,
-      repairCostMultiplier: energyParams.repairCostMultiplier,
+      producingUnitRatio: lawParams.productionStartCostRatio,
+      repairCostMultiplier: lawParams.repairCostMultiplier,
     }
   }
 

@@ -3,7 +3,7 @@
  */
 
 import type { Vec2 } from "@/types/game"
-import { getEnergyParameters } from "@/config/energy-parameters"
+import { getGameLawParameters } from "@/config/game-law-parameters"
 
 /** 熱システムのパラメータ */
 export type HeatSystemParameters = {
@@ -25,18 +25,18 @@ export type HeatSystemParameters = {
   readonly damageMultiplierProducing: number
 }
 
-/** エネルギーパラメータから熱システムパラメータを生成 */
-export const createHeatParametersFromEnergyParams = (): HeatSystemParameters => {
-  const energyParams = getEnergyParameters()
+/** ゲーム法則パラメータから熱システムパラメータを生成 */
+export const createHeatParametersFromGameLaws = (): HeatSystemParameters => {
+  const lawParams = getGameLawParameters()
   return {
-    heatDiffusionBase: Math.round(1 / energyParams.heatDiffusionRate),
+    heatDiffusionBase: Math.round(1 / lawParams.heatDiffusionRate),
     heatFlowRate: 3, // 固定値（熱流計算用）
     heatFlowLimitRatio: 2, // 固定値（熱流制限用）
     radiationEnvRatio: 0.9, // 固定値（環境温度比）
-    radiationRate: Math.round(1 / energyParams.heatRadiationRate),
-    heatDamageThreshold: energyParams.heatDamageThreshold,
-    damageMultiplierDamaged: energyParams.heatDamageMultiplierDamaged,
-    damageMultiplierProducing: energyParams.heatDamageMultiplierProducing,
+    radiationRate: Math.round(1 / lawParams.heatRadiationRate),
+    heatDamageThreshold: lawParams.heatDamageThreshold,
+    damageMultiplierDamaged: lawParams.heatDamageMultiplierDamaged,
+    damageMultiplierProducing: lawParams.heatDamageMultiplierProducing,
   }
 }
 
@@ -68,7 +68,7 @@ export class HeatSystem {
   ) {
     this._width = width
     this._height = height
-    this._parameters = parameters ?? createHeatParametersFromEnergyParams()
+    this._parameters = parameters ?? createHeatParametersFromGameLaws()
 
     // 熱グリッドの初期化
     this._currentHeat = new Array<number[]>(height)

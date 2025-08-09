@@ -106,23 +106,17 @@ export type ComputerSpec = {
 
 export type UnitSpec = HullSpec | AssemblerSpec | ComputerSpec
 
-/** ワールドパラメータ */
+/** 
+ * ワールドパラメータ
+ * このワールド固有のローカル設定（ゲーム世界の一部分の性質）
+ */
 export type WorldParameters = {
-  // 物理
-  maxForce: number
-  forceScale: number
-  friction: number
-
-  // エネルギー
+  // エネルギー源の配置
   energySourceCount: number
   energySourceMinRate: number
   energySourceMaxRate: number
 
-  // 熱
-  heatDiffusionRate: number
-  heatRadiationRate: number
-
-  // シミュレーション
+  // シミュレーション設定
   ticksPerFrame: number
   maxFPS?: number // FPS上限（省略時は60）
 }

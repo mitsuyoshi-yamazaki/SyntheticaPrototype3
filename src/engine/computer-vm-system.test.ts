@@ -2,6 +2,12 @@ import { ComputerVMSystem } from "./computer-vm-system"
 import { ObjectFactory } from "./object-factory"
 import { VMState } from "./vm-state"
 import type { Computer, ObjectId } from "@/types/game"
+import { setGameLawParameters, TEST_PARAMETERS } from "@/config/game-law-parameters"
+
+// テスト用パラメータを設定
+beforeAll(() => {
+  setGameLawParameters(TEST_PARAMETERS)
+})
 
 describe("ComputerVMSystem", () => {
   let factory: ObjectFactory

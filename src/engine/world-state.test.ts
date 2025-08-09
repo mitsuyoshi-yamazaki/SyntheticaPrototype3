@@ -29,16 +29,16 @@ describe("WorldStateManager", () => {
       expect(state.parameters).toEqual(DEFAULT_PARAMETERS)
     })
 
-    test("デフォルトパラメータはEnergyParametersから生成される", () => {
+    test("デフォルトパラメータはGameLawParametersから生成される", () => {
       const customManager = new WorldStateManager(worldWidth, worldHeight)
       const params = customManager.state.parameters
 
-      // パラメータが存在することを確認
-      expect(params.maxForce).toBeDefined()
-      expect(params.friction).toBeDefined()
+      // WorldParametersのローカル設定が存在することを確認
       expect(params.energySourceCount).toBeDefined()
-      expect(params.forceScale).toBeDefined()
-      expect(params.heatDiffusionRate).toBeDefined()
+      expect(params.energySourceMinRate).toBeDefined()
+      expect(params.energySourceMaxRate).toBeDefined()
+      expect(params.ticksPerFrame).toBeDefined()
+      expect(params.maxFPS).toBeDefined()
     })
   })
 
@@ -330,15 +330,15 @@ describe("WorldStateManager", () => {
 
     test("パラメータを更新できる", () => {
       const newParams = {
-        maxForce: 15,
-        friction: 0.9,
+        energySourceCount: 20,
+        ticksPerFrame: 2,
       }
 
       manager.updateParameters(newParams)
-      expect(manager.state.parameters.maxForce).toBe(15)
-      expect(manager.state.parameters.friction).toBe(0.9)
+      expect(manager.state.parameters.energySourceCount).toBe(20)
+      expect(manager.state.parameters.ticksPerFrame).toBe(2)
       // 他のパラメータは変更されない
-      expect(manager.state.parameters.energySourceCount).toBe(DEFAULT_PARAMETERS.energySourceCount)
+      expect(manager.state.parameters.energySourceMinRate).toBe(DEFAULT_PARAMETERS.energySourceMinRate)
     })
   })
 

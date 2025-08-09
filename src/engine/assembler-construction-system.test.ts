@@ -1,6 +1,12 @@
 import { AssemblerConstructionSystem, UnitCostCalculator } from "./assembler-construction-system"
 import type { ObjectId, UnitSpec, Hull, Assembler, Computer } from "@/types/game"
 import { Vec2 } from "@/utils/vec2"
+import { setGameLawParameters, TEST_PARAMETERS } from "@/config/game-law-parameters"
+
+// テスト用パラメータを設定
+beforeAll(() => {
+  setGameLawParameters(TEST_PARAMETERS)
+})
 
 describe("UnitCostCalculator", () => {
   describe("HULL cost calculation", () => {

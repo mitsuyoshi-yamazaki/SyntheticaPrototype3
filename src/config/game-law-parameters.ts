@@ -1,9 +1,18 @@
 /**
- * エネルギーパラメータ設定
- * ゲームバランスと自己複製の実現性に関わる各種エネルギー消費量の設定
+ * ゲーム世界の物理法則パラメータ
+ * ゲーム世界全体に適用される普遍的な法則・定数の設定
  */
 
-export type EnergyParameters = {
+export type GameLawParameters = {
+  // ========== 物理・運動 ==========
+  
+  /** 最大力 */
+  maxForce: number;
+  /** 力のスケール */
+  forceScale: number;
+  /** 摩擦係数 */
+  friction: number;
+  
   // ========== ユニット構成エネルギー ==========
   
   // HULL
@@ -107,7 +116,12 @@ export type EnergyParameters = {
  * デフォルトパラメータ
  * 元の仕様書に基づく標準値
  */
-export const DEFAULT_PARAMETERS: EnergyParameters = {
+export const DEFAULT_PARAMETERS: GameLawParameters = {
+  // 物理・運動
+  maxForce: 10,
+  forceScale: 5,
+  friction: 0.98,
+  
   // ユニット構成エネルギー
   hullEnergyPerCapacity: 2,
   assemblerBaseEnergy: 8000,
@@ -164,7 +178,7 @@ export const DEFAULT_PARAMETERS: EnergyParameters = {
  * バランス調整パラメータ
  * 自己複製が現実的に可能なバランス調整版
  */
-export const BALANCED_PARAMETERS: EnergyParameters = {
+export const BALANCED_PARAMETERS: GameLawParameters = {
   ...DEFAULT_PARAMETERS,
   
   // ASSEMBLERのコストを削減（自己複製を可能にする）
@@ -188,7 +202,7 @@ export const BALANCED_PARAMETERS: EnergyParameters = {
  * 実験用パラメータ
  * 極端な設定でゲームの挙動を確認するための設定
  */
-export const EXPERIMENTAL_PARAMETERS: EnergyParameters = {
+export const EXPERIMENTAL_PARAMETERS: GameLawParameters = {
   ...DEFAULT_PARAMETERS,
   
   // 極端に低いコスト設定
@@ -213,29 +227,91 @@ export const EXPERIMENTAL_PARAMETERS: EnergyParameters = {
 };
 
 /**
+ * テスト用パラメータ
+ * ユニットテストで使用する固定値
+ */
+export const TEST_PARAMETERS: GameLawParameters = {
+  // 物理・運動
+  maxForce: 10,
+  forceScale: 5,
+  friction: 0.98,
+  
+  // ユニット構成エネルギー（テスト用に簡略化）
+  hullEnergyPerCapacity: 2,
+  assemblerBaseEnergy: 800,
+  assemblerEnergyPerPower: 200,
+  computerBaseEnergy: 500,
+  computerFrequencyEnergyMultiplier: 100,
+  computerFrequencyDivisor: 5,
+  computerMemoryEnergyPerByte: 50,
+  
+  // ユニット生産エネルギー
+  hullProductionRatio: 0.05,
+  assemblerProductionRatio: 0.2,
+  computerProductionRatio: 0.1,
+  
+  // 生産開始時コスト
+  productionStartCostRatio: 0.05,
+  
+  // COMPUTER動作時の消費エネルギー
+  computerInstructionCost1Byte: 1,
+  computerInstructionCost3Byte: 3,
+  computerInstructionCost4Byte: 4,
+  computerInstructionCost5Byte: 5,
+  computerAbsoluteAddressCost: 2,
+  computerUnitOperationCost: 10,
+  
+  // エネルギー収集・崩壊
+  energyDecayRate: 0.001,
+  energySourceMinOutput: 10,
+  energySourceMaxOutput: 100,
+  energyCollectionRadiusMultiplier: 2,
+  
+  // 熱システム
+  energyToHeatConversionRatio: 1.0,
+  heatDiffusionRate: 0.25,
+  heatRadiationRate: 0.1,
+  heatDamageThreshold: 100,
+  heatDamageMultiplier: 1.0,
+  heatDamageMultiplierDamaged: 2.0,
+  heatDamageMultiplierProducing: 3.0,
+  
+  // 修復コスト
+  repairCostMultiplier: 1.1,
+  
+  // ユニット結合・分離
+  hullMergeEnergyCost: 0,
+  unitDetachEnergyCost: 0,
+  
+  // 物理・移動
+  movementEnergyCostPerMass: 0,
+  collisionEnergyLoss: 0,
+};
+
+/**
  * 現在のエネルギーパラメータ設定
  * 環境変数や設定に応じて切り替え
  */
-let currentParameters: EnergyParameters = DEFAULT_PARAMETERS;
+let currentParameters: GameLawParameters = DEFAULT_PARAMETERS;
 
 /**
- * 現在のエネルギーパラメータを取得
+ * 現在のゲーム法則パラメータを取得
  */
-export const getEnergyParameters = (): EnergyParameters => {
+export const getGameLawParameters = (): GameLawParameters => {
   return currentParameters;
 };
 
 /**
- * エネルギーパラメータを設定
+ * ゲーム法則パラメータを設定
  */
-export const setEnergyParameters = (params: EnergyParameters): void => {
+export const setGameLawParameters = (params: GameLawParameters): void => {
   currentParameters = params;
 };
 
 /**
  * プリセット名からパラメータを取得
  */
-export const getPresetParameters = (preset: 'default' | 'balanced' | 'experimental'): EnergyParameters => {
+export const getPresetParameters = (preset: 'default' | 'balanced' | 'experimental'): GameLawParameters => {
   switch (preset) {
     case 'balanced':
       return BALANCED_PARAMETERS;

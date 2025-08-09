@@ -11,29 +11,18 @@ import type {
   DirectionalForceField,
 } from "@/types/game"
 import { PhysicsEngine, DEFAULT_PHYSICS_PARAMETERS } from "./physics-engine"
-import type { PhysicsParameters, PhysicsParametersUpdate } from "./physics-engine"
+import type { PhysicsParameters } from "./physics-engine"
 import { HeatSystem } from "./heat-system"
-import { getEnergyParameters } from "@/config/energy-parameters"
+import { getGameLawParameters } from "@/config/game-law-parameters"
 
 /** デフォルトのワールドパラメータを生成 */
 export const createDefaultParameters = (): WorldParameters => {
-  const energyParams = getEnergyParameters()
+  const lawParams = getGameLawParameters()
   return {
-    // 物理
-    maxForce: 10,
-    forceScale: 5,
-    friction: 0.98,
-
-    // エネルギー
+    // ローカル設定（このワールド固有）
     energySourceCount: 10,
-    energySourceMinRate: energyParams.energySourceMinOutput,
-    energySourceMaxRate: energyParams.energySourceMaxOutput,
-
-    // 熱
-    heatDiffusionRate: energyParams.heatDiffusionRate,
-    heatRadiationRate: energyParams.heatRadiationRate,
-
-    // シミュレーション
+    energySourceMinRate: lawParams.energySourceMinOutput,
+    energySourceMaxRate: lawParams.energySourceMaxOutput,
     ticksPerFrame: 1,
     maxFPS: 60,
   }
@@ -60,8 +49,9 @@ export class WorldStateManager {
     return this._heatSystem
   }
 
-  public constructor(width: number, height: number) {
+  public constructor(width: number, height: number, parameters?: Partial<WorldParameters>) {
     const defaultParams = createDefaultParameters()
+    const finalParams = { ...defaultParams, ...parameters }
     
     this._state = {
       width,
@@ -71,17 +61,18 @@ export class WorldStateManager {
       energySources: new Map(),
       forceFields: new Map(),
       spatialIndex: new Map(),
-      parameters: defaultParams,
+      parameters: finalParams,
       nextObjectId: 1,
     }
 
-    // 物理演算エンジンの初期化
+    // 物理演算エンジンの初期化（ゲーム法則パラメータから取得）
+    const lawParams = getGameLawParameters()
     const physicsParams: PhysicsParameters = {
       ...DEFAULT_PHYSICS_PARAMETERS,
-      frictionCoefficient: defaultParams.friction,
+      frictionCoefficient: lawParams.friction,
       separationForce: {
-        maxForce: defaultParams.maxForce,
-        forceScale: defaultParams.forceScale,
+        maxForce: lawParams.maxForce,
+        forceScale: lawParams.forceScale,
         minForce: 1,
       },
     }
@@ -155,22 +146,7 @@ export class WorldStateManager {
 
   public updateParameters(params: Partial<WorldParameters>): void {
     Object.assign(this._state.parameters, params)
-
-    // 物理演算パラメータも更新
-    if (params.friction != null || params.maxForce != null || params.forceScale != null) {
-      const physicsParams: PhysicsParametersUpdate = {}
-      if (params.friction != null) {
-        physicsParams.frictionCoefficient = params.friction
-      }
-      if (params.maxForce != null || params.forceScale != null) {
-        physicsParams.separationForce = {
-          maxForce: params.maxForce ?? this._state.parameters.maxForce,
-          forceScale: params.forceScale ?? this._state.parameters.forceScale,
-          minForce: 1,
-        }
-      }
-      this._physicsEngine.updateParameters(physicsParams)
-    }
+    // 物理演算パラメータはゲーム法則パラメータから取得されるため、ここでは更新しない
   }
 
   /** 空間インデックスを更新 */

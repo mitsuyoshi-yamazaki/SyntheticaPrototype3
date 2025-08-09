@@ -16,6 +16,12 @@ jest.mock("pixi.js", () => ({
     removeChildren: jest.fn(),
     addChild: jest.fn(),
   })),
+  Text: jest.fn().mockImplementation(() => ({
+    x: 0,
+    y: 0,
+    text: "",
+    style: {},
+  })),
 }))
 
 // エンジンのモック

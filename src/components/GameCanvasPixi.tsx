@@ -7,7 +7,7 @@ import { Viewport } from "@/engine/viewport"
 import type { ObjectId } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { SELF_REPLICATOR_PRESET } from "../engine/presets/self-replicator-preset"
-import { setPresetParameters } from "@/config/energy-parameters"
+import { setPresetParameters } from "@/config/game-law-parameters"
 
 type GameCanvasProps = {
   width?: number
