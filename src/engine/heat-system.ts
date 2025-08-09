@@ -3,6 +3,7 @@
  */
 
 import type { Vec2 } from "@/types/game"
+import { getEnergyParameters } from "@/config/energy-parameters"
 
 /** 熱システムのパラメータ */
 export type HeatSystemParameters = {
@@ -34,6 +35,21 @@ export const DEFAULT_HEAT_PARAMETERS: HeatSystemParameters = {
   heatDamageThreshold: 100,
   damageMultiplierDamaged: 2,
   damageMultiplierProducing: 3,
+}
+
+/** エネルギーパラメータから熱システムパラメータを生成 */
+export const createHeatParametersFromEnergyParams = (): HeatSystemParameters => {
+  const energyParams = getEnergyParameters()
+  return {
+    heatDiffusionBase: Math.round(1 / energyParams.heatDiffusionRate),
+    heatFlowRate: 3, // 固定値（熱流計算用）
+    heatFlowLimitRatio: 2, // 固定値（熱流制限用）
+    radiationEnvRatio: 0.9, // 固定値（環境温度比）
+    radiationRate: Math.round(1 / energyParams.heatRadiationRate),
+    heatDamageThreshold: energyParams.heatDamageThreshold,
+    damageMultiplierDamaged: energyParams.heatDamageMultiplierDamaged,
+    damageMultiplierProducing: energyParams.heatDamageMultiplierProducing,
+  }
 }
 
 /** 熱グリッドの統計情報 */

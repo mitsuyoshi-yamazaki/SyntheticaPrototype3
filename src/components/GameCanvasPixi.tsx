@@ -7,6 +7,7 @@ import { Viewport } from "@/engine/viewport"
 import type { ObjectId } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { SELF_REPLICATOR_PRESET } from "../engine/presets/self-replicator-preset"
+import { setPresetParameters } from "@/config/energy-parameters"
 
 type GameCanvasProps = {
   width?: number
@@ -24,6 +25,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
   const gameWorldRef = useRef<GameWorld | null>(null)
   const viewportRef = useRef<Viewport | null>(null)
   const [isHeatMapVisible, setIsHeatMapVisible] = useState(false)
+  const [energyPreset, setEnergyPreset] = useState<'default' | 'balanced' | 'experimental'>('default')
 
   useEffect(() => {
     if (containerRef.current == null) {
@@ -49,6 +51,9 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       }
 
       appRef.current = app
+
+      // エネルギーパラメータプリセットを適用
+      setPresetParameters(energyPreset)
 
       // GameWorldの初期化
       const gameWorld = new GameWorld({
@@ -244,7 +249,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       gameWorldRef.current = null
       viewportRef.current = null
     }
-  }, [width, height, ticksPerFrame])
+  }, [width, height, ticksPerFrame, energyPreset])
 
   // 熱マップ表示状態の変更を反映
   useEffect(() => {
@@ -263,6 +268,15 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         >
           熱マップ: {isHeatMapVisible ? "ON" : "OFF"}
         </button>
+        <select
+          value={energyPreset}
+          onChange={(e) => setEnergyPreset(e.target.value as 'default' | 'balanced' | 'experimental')}
+          className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
+        >
+          <option value="default">デフォルト</option>
+          <option value="balanced">バランス調整版</option>
+          <option value="experimental">実験用</option>
+        </select>
       </div>
     </div>
   )

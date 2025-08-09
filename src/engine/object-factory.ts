@@ -15,6 +15,7 @@ import type {
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { wrapPosition } from "@/utils/torus-math"
+import { getEnergyParameters } from "@/config/energy-parameters"
 
 const ENERGY_TO_AREA_RATIO = 0.05
 
@@ -42,12 +43,14 @@ export const calculateHullRadius = (capacity: number, buildEnergy: number): numb
 
 /** HULLの構成エネルギーを計算 */
 export const calculateHullBuildEnergy = (capacity: number): number => {
-  return capacity * 2
+  const params = getEnergyParameters()
+  return capacity * params.hullEnergyPerCapacity
 }
 
 /** ASSEMBLERの構成エネルギーを計算 */
 export const calculateAssemblerBuildEnergy = (assemblePower: number): number => {
-  return 8000 + assemblePower * 2000
+  const params = getEnergyParameters()
+  return params.assemblerBaseEnergy + assemblePower * params.assemblerEnergyPerPower
 }
 
 /** COMPUTERの構成エネルギーを計算 */
@@ -55,8 +58,11 @@ export const calculateComputerBuildEnergy = (
   processingPower: number,
   memorySize: number
 ): number => {
-  const frequencyComponent = Math.ceil(Math.pow(processingPower / 5, 2) * 100)
-  return 500 + frequencyComponent + memorySize * 50
+  const params = getEnergyParameters()
+  const frequencyComponent = Math.ceil(
+    Math.pow(processingPower / params.computerFrequencyDivisor, 2) * params.computerFrequencyEnergyMultiplier
+  )
+  return params.computerBaseEnergy + frequencyComponent + memorySize * params.computerMemoryEnergyPerByte
 }
 
 export class ObjectFactory {

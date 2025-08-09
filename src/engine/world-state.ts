@@ -12,7 +12,7 @@ import type {
 } from "@/types/game"
 import { PhysicsEngine, DEFAULT_PHYSICS_PARAMETERS } from "./physics-engine"
 import type { PhysicsParameters, PhysicsParametersUpdate } from "./physics-engine"
-import { HeatSystem, DEFAULT_HEAT_PARAMETERS } from "./heat-system"
+import { HeatSystem, createHeatParametersFromEnergyParams } from "./heat-system"
 import type { HeatSystemParameters } from "./heat-system"
 
 /** デフォルトのワールドパラメータ */
@@ -83,10 +83,7 @@ export class WorldStateManager {
     // グリッドサイズを世界サイズから計算（1グリッド = 10ユニット）
     const gridWidth = Math.ceil(width / 10)
     const gridHeight = Math.ceil(height / 10)
-    const heatParams: HeatSystemParameters = {
-      ...DEFAULT_HEAT_PARAMETERS,
-      // TODO: パラメータから熱システム設定を取得
-    }
+    const heatParams: HeatSystemParameters = createHeatParametersFromEnergyParams()
     this._heatSystem = new HeatSystem(gridWidth, gridHeight, heatParams)
   }
 
