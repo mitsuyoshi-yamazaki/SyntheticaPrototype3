@@ -29,6 +29,7 @@
 - ✅ `AssemblerConstructionSystem` は利用されていない？ コンストラクタ引数で `ConstructionParameters` を渡している意味は？ `createHeatParametersFromEnergyParams()` は不要ではないか
 - ✅ `EnergyParameters` （世界の法則）と `WorldParameters` （世界の一部分の土地の性質）を分離する
 - `SELF_REPLICATOR_PRESET` のパラメータを自己複製可能な最小要素で更新し、エージェントの自己複製を試みる
+- spec-v3/synthetica-script.md の仕様に沿った命令セットになっているか確認する
 
 ### エージェントのデバッグ機能の追加
 

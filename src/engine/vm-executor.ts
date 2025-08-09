@@ -17,8 +17,6 @@ export type ExecutionResult = {
   readonly success: boolean
   /** エラーメッセージ（失敗時） */
   readonly error?: string
-  /** 実行停止フラグ */
-  readonly halted?: boolean
   /** 消費サイクル数 */
   readonly cycles: number
 }
@@ -964,10 +962,6 @@ export const InstructionExecutor = {
         return { success: true, cycles: 5 }
       }
 
-      case "HALT":
-        // 実行停止
-        return { success: true, halted: true, cycles: 1 }
-
       default:
         return {
           success: false,
@@ -1013,10 +1007,6 @@ export const InstructionExecutor = {
     while (totalCycles < maxCycles) {
       const result = this.step(vm, unit)
       totalCycles += result.cycles
-
-      if (!result.success || result.halted === true) {
-        break
-      }
     }
 
     return totalCycles

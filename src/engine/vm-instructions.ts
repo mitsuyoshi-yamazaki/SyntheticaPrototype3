@@ -602,7 +602,6 @@ export const FIVE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   },
 
   // 特殊命令
-  0xff: { opcode: 0xff, mnemonic: "HALT", length: 5, type: "SPECIAL", description: "実行停止" },
 }
 
 /** 全命令マップ */

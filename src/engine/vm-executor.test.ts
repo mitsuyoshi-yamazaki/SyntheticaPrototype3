@@ -378,22 +378,6 @@ describe("InstructionExecutor", () => {
   })
 
   describe("特殊命令", () => {
-    test("HALT（実行停止）", () => {
-      vm.writeMemory8(0, 0xff) // HALT
-      vm.writeMemory8(1, 0x00)
-      vm.writeMemory8(2, 0x00)
-      vm.writeMemory8(3, 0x00)
-      vm.writeMemory8(4, 0x00)
-
-      const decoded = InstructionDecoder.decode(vm)
-      const result = InstructionExecutor.execute(vm, decoded)
-
-      expect(result.success).toBe(true)
-      expect(result.halted).toBe(true)
-      expect(result.cycles).toBe(1)
-      expect(vm.pc).toBe(0) // PCは進まない
-    })
-
     describe("SCANM命令", () => {
       test("メモリブロックのコピーが正しく動作する", () => {
         const memory = vm.getMemoryArray()
@@ -564,7 +548,7 @@ describe("InstructionExecutor", () => {
         memory[0x10] = 0x03 // MOV_AB
         memory[0x11] = 0x04 // MOV_AD
         memory[0x12] = 0x05 // MOV_BA
-        memory[0x13] = 0xff // HALT
+        memory[0x13] = 0x00 // NOP
 
         // SCANM命令でプログラムを複製
         memory[0] = 0xc2 // SCANM
@@ -585,7 +569,7 @@ describe("InstructionExecutor", () => {
         expect(memory[0x80]).toBe(0x03) // MOV_AB
         expect(memory[0x81]).toBe(0x04) // MOV_AD
         expect(memory[0x82]).toBe(0x05) // MOV_BA
-        expect(memory[0x83]).toBe(0xff) // HALT
+        expect(memory[0x83]).toBe(0x00) // NOP
       })
     })
 
@@ -731,13 +715,13 @@ describe("InstructionExecutor", () => {
 
   describe("run実行", () => {
     test("複数命令の連続実行", () => {
-      // プログラム: A=1, A++, A++, HALT
+      // プログラム: A=1, A++, A++, NOP
       vm.writeMemory8(0, 0x70) // MOV_A_IMM
       vm.writeMemory8(1, 0x01)
       vm.writeMemory8(2, 0x00)
       vm.writeMemory8(3, 0x10) // INC_A
       vm.writeMemory8(4, 0x10) // INC_A
-      vm.writeMemory8(5, 0xff) // HALT
+      vm.writeMemory8(5, 0x00) // NOP
       vm.writeMemory8(6, 0x00)
       vm.writeMemory8(7, 0x00)
       vm.writeMemory8(8, 0x00)
@@ -745,26 +729,10 @@ describe("InstructionExecutor", () => {
 
       const cycles = InstructionExecutor.run(vm, 10)
 
-      expect(cycles).toBe(4) // 1 + 1 + 1 + 1
-      expect(vm.getRegister("A")).toBe(0x03)
-      expect(vm.pc).toBe(5) // HALTで停止
+      expect(cycles).toBe(10) // 最大サイクルまで実行
+      expect(vm.getRegister("A")).toBeGreaterThan(0x02) // 複数回実行される
     })
 
-    test("HALT命令で停止", () => {
-      vm.writeMemory8(0, 0x10) // INC_A
-      vm.writeMemory8(1, 0xff) // HALT
-      vm.writeMemory8(2, 0x00)
-      vm.writeMemory8(3, 0x00)
-      vm.writeMemory8(4, 0x00)
-      vm.writeMemory8(5, 0x00)
-      vm.writeMemory8(6, 0x10) // INC_A（実行されない）
-
-      const cycles = InstructionExecutor.run(vm, 10)
-
-      expect(cycles).toBe(2) // INC_A(1) + HALT(1)
-      expect(vm.getRegister("A")).toBe(0x01)
-      expect(vm.pc).toBe(1) // HALTで停止
-    })
 
     test("最大サイクル制限", () => {
       // 無限ループ

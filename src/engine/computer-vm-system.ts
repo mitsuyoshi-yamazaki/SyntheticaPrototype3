@@ -97,10 +97,6 @@ export const ComputerVMSystem = {
         continue
       }
 
-      if (result.halted === true) {
-        // HALT命令で停止（エラーではないが実行を終了）
-        break
-      }
     }
 
     // VM状態をユニットに同期（エラーがあっても同期）
@@ -129,13 +125,6 @@ export const ComputerVMSystem = {
     computer.vmCyclesExecuted = 0
   },
 
-  /**
-   * プログラムを停止（エラーを設定して実行を停止）
-   * @param computer COMPUTERユニット
-   */
-  stopProgram(computer: Computer): void {
-    computer.vmError = "Program stopped"
-  },
 
   /**
    * プログラムをロード
