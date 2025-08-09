@@ -49,9 +49,14 @@ export class ComputerVMSystemDebug {
    * VMを実行（インスタンスメソッド、デバッグ機能付き）
    */
   public executeVMWithDebug(computer: Computer, tick: number): void {
-    // エラーが発生している場合はスキップ
+    // エラーがあってもPCをリセットして実行を継続
     if (computer.vmError != null) {
-      return
+      // PCが範囲外の場合は0にリセット
+      if (computer.programCounter >= computer.memorySize) {
+        computer.programCounter = 0
+      }
+      // エラーをクリア
+      delete computer.vmError
     }
 
     // 親HULLを検索
@@ -84,7 +89,7 @@ export class ComputerVMSystemDebug {
 
     // 命令実行ループ
     computer.vmCyclesExecuted = 0
-    while (computer.vmCyclesExecuted < computer.processingPower && computer.vmError == null) {
+    while (computer.vmCyclesExecuted < computer.processingPower) {
       const beforePC = vmState.pc
       
       // 現在の命令を取得
@@ -115,23 +120,34 @@ export class ComputerVMSystemDebug {
           this.debugger.logInstruction(debugInfo)
         }
 
-        // 実行停止
-        if (!result.success || vmState.pc >= computer.memorySize) {
-          if (!result.success && result.error != null) {
-            computer.vmError = result.error
-            if (isTarget) {
-              this.debugger.logError(computer, result.error)
-            }
+        // エラー処理
+        if (!result.success) {
+          const errorMsg = result.error ?? "Unknown error"
+          if (isTarget) {
+            this.debugger.logError(computer, errorMsg)
           }
-          break
+          // PCを次の命令に進める（無効な命令をスキップ）
+          vmState.pc = (vmState.pc + 1) % computer.memorySize
+          // 最小サイクル消費
+          if (result.cycles === 0) {
+            computer.vmCyclesExecuted += 1
+          }
+          continue
+        }
+        
+        // PCが範囲外の場合
+        if (vmState.pc >= computer.memorySize) {
+          vmState.pc = 0 // ラップアラウンド
         }
       } catch (error) {
-        // エラー処理
-        computer.vmError = error instanceof Error ? error.message : String(error)
+        // エラー処理（スキップして継続）
+        const errorMsg = error instanceof Error ? error.message : String(error)
         if (isTarget) {
-          this.debugger.logError(computer, computer.vmError)
+          this.debugger.logError(computer, errorMsg)
         }
-        break
+        // PCを次の命令に進める
+        vmState.pc = (vmState.pc + 1) % computer.memorySize
+        computer.vmCyclesExecuted += 1
       }
     }
 

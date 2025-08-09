@@ -142,8 +142,8 @@ export const UnitSelfScanSystem = {
     memory[addr(SCAN_RESULT_ADDRESSES.MEMORY_SIZE)] = computer.memorySize & 0xff
     memory[addr(SCAN_RESULT_ADDRESSES.MEMORY_SIZE_H)] = (computer.memorySize >> 8) & 0xff
 
-    // 実行中フラグ（エラーがなければ実行中）
-    memory[addr(SCAN_RESULT_ADDRESSES.IS_RUNNING)] = computer.vmError == null ? 1 : 0
+    // 実行中フラグ（COMPUTERは常に実行中）
+    memory[addr(SCAN_RESULT_ADDRESSES.IS_RUNNING)] = 1
 
     // エラーフラグ
     memory[addr(SCAN_RESULT_ADDRESSES.HAS_ERROR)] = computer.vmError != null ? 1 : 0

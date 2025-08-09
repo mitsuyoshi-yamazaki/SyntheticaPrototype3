@@ -58,9 +58,14 @@ export const ComputerVMSystem = {
    * @param computer COMPUTERユニット
    */
   executeVM(computer: Computer): void {
-    // エラーが発生している場合はスキップ
+    // エラーがあってもPCをリセットして実行を継続
     if (computer.vmError != null) {
-      return
+      // PCが範囲外の場合は0にリセット
+      if (computer.programCounter >= computer.memorySize) {
+        computer.programCounter = 0
+      }
+      // エラーをクリア
+      delete computer.vmError
     }
 
     // VMState作成
@@ -74,7 +79,6 @@ export const ComputerVMSystem = {
     }
 
     let cyclesUsed = 0
-    let errorOccurred = false
 
     // 残りサイクル分だけ実行
     while (cyclesUsed < remainingCycles) {
@@ -83,10 +87,14 @@ export const ComputerVMSystem = {
       cyclesUsed += result.cycles
 
       if (!result.success) {
-        // エラー発生
-        computer.vmError = result.error ?? "Unknown error"
-        errorOccurred = true
-        break
+        // エラー発生（無効な命令をスキップして継続）
+        // PCを次の命令に進める（無効な命令をスキップ）
+        vm.pc = (vm.pc + 1) % computer.memorySize
+        // 最小サイクル消費
+        if (result.cycles === 0) {
+          cyclesUsed += 1
+        }
+        continue
       }
 
       if (result.halted === true) {
@@ -95,10 +103,8 @@ export const ComputerVMSystem = {
       }
     }
 
-    // VM状態をユニットに同期
-    if (!errorOccurred) {
-      this.syncVMState(vm, computer)
-    }
+    // VM状態をユニットに同期（エラーがあっても同期）
+    this.syncVMState(vm, computer)
 
     // 実行済みサイクル数を更新
     computer.vmCyclesExecuted += cyclesUsed

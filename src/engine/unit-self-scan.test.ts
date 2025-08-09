@@ -75,7 +75,6 @@ describe("UnitSelfScanSystem", () => {
       )
 
       // 実行状態を設定
-      computer.isRunning = true
       computer.vmError = "Test error"
 
       const bytesWritten = UnitSelfScanSystem.executeScan(computer, memory, 0)

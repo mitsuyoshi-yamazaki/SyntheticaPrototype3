@@ -39,12 +39,11 @@ describe("SCAN命令", () => {
     expect(vm.readMemory8(0x80 + SCAN_RESULT_ADDRESSES.UNIT_TYPE)).toBe(UNIT_TYPE_CODES.COMPUTER)
     expect(vm.readMemory8(0x80 + SCAN_RESULT_ADDRESSES.PROCESSING_POWER)).toBe(10)
     expect(vm.readMemory8(0x80 + SCAN_RESULT_ADDRESSES.MEMORY_SIZE)).toBe(256 & 0xff)
-    expect(vm.readMemory8(0x80 + SCAN_RESULT_ADDRESSES.IS_RUNNING)).toBe(0) // デフォルトfalse
+    expect(vm.readMemory8(0x80 + SCAN_RESULT_ADDRESSES.IS_RUNNING)).toBe(1) // COMPUTERは常に実行中
     expect(vm.readMemory8(0x80 + SCAN_RESULT_ADDRESSES.HAS_ERROR)).toBe(0) // エラーなし
   })
 
-  test("実行中のCOMPUTERのSCAN", () => {
-    computer.isRunning = true
+  test("大きな処理能力のCOMPUTERのSCAN", () => {
     // processingPowerは読み取り専用なので、テスト用に新しいオブジェクトを作成
     const computerWith1234Power = {
       ...computer,
