@@ -152,7 +152,8 @@ export class InstructionDecoder {
           // 即値ロード命令（5バイト）
           case "LOAD_IMM":
           case "LOAD_IMM_B":
-            // byte1,2が16bit即値（リトルエンディアン）
+            // 仕様: 第2,3バイトが16bit即値（リトルエンディアン）
+            // bytesは0-indexed: bytes[0]=opcode, bytes[1]=第2バイト, bytes[2]=第3バイト
             operands.immediate16 = (bytes[1] ?? 0) | ((bytes[2] ?? 0) << 8)
             break
 

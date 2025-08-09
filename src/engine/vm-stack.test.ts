@@ -195,21 +195,25 @@ describe("スタック操作命令", () => {
       vm.writeMemory8(1, 0x20) // PUSH_B
 
       // 別の値を設定
-      vm.writeMemory8(2, 0x70) // MOV_A_IMM
-      vm.writeMemory8(3, 0xff)
-      vm.writeMemory8(4, 0xff)
-      vm.writeMemory8(5, 0x71) // MOV_B_IMM
-      vm.writeMemory8(6, 0x00)
-      vm.writeMemory8(7, 0x00)
+      vm.writeMemory8(2, 0xe0) // LOAD_IMM (5バイト命令)
+      vm.writeMemory8(3, 0xff) // 16bit即値の下位バイト（第2バイト）
+      vm.writeMemory8(4, 0xff) // 16bit即値の上位バイト（第3バイト）
+      vm.writeMemory8(5, 0x00) // 未使用（第4バイト）
+      vm.writeMemory8(6, 0x00) // 未使用（第5バイト）
+      vm.writeMemory8(7, 0xe1) // LOAD_IMM_B (5バイト命令)
+      vm.writeMemory8(8, 0x00) // 16bit即値の下位バイト（第2バイト）
+      vm.writeMemory8(9, 0x00) // 16bit即値の上位バイト（第3バイト）
+      vm.writeMemory8(10, 0x00) // 未使用（第4バイト）
+      vm.writeMemory8(11, 0x00) // 未使用（第5バイト）
 
       // 元の値を復元
-      vm.writeMemory8(8, 0x2f) // POP_B
-      vm.writeMemory8(9, 0x2e) // POP_A
+      vm.writeMemory8(12, 0x2f) // POP_B
+      vm.writeMemory8(13, 0x2e) // POP_A
 
       InstructionExecutor.step(vm) // PUSH_A
       InstructionExecutor.step(vm) // PUSH_B
-      InstructionExecutor.step(vm) // MOV_A_IMM
-      InstructionExecutor.step(vm) // MOV_B_IMM
+      InstructionExecutor.step(vm) // LOAD_IMM
+      InstructionExecutor.step(vm) // LOAD_IMM_B
 
       expect(vm.getRegister("A")).toBe(0xffff)
       expect(vm.getRegister("B")).toBe(0x0000)
@@ -291,24 +295,35 @@ describe("スタック操作命令", () => {
       vm.writeMemory8(0, 0x21) // PUSH_C
       vm.writeMemory8(1, 0x22) // PUSH_D
 
-      // 関数内で自由に使用
-      vm.writeMemory8(2, 0x72) // MOV_C_IMM
-      vm.writeMemory8(3, 0x99)
-      vm.writeMemory8(4, 0x99)
-      vm.writeMemory8(5, 0x73) // MOV_D_IMM
-      vm.writeMemory8(6, 0x88)
-      vm.writeMemory8(7, 0x88)
+      // 関数内で自由に使用（C,DをMOV命令で変更）
+      vm.writeMemory8(2, 0x09) // MOV_AC (A -> C)
+      vm.setRegister("A", 0x9999) // Aレジスタを変更
+      vm.writeMemory8(3, 0x04) // MOV_AD (A -> D)
+      vm.setRegister("A", 0x8888) // Aレジスタを変更
 
       // 関数終了時に復元
-      vm.writeMemory8(8, 0x31) // POP_D
-      vm.writeMemory8(9, 0x30) // POP_C
+      vm.writeMemory8(4, 0x31) // POP_D
+      vm.writeMemory8(5, 0x30) // POP_C
+
+      // 元のA,Bレジスタの値を復元
+      vm.setRegister("A", 0x1111)
+      vm.setRegister("B", 0x2222)
 
       // 実行
-      for (let i = 0; i < 6; i++) {
-        InstructionExecutor.step(vm)
-      }
+      InstructionExecutor.step(vm) // PUSH_C
+      InstructionExecutor.step(vm) // PUSH_D
+      
+      // 関数内での操作
+      vm.setRegister("A", 0x9999)
+      InstructionExecutor.step(vm) // MOV_AC
+      vm.setRegister("A", 0x8888)
+      InstructionExecutor.step(vm) // MOV_AD
+      
+      // 復元
+      InstructionExecutor.step(vm) // POP_D
+      InstructionExecutor.step(vm) // POP_C
 
-      expect(vm.getRegister("A")).toBe(0x1111) // 変更なし
+      expect(vm.getRegister("A")).toBe(0x8888) // 関数内で変更された
       expect(vm.getRegister("B")).toBe(0x2222) // 変更なし
       expect(vm.getRegister("C")).toBe(0x3333) // 復元された
       expect(vm.getRegister("D")).toBe(0x4444) // 復元された
