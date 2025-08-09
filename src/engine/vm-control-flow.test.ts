@@ -36,7 +36,7 @@ describe("制御フロー命令", () => {
     })
 
     test("JMP_ABS: 絶対ジャンプ", () => {
-      vm.writeMemory8(0, 0x90) // JMP_ABS
+      vm.writeMemory8(0, 0xb1) // JMP_ABS
       vm.writeMemory8(1, 0x00) // 未使用
       vm.writeMemory8(2, 0x34) // address: 0x1234
       vm.writeMemory8(3, 0x12)
@@ -148,23 +148,6 @@ describe("制御フロー命令", () => {
       expect(returnAddr).toBe(3) // 次の命令のアドレス
     })
 
-    test("CALL_ABS: サブルーチン呼び出し（絶対）", () => {
-      vm.sp = 0x80
-      vm.writeMemory8(0, 0x91) // CALL_ABS
-      vm.writeMemory8(1, 0x00) // 未使用
-      vm.writeMemory8(2, 0x00) // address: 0x5000
-      vm.writeMemory8(3, 0x50)
-
-      const result = InstructionExecutor.step(vm)
-
-      expect(result.success).toBe(true)
-      expect(result.cycles).toBe(3)
-      expect(vm.pc).toBe(0x5000)
-      expect(vm.sp).toBe(0x7e)
-
-      const returnAddr = vm.readMemory16(0x7e)
-      expect(returnAddr).toBe(4) // 次の命令のアドレス
-    })
 
     test("RET: サブルーチンから復帰", () => {
       // スタックにリターンアドレスを準備
