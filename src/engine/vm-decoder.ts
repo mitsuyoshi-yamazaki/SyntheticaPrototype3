@@ -123,23 +123,26 @@ export class InstructionDecoder {
           case "STORE_ABS_W":
           case "JMP_ABS":
           case "CALL_ABS":
-            // byte2,3が16bitアドレス（リトルエンディアン）
-            operands.address16 = (bytes[2] ?? 0) | ((bytes[3] ?? 0) << 8)
+            // 仕様: 第2,3バイトが16bitアドレス（リトルエンディアン）
+            // bytes[0]=opcode, bytes[1]=第2バイト(low), bytes[2]=第3バイト(high)
+            operands.address16 = (bytes[1] ?? 0) | ((bytes[2] ?? 0) << 8)
             break
 
           // ユニット制御命令
           case "UNIT_MEM_READ":
           case "UNIT_MEM_WRITE":
-            operands.unitId = bytes[2] ?? 0
-            operands.unitMemAddr = bytes[3] ?? 0
+            // 仕様: 第2バイト: ユニット種別とインデックス
+            //       第3,4バイト: ユニット内メモリアドレス（16bit）
+            operands.unitId = bytes[1] ?? 0
+            operands.unitMemAddr = (bytes[2] ?? 0) | ((bytes[3] ?? 0) << 8)
             break
           
           // 動的ユニット操作命令
           case "UNIT_MEM_WRITE_DYN":
-            // 第2バイト: ユニット種別とインデックス
-            operands.unitId = bytes[2] ?? 0
-            // 第3バイト: アドレス指定レジスタ（レジスタインデックスとして使用）
-            operands.unitMemAddr = bytes[3] ?? 0
+            // 仕様: 第2バイト: ユニット種別とインデックス
+            //       第3バイト: アドレス指定レジスタ
+            operands.unitId = bytes[1] ?? 0
+            operands.unitMemAddr = bytes[2] ?? 0  // レジスタインデックス
             break
         }
       }

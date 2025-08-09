@@ -137,10 +137,10 @@ describe("メモリ操作命令", () => {
     test("LOAD_ABS: 絶対アドレス読み込み（バイト）", () => {
       vm.writeMemory8(0x34, 0xef)
 
-      vm.writeMemory8(0, 0x80) // LOAD_ABS
-      vm.writeMemory8(1, 0x00) // 未使用
-      vm.writeMemory8(2, 0x34) // address: 0x0034
-      vm.writeMemory8(3, 0x00)
+      vm.writeMemory8(0, 0xa0) // LOAD_ABS
+      vm.writeMemory8(1, 0x34) // address low byte
+      vm.writeMemory8(2, 0x00) // address high byte
+      vm.writeMemory8(3, 0x00) // 未使用
 
       const result = InstructionExecutor.step(vm)
 
@@ -153,10 +153,10 @@ describe("メモリ操作命令", () => {
     test("STORE_ABS: 絶対アドレス書き込み（バイト）", () => {
       vm.setRegister("A", 0xcd)
 
-      vm.writeMemory8(0, 0x81) // STORE_ABS
-      vm.writeMemory8(1, 0x00)
-      vm.writeMemory8(2, 0x50) // address: 0x0050
-      vm.writeMemory8(3, 0x00)
+      vm.writeMemory8(0, 0xa1) // STORE_ABS
+      vm.writeMemory8(1, 0x50) // address low byte
+      vm.writeMemory8(2, 0x00) // address high byte  
+      vm.writeMemory8(3, 0x00) // 未使用
 
       const result = InstructionExecutor.step(vm)
 
@@ -169,10 +169,10 @@ describe("メモリ操作命令", () => {
       vm = new VMState(0x3000)
       vm.writeMemory16(0x2000, 0xfeed)
 
-      vm.writeMemory8(0, 0x82) // LOAD_ABS_W
-      vm.writeMemory8(1, 0x00)
-      vm.writeMemory8(2, 0x00) // address: 0x2000（リトルエンディアン）
-      vm.writeMemory8(3, 0x20)
+      vm.writeMemory8(0, 0xa2) // LOAD_ABS_W
+      vm.writeMemory8(1, 0x00) // address low byte
+      vm.writeMemory8(2, 0x20) // address high byte
+      vm.writeMemory8(3, 0x00) // 未使用
 
       const result = InstructionExecutor.step(vm)
 
@@ -183,10 +183,10 @@ describe("メモリ操作命令", () => {
     test("STORE_ABS_W: 絶対アドレス書き込み（ワード）", () => {
       vm.setRegister("A", 0xbeef)
 
-      vm.writeMemory8(0, 0x83) // STORE_ABS_W
-      vm.writeMemory8(1, 0x00)
-      vm.writeMemory8(2, 0x30) // address: 0x0030
-      vm.writeMemory8(3, 0x00)
+      vm.writeMemory8(0, 0xa3) // STORE_ABS_W
+      vm.writeMemory8(1, 0x30) // address low byte
+      vm.writeMemory8(2, 0x00) // address high byte
+      vm.writeMemory8(3, 0x00) // 未使用
 
       const result = InstructionExecutor.step(vm)
 
@@ -240,10 +240,10 @@ describe("メモリ操作命令", () => {
 
       // ワード読み込みで構造体のyフィールドを読む
       vm.pc = 0
-      vm.writeMemory8(0, 0x82) // LOAD_ABS_W（絶対アドレスで直接指定）
-      vm.writeMemory8(1, 0x00)
-      vm.writeMemory8(2, 0x02) // address: 0x0202 (structAddr + 2)
-      vm.writeMemory8(3, 0x02)
+      vm.writeMemory8(0, 0xa2) // LOAD_ABS_W（絶対アドレスで直接指定）
+      vm.writeMemory8(1, 0x02) // address low byte: 0x0202 (structAddr + 2)
+      vm.writeMemory8(2, 0x02) // address high byte
+      vm.writeMemory8(3, 0x00) // 未使用
 
       InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(200)
@@ -263,10 +263,10 @@ describe("メモリ操作命令", () => {
       vm.setRegister("A", 0xffff)
 
       // スタックから復元（直接メモリ読み込み）
-      vm.writeMemory8(1, 0x82) // LOAD_ABS_W
-      vm.writeMemory8(2, 0x00)
-      vm.writeMemory8(3, 0x7e) // スタックトップアドレス
-      vm.writeMemory8(4, 0x00)
+      vm.writeMemory8(1, 0xa2) // LOAD_ABS_W
+      vm.writeMemory8(2, 0x7e) // address low byte: スタックトップアドレス
+      vm.writeMemory8(3, 0x00) // address high byte
+      vm.writeMemory8(4, 0x00) // 未使用
 
       InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(0x1234)
@@ -279,10 +279,10 @@ describe("メモリ操作命令", () => {
       vm.writeMemory8(0xfffe, 0x34)
       vm.writeMemory8(0xffff, 0x12)
 
-      vm.writeMemory8(0, 0x82) // LOAD_ABS_W
-      vm.writeMemory8(1, 0x00)
-      vm.writeMemory8(2, 0xfe) // address: 0xfffe
-      vm.writeMemory8(3, 0xff)
+      vm.writeMemory8(0, 0xa2) // LOAD_ABS_W
+      vm.writeMemory8(1, 0xfe) // address low byte: 0xfffe
+      vm.writeMemory8(2, 0xff) // address high byte
+      vm.writeMemory8(3, 0x00) // 未使用
 
       const result = InstructionExecutor.step(vm)
 
@@ -293,10 +293,10 @@ describe("メモリ操作命令", () => {
     test("メモリ境界でのワード書き込み", () => {
       vm.setRegister("A", 0xabcd)
 
-      vm.writeMemory8(0, 0x83) // STORE_ABS_W
-      vm.writeMemory8(1, 0x00)
-      vm.writeMemory8(2, 0xff) // address: 0xffff
-      vm.writeMemory8(3, 0xff)
+      vm.writeMemory8(0, 0xa3) // STORE_ABS_W
+      vm.writeMemory8(1, 0xff) // address low byte: 0xffff
+      vm.writeMemory8(2, 0xff) // address high byte
+      vm.writeMemory8(3, 0x00) // 未使用
 
       const result = InstructionExecutor.step(vm)
 
