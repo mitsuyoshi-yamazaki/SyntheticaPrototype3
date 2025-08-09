@@ -133,6 +133,14 @@ export class InstructionDecoder {
             operands.unitId = bytes[2] ?? 0
             operands.unitMemAddr = bytes[3] ?? 0
             break
+          
+          // 動的ユニット操作命令
+          case "UNIT_MEM_WRITE_DYN":
+            // 第2バイト: ユニット種別とインデックス
+            operands.unitId = bytes[2] ?? 0
+            // 第3バイト: アドレス指定レジスタ（レジスタインデックスとして使用）
+            operands.unitMemAddr = bytes[3] ?? 0
+            break
         }
       }
     }

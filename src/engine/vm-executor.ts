@@ -687,6 +687,11 @@ export const InstructionExecutor = {
       }
     }
 
+    // UNIT_MEM_WRITE_DYNは特別な処理が必要
+    if (decoded.instruction.mnemonic === "UNIT_MEM_WRITE_DYN") {
+      return this.executeUnitMemWriteDyn(vm, decoded, unit)
+    }
+
     const unitId = decoded.operands.unitId
     const memAddr = decoded.operands.unitMemAddr
 
@@ -1084,6 +1089,75 @@ export const InstructionExecutor = {
   },
 
   /**
+   * UNIT_MEM_WRITE_DYN命令の実行
+   * @param vm VM状態
+   * @param decoded デコード済み命令
+   * @param unit 実行コンテキストのユニット
+   * @returns 実行結果
+   */
+  executeUnitMemWriteDyn(vm: VMState, decoded: DecodedInstruction, unit: Unit): ExecutionResult {
+    // 動的アドレス指定によるユニットメモリ書き込み
+    // 第2バイト: ユニット種別とインデックス（上位4bit:種別、下位4bit:インデックス）
+    // 第3バイト: アドレス指定レジスタ（0=A, 1=B, 2=C, 3=D）
+    const unitByte = decoded.operands.unitId
+    const regIndex = decoded.operands.unitMemAddr // 第3バイトがレジスタインデックスとして使用される
+    
+    if (unitByte === undefined || regIndex === undefined) {
+      return {
+        success: false,
+        error: "Invalid UNIT_MEM_WRITE_DYN operands",
+        cycles: 1,
+      }
+    }
+    
+    // レジスタから動的アドレスを取得
+    const dynamicAddr = vm.getRegisterByIndex(regIndex & 0x03) & 0xff
+    
+    // ユニット種別とインデックスを分離
+    const unitType = (unitByte >> 4) & 0x0f
+    const unitIndex = unitByte & 0x0f
+    
+    // 対象ユニットの特定
+    const targetUnit = this.findUnit(unit, unitType, unitIndex)
+    if (targetUnit == null) {
+      // 仕様: 失敗してもエネルギー消費、副作用なし
+      // エラーを返すが、サイクル数は消費される
+      return {
+        success: false,
+        error: `Unit ${unitType}:${unitIndex} not found`,
+        cycles: 3, // ユニット操作は3サイクル消費
+      }
+    }
+    
+    const memInterface = createMemoryInterface(targetUnit)
+    if (memInterface == null) {
+      // 仕様: 失敗してもエネルギー消費、副作用なし
+      return {
+        success: false,
+        error: "Target unit has no memory interface",
+        cycles: 3, // ユニット操作は3サイクル消費
+      }
+    }
+    
+    // Aレジスタの下位8bitを書き込み
+    const value = vm.getRegister("A") & 0xff
+    const success = memInterface.writeMemory(dynamicAddr, value)
+    
+    // 仕様: 失敗してもエネルギー消費、副作用なし
+    if (!success) {
+      return {
+        success: false,
+        error: `Cannot write to address 0x${dynamicAddr.toString(16).padStart(2, "0")}`,
+        cycles: 3, // ユニット操作は3サイクル消費
+      }
+    }
+    
+    // 成功時はPCを進める
+    vm.advancePC(decoded.length)
+    return { success: true, cycles: 3 }
+  },
+
+  /**
    * ユニット識別子からユニットを検索
    * @param _currentUnit 現在のユニット
    * @param _unitId ユニット識別子
@@ -1091,6 +1165,20 @@ export const InstructionExecutor = {
    */
   findUnitById(_currentUnit: Unit, _unitId: number): Unit | null {
     // TODO: 実際の実装では、同じHULL上のユニットリストから検索
+    // 現在は仮実装としてnullを返す
+    return null
+  },
+  
+  /**
+   * ユニット種別とインデックスからユニットを検索
+   * @param currentUnit 現在のユニット
+   * @param unitType ユニット種別（0=HULL, 1=ASSEMBLER, 2=COMPUTER）
+   * @param unitIndex ユニットインデックス
+   * @returns 対象ユニット（見つからない場合はnull）
+   */
+  findUnit(_currentUnit: Unit, _unitType: number, _unitIndex: number): Unit | null {
+    // TODO: 実際の実装では、同じHULL上のユニットリストから検索
+    // unitTypeとunitIndexから対象ユニットを特定
     // 現在は仮実装としてnullを返す
     return null
   },
