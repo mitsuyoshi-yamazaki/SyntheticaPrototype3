@@ -26,17 +26,22 @@ v3.1.0の新機能（ビットシフト、スタック操作、条件付き実�
 ; constructor-based-replication.asm
 ; v3.1.0 optimized version
 
-; 定数定義
-REPRODUCTION_CAPACITY   .equ 0x00C8  ; 200
-EXPAND_CAPACITY        .equ 0x0014  ; 20
-CHILD_HULL_CAPACITY    .equ 0x0064  ; 100
-CHILD_ASSEMBLER_POWER  .equ 0x000A  ; 10
-CHILD_COMPUTER_FREQ    .equ 0x0001  ; 1
-CHILD_COMPUTER_MEMORY  .equ 0x0100  ; 256
+; 定数定義（EXPERIMENTAL_PARAMETERSで調整済み）
+REPRODUCTION_CAPACITY   .equ 0x00C8  ; 200（複製開始容量）
+EXPAND_CAPACITY        .equ 0x0014  ; 20（1回の拡張容量）
+CHILD_HULL_CAPACITY    .equ 0x0064  ; 100（娘HULL容量）
+CHILD_ASSEMBLER_POWER  .equ 0x000A  ; 10（娘ASSEMBLERのpower）
+CHILD_COMPUTER_FREQ    .equ 0x0001  ; 1（娘COMPUTERの周波数）
+CHILD_COMPUTER_MEMORY  .equ 0x0100  ; 256（娘COMPUTERのメモリ）
 
-; エネルギー定数（16,000E = 16 * 1024E）
-ENERGY_REPRODUCTION    .equ 0x0010  ; 上位16bit: 16
-                      .equ 0x0000  ; 下位16bit: 0
+; エネルギー定数（EXPERIMENTAL_PARAMETERSで計算）
+; 自己複製1サイクル: 5236E（成長110E + 娘生産5126E）
+; 1024進法: 5236 = 5*1024 + 116 = 0x1474
+ENERGY_REPRODUCTION    .equ 0x1474  ; 5236E（複製開始に必要なエネルギー）
+ENERGY_EXPAND          .equ 0x0016  ; 22E（拡張HULL1個のコスト）
+ENERGY_CHILD_HULL      .equ 0x006A  ; 106E（娘HULLのコスト）
+ENERGY_CHILD_ASSEMBLER .equ 0x0898  ; 2200E（娘ASSEMBLERのコスト）
+ENERGY_CHILD_COMPUTER  .equ 0x0B04  ; 2820E（娘COMPUTERのコスト）
 
 ; メモリマップベース
 HULL_BASE             .equ 0x00
@@ -315,7 +320,7 @@ wait_energy:
     MOV B, #0x02            ; energy_amount
     UNIT_MEM_READ B, A, 0x00
 
-    ; 16,000E（0x0010:0x0000）との比較
+    ; 5236E（0x1474）との比較
     CMP A, #ENERGY_REPRODUCTION
     BLT wait_energy
 
@@ -372,3 +377,54 @@ cleanup_and_retry:
 
 - プログラム転送部分は基本的な実装のまま
 - より高度なメモリ管理機能の活用余地あり
+
+## EXPERIMENTAL_PARAMETERSでのエネルギー計算
+
+### パラメータ設定値
+- `hullEnergyPerCapacity`: 1
+- `assemblerBaseEnergy`: 1000
+- `assemblerEnergyPerPower`: 100
+- `computerBaseEnergy`: 100
+- `computerMemoryEnergyPerByte`: 10
+- `hullProductionRatio`: 0.01
+- `assemblerProductionRatio`: 0.05
+- `computerProductionRatio`: 0.01
+- `productionStartCostRatio`: 0.05
+
+### エネルギーコスト計算
+
+#### 成長フェーズ
+- 拡張HULL（容量20）の構成エネルギー: 20 × 1 = 20E
+- 生産エネルギー: ceil(20 × 0.01) = 1E
+- 生産開始コスト: ceil(20 × 0.05) = 1E
+- **1回の拡張総コスト**: 22E
+- **容量100→200（5回拡張）**: 110E
+
+#### 娘ユニット生産
+1. **娘HULL（容量100）**
+   - 構成エネルギー: 100 × 1 = 100E
+   - 生産エネルギー: ceil(100 × 0.01) = 1E
+   - 生産開始コスト: ceil(100 × 0.05) = 5E
+   - **総コスト**: 106E
+
+2. **娘ASSEMBLER（power=10）**
+   - 構成エネルギー: 1000 + (10 × 100) = 2000E
+   - 生産エネルギー: ceil(2000 × 0.05) = 100E
+   - 生産開始コスト: ceil(2000 × 0.05) = 100E
+   - **総コスト**: 2200E
+
+3. **娘COMPUTER（freq=1, memory=256）**
+   - 構成エネルギー: 100 + ceil((1/5)² × 100) + (256 × 10)
+   - = 100 + 4 + 2560 = 2664E
+   - 生産エネルギー: ceil(2664 × 0.01) = 27E
+   - 生産開始コスト: ceil(2664 × 0.05) = 134E
+   - **総コスト**: 2820E
+
+#### 自己複製1サイクル総エネルギー
+- 成長フェーズ: 110E
+- 娘ユニット生産: 106 + 2200 + 2820 = 5126E
+- **総計**: 5236E
+
+#### エネルギー収集時間
+- エネルギーソース出力: 50-500E/tick（平均275E/tick）
+- 必要時間: 5236 ÷ 275 ≈ **19 tick**（平均）
