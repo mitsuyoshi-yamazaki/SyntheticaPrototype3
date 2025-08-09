@@ -95,19 +95,8 @@ export class InstructionDecoder {
             operands.offset16 = this.toSigned16(byte2 | (byte3 << 8))
             break
 
-          // 即値命令
-          case "MOV_A_IMM":
-          case "MOV_B_IMM":
-          case "MOV_C_IMM":
-          case "MOV_D_IMM":
-          case "ADD_A_IMM":
-          case "SUB_A_IMM":
-          case "AND_A_IMM":
-          case "OR_A_IMM":
-          case "XOR_A_IMM":
-          case "CMP_A_IMM":
-            operands.immediate16 = byte2 | (byte3 << 8)
-            break
+          // 即値命令（旧3バイト形式 - 削除済み）
+          // case "MOV_A_IMM"等は仕様から削除済み
 
           // RET命令は特殊（オペランド無視）
           case "RET":
@@ -137,6 +126,25 @@ export class InstructionDecoder {
           case "UNIT_MEM_WRITE":
             operands.unitId = bytes[2] ?? 0
             operands.unitMemAddr = bytes[3] ?? 0
+            break
+        }
+      }
+    }
+
+    if (length >= 5) {
+      // 5バイト命令
+      if (instruction != null) {
+        switch (instruction.mnemonic) {
+          // 即値ロード命令（5バイト）
+          case "LOAD_IMM":
+          case "LOAD_IMM_B":
+            // byte1,2が16bit即値（リトルエンディアン）
+            operands.immediate16 = (bytes[1] ?? 0) | ((bytes[2] ?? 0) << 8)
+            break
+
+          // その他の5バイト命令（MUL_AB, DIV_AB, SHL, SHR等）
+          // これらの命令は特別なオペランドを持たない
+          default:
             break
         }
       }

@@ -68,17 +68,19 @@ describe("InstructionExecutor", () => {
       expect(vm.sp).toBe(0x7fff)
     })
 
-    test("MOV_A_IMM（即値ロード）", () => {
-      vm.writeMemory8(0, 0x70) // MOV_A_IMM
+    test("LOAD_IMM（即値ロード）", () => {
+      vm.writeMemory8(0, 0xe0) // LOAD_IMM
       vm.writeMemory8(1, 0x34)
       vm.writeMemory8(2, 0x12)
+      vm.writeMemory8(3, 0x00) // unused
+      vm.writeMemory8(4, 0x00) // unused
 
       const decoded = InstructionDecoder.decode(vm)
       const result = InstructionExecutor.execute(vm, decoded)
 
       expect(result.success).toBe(true)
       expect(vm.getRegister("A")).toBe(0x1234)
-      expect(vm.pc).toBe(3)
+      expect(vm.pc).toBe(5)
     })
   })
 
@@ -170,18 +172,7 @@ describe("InstructionExecutor", () => {
       expect(vm.carryFlag).toBe(false)
     })
 
-    test("ADD_A_IMM（即値加算）", () => {
-      vm.setRegister("A", 0x1000)
-      vm.writeMemory8(0, 0x74) // ADD_A_IMM
-      vm.writeMemory8(1, 0x34)
-      vm.writeMemory8(2, 0x12)
-
-      const decoded = InstructionDecoder.decode(vm)
-      InstructionExecutor.execute(vm, decoded)
-
-      expect(vm.getRegister("A")).toBe(0x2234)
-      expect(vm.pc).toBe(3)
-    })
+    // ADD_A_IMM is not in the specification - removed
   })
 
   describe("スタック操作命令", () => {
@@ -269,7 +260,7 @@ describe("InstructionExecutor", () => {
 
     test("LOAD_ABS（絶対アドレス）", () => {
       vm.writeMemory8(0x1234, 0x88)
-      vm.writeMemory8(0, 0x80) // LOAD_ABS
+      vm.writeMemory8(0, 0xa0) // LOAD_ABS
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x34) // address low
       vm.writeMemory8(3, 0x12) // address high
@@ -283,7 +274,7 @@ describe("InstructionExecutor", () => {
 
     test("LOAD_ABS_W（16bitロード）", () => {
       vm.writeMemory16(0x1234, 0xabcd)
-      vm.writeMemory8(0, 0x82) // LOAD_ABS_W
+      vm.writeMemory8(0, 0xa2) // LOAD_ABS_W
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x34)
       vm.writeMemory8(3, 0x12)
@@ -351,21 +342,20 @@ describe("InstructionExecutor", () => {
     })
 
     test("RET（リターン）", () => {
-      vm.sp = 0xfffc
-      vm.writeMemory16(0xfffc, 0x200)
-      vm.writeMemory8(0, 0x66) // RET
+      vm.setRegister("C", 0x200)
+      vm.writeMemory8(0, 0xb2) // RET
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x00)
+      vm.writeMemory8(3, 0x00)
 
       const decoded = InstructionDecoder.decode(vm)
       InstructionExecutor.execute(vm, decoded)
 
       expect(vm.pc).toBe(0x200)
-      expect(vm.sp).toBe(0xfffe)
     })
 
     test("JMP_ABS（絶対ジャンプ）", () => {
-      vm.writeMemory8(0, 0x90) // JMP_ABS
+      vm.writeMemory8(0, 0xb1) // JMP_ABS
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x34)
       vm.writeMemory8(3, 0x12)
@@ -377,300 +367,130 @@ describe("InstructionExecutor", () => {
     })
   })
 
-  describe("特殊命令", () => {
-    describe("SCANM命令", () => {
-      test("メモリブロックのコピーが正しく動作する", () => {
-        const memory = vm.getMemoryArray()
+  describe("拡張演算命令", () => {
+    describe("SHL命令", () => {
+      test("論理左シフトが正しく動作する", () => {
+        vm.setRegister("A", 0x1234)
+        vm.setRegister("B", 2) // 2ビットシフト
+        vm.writeMemory8(0, 0xc2) // SHL
+        vm.writeMemory8(1, 0x00) // unused
+        vm.writeMemory8(2, 0x00) // unused
+        vm.writeMemory8(3, 0x00) // unused
+        vm.writeMemory8(4, 0x00) // unused
 
-        // ソースデータを設定
-        for (let i = 0; i < 10; i++) {
-          memory[0x10 + i] = i + 1
-        }
-
-        // SCANM命令を配置: 0x10から0x80へコピー
-        memory[0] = 0xc2 // SCANM
-        memory[1] = 0x10 // src低位
-        memory[2] = 0x00 // src高位
-        memory[3] = 0x80 // dest低位
-        memory[4] = 0x00 // dest高位
-
-        // レジスタCに長さを設定
-        vm.setRegister("C", 10)
-
-        // 実行
         const decoded = InstructionDecoder.decode(vm)
         const result = InstructionExecutor.execute(vm, decoded)
 
         expect(result.success).toBe(true)
-        expect(result.cycles).toBe(15) // 5 + 10バイト
-
-        // コピー結果を確認
-        for (let i = 0; i < 10; i++) {
-          expect(memory[0x80 + i]).toBe(i + 1)
-        }
-
-        // ソースデータは変更されていない
-        for (let i = 0; i < 10; i++) {
-          expect(memory[0x10 + i]).toBe(i + 1)
-        }
-      })
-
-      test("レジスタCが0の場合は256バイトコピー", () => {
-        const memory = vm.getMemoryArray()
-
-        // SCANM命令を配置
-        memory[0] = 0xc2 // SCANM
-        memory[1] = 0x10 // src低位
-        memory[2] = 0x00 // src高位
-        memory[3] = 0x80 // dest低位
-        memory[4] = 0x00 // dest高位
-
-        // レジスタCに0を設定（256バイトとして扱われる）
-        vm.setRegister("C", 0)
-
-        // ソースデータを設定
-        for (let i = 0; i < 10; i++) {
-          memory[0x10 + i] = i + 1
-        }
-
-        // 実行
-        const decoded = InstructionDecoder.decode(vm)
-        const result = InstructionExecutor.execute(vm, decoded)
-
-        expect(result.success).toBe(true)
-        expect(result.cycles).toBe(261) // 5 + 256バイト
-
-        // 最初の10バイトがコピーされている
-        for (let i = 0; i < 10; i++) {
-          expect(memory[0x80 + i]).toBe(i + 1)
-        }
-      })
-
-      test("最大256バイトまでコピー可能", () => {
-        const memory = vm.getMemoryArray()
-
-        // SCANM命令を配置
-        memory[0] = 0xc2 // SCANM
-        memory[1] = 0x00 // src低位
-        memory[2] = 0x00 // src高位
-        memory[3] = 0x00 // dest低位
-        memory[4] = 0x01 // dest高位（0x100）
-
-        // レジスタCに256を設定（0x100）
-        vm.setRegister("C", 0x100) // 下位8ビットは0x00 (=256)
-
-        // 実行
-        const decoded = InstructionDecoder.decode(vm)
-        const result = InstructionExecutor.execute(vm, decoded)
-
-        expect(result.success).toBe(true)
-        expect(result.cycles).toBe(261) // 5 + 256バイト（最大）
-      })
-
-      test("レジスタCの下位8ビットのみが使用される", () => {
-        const memory = vm.getMemoryArray()
-
-        // SCANM命令を配置
-        memory[0] = 0xc2 // SCANM
-        memory[1] = 0x00 // src低位
-        memory[2] = 0x00 // src高位
-        memory[3] = 0x00 // dest低位
-        memory[4] = 0x01 // dest高位（0x100）
-
-        // レジスタCに大きな値を設定
-        vm.setRegister("C", 0x150) // 336 → 下位8ビットは0x50(80)
-
-        // 実行
-        const decoded = InstructionDecoder.decode(vm)
-        const result = InstructionExecutor.execute(vm, decoded)
-
-        expect(result.success).toBe(true)
-        expect(result.cycles).toBe(85) // 5 + 80バイト (0x50)
-      })
-
-      test("メモリの循環バッファとして動作する", () => {
-        const memory = vm.getMemoryArray()
-
-        // メモリ末尾付近にデータを配置
-        memory[1022] = 0xaa
-        memory[1023] = 0xbb
-        memory[0] = 0xcc // 循環
-        memory[1] = 0xdd
-
-        // SCANM命令を配置
-        memory[10] = 0xc2 // SCANM
-        memory[11] = 0xfe // src低位（1022）
-        memory[12] = 0x03 // src高位
-        memory[13] = 0x20 // dest低位（32）
-        memory[14] = 0x00 // dest高位
-
-        // レジスタCに長さを設定
-        vm.setRegister("C", 4)
-        vm.pc = 10
-
-        // 実行
-        const decoded = InstructionDecoder.decode(vm)
-        const result = InstructionExecutor.execute(vm, decoded)
-
-        expect(result.success).toBe(true)
-
-        // コピー結果を確認（循環を考慮）
-        expect(memory[32]).toBe(0xaa) // memory[1022]
-        expect(memory[33]).toBe(0xbb) // memory[1023]
-        expect(memory[34]).toBe(0xcc) // memory[0]
-        expect(memory[35]).toBe(0xdd) // memory[1]
-      })
-
-      test("プログラムカウンタが正しく進む", () => {
-        const memory = vm.getMemoryArray()
-
-        // SCANM命令を配置
-        memory[0] = 0xc2 // SCANM
-        memory[1] = 0x00
-        memory[2] = 0x00
-        memory[3] = 0x00
-        memory[4] = 0x00
-
-        vm.setRegister("C", 1)
-
-        // 実行
-        const decoded = InstructionDecoder.decode(vm)
-        const result = InstructionExecutor.execute(vm, decoded)
-
-        expect(result.success).toBe(true)
+        expect(vm.getRegister("A")).toBe(0x48d0) // 0x1234 << 2
         expect(vm.pc).toBe(5) // 5バイト命令
       })
 
-      test("自己複製コードの例", () => {
-        const memory = vm.getMemoryArray()
+      test("キャリーフラグが正しく設定される", () => {
+        vm.setRegister("A", 0x8000) // MSBが1
+        vm.setRegister("B", 1) // 1ビットシフト
+        vm.writeMemory8(0, 0xc2) // SHL
+        vm.writeMemory8(1, 0x00)
+        vm.writeMemory8(2, 0x00)
+        vm.writeMemory8(3, 0x00)
+        vm.writeMemory8(4, 0x00)
 
-        // 簡単なプログラム
-        memory[0x10] = 0x03 // MOV_AB
-        memory[0x11] = 0x04 // MOV_AD
-        memory[0x12] = 0x05 // MOV_BA
-        memory[0x13] = 0x00 // NOP
-
-        // SCANM命令でプログラムを複製
-        memory[0] = 0xc2 // SCANM
-        memory[1] = 0x10 // src低位
-        memory[2] = 0x00 // src高位
-        memory[3] = 0x80 // dest低位
-        memory[4] = 0x00 // dest高位
-
-        vm.setRegister("C", 4) // 4バイトコピー
-
-        // 実行
         const decoded = InstructionDecoder.decode(vm)
         const result = InstructionExecutor.execute(vm, decoded)
 
         expect(result.success).toBe(true)
-
-        // コピー先にプログラムが複製されている
-        expect(memory[0x80]).toBe(0x03) // MOV_AB
-        expect(memory[0x81]).toBe(0x04) // MOV_AD
-        expect(memory[0x82]).toBe(0x05) // MOV_BA
-        expect(memory[0x83]).toBe(0x00) // NOP
+        expect(vm.getRegister("A")).toBe(0x0000) // 0x8000 << 1 = 0x10000 -> 0x0000 (16bit)
+        expect(vm.carryFlag).toBe(true) // キャリー発生
+        expect(vm.zeroFlag).toBe(true) // 結果は0
       })
-    })
 
-    describe("ASSEMBLE命令", () => {
-      test("ユニットコンテキストなしでエラー", () => {
-        const memory = vm.getMemoryArray()
+      test("シフト量が大きい場合は結果が0になる", () => {
+        vm.setRegister("A", 0xffff)
+        vm.setRegister("B", 16) // 16ビットシフト
+        vm.writeMemory8(0, 0xc2) // SHL
+        vm.writeMemory8(1, 0x00)
+        vm.writeMemory8(2, 0x00)
+        vm.writeMemory8(3, 0x00)
+        vm.writeMemory8(4, 0x00)
 
-        // ASSEMBLE命令を配置
-        memory[0] = 0xc3 // ASSEMBLE
-        memory[1] = 0x40 // ユニットID (ASSEMBLER[0])
-        memory[2] = 0x00 // コマンド（開始）
-        memory[3] = 0x00 // 予約
-        memory[4] = 0x00 // 予約
-
-        // 実行（ユニットコンテキストなし）
         const decoded = InstructionDecoder.decode(vm)
         const result = InstructionExecutor.execute(vm, decoded)
 
-        expect(result.success).toBe(false)
-        expect(result.error).toContain("ASSEMBLE instruction requires unit context")
+        expect(result.success).toBe(true)
+        expect(vm.getRegister("A")).toBe(0x0000) // 16ビット以上のシフトは0
+        expect(vm.zeroFlag).toBe(true)
+      })
+    })
+
+    describe("MUL_AB命令", () => {
+      test("16bit乗算が正しく動作する", () => {
+        vm.setRegister("A", 0x0010) // 16
+        vm.setRegister("B", 0x0020) // 32
+        vm.writeMemory8(0, 0xc0) // MUL_AB
+        vm.writeMemory8(1, 0x00) // unused
+        vm.writeMemory8(2, 0x00) // unused
+        vm.writeMemory8(3, 0x00) // unused
+        vm.writeMemory8(4, 0x00) // unused
+
+        const decoded = InstructionDecoder.decode(vm)
+        const result = InstructionExecutor.execute(vm, decoded)
+
+        expect(result.success).toBe(true)
+        expect(vm.getRegister("A")).toBe(0x0200) // 16 * 32 = 512
+        expect(vm.pc).toBe(5) // 5バイト命令
       })
 
-      test("無効なコマンドでエラー", () => {
-        const memory = vm.getMemoryArray()
+      test("オーバーフローが正しく処理される", () => {
+        vm.setRegister("A", 0x8000) // 32768
+        vm.setRegister("B", 0x0004) // 4
+        vm.writeMemory8(0, 0xc0) // MUL_AB
+        vm.writeMemory8(1, 0x00)
+        vm.writeMemory8(2, 0x00)
+        vm.writeMemory8(3, 0x00)
+        vm.writeMemory8(4, 0x00)
 
-        // モックユニット
-        /*
-        const hull: Hull = {
-          id: "hull-1" as ObjectId,
-          type: "HULL",
-          position: { x: 0, y: 0 },
-          velocity: { x: 0, y: 0 },
-          radius: 10,
-          initialEnergy: 100,
-          currentEnergy: 100,
-          capacity: 200,
-          storedEnergy: 0,
-          attachedUnitIds: ["computer-1" as ObjectId, "assembler-1" as ObjectId],
-        }
-        */
-
-        const computer: Computer = {
-          id: "computer-1" as ObjectId,
-          type: "COMPUTER",
-          position: { x: 0, y: 0 },
-          velocity: { x: 0, y: 0 },
-          radius: 5,
-          initialEnergy: 50,
-          currentEnergy: 50,
-          parentHull: "hull-1" as ObjectId,
-          processingPower: 10,
-          memorySize: 256,
-          memory: new Uint8Array(256),
-          programCounter: 0,
-          registers: new Uint16Array(4),
-          stackPointer: 0xffff,
-          zeroFlag: false,
-          carryFlag: false,
-          isRunning: true,
-          vmCyclesExecuted: 0,
-        }
-
-        const assembler: Assembler = {
-          id: "assembler-1" as ObjectId,
-          type: "ASSEMBLER",
-          position: { x: 10, y: 0 },
-          velocity: { x: 0, y: 0 },
-          radius: 7,
-          initialEnergy: 100,
-          currentEnergy: 100,
-          parentHull: "hull-1" as ObjectId,
-          assemblePower: 5,
-          isAssembling: false,
-          progress: 0,
-        }
-
-        // findUnitByIdモック
-        const originalFindUnitById = InstructionExecutor.findUnitById
-        InstructionExecutor.findUnitById = jest.fn((_currentUnit, unitId) => {
-          if (unitId === 0x40) {
-            return assembler
-          }
-          return null
-        })
-
-        // ASSEMBLE命令を配置
-        memory[0] = 0xc3 // ASSEMBLE
-        memory[1] = 0x40 // ユニットID (ASSEMBLER[0])
-        memory[2] = 0xff // 無効なコマンド
-        memory[3] = 0x00 // 予約
-        memory[4] = 0x00 // 予約
-
-        // 実行
         const decoded = InstructionDecoder.decode(vm)
-        const result = InstructionExecutor.execute(vm, decoded, computer)
+        const result = InstructionExecutor.execute(vm, decoded)
 
-        expect(result.success).toBe(false)
-        expect(result.error).toContain("Invalid ASSEMBLE command: 255")
+        expect(result.success).toBe(true)
+        expect(vm.getRegister("A")).toBe(0x0000) // 131072 & 0xFFFF = 0
+        expect(vm.zeroFlag).toBe(true)
+      })
+    })
 
-        // モックを元に戻す
-        InstructionExecutor.findUnitById = originalFindUnitById
+    describe("SHR命令", () => {
+      test("論理右シフトが正しく動作する", () => {
+        vm.setRegister("A", 0x1234)
+        vm.setRegister("B", 2) // 2ビットシフト
+        vm.writeMemory8(0, 0xc3) // SHR
+        vm.writeMemory8(1, 0x00) // unused
+        vm.writeMemory8(2, 0x00) // unused
+        vm.writeMemory8(3, 0x00) // unused
+        vm.writeMemory8(4, 0x00) // unused
+
+        const decoded = InstructionDecoder.decode(vm)
+        const result = InstructionExecutor.execute(vm, decoded)
+
+        expect(result.success).toBe(true)
+        expect(vm.getRegister("A")).toBe(0x048d) // 0x1234 >> 2
+        expect(vm.pc).toBe(5) // 5バイト命令
+      })
+
+      test("シフト量が大きい場合は結果が0になる", () => {
+        vm.setRegister("A", 0xffff)
+        vm.setRegister("B", 16) // 16ビットシフト
+        vm.writeMemory8(0, 0xc3) // SHR
+        vm.writeMemory8(1, 0x00)
+        vm.writeMemory8(2, 0x00)
+        vm.writeMemory8(3, 0x00)
+        vm.writeMemory8(4, 0x00)
+
+        const decoded = InstructionDecoder.decode(vm)
+        const result = InstructionExecutor.execute(vm, decoded)
+
+        expect(result.success).toBe(true)
+        expect(vm.getRegister("A")).toBe(0x0000) // 16ビット以上のシフトは0
+        expect(vm.zeroFlag).toBe(true)
       })
     })
   })
@@ -687,7 +507,7 @@ describe("InstructionExecutor", () => {
     })
 
     test("ユニット制御命令（ユニットコンテキストなし）", () => {
-      vm.writeMemory8(0, 0xa0) // UNIT_MEM_READ
+      vm.writeMemory8(0, 0x90) // UNIT_MEM_READ
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x00)
       vm.writeMemory8(3, 0x00)
@@ -715,17 +535,17 @@ describe("InstructionExecutor", () => {
 
   describe("run実行", () => {
     test("複数命令の連続実行", () => {
-      // プログラム: A=1, A++, A++, NOP
-      vm.writeMemory8(0, 0x70) // MOV_A_IMM
+      // プログラム: A=1, A++, A++, JMP 0 (無限ループ)
+      vm.writeMemory8(0, 0xe0) // LOAD_IMM
       vm.writeMemory8(1, 0x01)
       vm.writeMemory8(2, 0x00)
-      vm.writeMemory8(3, 0x10) // INC_A
-      vm.writeMemory8(4, 0x10) // INC_A
-      vm.writeMemory8(5, 0x00) // NOP
-      vm.writeMemory8(6, 0x00)
-      vm.writeMemory8(7, 0x00)
-      vm.writeMemory8(8, 0x00)
-      vm.writeMemory8(9, 0x00)
+      vm.writeMemory8(3, 0x00)
+      vm.writeMemory8(4, 0x00)
+      vm.writeMemory8(5, 0x10) // INC_A
+      vm.writeMemory8(6, 0x10) // INC_A
+      vm.writeMemory8(7, 0x60) // JMP
+      vm.writeMemory8(8, 0xf5) // -11 (0x100 - 11 = 0xf5, ジャンプして0x00に戻る)
+      vm.writeMemory8(9, 0xff)
 
       const cycles = InstructionExecutor.run(vm, 10)
 

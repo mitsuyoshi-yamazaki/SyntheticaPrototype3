@@ -58,6 +58,10 @@ export const InstructionExecutor = {
           return this.executeUnit(vm, decoded, unit)
         case "SPECIAL":
           return this.executeSpecial(vm, decoded, unit)
+        case "TEMPLATE":
+          return this.executeTemplate(vm, decoded, unit)
+        case "ENERGY":
+          return this.executeEnergy(vm, decoded, unit)
         default: {
           const exhaustiveCheck: never = decoded.instruction.type
           return {
@@ -134,24 +138,14 @@ export const InstructionExecutor = {
         break
 
       // 即値ロード
-      case "MOV_A_IMM":
+      case "LOAD_IMM":
         if (decoded.operands.immediate16 !== undefined) {
           vm.setRegister("A", decoded.operands.immediate16)
         }
         break
-      case "MOV_B_IMM":
+      case "LOAD_IMM_B":
         if (decoded.operands.immediate16 !== undefined) {
           vm.setRegister("B", decoded.operands.immediate16)
-        }
-        break
-      case "MOV_C_IMM":
-        if (decoded.operands.immediate16 !== undefined) {
-          vm.setRegister("C", decoded.operands.immediate16)
-        }
-        break
-      case "MOV_D_IMM":
-        if (decoded.operands.immediate16 !== undefined) {
-          vm.setRegister("D", decoded.operands.immediate16)
         }
         break
 
@@ -358,20 +352,35 @@ export const InstructionExecutor = {
       }
       case "SHL": {
         const a = vm.getRegister("A")
-        const b = vm.getRegister("B") & 0x0f // 下位4ビットのみ使用（0-15）
-        result = (a << b) & 0xffff
+        const b = vm.getRegister("B") & 0x1f // 下位5ビット使用（0-31）
+        if (b >= 16) {
+          // 16ビット以上のシフトは0
+          result = 0
+          vm.carryFlag = a !== 0
+        } else {
+          const shifted = a << b
+          result = shifted & 0xffff
+          // キャリーフラグ: 16ビットを超えた場合にtrue
+          vm.carryFlag = (shifted & 0x10000) !== 0
+        }
         vm.setRegister("A", result)
         vm.updateZeroFlag(result)
-        vm.carryFlag = false
         break
       }
       case "SHR": {
         const a = vm.getRegister("A")
-        const b = vm.getRegister("B") & 0x0f // 下位4ビットのみ使用（0-15）
-        result = (a >>> b) & 0xffff // 論理右シフト
+        const b = vm.getRegister("B") & 0x1f // 下位5ビット使用（0-31）
+        if (b >= 16) {
+          // 16ビット以上のシフトは0
+          result = 0
+          vm.carryFlag = a !== 0
+        } else {
+          result = (a >>> b) & 0xffff // 論理右シフト
+          // キャリーフラグ: シフトで失われたビットがある場合
+          vm.carryFlag = b > 0 && ((a & ((1 << b) - 1)) !== 0)
+        }
         vm.setRegister("A", result)
         vm.updateZeroFlag(result)
-        vm.carryFlag = false
         break
       }
 
@@ -594,9 +603,9 @@ export const InstructionExecutor = {
         newPC = decoded.operands.address16
         break
 
-      // リターン
+      // リターン（Cレジスタから）
       case "RET":
-        newPC = vm.pop16()
+        newPC = vm.getRegister("C")
         shouldJump = true
         break
 
@@ -971,6 +980,63 @@ export const InstructionExecutor = {
     }
   },
 
+  /** テンプレートマッチング命令実行 */
+  executeTemplate(vm: VMState, decoded: DecodedInstruction, _unit?: Unit): ExecutionResult {
+    if (decoded.instruction == null) {
+      return { success: false, error: "No instruction", cycles: 1 }
+    }
+
+    // TODO: テンプレートマッチング命令の実装
+    // 現在は仮実装として成功を返す
+    switch (decoded.instruction.mnemonic) {
+      case "SEARCH_F":
+      case "SEARCH_B":
+      case "SEARCH_F_MAX":
+      case "SEARCH_B_MAX":
+        // 検索結果をレジスタAに格納（仮: 見つからない場合は0xFFFF）
+        vm.setRegister("A", 0xffff)
+        break
+      default:
+        return {
+          success: false,
+          error: `Unknown template instruction: ${decoded.instruction.mnemonic}`,
+          cycles: 1,
+        }
+    }
+
+    vm.advancePC(decoded.length)
+    return { success: true, cycles: 5 } // テンプレート命令は5サイクル
+  },
+
+  /** エネルギー計算命令実行 */
+  executeEnergy(vm: VMState, decoded: DecodedInstruction, _unit?: Unit): ExecutionResult {
+    if (decoded.instruction == null) {
+      return { success: false, error: "No instruction", cycles: 1 }
+    }
+
+    // TODO: エネルギー計算命令の実装
+    // 現在は仮実装として成功を返す
+    switch (decoded.instruction.mnemonic) {
+      case "ADD_E32":
+      case "SUB_E32":
+      case "CMP_E32":
+      case "SHR_E10":
+      case "SHL_E10":
+        // エネルギー演算結果をレジスタAに格納（仮実装）
+        vm.setRegister("A", 0)
+        break
+      default:
+        return {
+          success: false,
+          error: `Unknown energy instruction: ${decoded.instruction.mnemonic}`,
+          cycles: 1,
+        }
+    }
+
+    vm.advancePC(decoded.length)
+    return { success: true, cycles: 4 } // エネルギー命令は4サイクル
+  },
+
   /**
    * ユニット識別子からユニットを検索
    * @param _currentUnit 現在のユニット
@@ -1007,6 +1073,11 @@ export const InstructionExecutor = {
     while (totalCycles < maxCycles) {
       const result = this.step(vm, unit)
       totalCycles += result.cycles
+      
+      // エラーが発生した場合は実行を停止
+      if (!result.success) {
+        break
+      }
     }
 
     return totalCycles
