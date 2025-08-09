@@ -20,6 +20,7 @@
 - 😀 スクリーンショットのダウンロード機能
 - 😀 HULLの外観が変化しない間は描画処理をキャッシュできるか？
 - nullチェックに関する `docs/coding-guidelines.md` の変更に追従する
+- `GameWorld` がReactコンポーネント（ `GameCanvasPixi` ）に保持されているため、Reactの再描画により `GameWorld` が作り直されてしまうのではないか
 
 ### 自己複製エージェントの実行
 
