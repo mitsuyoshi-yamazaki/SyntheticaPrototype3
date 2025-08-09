@@ -15,19 +15,27 @@
 
 ---
 
-## 新たに追加した項目
+## マイルストーンなし
 
-- 😀 スクリーンショットのダウンロード機能
-- 😀 HULLの外観が変化しない間は描画処理をキャッシュできるか？
+- git worktreeのために、localhostのポート番号などを環境変数などで変更できるようにする
+- 😀 スクリーンショットのダウンロード機能を追加する
 - nullチェックに関する `docs/coding-guidelines.md` の変更に追従する
-- `GameWorld` がReactコンポーネント（ `GameCanvasPixi` ）に保持されているため、Reactの再描画により `GameWorld` が作り直されてしまうのではないか
+- 😀 eslintでstrict-boolean-expressionsを設定しているが、 `!` による条件はエラー判定にならない（オブジェクトが `!` によりboolean判定になるからだと思われる）：要調査
 
 ### 自己複製エージェントの実行
 
 - `docs/実装計画/エネルギー消費仕様を調整可能にする.md` を実施する
 - `AssemblerConstructionSystem` は利用されていない？ コンストラクタ引数で `ConstructionParameters` を渡している意味は？ `createHeatParametersFromEnergyParams()` は不要ではないか
 - `EnergyParameters` （世界の法則）と `WorldParameters` （世界の一部分の土地の性質）を分離する
+
+### エージェントのデバッグ機能の追加
+
 - 😀 選択中のエージェントのCOMPUTERの動作を確認できる機能を追加する
+- シミュレーション実行速度を調整可能にする（tick per secondの上限値を設定できるようにする：UIはスライダー等）
+- `GameWorld` がReactコンポーネント（ `GameCanvasPixi` ）に保持されているため、Reactの再描画により `GameWorld` が作り直されてしまうのではないか
+- ユニット状態に関するテストが十分にあるか確認する
+  - 熱ダメージで瀕死のエージェントが次tickでHULLが消えて、分離した内部ユニットとHULL内容物が世界に追加されているか
+  - 仕様の各内容がテストになっているか
 
 ## フェーズ1: 基盤 (必須)
 
