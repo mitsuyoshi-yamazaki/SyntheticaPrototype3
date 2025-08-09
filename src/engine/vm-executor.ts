@@ -8,7 +8,6 @@ import type { DecodedInstruction } from "./vm-decoder"
 import type { Unit, UnitSpec } from "@/types/game"
 import { CircuitConnectionSystem } from "./circuit-connection-system"
 import { createMemoryInterface } from "./unit-memory-interface"
-import { UnitSelfScanSystem } from "./unit-self-scan"
 import { UnitEnergyControlSystem } from "./unit-energy-control"
 
 /** 実行結果 */
@@ -802,32 +801,6 @@ export const InstructionExecutor = {
     }
 
     switch (decoded.instruction.mnemonic) {
-      case "SCAN": {
-        if (unit == null) {
-          return {
-            success: false,
-            error: "SCAN instruction requires unit context",
-            cycles: 1,
-          }
-        }
-
-        // オペランドから書き込み先アドレスを取得（バイト1-2）
-        if (decoded.bytes == null || decoded.bytes.length < 3) {
-          return {
-            success: false,
-            error: "Invalid SCAN instruction: insufficient bytes",
-            cycles: 1,
-          }
-        }
-        const destAddr = ((decoded.bytes[1] ?? 0) | ((decoded.bytes[2] ?? 0) << 8)) & 0xffff
-
-        // 自身のスペックをメモリに書き込み
-        UnitSelfScanSystem.executeScan(unit, vm.getMemoryArray(), destAddr)
-
-        vm.advancePC(decoded.length)
-        return { success: true, cycles: 5 }
-      }
-
       case "ENERGY": {
         if (unit == null) {
           return {
@@ -865,40 +838,6 @@ export const InstructionExecutor = {
 
         vm.advancePC(decoded.length)
         return { success: true, cycles: 5 }
-      }
-
-      case "SCANM": {
-        // オペランドから読み取り元アドレスと長さを取得
-        // バイト1-2: 読み取り元アドレス（16bit）
-        // バイト3-4: 書き込み先アドレス（16bit）
-        if (decoded.bytes == null || decoded.bytes.length < 5) {
-          return {
-            success: false,
-            error: "Invalid SCANM instruction: insufficient bytes",
-            cycles: 1,
-          }
-        }
-
-        const srcAddr = ((decoded.bytes[1] ?? 0) | ((decoded.bytes[2] ?? 0) << 8)) & 0xffff
-        const destAddr = ((decoded.bytes[3] ?? 0) | ((decoded.bytes[4] ?? 0) << 8)) & 0xffff
-
-        // レジスタCから読み取りバイト数を取得（0の場合は256バイト）
-        const lengthRaw = vm.getRegister("C") & 0xff
-        const length = lengthRaw === 0 ? 256 : lengthRaw
-
-        // メモリブロックをコピー
-
-        const memoryArray = vm.getMemoryArray()
-        const memorySize = memoryArray.length
-        for (let i = 0; i < length; i++) {
-          const srcIndex = (srcAddr + i) % memorySize
-          const destIndex = (destAddr + i) % memorySize
-          const value = memoryArray[srcIndex] ?? 0
-          memoryArray[destIndex] = value
-        }
-
-        vm.advancePC(decoded.length)
-        return { success: true, cycles: 5 + length } // 基本5サイクル + バイト数
       }
 
       case "ASSEMBLE": {

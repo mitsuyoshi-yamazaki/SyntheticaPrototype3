@@ -336,7 +336,7 @@ describe("InstructionDecoder", () => {
 
   describe("バイト配列", () => {
     test("命令バイト列の保存", () => {
-      vm.writeMemory8(0, 0xc0) // SCAN
+      vm.writeMemory8(0, 0xc0) // MUL_AB
       vm.writeMemory8(1, 0x11)
       vm.writeMemory8(2, 0x22)
       vm.writeMemory8(3, 0x33)
