@@ -1,6 +1,7 @@
 import { VMState } from "./vm-state"
 import { InstructionDecoder } from "./vm-decoder"
 import { InstructionExecutor } from "./vm-executor"
+import { Unit } from "../types/game"
 // Removed unused imports for ObjectId, Assembler, Computer
 
 describe("InstructionExecutor", () => {
@@ -473,7 +474,7 @@ describe("InstructionExecutor", () => {
       // CMP_AB実行
       let decoded = InstructionDecoder.decode(vm)
       InstructionExecutor.execute(vm, decoded)
-      
+
       // フラグ状態確認
       expect(vm.zeroFlag).toBe(false) // A != B
       expect(vm.carryFlag).toBe(false) // A >= B (10 >= 5)
@@ -498,7 +499,7 @@ describe("InstructionExecutor", () => {
       // CMP_AB実行
       let decoded = InstructionDecoder.decode(vm)
       InstructionExecutor.execute(vm, decoded)
-      
+
       // フラグ状態確認
       expect(vm.zeroFlag).toBe(false) // A != B
       expect(vm.carryFlag).toBe(true) // A < B (5 < 10)
@@ -648,9 +649,9 @@ describe("InstructionExecutor", () => {
       const mockUnit = {
         type: "COMPUTER",
         memory: mockMemory,
-        spec: { type: "COMPUTER" }
+        spec: { type: "COMPUTER" },
       }
-      
+
       // レジスタBにメモリアドレス10を設定
       vm.setRegister("B", 10)
       vm.setRegister("A", 0x42) // 書き込むデータ
@@ -661,14 +662,14 @@ describe("InstructionExecutor", () => {
       vm.writeMemory8(3, 0x01) // レジスタB（インデックス1）
 
       const decoded = InstructionDecoder.decode(vm)
-      
+
       // デコード結果を確認
       expect(decoded.instruction?.mnemonic).toBe("UNIT_MEM_WRITE_DYN")
       expect(decoded.operands.unitId).toBe(0x00)
       expect(decoded.operands.unitMemAddr).toBe(0x01)
-      
+
       // ユニットコンテキストを渡してexecute実行
-      const result = InstructionExecutor.execute(vm, decoded, mockUnit as any)
+      const result = InstructionExecutor.execute(vm, decoded, mockUnit as unknown as Unit)
 
       // UNIT_MEM_WRITE_DYNはunitコンテキストを必要とするため、
       // 現在の実装ではfindUnit関数が未実装のため失敗する
@@ -754,7 +755,6 @@ describe("InstructionExecutor", () => {
       expect(cycles).toBe(10) // 最大サイクルまで実行
       expect(vm.getRegister("A")).toBeGreaterThan(0x02) // 複数回実行される
     })
-
 
     test("最大サイクル制限", () => {
       // 無限ループ

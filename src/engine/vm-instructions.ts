@@ -101,8 +101,6 @@ export const THREE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   0x67: { opcode: 0x67, mnemonic: "JLE", length: 3, type: "JUMP", description: "符号付き以下（A <= B after CMP_AB）" },
   0x68: { opcode: 0x68, mnemonic: "JGE", length: 3, type: "JUMP", description: "符号付き以上（A >= B after CMP_AB）" },
   0x69: { opcode: 0x69, mnemonic: "JL", length: 3, type: "JUMP", description: "符号付き小なり（A < B after CMP_AB）" },
-  0x6A: { opcode: 0x6A, mnemonic: "JUL", length: 3, type: "JUMP", description: "符号なし小なり（A < B after CMP_AB）" },
-  0x6B: { opcode: 0x6B, mnemonic: "JUGE", length: 3, type: "JUMP", description: "符号なし以上（A >= B after CMP_AB）" },
 }
 
 /** 4バイト命令（0x80-0xBF） */
@@ -128,7 +126,7 @@ export const FOUR_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   0x99: { opcode: 0x99, mnemonic: "SHL_E10", length: 4, type: "ENERGY", description: "エネルギー値を1024倍" },
 
   // 動的ユニット操作命令
-  0x9b: { opcode: 0x9b, mnemonic: "UNIT_MEM_WRITE_DYN", length: 4, type: "UNIT", description: "レジスタ指定アドレスへのユニットメモリ書き込み" },
+  0x9b: { opcode: 0x9b, mnemonic: "UNIT_MEM_WRITE_DYN", length: 4, type: "UNIT", description: "レジスタ指定アドレスへのユニットメモリ書き込み（第3バイト: アドレス指定レジスタ 0=A, 1=B, 2=C, 3=D）" },
 
   // メモリアクセス命令（絶対アドレス）
   0xa0: { opcode: 0xa0, mnemonic: "LOAD_ABS", length: 4, type: "MEMORY", description: "A = Memory[16bitアドレス]" },
@@ -158,8 +156,8 @@ export const FIVE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   0xc8: { opcode: 0xc8, mnemonic: "CMOV_NC", length: 5, type: "DATA_MOVE", description: "キャリーフラグがクリアされている場合のみレジスタ移動" },
 
   // 即値ロード命令
-  0xe0: { opcode: 0xe0, mnemonic: "LOAD_IMM", length: 5, type: "DATA_MOVE", description: "A = 16bit即値" },
-  0xe1: { opcode: 0xe1, mnemonic: "LOAD_IMM_B", length: 5, type: "DATA_MOVE", description: "B = 16bit即値" },
+  0xe0: { opcode: 0xe0, mnemonic: "LOAD_IMM", length: 5, type: "DATA_MOVE", description: "A = 16bit即値（第2,3バイト: リトルエンディアン、第4,5バイト: 未使用）" },
+  0xe1: { opcode: 0xe1, mnemonic: "LOAD_IMM_B", length: 5, type: "DATA_MOVE", description: "B = 16bit即値（第2,3バイト: リトルエンディアン、第4,5バイト: 未使用）" },
 
   // NOP命令
   0xf0: { opcode: 0xf0, mnemonic: "NOP5", length: 5, type: "NOP", description: "5バイトNOP（パディング用）" },
