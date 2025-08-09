@@ -110,15 +110,18 @@ export const UnitCostCalculator = {
 
 /** ASSEMBLER構築システム */
 export class AssemblerConstructionSystem {
-  private readonly _parameters: ConstructionParameters
   private readonly _nextId: () => ObjectId
 
-  public constructor(parameters: Partial<ConstructionParameters> = {}, nextId: () => ObjectId) {
+  // パラメータは直接EnergyParametersから取得
+  private get parameters(): ConstructionParameters {
     const energyParams = getEnergyParameters()
-    this._parameters = {
-      producingUnitRatio: parameters.producingUnitRatio ?? energyParams.productionStartCostRatio,
-      repairCostMultiplier: parameters.repairCostMultiplier ?? energyParams.repairCostMultiplier,
+    return {
+      producingUnitRatio: energyParams.productionStartCostRatio,
+      repairCostMultiplier: energyParams.repairCostMultiplier,
     }
+  }
+
+  public constructor(nextId: () => ObjectId) {
     this._nextId = nextId
   }
 
@@ -129,7 +132,7 @@ export class AssemblerConstructionSystem {
     availableEnergy: number
   ): ConstructionResult {
     const buildEnergy = UnitCostCalculator.calculateBuildEnergy(spec)
-    const requiredInitialEnergy = Math.ceil(buildEnergy * this._parameters.producingUnitRatio)
+    const requiredInitialEnergy = Math.ceil(buildEnergy * this.parameters.producingUnitRatio)
 
     if (availableEnergy < requiredInitialEnergy) {
       return {
@@ -267,7 +270,7 @@ export class AssemblerConstructionSystem {
 
     // 修理コスト = n + (n × 生産エネルギー / 構成エネルギー) × 1.1
     const repairCost = Math.ceil(
-      ((damageAmount * productionEnergy) / buildEnergy) * this._parameters.repairCostMultiplier
+      ((damageAmount * productionEnergy) / buildEnergy) * this.parameters.repairCostMultiplier
     )
 
     return {

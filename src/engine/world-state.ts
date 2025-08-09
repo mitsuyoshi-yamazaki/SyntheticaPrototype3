@@ -12,8 +12,7 @@ import type {
 } from "@/types/game"
 import { PhysicsEngine, DEFAULT_PHYSICS_PARAMETERS } from "./physics-engine"
 import type { PhysicsParameters, PhysicsParametersUpdate } from "./physics-engine"
-import { HeatSystem, createHeatParametersFromEnergyParams } from "./heat-system"
-import type { HeatSystemParameters } from "./heat-system"
+import { HeatSystem } from "./heat-system"
 import { getEnergyParameters } from "@/config/energy-parameters"
 
 /** デフォルトのワールドパラメータを生成 */
@@ -90,8 +89,7 @@ export class WorldStateManager {
     // グリッドサイズを世界サイズから計算（1グリッド = 10ユニット）
     const gridWidth = Math.ceil(width / 10)
     const gridHeight = Math.ceil(height / 10)
-    const heatParams: HeatSystemParameters = createHeatParametersFromEnergyParams()
-    this._heatSystem = new HeatSystem(gridWidth, gridHeight, heatParams)
+    this._heatSystem = new HeatSystem(gridWidth, gridHeight)
   }
 
   /** 次のオブジェクトIDを生成 */

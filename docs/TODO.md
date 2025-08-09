@@ -25,6 +25,8 @@
 ### 自己複製エージェントの実行
 
 - `docs/実装計画/エネルギー消費仕様を調整可能にする.md` を実施する
+- `AssemblerConstructionSystem` は利用されていない？ コンストラクタ引数で `ConstructionParameters` を渡している意味は？ `createHeatParametersFromEnergyParams()` は不要ではないか
+- `EnergyParameters` （世界の法則）と `WorldParameters` （世界の一部分の土地の性質）を分離する
 - 😀 選択中のエージェントのCOMPUTERの動作を確認できる機能を追加する
 
 ## フェーズ1: 基盤 (必須)

@@ -75,7 +75,7 @@ describe("AssemblerConstructionSystem", () => {
 
   beforeEach(() => {
     nextId = 1
-    system = new AssemblerConstructionSystem({}, () => nextId++ as ObjectId)
+    system = new AssemblerConstructionSystem(() => nextId++ as ObjectId)
   })
 
   describe("startProduction", () => {
