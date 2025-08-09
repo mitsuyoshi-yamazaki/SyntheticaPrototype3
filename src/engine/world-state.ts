@@ -60,7 +60,9 @@ export class WorldStateManager {
     return this._heatSystem
   }
 
-  public constructor(width: number, height: number, parameters?: Partial<WorldParameters>) {
+  public constructor(width: number, height: number) {
+    const defaultParams = createDefaultParameters()
+    
     this._state = {
       width,
       height,
@@ -69,17 +71,17 @@ export class WorldStateManager {
       energySources: new Map(),
       forceFields: new Map(),
       spatialIndex: new Map(),
-      parameters: { ...createDefaultParameters(), ...parameters },
+      parameters: defaultParams,
       nextObjectId: 1,
     }
 
     // 物理演算エンジンの初期化
     const physicsParams: PhysicsParameters = {
       ...DEFAULT_PHYSICS_PARAMETERS,
-      frictionCoefficient: parameters?.friction ?? createDefaultParameters().friction,
+      frictionCoefficient: defaultParams.friction,
       separationForce: {
-        maxForce: parameters?.maxForce ?? createDefaultParameters().maxForce,
-        forceScale: parameters?.forceScale ?? createDefaultParameters().forceScale,
+        maxForce: defaultParams.maxForce,
+        forceScale: defaultParams.forceScale,
         minForce: 1,
       },
     }

@@ -65,12 +65,6 @@ describe("GameWorld", () => {
   const createTestConfig = (width: number, height: number): WorldConfig => ({
     width,
     height,
-    parameters: {
-      energySourceCount: 5,
-      energySourceMinRate: 50,
-      energySourceMaxRate: 150,
-      ticksPerFrame: 1,
-    },
   })
 
   test("初期化時にtickCountが0である", () => {

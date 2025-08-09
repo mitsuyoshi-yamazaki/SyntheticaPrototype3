@@ -31,7 +31,6 @@ import type { AgentPresetPlacement } from "./presets/types"
 export type WorldConfig = {
   width: number
   height: number
-  parameters?: Partial<WorldParameters>
   defaultAgentPresets?: readonly AgentPresetPlacement[]
 }
 
@@ -55,7 +54,7 @@ export class World {
 
   public constructor(config: WorldConfig) {
     // 状態管理の初期化
-    this._stateManager = new WorldStateManager(config.width, config.height, config.parameters)
+    this._stateManager = new WorldStateManager(config.width, config.height)
 
     // オブジェクトファクトリの初期化
     this._objectFactory = new ObjectFactory(config.width, config.height)

@@ -59,12 +59,6 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
       const gameWorld = new GameWorld({
         width,
         height,
-        parameters: {
-          energySourceCount: 5, // エネルギーソースを5つ配置
-          energySourceMinRate: 50,
-          energySourceMaxRate: 150,
-          ticksPerFrame: 1,
-        },
         defaultAgentPresets: [
           {
             preset: SELF_REPLICATOR_PRESET,

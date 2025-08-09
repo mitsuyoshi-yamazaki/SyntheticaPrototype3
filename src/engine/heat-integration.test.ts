@@ -14,10 +14,6 @@ describe("熱システム統合", () => {
     const config: WorldConfig = {
       width: 100,
       height: 100,
-      energySourceCount: 0, // エネルギーソースなし
-      parameters: {
-        ticksPerFrame: 1,
-      },
     }
     world = new World(config)
   })
