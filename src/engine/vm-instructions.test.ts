@@ -364,7 +364,7 @@ describe("0x18 ADD_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x68ac)
-    expect(vm.getFlag("C")).toBe(false) // キャリーなし
+    expect(vm.carryFlag).toBe(false) // キャリーなし
   })
 
   test("ADD_AB実行 - キャリー発生", () => {
@@ -380,7 +380,7 @@ describe("0x18 ADD_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x0000)
-    expect(vm.getFlag("C")).toBe(true) // キャリー発生
+    expect(vm.carryFlag).toBe(true) // キャリー発生
   })
 })
 
@@ -404,7 +404,7 @@ describe("0x19 SUB_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x4444)
-    expect(vm.getFlag("C")).toBe(false) // ボローなし
+    expect(vm.carryFlag).toBe(false) // ボローなし
   })
 
   test("SUB_AB実行 - ボロー発生", () => {
@@ -420,7 +420,7 @@ describe("0x19 SUB_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0xffff)
-    expect(vm.getFlag("C")).toBe(true) // ボロー発生
+    expect(vm.carryFlag).toBe(true) // ボロー発生
   })
 })
 
@@ -444,7 +444,7 @@ describe("0x1a XOR_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x6666)
-    expect(vm.getFlag("Z")).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
   })
 
   test("XOR_AB実行 - ゼロフラグセット", () => {
@@ -460,7 +460,7 @@ describe("0x1a XOR_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x0000)
-    expect(vm.getFlag("Z")).toBe(true) // ゼロフラグセット
+    expect(vm.zeroFlag).toBe(true) // ゼロフラグセット
   })
 })
 
@@ -484,8 +484,8 @@ describe("0x1e CMP_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x5678) // Aは変更されない
-    expect(vm.getFlag("C")).toBe(false) // A >= Bなのでキャリーなし
-    expect(vm.getFlag("Z")).toBe(false) // A != Bなのでゼロフラグなし
+    expect(vm.carryFlag).toBe(false) // A >= Bなのでキャリーなし
+    expect(vm.zeroFlag).toBe(false) // A != Bなのでゼロフラグなし
   })
 
   test("CMP_AB実行 - A < B", () => {
@@ -501,7 +501,7 @@ describe("0x1e CMP_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x1234) // Aは変更されない
-    expect(vm.getFlag("C")).toBe(true) // A < Bなのでキャリーセット
+    expect(vm.carryFlag).toBe(true) // A < Bなのでキャリーセット
   })
 
   test("CMP_AB実行 - A == B", () => {
@@ -517,8 +517,8 @@ describe("0x1e CMP_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x1234) // Aは変更されない
-    expect(vm.getFlag("Z")).toBe(true) // A == Bなのでゼロフラグセット
-    expect(vm.getFlag("C")).toBe(false) // A >= Bなのでキャリーなし
+    expect(vm.zeroFlag).toBe(true) // A == Bなのでゼロフラグセット
+    expect(vm.carryFlag).toBe(false) // A >= Bなのでキャリーなし
   })
 })
 
@@ -728,7 +728,7 @@ describe("0x61 JZ", () => {
   })
 
   test("JZ実行 - ゼロフラグセット時のジャンプ", () => {
-    vm.setFlag("Z", true)
+    vm.zeroFlag = true
     
     vm.writeMemory8(0, 0x61) // JZ
     vm.writeMemory8(1, 0x10) // 下位バイト
@@ -744,7 +744,7 @@ describe("0x61 JZ", () => {
   })
 
   test("JZ実行 - ゼロフラグクリア時は次の命令へ", () => {
-    vm.setFlag("Z", false)
+    vm.zeroFlag = false
     
     vm.writeMemory8(0, 0x61) // JZ
     vm.writeMemory8(1, 0x10) // 下位バイト
