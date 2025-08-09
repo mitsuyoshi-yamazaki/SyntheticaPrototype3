@@ -14,27 +14,34 @@ import { PhysicsEngine, DEFAULT_PHYSICS_PARAMETERS } from "./physics-engine"
 import type { PhysicsParameters, PhysicsParametersUpdate } from "./physics-engine"
 import { HeatSystem, createHeatParametersFromEnergyParams } from "./heat-system"
 import type { HeatSystemParameters } from "./heat-system"
+import { getEnergyParameters } from "@/config/energy-parameters"
 
-/** デフォルトのワールドパラメータ */
-export const DEFAULT_PARAMETERS: WorldParameters = {
-  // 物理
-  maxForce: 10,
-  forceScale: 5,
-  friction: 0.98,
+/** デフォルトのワールドパラメータを生成 */
+export const createDefaultParameters = (): WorldParameters => {
+  const energyParams = getEnergyParameters()
+  return {
+    // 物理
+    maxForce: 10,
+    forceScale: 5,
+    friction: 0.98,
 
-  // エネルギー
-  energySourceCount: 10,
-  energySourceMinRate: 10,
-  energySourceMaxRate: 100,
+    // エネルギー
+    energySourceCount: 10,
+    energySourceMinRate: energyParams.energySourceMinOutput,
+    energySourceMaxRate: energyParams.energySourceMaxOutput,
 
-  // 熱
-  heatDiffusionRate: 0.1,
-  heatRadiationRate: 0.9,
+    // 熱
+    heatDiffusionRate: energyParams.heatDiffusionRate,
+    heatRadiationRate: energyParams.heatRadiationRate,
 
-  // シミュレーション
-  ticksPerFrame: 1,
-  maxFPS: 60,
+    // シミュレーション
+    ticksPerFrame: 1,
+    maxFPS: 60,
+  }
 }
+
+/** デフォルトパラメータ（互換性のために残す） */
+export const DEFAULT_PARAMETERS: WorldParameters = createDefaultParameters()
 
 /** 空間ハッシュグリッドのセルサイズ */
 export const SPATIAL_CELL_SIZE = 100
@@ -63,17 +70,17 @@ export class WorldStateManager {
       energySources: new Map(),
       forceFields: new Map(),
       spatialIndex: new Map(),
-      parameters: { ...DEFAULT_PARAMETERS, ...parameters },
+      parameters: { ...createDefaultParameters(), ...parameters },
       nextObjectId: 1,
     }
 
     // 物理演算エンジンの初期化
     const physicsParams: PhysicsParameters = {
       ...DEFAULT_PHYSICS_PARAMETERS,
-      frictionCoefficient: parameters?.friction ?? DEFAULT_PARAMETERS.friction,
+      frictionCoefficient: parameters?.friction ?? createDefaultParameters().friction,
       separationForce: {
-        maxForce: parameters?.maxForce ?? DEFAULT_PARAMETERS.maxForce,
-        forceScale: parameters?.forceScale ?? DEFAULT_PARAMETERS.forceScale,
+        maxForce: parameters?.maxForce ?? createDefaultParameters().maxForce,
+        forceScale: parameters?.forceScale ?? createDefaultParameters().forceScale,
         minForce: 1,
       },
     }

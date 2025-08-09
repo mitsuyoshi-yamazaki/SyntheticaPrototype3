@@ -25,18 +25,6 @@ export type HeatSystemParameters = {
   readonly damageMultiplierProducing: number
 }
 
-/** デフォルトパラメータ */
-export const DEFAULT_HEAT_PARAMETERS: HeatSystemParameters = {
-  heatDiffusionBase: 4,
-  heatFlowRate: 3,
-  heatFlowLimitRatio: 2,
-  radiationEnvRatio: 0.9,
-  radiationRate: 3,
-  heatDamageThreshold: 100,
-  damageMultiplierDamaged: 2,
-  damageMultiplierProducing: 3,
-}
-
 /** エネルギーパラメータから熱システムパラメータを生成 */
 export const createHeatParametersFromEnergyParams = (): HeatSystemParameters => {
   const energyParams = getEnergyParameters()
@@ -76,11 +64,11 @@ export class HeatSystem {
   public constructor(
     width: number,
     height: number,
-    parameters: HeatSystemParameters = DEFAULT_HEAT_PARAMETERS
+    parameters?: HeatSystemParameters
   ) {
     this._width = width
     this._height = height
-    this._parameters = parameters
+    this._parameters = parameters ?? createHeatParametersFromEnergyParams()
 
     // 熱グリッドの初期化
     this._currentHeat = new Array<number[]>(height)

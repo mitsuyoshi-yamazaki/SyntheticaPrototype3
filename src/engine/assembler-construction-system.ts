@@ -11,6 +11,7 @@ import type {
 } from "@/types/game"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { isHull } from "@/utils/type-guards"
+import { getEnergyParameters } from "@/config/energy-parameters"
 
 /** 生産中ユニットの状態 */
 export type ProducingUnit = BaseUnit & {
@@ -22,8 +23,8 @@ export type ProducingUnit = BaseUnit & {
 
 /** 構築システムのパラメータ */
 export type ConstructionParameters = {
-  readonly producingUnitRatio: number // 生産中ユニット生成コスト比率（デフォルト: 0.05）
-  readonly repairCostMultiplier: number // 修理コスト倍率（デフォルト: 1.1）
+  readonly producingUnitRatio: number
+  readonly repairCostMultiplier: number
 }
 
 /** 構築結果 */
@@ -39,33 +40,41 @@ export type ConstructionResult = {
 export const UnitCostCalculator = {
   /** HULLの構成エネルギー計算 */
   calculateHullBuildEnergy(capacity: number): number {
-    return capacity * 2
+    const params = getEnergyParameters()
+    return capacity * params.hullEnergyPerCapacity
   },
 
   /** HULLの生産エネルギー計算 */
   calculateHullProductionEnergy(buildEnergy: number): number {
-    return Math.ceil(buildEnergy * 0.05)
+    const params = getEnergyParameters()
+    return Math.ceil(buildEnergy * params.hullProductionRatio)
   },
 
   /** ASSEMBLERの構成エネルギー計算 */
   calculateAssemblerBuildEnergy(assemblePower: number): number {
-    return 800 + assemblePower * 200
+    const params = getEnergyParameters()
+    return params.assemblerBaseEnergy + assemblePower * params.assemblerEnergyPerPower
   },
 
   /** ASSEMBLERの生産エネルギー計算 */
   calculateAssemblerProductionEnergy(buildEnergy: number): number {
-    return Math.ceil(buildEnergy * 0.2)
+    const params = getEnergyParameters()
+    return Math.ceil(buildEnergy * params.assemblerProductionRatio)
   },
 
   /** COMPUTERの構成エネルギー計算 */
   calculateComputerBuildEnergy(processingPower: number, memorySize: number): number {
-    const frequencyTerm = Math.ceil(Math.pow(processingPower / 5, 2) * 100)
-    return 500 + frequencyTerm + memorySize * 50
+    const params = getEnergyParameters()
+    const frequencyTerm = Math.ceil(
+      Math.pow(processingPower / params.computerFrequencyDivisor, 2) * params.computerFrequencyEnergyMultiplier
+    )
+    return params.computerBaseEnergy + frequencyTerm + memorySize * params.computerMemoryEnergyPerByte
   },
 
   /** COMPUTERの生産エネルギー計算 */
   calculateComputerProductionEnergy(buildEnergy: number): number {
-    return Math.ceil(buildEnergy * 0.1)
+    const params = getEnergyParameters()
+    return Math.ceil(buildEnergy * params.computerProductionRatio)
   },
 
   /** ユニット仕様から構成エネルギーを計算 */
@@ -105,9 +114,10 @@ export class AssemblerConstructionSystem {
   private readonly _nextId: () => ObjectId
 
   public constructor(parameters: Partial<ConstructionParameters> = {}, nextId: () => ObjectId) {
+    const energyParams = getEnergyParameters()
     this._parameters = {
-      producingUnitRatio: parameters.producingUnitRatio ?? 0.05,
-      repairCostMultiplier: parameters.repairCostMultiplier ?? 1.1,
+      producingUnitRatio: parameters.producingUnitRatio ?? energyParams.productionStartCostRatio,
+      repairCostMultiplier: parameters.repairCostMultiplier ?? energyParams.repairCostMultiplier,
     }
     this._nextId = nextId
   }

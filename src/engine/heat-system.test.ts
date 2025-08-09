@@ -2,7 +2,7 @@
  * 熱拡散システムのテスト
  */
 
-import { HeatSystem, DEFAULT_HEAT_PARAMETERS } from "./heat-system"
+import { HeatSystem, createHeatParametersFromEnergyParams } from "./heat-system"
 import type { HeatSystemParameters } from "./heat-system"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
@@ -188,14 +188,16 @@ describe("HeatSystem", () => {
 
   describe("熱ダメージ計算", () => {
     test("閾値以下ではダメージなし", () => {
-      heatSystem.addHeat(5, 5, DEFAULT_HEAT_PARAMETERS.heatDamageThreshold)
+      const params = createHeatParametersFromEnergyParams()
+      heatSystem.addHeat(5, 5, params.heatDamageThreshold)
 
       const damage = heatSystem.calculateHeatDamage(5, 5)
       expect(damage).toBe(0)
     })
 
     test("閾値を超えるとダメージ発生", () => {
-      const heat = DEFAULT_HEAT_PARAMETERS.heatDamageThreshold + 50
+      const params = createHeatParametersFromEnergyParams()
+      const heat = params.heatDamageThreshold + 50
       heatSystem.addHeat(5, 5, heat)
 
       const damage = heatSystem.calculateHeatDamage(5, 5)
@@ -203,23 +205,25 @@ describe("HeatSystem", () => {
     })
 
     test("損傷時のダメージ倍率", () => {
-      const heat = DEFAULT_HEAT_PARAMETERS.heatDamageThreshold + 20
+      const params = createHeatParametersFromEnergyParams()
+      const heat = params.heatDamageThreshold + 20
       heatSystem.addHeat(5, 5, heat)
 
       const normalDamage = heatSystem.calculateHeatDamage(5, 5, false, false)
       const damagedDamage = heatSystem.calculateHeatDamage(5, 5, true, false)
 
-      expect(damagedDamage).toBe(normalDamage * DEFAULT_HEAT_PARAMETERS.damageMultiplierDamaged)
+      expect(damagedDamage).toBe(normalDamage * params.damageMultiplierDamaged)
     })
 
     test("生産中のダメージ倍率", () => {
-      const heat = DEFAULT_HEAT_PARAMETERS.heatDamageThreshold + 30
+      const params = createHeatParametersFromEnergyParams()
+      const heat = params.heatDamageThreshold + 30
       heatSystem.addHeat(5, 5, heat)
 
       const normalDamage = heatSystem.calculateHeatDamage(5, 5, false, false)
       const producingDamage = heatSystem.calculateHeatDamage(5, 5, false, true)
 
-      expect(producingDamage).toBe(normalDamage * DEFAULT_HEAT_PARAMETERS.damageMultiplierProducing)
+      expect(producingDamage).toBe(normalDamage * params.damageMultiplierProducing)
     })
   })
 
@@ -267,8 +271,9 @@ describe("HeatSystem", () => {
 
   describe("カスタムパラメータ", () => {
     test("異なる拡散パラメータでの動作", () => {
+      const baseParams = createHeatParametersFromEnergyParams()
       const params: HeatSystemParameters = {
-        ...DEFAULT_HEAT_PARAMETERS,
+        ...baseParams,
         heatFlowRate: 2, // より速い拡散
       }
 
@@ -283,8 +288,9 @@ describe("HeatSystem", () => {
     })
 
     test("異なる放熱パラメータでの動作", () => {
+      const baseParams = createHeatParametersFromEnergyParams()
       const params: HeatSystemParameters = {
-        ...DEFAULT_HEAT_PARAMETERS,
+        ...baseParams,
         radiationEnvRatio: 0.5, // より速い放熱
       }
 
