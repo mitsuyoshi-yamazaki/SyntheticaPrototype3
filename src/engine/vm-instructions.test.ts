@@ -181,11 +181,15 @@ describe("0x03 MOV_AB", () => {
   test("MOV_AB実行 - レジスタAをBにコピー", () => {
     vm.setRegister("A", 0x1234)
     vm.setRegister("B", 0x5678)
+    vm.setRegister("C", 0xabcd)
+    vm.setRegister("D", 0xef01)
     vm.writeMemory8(0, 0x03) // MOV_AB
 
     expect(vm.pc).toBe(0)
     expect(vm.getRegister("A")).toBe(0x1234)
     expect(vm.getRegister("B")).toBe(0x5678)
+    expect(vm.getRegister("C")).toBe(0xabcd)
+    expect(vm.getRegister("D")).toBe(0xef01)
 
     const result = InstructionExecutor.step(vm)
 
@@ -196,6 +200,8 @@ describe("0x03 MOV_AB", () => {
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x1234)
     expect(vm.getRegister("B")).toBe(0x1234)
+    expect(vm.getRegister("C")).toBe(0xabcd)
+    expect(vm.getRegister("D")).toBe(0xef01)
   })
 })
 
@@ -208,8 +214,16 @@ describe("0x04 MOV_AD", () => {
 
   test("MOV_AD実行 - レジスタAをDにコピー", () => {
     vm.setRegister("A", 0xabcd)
+    vm.setRegister("B", 0x2345)
+    vm.setRegister("C", 0x6789)
     vm.setRegister("D", 0x1234)
     vm.writeMemory8(0, 0x04) // MOV_AD
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0xabcd)
+    expect(vm.getRegister("B")).toBe(0x2345)
+    expect(vm.getRegister("C")).toBe(0x6789)
+    expect(vm.getRegister("D")).toBe(0x1234)
 
     const result = InstructionExecutor.step(vm)
 
@@ -219,6 +233,8 @@ describe("0x04 MOV_AD", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0xabcd)
+    expect(vm.getRegister("B")).toBe(0x2345)
+    expect(vm.getRegister("C")).toBe(0x6789)
     expect(vm.getRegister("D")).toBe(0xabcd)
   })
 })
@@ -232,7 +248,17 @@ describe("0x0d MOV_SP", () => {
 
   test("MOV_SP実行 - スタックポインタをAレジスタにコピー", () => {
     // スタックポインタの初期値は仕様書より0xFFFF
+    vm.setRegister("A", 0x1111)
+    vm.setRegister("B", 0x2222)
+    vm.setRegister("C", 0x3333)
+    vm.setRegister("D", 0x4444)
     vm.writeMemory8(0, 0x0d) // MOV_SP
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x1111)
+    expect(vm.getRegister("B")).toBe(0x2222)
+    expect(vm.getRegister("C")).toBe(0x3333)
+    expect(vm.getRegister("D")).toBe(0x4444)
 
     const result = InstructionExecutor.step(vm)
 
@@ -242,6 +268,9 @@ describe("0x0d MOV_SP", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0xffff) // スタックポインタの初期値
+    expect(vm.getRegister("B")).toBe(0x2222)
+    expect(vm.getRegister("C")).toBe(0x3333)
+    expect(vm.getRegister("D")).toBe(0x4444)
   })
 })
 
@@ -254,7 +283,16 @@ describe("0x0e SET_SP", () => {
 
   test("SET_SP実行 - Aレジスタをスタックポインタにコピー", () => {
     vm.setRegister("A", 0xe000)
+    vm.setRegister("B", 0x1111)
+    vm.setRegister("C", 0x2222)
+    vm.setRegister("D", 0x3333)
     vm.writeMemory8(0, 0x0e) // SET_SP
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0xe000)
+    expect(vm.getRegister("B")).toBe(0x1111)
+    expect(vm.getRegister("C")).toBe(0x2222)
+    expect(vm.getRegister("D")).toBe(0x3333)
 
     const result = InstructionExecutor.step(vm)
 
@@ -263,6 +301,10 @@ describe("0x0e SET_SP", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.getRegister("A")).toBe(0xe000)
+    expect(vm.getRegister("B")).toBe(0x1111)
+    expect(vm.getRegister("C")).toBe(0x2222)
+    expect(vm.getRegister("D")).toBe(0x3333)
     
     // スタックポインタが設定されたことを確認するため、MOV_SPで読み出してテスト
     vm.writeMemory8(1, 0x0d) // MOV_SP
@@ -281,7 +323,16 @@ describe("0x10 INC_A", () => {
 
   test("INC_A実行 - 通常の値", () => {
     vm.setRegister("A", 0x1234)
+    vm.setRegister("B", 0xaaaa)
+    vm.setRegister("C", 0xbbbb)
+    vm.setRegister("D", 0xcccc)
     vm.writeMemory8(0, 0x10) // INC_A
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x1234)
+    expect(vm.getRegister("B")).toBe(0xaaaa)
+    expect(vm.getRegister("C")).toBe(0xbbbb)
+    expect(vm.getRegister("D")).toBe(0xcccc)
 
     const result = InstructionExecutor.step(vm)
 
@@ -291,11 +342,23 @@ describe("0x10 INC_A", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x1235)
+    expect(vm.getRegister("B")).toBe(0xaaaa)
+    expect(vm.getRegister("C")).toBe(0xbbbb)
+    expect(vm.getRegister("D")).toBe(0xcccc)
   })
 
   test("INC_A実行 - オーバーフロー", () => {
     vm.setRegister("A", 0xffff)
+    vm.setRegister("B", 0x1111)
+    vm.setRegister("C", 0x2222)
+    vm.setRegister("D", 0x3333)
     vm.writeMemory8(0, 0x10) // INC_A
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0xffff)
+    expect(vm.getRegister("B")).toBe(0x1111)
+    expect(vm.getRegister("C")).toBe(0x2222)
+    expect(vm.getRegister("D")).toBe(0x3333)
 
     const result = InstructionExecutor.step(vm)
 
@@ -305,6 +368,9 @@ describe("0x10 INC_A", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x0000) // 16bitでラップアラウンド
+    expect(vm.getRegister("B")).toBe(0x1111)
+    expect(vm.getRegister("C")).toBe(0x2222)
+    expect(vm.getRegister("D")).toBe(0x3333)
   })
 })
 
@@ -317,7 +383,16 @@ describe("0x14 DEC_A", () => {
 
   test("DEC_A実行 - 通常の値", () => {
     vm.setRegister("A", 0x1234)
+    vm.setRegister("B", 0x5555)
+    vm.setRegister("C", 0x6666)
+    vm.setRegister("D", 0x7777)
     vm.writeMemory8(0, 0x14) // DEC_A
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x1234)
+    expect(vm.getRegister("B")).toBe(0x5555)
+    expect(vm.getRegister("C")).toBe(0x6666)
+    expect(vm.getRegister("D")).toBe(0x7777)
 
     const result = InstructionExecutor.step(vm)
 
@@ -327,11 +402,23 @@ describe("0x14 DEC_A", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x1233)
+    expect(vm.getRegister("B")).toBe(0x5555)
+    expect(vm.getRegister("C")).toBe(0x6666)
+    expect(vm.getRegister("D")).toBe(0x7777)
   })
 
   test("DEC_A実行 - アンダーフロー", () => {
     vm.setRegister("A", 0x0000)
+    vm.setRegister("B", 0x8888)
+    vm.setRegister("C", 0x9999)
+    vm.setRegister("D", 0xaaaa)
     vm.writeMemory8(0, 0x14) // DEC_A
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x0000)
+    expect(vm.getRegister("B")).toBe(0x8888)
+    expect(vm.getRegister("C")).toBe(0x9999)
+    expect(vm.getRegister("D")).toBe(0xaaaa)
 
     const result = InstructionExecutor.step(vm)
 
@@ -341,6 +428,9 @@ describe("0x14 DEC_A", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0xffff) // 16bitでラップアラウンド
+    expect(vm.getRegister("B")).toBe(0x8888)
+    expect(vm.getRegister("C")).toBe(0x9999)
+    expect(vm.getRegister("D")).toBe(0xaaaa)
   })
 })
 
@@ -354,7 +444,15 @@ describe("0x18 ADD_AB", () => {
   test("ADD_AB実行 - 通常の加算", () => {
     vm.setRegister("A", 0x1234)
     vm.setRegister("B", 0x5678)
+    vm.setRegister("C", 0x1111)
+    vm.setRegister("D", 0x2222)
     vm.writeMemory8(0, 0x18) // ADD_AB
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x1234)
+    expect(vm.getRegister("B")).toBe(0x5678)
+    expect(vm.getRegister("C")).toBe(0x1111)
+    expect(vm.getRegister("D")).toBe(0x2222)
 
     const result = InstructionExecutor.step(vm)
 
@@ -364,13 +462,24 @@ describe("0x18 ADD_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x68ac)
+    expect(vm.getRegister("B")).toBe(0x5678)
+    expect(vm.getRegister("C")).toBe(0x1111)
+    expect(vm.getRegister("D")).toBe(0x2222)
     expect(vm.carryFlag).toBe(false) // キャリーなし
   })
 
   test("ADD_AB実行 - キャリー発生", () => {
     vm.setRegister("A", 0xffff)
     vm.setRegister("B", 0x0001)
+    vm.setRegister("C", 0x3333)
+    vm.setRegister("D", 0x4444)
     vm.writeMemory8(0, 0x18) // ADD_AB
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0xffff)
+    expect(vm.getRegister("B")).toBe(0x0001)
+    expect(vm.getRegister("C")).toBe(0x3333)
+    expect(vm.getRegister("D")).toBe(0x4444)
 
     const result = InstructionExecutor.step(vm)
 
@@ -380,6 +489,9 @@ describe("0x18 ADD_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x0000)
+    expect(vm.getRegister("B")).toBe(0x0001)
+    expect(vm.getRegister("C")).toBe(0x3333)
+    expect(vm.getRegister("D")).toBe(0x4444)
     expect(vm.carryFlag).toBe(true) // キャリー発生
   })
 })
@@ -394,7 +506,15 @@ describe("0x19 SUB_AB", () => {
   test("SUB_AB実行 - 通常の減算", () => {
     vm.setRegister("A", 0x5678)
     vm.setRegister("B", 0x1234)
+    vm.setRegister("C", 0xaaaa)
+    vm.setRegister("D", 0xbbbb)
     vm.writeMemory8(0, 0x19) // SUB_AB
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x5678)
+    expect(vm.getRegister("B")).toBe(0x1234)
+    expect(vm.getRegister("C")).toBe(0xaaaa)
+    expect(vm.getRegister("D")).toBe(0xbbbb)
 
     const result = InstructionExecutor.step(vm)
 
@@ -404,13 +524,24 @@ describe("0x19 SUB_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x4444)
+    expect(vm.getRegister("B")).toBe(0x1234)
+    expect(vm.getRegister("C")).toBe(0xaaaa)
+    expect(vm.getRegister("D")).toBe(0xbbbb)
     expect(vm.carryFlag).toBe(false) // ボローなし
   })
 
   test("SUB_AB実行 - ボロー発生", () => {
     vm.setRegister("A", 0x0000)
     vm.setRegister("B", 0x0001)
+    vm.setRegister("C", 0xcccc)
+    vm.setRegister("D", 0xdddd)
     vm.writeMemory8(0, 0x19) // SUB_AB
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x0000)
+    expect(vm.getRegister("B")).toBe(0x0001)
+    expect(vm.getRegister("C")).toBe(0xcccc)
+    expect(vm.getRegister("D")).toBe(0xdddd)
 
     const result = InstructionExecutor.step(vm)
 
@@ -420,6 +551,9 @@ describe("0x19 SUB_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0xffff)
+    expect(vm.getRegister("B")).toBe(0x0001)
+    expect(vm.getRegister("C")).toBe(0xcccc)
+    expect(vm.getRegister("D")).toBe(0xdddd)
     expect(vm.carryFlag).toBe(true) // ボロー発生
   })
 })
@@ -434,7 +568,15 @@ describe("0x1a XOR_AB", () => {
   test("XOR_AB実行 - 通常のXOR", () => {
     vm.setRegister("A", 0x5555)
     vm.setRegister("B", 0x3333)
+    vm.setRegister("C", 0x7777)
+    vm.setRegister("D", 0x8888)
     vm.writeMemory8(0, 0x1a) // XOR_AB
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x5555)
+    expect(vm.getRegister("B")).toBe(0x3333)
+    expect(vm.getRegister("C")).toBe(0x7777)
+    expect(vm.getRegister("D")).toBe(0x8888)
 
     const result = InstructionExecutor.step(vm)
 
@@ -444,13 +586,24 @@ describe("0x1a XOR_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x6666)
+    expect(vm.getRegister("B")).toBe(0x3333)
+    expect(vm.getRegister("C")).toBe(0x7777)
+    expect(vm.getRegister("D")).toBe(0x8888)
     expect(vm.zeroFlag).toBe(false)
   })
 
   test("XOR_AB実行 - ゼロフラグセット", () => {
     vm.setRegister("A", 0x5555)
     vm.setRegister("B", 0x5555)
+    vm.setRegister("C", 0x9999)
+    vm.setRegister("D", 0xaaaa)
     vm.writeMemory8(0, 0x1a) // XOR_AB
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x5555)
+    expect(vm.getRegister("B")).toBe(0x5555)
+    expect(vm.getRegister("C")).toBe(0x9999)
+    expect(vm.getRegister("D")).toBe(0xaaaa)
 
     const result = InstructionExecutor.step(vm)
 
@@ -460,6 +613,9 @@ describe("0x1a XOR_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x0000)
+    expect(vm.getRegister("B")).toBe(0x5555)
+    expect(vm.getRegister("C")).toBe(0x9999)
+    expect(vm.getRegister("D")).toBe(0xaaaa)
     expect(vm.zeroFlag).toBe(true) // ゼロフラグセット
   })
 })
@@ -474,7 +630,15 @@ describe("0x1e CMP_AB", () => {
   test("CMP_AB実行 - A > B", () => {
     vm.setRegister("A", 0x5678)
     vm.setRegister("B", 0x1234)
+    vm.setRegister("C", 0xbcde)
+    vm.setRegister("D", 0xf012)
     vm.writeMemory8(0, 0x1e) // CMP_AB
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x5678)
+    expect(vm.getRegister("B")).toBe(0x1234)
+    expect(vm.getRegister("C")).toBe(0xbcde)
+    expect(vm.getRegister("D")).toBe(0xf012)
 
     const result = InstructionExecutor.step(vm)
 
@@ -484,6 +648,9 @@ describe("0x1e CMP_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x5678) // Aは変更されない
+    expect(vm.getRegister("B")).toBe(0x1234)
+    expect(vm.getRegister("C")).toBe(0xbcde)
+    expect(vm.getRegister("D")).toBe(0xf012)
     expect(vm.carryFlag).toBe(false) // A >= Bなのでキャリーなし
     expect(vm.zeroFlag).toBe(false) // A != Bなのでゼロフラグなし
   })
@@ -491,7 +658,15 @@ describe("0x1e CMP_AB", () => {
   test("CMP_AB実行 - A < B", () => {
     vm.setRegister("A", 0x1234)
     vm.setRegister("B", 0x5678)
+    vm.setRegister("C", 0x3456)
+    vm.setRegister("D", 0x789a)
     vm.writeMemory8(0, 0x1e) // CMP_AB
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x1234)
+    expect(vm.getRegister("B")).toBe(0x5678)
+    expect(vm.getRegister("C")).toBe(0x3456)
+    expect(vm.getRegister("D")).toBe(0x789a)
 
     const result = InstructionExecutor.step(vm)
 
@@ -501,13 +676,24 @@ describe("0x1e CMP_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x1234) // Aは変更されない
+    expect(vm.getRegister("B")).toBe(0x5678)
+    expect(vm.getRegister("C")).toBe(0x3456)
+    expect(vm.getRegister("D")).toBe(0x789a)
     expect(vm.carryFlag).toBe(true) // A < Bなのでキャリーセット
   })
 
   test("CMP_AB実行 - A == B", () => {
     vm.setRegister("A", 0x1234)
     vm.setRegister("B", 0x1234)
+    vm.setRegister("C", 0x5555)
+    vm.setRegister("D", 0x6666)
     vm.writeMemory8(0, 0x1e) // CMP_AB
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x1234)
+    expect(vm.getRegister("B")).toBe(0x1234)
+    expect(vm.getRegister("C")).toBe(0x5555)
+    expect(vm.getRegister("D")).toBe(0x6666)
 
     const result = InstructionExecutor.step(vm)
 
@@ -517,6 +703,9 @@ describe("0x1e CMP_AB", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.getRegister("A")).toBe(0x1234) // Aは変更されない
+    expect(vm.getRegister("B")).toBe(0x1234)
+    expect(vm.getRegister("C")).toBe(0x5555)
+    expect(vm.getRegister("D")).toBe(0x6666)
     expect(vm.zeroFlag).toBe(true) // A == Bなのでゼロフラグセット
     expect(vm.carryFlag).toBe(false) // A >= Bなのでキャリーなし
   })
@@ -532,7 +721,16 @@ describe("0x1f PUSH_A", () => {
 
   test("PUSH_A実行 - 16bit値のプッシュ", () => {
     vm.setRegister("A", 0x1234)
+    vm.setRegister("B", 0x5678)
+    vm.setRegister("C", 0x9abc)
+    vm.setRegister("D", 0xdef0)
     vm.writeMemory8(0, 0x1f) // PUSH_A
+
+    expect(vm.pc).toBe(0)
+    expect(vm.getRegister("A")).toBe(0x1234)
+    expect(vm.getRegister("B")).toBe(0x5678)
+    expect(vm.getRegister("C")).toBe(0x9abc)
+    expect(vm.getRegister("D")).toBe(0xdef0)
 
     const result = InstructionExecutor.step(vm)
 
@@ -541,6 +739,10 @@ describe("0x1f PUSH_A", () => {
     expect(result.cycles).toBe(2) // スタック操作は2サイクル
 
     expect(vm.pc).toBe(1)
+    expect(vm.getRegister("A")).toBe(0x1234)
+    expect(vm.getRegister("B")).toBe(0x5678)
+    expect(vm.getRegister("C")).toBe(0x9abc)
+    expect(vm.getRegister("D")).toBe(0xdef0)
     // スタックポインタは0xFFFF - 2 = 0xFFFD
     // メモリに16bit値がリトルエンディアンで格納される
     expect(vm.readMemory8(0xfffd)).toBe(0x34) // 下位バイト
@@ -558,12 +760,21 @@ describe("0x2e POP_A", () => {
   test("POP_A実行 - 16bit値のポップ", () => {
     // まずPUSHして値をスタックに入れる
     vm.setRegister("A", 0x5678)
+    vm.setRegister("B", 0x1111)
+    vm.setRegister("C", 0x2222)
+    vm.setRegister("D", 0x3333)
     vm.writeMemory8(0, 0x1f) // PUSH_A
     InstructionExecutor.step(vm)
     
     // Aを別の値に変更
     vm.setRegister("A", 0x0000)
     vm.writeMemory8(1, 0x2e) // POP_A
+
+    expect(vm.pc).toBe(1)
+    expect(vm.getRegister("A")).toBe(0x0000)
+    expect(vm.getRegister("B")).toBe(0x1111)
+    expect(vm.getRegister("C")).toBe(0x2222)
+    expect(vm.getRegister("D")).toBe(0x3333)
 
     const result = InstructionExecutor.step(vm)
 
@@ -573,6 +784,9 @@ describe("0x2e POP_A", () => {
 
     expect(vm.pc).toBe(2)
     expect(vm.getRegister("A")).toBe(0x5678) // 元の値が復元される
+    expect(vm.getRegister("B")).toBe(0x1111)
+    expect(vm.getRegister("C")).toBe(0x2222)
+    expect(vm.getRegister("D")).toBe(0x3333)
   })
 })
 
