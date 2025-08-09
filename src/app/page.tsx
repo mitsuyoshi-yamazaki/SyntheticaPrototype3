@@ -6,6 +6,7 @@ import { useState } from "react"
 export default function Home() {
   const [isPaused, setIsPaused] = useState(false)
   const [resetKey, setResetKey] = useState(0)
+  const [targetTPS, setTargetTPS] = useState(60)
 
   const handleTogglePause = () => {
     setIsPaused(prev => !prev)
@@ -15,6 +16,12 @@ export default function Home() {
     // 新しいキーで再マウント
     setResetKey(prev => prev + 1)
     setIsPaused(false)
+  }
+
+  const handleTPSChange = (value: number) => {
+    // 範囲を1～120に制限
+    const clampedValue = Math.max(1, Math.min(120, value))
+    setTargetTPS(clampedValue)
   }
 
   return (
@@ -33,6 +40,7 @@ export default function Home() {
             height={600} 
             ticksPerFrame={1} 
             isPaused={isPaused}
+            targetTPS={targetTPS}
           />
           {isPaused && (
             <div
@@ -69,9 +77,39 @@ export default function Home() {
               </button>
             </div>
 
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 mb-4">
               {isPaused ? "シミュレーション一時停止中" : "シミュレーション実行中"}
             </p>
+
+            {/* シミュレーション速度調整 */}
+            <div className="border-t pt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                シミュレーション速度: {targetTPS} TPS
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min="1"
+                  max="120"
+                  value={targetTPS}
+                  onChange={(e) => handleTPSChange(Number(e.target.value))}
+                  className="flex-1"
+                />
+                <input
+                  type="number"
+                  min="1"
+                  max="120"
+                  value={targetTPS}
+                  onChange={(e) => handleTPSChange(Number(e.target.value))}
+                  className="w-16 px-2 py-1 border rounded text-center"
+                />
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>1 TPS (最遅)</span>
+                <span>60 TPS (標準)</span>
+                <span>120 TPS (最速)</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

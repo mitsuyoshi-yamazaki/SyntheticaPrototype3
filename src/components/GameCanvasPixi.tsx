@@ -14,18 +14,20 @@ type GameCanvasProps = {
   height?: number
   ticksPerFrame?: number
   isPaused?: boolean
+  targetTPS?: number
 }
 
 /**
  * PixiJSを使用したゲームキャンバスコンポーネント
  * requestAnimationFrameごとにゲームがn tick進む
  */
-const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused = false }: GameCanvasProps) => {
+const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused = false, targetTPS = 60 }: GameCanvasProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const appRef = useRef<PIXI.Application | null>(null)
   const gameWorldRef = useRef<GameWorld | null>(null)
   const viewportRef = useRef<Viewport | null>(null)
   const isPausedRef = useRef(isPaused)
+  const targetTPSRef = useRef(targetTPS)
   const [isHeatMapVisible, setIsHeatMapVisible] = useState(false)
   const [energyPreset, setEnergyPreset] = useState<'default' | 'balanced' | 'experimental'>('default')
   
@@ -33,6 +35,15 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
   useEffect(() => {
     isPausedRef.current = isPaused
   }, [isPaused])
+  
+  // targetTPSの最新値を保持とFPS設定
+  useEffect(() => {
+    targetTPSRef.current = targetTPS
+    if (appRef.current != null) {
+      // PixiJSのtickerのmaxFPSを設定
+      appRef.current.ticker.maxFPS = targetTPS
+    }
+  }, [targetTPS])
 
   useEffect(() => {
     if (containerRef.current == null) {
@@ -58,6 +69,9 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
       }
 
       appRef.current = app
+      
+      // 初期FPS設定
+      app.ticker.maxFPS = targetTPS
 
       // エネルギーパラメータプリセットを適用
       setPresetParameters(energyPreset)
@@ -186,10 +200,12 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
         viewport.endDrag()
       })
 
-      // FPS計測用
+      // FPS/TPS計測用
       let lastTime = performance.now()
       let frameCount = 0
       let fps = 0
+      let tickCount = 0
+      let tps = 0
 
       // ズーム操作（マウスホイール）
       let wheelHandler: ((event: WheelEvent) => void) | null = null
@@ -211,12 +227,14 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
 
       // ゲームループ
       app.ticker.add(() => {
-        // FPS計算
+        // FPS/TPS計算
         frameCount++
         const currentTime = performance.now()
         if (currentTime - lastTime >= 1000) {
           fps = frameCount
+          tps = tickCount
           frameCount = 0
+          tickCount = 0
           lastTime = currentTime
         }
 
@@ -225,6 +243,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
           // ゲームをn tick進める
           for (let i = 0; i < ticksPerFrame; i++) {
             gameWorld.tick()
+            tickCount++
           }
         }
 
@@ -239,7 +258,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
         const posY = Math.round(viewportPos.y)
         const heatMapStatus = gameWorld.isHeatMapVisible ? "ON" : "OFF"
         const pauseStatus = isPausedRef.current ? " [PAUSED]" : ""
-        debugText.text = `FPS: ${fps}${pauseStatus}\nTicks per frame: ${ticksPerFrame}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}\nZoom: ${zoom}x\nCamera: (${posX}, ${posY})\nHeat Map: ${heatMapStatus}`
+        debugText.text = `FPS: ${fps}${pauseStatus}\nTPS: ${tps} / ${targetTPSRef.current}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}\nZoom: ${zoom}x\nCamera: (${posX}, ${posY})\nHeat Map: ${heatMapStatus}`
       })
     }
 
