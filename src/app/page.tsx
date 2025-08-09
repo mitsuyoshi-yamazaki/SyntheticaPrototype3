@@ -7,6 +7,7 @@ export default function Home() {
   const [isPaused, setIsPaused] = useState(false)
   const [resetKey, setResetKey] = useState(0)
   const [targetTPS, setTargetTPS] = useState(60)
+  const [debugMode, setDebugMode] = useState(false)
 
   const handleTogglePause = () => {
     setIsPaused(prev => !prev)
@@ -41,6 +42,7 @@ export default function Home() {
             ticksPerFrame={1} 
             isPaused={isPaused}
             targetTPS={targetTPS}
+            debugMode={debugMode}
           />
           {isPaused && (
             <div
@@ -109,6 +111,24 @@ export default function Home() {
                 <span>60 TPS (標準)</span>
                 <span>120 TPS (最速)</span>
               </div>
+            </div>
+            
+            {/* デバッグモード */}
+            <div className="border-t pt-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={debugMode}
+                  onChange={(e) => setDebugMode(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm font-medium text-gray-700">COMPUTERデバッグモード</span>
+              </label>
+              {debugMode && (
+                <div className="text-xs text-yellow-600 mt-2">
+                  ※ HULLをクリックして選択すると、接続されたCOMPUTERの実行ログがコンソールに出力されます
+                </div>
+              )}
             </div>
           </div>
         </div>

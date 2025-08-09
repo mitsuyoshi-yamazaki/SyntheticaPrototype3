@@ -148,6 +148,16 @@ export class GameWorld {
     
     const selected = this._selectionManager.selectObjectAt(worldPosition, screenPosition)
     
+    // デバッガーに選択状態を通知
+    const computerDebugger = this._world.debugger
+    if (computerDebugger != null) {
+      if (selected != null && isHull(selected)) {
+        computerDebugger.setSelectedHull(selected.id)
+      } else {
+        computerDebugger.setSelectedHull(null)
+      }
+    }
+    
     if (selected != null && isHull(selected)) {
       // HULLが選択された場合、情報を表示
       this.updateHullInfo()

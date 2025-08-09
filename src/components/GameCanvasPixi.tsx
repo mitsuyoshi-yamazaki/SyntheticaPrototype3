@@ -15,13 +15,14 @@ type GameCanvasProps = {
   ticksPerFrame?: number
   isPaused?: boolean
   targetTPS?: number
+  debugMode?: boolean
 }
 
 /**
  * PixiJSを使用したゲームキャンバスコンポーネント
  * requestAnimationFrameごとにゲームがn tick進む
  */
-const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused = false, targetTPS = 60 }: GameCanvasProps) => {
+const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused = false, targetTPS = 60, debugMode = false }: GameCanvasProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const appRef = useRef<PIXI.Application | null>(null)
   const gameWorldRef = useRef<GameWorld | null>(null)
@@ -80,6 +81,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
       const gameWorld = new GameWorld({
         width,
         height,
+        debugMode,
         defaultAgentPresets: [
           {
             preset: SELF_REPLICATOR_PRESET,
@@ -273,7 +275,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
       gameWorldRef.current = null
       viewportRef.current = null
     }
-  }, [width, height, ticksPerFrame, energyPreset])
+  }, [width, height, ticksPerFrame, energyPreset, debugMode, targetTPS])
 
   // 熱マップ表示状態の変更を反映
   useEffect(() => {

@@ -9,6 +9,8 @@ import { EnergySourceManager } from "./energy-source-manager"
 import { EnergyCollector } from "./energy-collector"
 import { EnergyDecaySystem } from "./energy-decay-system"
 import { ComputerVMSystem } from "./computer-vm-system"
+import { ComputerVMSystemDebug } from "./computer-vm-system-debug"
+import { ComputerDebugger } from "./computer-debugger"
 import { AgentFactory } from "./agent-factory"
 import type {
   GameObject,
@@ -33,6 +35,7 @@ export type WorldConfig = {
   height: number
   parameters?: Partial<WorldParameters>
   defaultAgentPresets?: readonly AgentPresetPlacement[]
+  debugMode?: boolean
 }
 
 export class World {
@@ -42,6 +45,8 @@ export class World {
   private readonly _energySourceManager: EnergySourceManager
   private readonly _energyCollector: EnergyCollector
   private readonly _energyDecaySystem: EnergyDecaySystem
+  private readonly _computerVMSystem: ComputerVMSystemDebug | null
+  private readonly _debugger: ComputerDebugger | null
 
   /** ワールド状態を取得 */
   public get state() {
@@ -51,6 +56,11 @@ export class World {
   /** 熱システムを取得 */
   public get heatSystem(): HeatSystem {
     return this._stateManager.heatSystem
+  }
+  
+  /** デバッガーを取得（デバッグモード時のみ） */
+  public get debugger(): ComputerDebugger | null {
+    return this._debugger
   }
 
   public constructor(config: WorldConfig) {
@@ -71,6 +81,17 @@ export class World {
 
     // エネルギー崩壊システムの初期化
     this._energyDecaySystem = new EnergyDecaySystem()
+
+    // ComputerVMシステムの初期化（デバッグモードに応じて切り替え）
+    if (config.debugMode === true) {
+      const computerDebugger = new ComputerDebugger()
+      this._computerVMSystem = new ComputerVMSystemDebug(computerDebugger)
+      this._debugger = computerDebugger
+      console.log("[World] デバッグモードで起動")
+    } else {
+      this._computerVMSystem = null
+      this._debugger = null
+    }
 
     this.initialize(config)
   }
@@ -320,10 +341,28 @@ export class World {
   /** COMPUTERユニットのVM実行 */
   private executeComputerVMs(): void {
     const objects = this._stateManager.getAllObjects()
+    const tick = this._stateManager.state.tick
+
+    // デバッグモードの場合、HULLマップを更新
+    if (this._computerVMSystem != null) {
+      const hulls: Hull[] = []
+      for (const obj of objects) {
+        if (isHull(obj)) {
+          hulls.push(obj)
+        }
+      }
+      this._computerVMSystem.updateHullMap(hulls)
+    }
 
     for (const obj of objects) {
       if (obj.type === "COMPUTER") {
-        ComputerVMSystem.executeVM(obj as Computer)
+        if (this._computerVMSystem != null) {
+          // デバッグモード: インスタンスメソッドを使用
+          this._computerVMSystem.executeVMWithDebug(obj as Computer, tick)
+        } else {
+          // 通常モード: staticメソッドを使用
+          ComputerVMSystem.executeVM(obj as Computer)
+        }
       }
     }
   }
