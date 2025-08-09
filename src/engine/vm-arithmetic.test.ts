@@ -84,7 +84,7 @@ describe("算術演算命令", () => {
     test("MUL_AB: A = (A * B) & 0xFFFF", () => {
       vm.setRegister("A", 100)
       vm.setRegister("B", 200)
-      vm.writeMemory8(0, 0xc2) // MUL_AB
+      vm.writeMemory8(0, 0xc0) // MUL_AB
       vm.writeMemory8(1, 0x00) // 未使用
       vm.writeMemory8(2, 0x00)
       vm.writeMemory8(3, 0x00)
@@ -104,7 +104,7 @@ describe("算術演算命令", () => {
     test("MUL_AB: オーバーフロー時の切り捨て", () => {
       vm.setRegister("A", 0x1000)
       vm.setRegister("B", 0x1000)
-      vm.writeMemory8(0, 0xc2) // MUL_AB
+      vm.writeMemory8(0, 0xc0) // MUL_AB
 
       const result = InstructionExecutor.step(vm)
 
@@ -116,7 +116,7 @@ describe("算術演算命令", () => {
     test("DIV_AB: A = A / B, B = A % B", () => {
       vm.setRegister("A", 100)
       vm.setRegister("B", 30)
-      vm.writeMemory8(0, 0xc3) // DIV_AB
+      vm.writeMemory8(0, 0xc1) // DIV_AB
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x00)
       vm.writeMemory8(3, 0x00)
@@ -135,7 +135,7 @@ describe("算術演算命令", () => {
     test("DIV_AB: ゼロ除算エラー", () => {
       vm.setRegister("A", 100)
       vm.setRegister("B", 0)
-      vm.writeMemory8(0, 0xc3) // DIV_AB
+      vm.writeMemory8(0, 0xc1) // DIV_AB
 
       const result = InstructionExecutor.step(vm)
 
@@ -148,7 +148,7 @@ describe("算術演算命令", () => {
     test("SHL: A = A << B（論理左シフト）", () => {
       vm.setRegister("A", 0x0f0f)
       vm.setRegister("B", 4)
-      vm.writeMemory8(0, 0xc4) // SHL
+      vm.writeMemory8(0, 0xc2) // SHL
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x00)
       vm.writeMemory8(3, 0x00)
@@ -161,21 +161,22 @@ describe("算術演算命令", () => {
       expect(vm.getRegister("B")).toBe(4) // Bは変更されない
     })
 
-    test("SHL: シフト量は下位4ビットのみ", () => {
+    test("SHL: シフト量は下位5ビット（仕様変更）", () => {
       vm.setRegister("A", 1)
-      vm.setRegister("B", 0x12) // 下位4bit = 2
-      vm.writeMemory8(0, 0xc4) // SHL
+      vm.setRegister("B", 0x12) // 0x12 = 18、16ビット以上のシフトは0
+      vm.writeMemory8(0, 0xc2) // SHL
 
       const result = InstructionExecutor.step(vm)
 
       expect(result.success).toBe(true)
-      expect(vm.getRegister("A")).toBe(4) // 1 << 2 = 4
+      expect(vm.getRegister("A")).toBe(0) // 1 << 18 = 0（16ビット制限）
+      expect(vm.zeroFlag).toBe(true)
     })
 
     test("SHR: A = A >> B（論理右シフト）", () => {
       vm.setRegister("A", 0xf0f0)
       vm.setRegister("B", 4)
-      vm.writeMemory8(0, 0xc5) // SHR
+      vm.writeMemory8(0, 0xc3) // SHR
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x00)
       vm.writeMemory8(3, 0x00)
@@ -191,7 +192,7 @@ describe("算術演算命令", () => {
     test("SHR: 符号なし右シフト", () => {
       vm.setRegister("A", 0x8000) // 最上位ビットが1
       vm.setRegister("B", 1)
-      vm.writeMemory8(0, 0xc5) // SHR
+      vm.writeMemory8(0, 0xc3) // SHR
 
       const result = InstructionExecutor.step(vm)
 
@@ -212,18 +213,20 @@ describe("算術演算命令", () => {
       vm.writeMemory8(1, 0x03)
       // MOV_BA
       vm.writeMemory8(2, 0x05)
-      // MOV_A_IMM (A = 3)
-      vm.writeMemory8(3, 0x70)
+      // LOAD_IMM (A = 3) - 5バイト命令
+      vm.writeMemory8(3, 0xe0)
       vm.writeMemory8(4, 0x03)
       vm.writeMemory8(5, 0x00)
+      vm.writeMemory8(6, 0x00)
+      vm.writeMemory8(7, 0x00)
       // XCHG
-      vm.writeMemory8(6, 0x02)
+      vm.writeMemory8(8, 0x02)
       // MUL_AB
-      vm.writeMemory8(7, 0xc2)
-      vm.writeMemory8(8, 0x00)
-      vm.writeMemory8(9, 0x00)
+      vm.writeMemory8(9, 0xc0)
       vm.writeMemory8(10, 0x00)
       vm.writeMemory8(11, 0x00)
+      vm.writeMemory8(12, 0x00)
+      vm.writeMemory8(13, 0x00)
 
       // ADD_AB実行
       let result = InstructionExecutor.step(vm)
@@ -237,7 +240,7 @@ describe("算術演算命令", () => {
       result = InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(30)
 
-      // MOV_A_IMM実行
+      // LOAD_IMM実行
       result = InstructionExecutor.step(vm)
       expect(vm.getRegister("A")).toBe(3)
 

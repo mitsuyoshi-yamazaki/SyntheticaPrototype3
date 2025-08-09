@@ -95,39 +95,42 @@ describe("InstructionDecoder", () => {
     })
 
     test("即値ロード命令", () => {
-      vm.writeMemory8(0, 0x70) // MOV_A_IMM
+      vm.writeMemory8(0, 0xe0) // LOAD_IMM
       vm.writeMemory8(1, 0xcd) // immediate low
       vm.writeMemory8(2, 0xab) // immediate high
+      vm.writeMemory8(3, 0x00) // unused
+      vm.writeMemory8(4, 0x00) // unused
       const decoded = InstructionDecoder.decode(vm)
 
-      expect(decoded.instruction?.mnemonic).toBe("MOV_A_IMM")
+      expect(decoded.instruction?.mnemonic).toBe("LOAD_IMM")
+      expect(decoded.length).toBe(5)
       expect(decoded.operands.immediate16).toBe(0xabcd)
     })
 
-    test("即値演算命令", () => {
-      vm.writeMemory8(0, 0x74) // ADD_A_IMM
-      vm.writeMemory8(1, 0x56)
-      vm.writeMemory8(2, 0x34)
+    test("即値演算命令（削除済み）", () => {
+      vm.writeMemory8(0, 0x74) // 未定義命令（仕様から削除）
       const decoded = InstructionDecoder.decode(vm)
 
-      expect(decoded.instruction?.mnemonic).toBe("ADD_A_IMM")
-      expect(decoded.operands.immediate16).toBe(0x3456)
+      expect(decoded.isUndefined).toBe(true)
+      expect(decoded.instruction).toBe(null)
     })
 
     test("RET命令（特殊ケース）", () => {
-      vm.writeMemory8(0, 0x66) // RET
+      vm.writeMemory8(0, 0xb2) // RET
       vm.writeMemory8(1, 0xff) // 無視される
       vm.writeMemory8(2, 0xff) // 無視される
+      vm.writeMemory8(3, 0xff) // 無視される
       const decoded = InstructionDecoder.decode(vm)
 
       expect(decoded.instruction?.mnemonic).toBe("RET")
+      expect(decoded.length).toBe(4)
       expect(decoded.operands).toEqual({}) // オペランドなし
     })
   })
 
   describe("4バイト命令のデコード", () => {
     test("絶対アドレスメモリアクセス", () => {
-      vm.writeMemory8(0, 0x80) // LOAD_ABS
+      vm.writeMemory8(0, 0xa0) // LOAD_ABS
       vm.writeMemory8(1, 0x01) // 無視される（命令の一部）
       vm.writeMemory8(2, 0x34) // address low
       vm.writeMemory8(3, 0x12) // address high
@@ -139,7 +142,7 @@ describe("InstructionDecoder", () => {
     })
 
     test("絶対ジャンプ命令", () => {
-      vm.writeMemory8(0, 0x90) // JMP_ABS
+      vm.writeMemory8(0, 0xb1) // JMP_ABS
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0xef) // address low
       vm.writeMemory8(3, 0xbe) // address high
@@ -150,7 +153,7 @@ describe("InstructionDecoder", () => {
     })
 
     test("ユニット制御命令", () => {
-      vm.writeMemory8(0, 0xa0) // UNIT_MEM_READ
+      vm.writeMemory8(0, 0x90) // UNIT_MEM_READ
       vm.writeMemory8(1, 0x00) // 無視される
       vm.writeMemory8(2, 0x42) // ユニット識別子
       vm.writeMemory8(3, 0x10) // ユニットメモリアドレス
@@ -163,17 +166,17 @@ describe("InstructionDecoder", () => {
   })
 
   describe("5バイト命令のデコード", () => {
-    test("特殊命令", () => {
-      vm.writeMemory8(0, 0xc0) // SCAN
+    test("演算命令", () => {
+      vm.writeMemory8(0, 0xc0) // MUL_AB
       vm.writeMemory8(1, 0x11)
       vm.writeMemory8(2, 0x22)
       vm.writeMemory8(3, 0x33)
       vm.writeMemory8(4, 0x44)
       const decoded = InstructionDecoder.decode(vm)
 
-      expect(decoded.instruction?.mnemonic).toBe("SCAN")
+      expect(decoded.instruction?.mnemonic).toBe("MUL_AB")
       expect(decoded.length).toBe(5)
-      expect(decoded.instruction?.type).toBe("SPECIAL")
+      expect(decoded.instruction?.type).toBe("ARITHMETIC")
     })
   })
 
@@ -208,14 +211,16 @@ describe("InstructionDecoder", () => {
   describe("decodeAt", () => {
     test("指定アドレスでのデコード", () => {
       vm.pc = 0x500 // 現在のPC
-      vm.writeMemory8(0x100, 0x70) // MOV_A_IMM
+      vm.writeMemory8(0x100, 0xe0) // LOAD_IMM
       vm.writeMemory8(0x101, 0x34)
       vm.writeMemory8(0x102, 0x12)
+      vm.writeMemory8(0x103, 0x00)
+      vm.writeMemory8(0x104, 0x00)
 
       const decoded = InstructionDecoder.decodeAt(vm, 0x100)
 
       expect(decoded.address).toBe(0x100)
-      expect(decoded.instruction?.mnemonic).toBe("MOV_A_IMM")
+      expect(decoded.instruction?.mnemonic).toBe("LOAD_IMM")
       expect(decoded.operands.immediate16).toBe(0x1234)
       expect(vm.pc).toBe(0x500) // PCは変更されない
     })
@@ -242,14 +247,14 @@ describe("InstructionDecoder", () => {
     })
 
     test("メモリアクセス命令のフォーマット（絶対）", () => {
-      vm.writeMemory8(0, 0x80) // LOAD_ABS
+      vm.writeMemory8(0, 0xa0) // LOAD_ABS
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x34)
       vm.writeMemory8(3, 0x12)
       const decoded = InstructionDecoder.decode(vm)
       const formatted = InstructionDecoder.format(decoded)
 
-      expect(formatted).toBe("0x0000: 80 00 34 12     LOAD_ABS 0x1234")
+      expect(formatted).toBe("0x0000: a0 00 34 12     LOAD_ABS 0x1234")
     })
 
     test("レジスタベースメモリアクセスのフォーマット", () => {
@@ -275,24 +280,26 @@ describe("InstructionDecoder", () => {
     })
 
     test("即値命令のフォーマット", () => {
-      vm.writeMemory8(0, 0x74) // ADD_A_IMM
+      vm.writeMemory8(0, 0xe0) // LOAD_IMM
       vm.writeMemory8(1, 0xcd)
       vm.writeMemory8(2, 0xab)
+      vm.writeMemory8(3, 0x00)
+      vm.writeMemory8(4, 0x00)
       const decoded = InstructionDecoder.decode(vm)
       const formatted = InstructionDecoder.format(decoded)
 
-      expect(formatted).toBe("0x0000: 74 cd ab        ADD_A_IMM #0xabcd")
+      expect(formatted).toBe("0x0000: e0 cd ab 00 00  LOAD_IMM #0xabcd")
     })
 
     test("ユニット制御命令のフォーマット", () => {
-      vm.writeMemory8(0, 0xa0) // UNIT_MEM_READ
+      vm.writeMemory8(0, 0x90) // UNIT_MEM_READ
       vm.writeMemory8(1, 0x00)
       vm.writeMemory8(2, 0x42)
       vm.writeMemory8(3, 0x10)
       const decoded = InstructionDecoder.decode(vm)
       const formatted = InstructionDecoder.format(decoded)
 
-      expect(formatted).toBe("0x0000: a0 00 42 10     UNIT_MEM_READ unit:0x42, addr:0x10")
+      expect(formatted).toBe("0x0000: 90 00 42 10     UNIT_MEM_READ unit:0x42, addr:0x10")
     })
 
     test("未定義命令のフォーマット", () => {
@@ -319,14 +326,16 @@ describe("InstructionDecoder", () => {
 
   describe("境界条件", () => {
     test("メモリ境界での命令読み取り", () => {
-      // メモリサイズ1024での境界テスト
-      vm.pc = 1022
-      vm.writeMemory8(1022, 0x70) // MOV_A_IMM
-      vm.writeMemory8(1023, 0xab)
-      vm.writeMemory8(0, 0xcd) // 循環
+      // メモリサイズ1024での境界テスト（5バイト命令）
+      vm.pc = 1020
+      vm.writeMemory8(1020, 0xe0) // LOAD_IMM
+      vm.writeMemory8(1021, 0xab)
+      vm.writeMemory8(1022, 0xcd)
+      vm.writeMemory8(1023, 0x00) // 循環
+      vm.writeMemory8(0, 0x00)
       const decoded = InstructionDecoder.decode(vm)
 
-      expect(decoded.instruction?.mnemonic).toBe("MOV_A_IMM")
+      expect(decoded.instruction?.mnemonic).toBe("LOAD_IMM")
       expect(decoded.operands.immediate16).toBe(0xcdab)
     })
   })
