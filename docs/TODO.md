@@ -29,7 +29,7 @@
 - ✅ `AssemblerConstructionSystem` は利用されていない？ コンストラクタ引数で `ConstructionParameters` を渡している意味は？ `createHeatParametersFromEnergyParams()` は不要ではないか
 - ✅ `EnergyParameters` （世界の法則）と `WorldParameters` （世界の一部分の土地の性質）を分離する
 - `SELF_REPLICATOR_PRESET` のパラメータを自己複製可能な最小要素で更新し、エージェントの自己複製を試みる
-- spec-v3/synthetica-script.md の仕様に沿った命令セットになっているか確認する
+- ✅ spec-v3/synthetica-script.md の仕様に沿った命令セットになっているか確認する（2025-08-09完了）
 
 ### エージェントのデバッグ機能の追加
 
@@ -177,6 +177,30 @@
 - ✅ VMエラーハンドリング実装
 - ✅ VM統合テスト作成
 
+### VM未実装命令（オプション）
+
+以下の命令は自己複製コードでは使用されていないため、実装は任意：
+
+- テンプレートマッチング命令
+  - SEARCH_F (0xd0): テンプレートを前方検索
+  - SEARCH_B (0xd1): テンプレートを後方検索
+  - SEARCH_F_MAX (0xd2): 最大256バイト前方検索
+  - SEARCH_B_MAX (0xd3): 最大256バイト後方検索
+  - その他テンプレート関連命令
+
+- 32bitエネルギー計算命令
+  - ADD_E32 (0xd8): 32bitエネルギー加算
+  - SUB_E32 (0xd9): 32bitエネルギー減算
+  - CMP_E32 (0xda): 32bitエネルギー比較
+  - SHL_E10 (0xdb): 1024進法左シフト
+  - SHR_E10 (0xdc): 1024進法右シフト
+
+- 高度なユニット操作命令
+  - UNIT_MEM_READ_REG (0x92): レジスタ指定外部ユニットメモリ読み取り
+  - UNIT_TRAN_CODE_DYN (0x93): 動的にユニットへプログラムコード転送
+  - UNIT_SCAN (0x94): 外部ユニットのスペック取得
+  - その他の動的ユニット操作命令
+
 ---
 
 ## フェーズ5: レンダリングシステム (必須)
@@ -241,6 +265,7 @@
 - ✅ 基本的なエージェント定義（AgentDefinition）
 - v3.0.0準拠の自己複製エージェント実装
 - v3.1.0準拠の自己複製エージェント実装（プリミティブ命令使用）
+  - 現在のVM実装で自己複製コード（docs/spec-v3/agent-code/v3.1.0/constructor-based-replication.md）は実行可能（2025-08-09確認済み）
 
 ### エージェントローダー
 
