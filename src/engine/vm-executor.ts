@@ -149,6 +149,32 @@ export const InstructionExecutor = {
         }
         break
 
+      // 条件付き移動命令（CMOV系）
+      case "CMOV_Z":
+        // ゼロフラグがセットされている場合のみA = B
+        if (vm.zeroFlag) {
+          vm.setRegister("A", vm.getRegister("B"))
+        }
+        break
+      case "CMOV_NZ":
+        // ゼロフラグがクリアされている場合のみA = B
+        if (!vm.zeroFlag) {
+          vm.setRegister("A", vm.getRegister("B"))
+        }
+        break
+      case "CMOV_C":
+        // キャリーフラグがセットされている場合のみA = B
+        if (vm.carryFlag) {
+          vm.setRegister("A", vm.getRegister("B"))
+        }
+        break
+      case "CMOV_NC":
+        // キャリーフラグがクリアされている場合のみA = B
+        if (!vm.carryFlag) {
+          vm.setRegister("A", vm.getRegister("B"))
+        }
+        break
+
       default:
         return {
           success: false,

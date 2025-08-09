@@ -82,6 +82,102 @@ describe("InstructionExecutor", () => {
       expect(vm.getRegister("A")).toBe(0x1234)
       expect(vm.pc).toBe(5)
     })
+
+    describe("条件付き移動命令（CMOV系）", () => {
+      test("CMOV_Z（ゼロフラグセット時）", () => {
+        vm.setRegister("A", 0x1111)
+        vm.setRegister("B", 0x2222)
+        vm.zeroFlag = true
+
+        vm.writeMemory8(0, 0xc5) // CMOV_Z
+        vm.writeMemory8(1, 0x00) // unused
+        vm.writeMemory8(2, 0x00) // unused
+        vm.writeMemory8(3, 0x00) // unused
+        vm.writeMemory8(4, 0x00) // unused
+
+        const decoded = InstructionDecoder.decode(vm)
+        const result = InstructionExecutor.execute(vm, decoded)
+
+        expect(result.success).toBe(true)
+        expect(result.cycles).toBe(1) // 1サイクル（仕様通り）
+        expect(vm.getRegister("A")).toBe(0x2222) // 条件成立でコピー
+        expect(vm.pc).toBe(5)
+      })
+
+      test("CMOV_Z（ゼロフラグクリア時）", () => {
+        vm.setRegister("A", 0x1111)
+        vm.setRegister("B", 0x2222)
+        vm.zeroFlag = false
+
+        vm.writeMemory8(0, 0xc5) // CMOV_Z
+        vm.writeMemory8(1, 0x00)
+        vm.writeMemory8(2, 0x00)
+        vm.writeMemory8(3, 0x00)
+        vm.writeMemory8(4, 0x00)
+
+        const decoded = InstructionDecoder.decode(vm)
+        const result = InstructionExecutor.execute(vm, decoded)
+
+        expect(result.success).toBe(true)
+        expect(result.cycles).toBe(1) // 条件不成立でも1サイクル
+        expect(vm.getRegister("A")).toBe(0x1111) // 条件不成立で変更なし
+        expect(vm.pc).toBe(5)
+      })
+
+      test("CMOV_NZ（ゼロフラグクリア時）", () => {
+        vm.setRegister("A", 0x1111)
+        vm.setRegister("B", 0x3333)
+        vm.zeroFlag = false
+
+        vm.writeMemory8(0, 0xc6) // CMOV_NZ
+        vm.writeMemory8(1, 0x00)
+        vm.writeMemory8(2, 0x00)
+        vm.writeMemory8(3, 0x00)
+        vm.writeMemory8(4, 0x00)
+
+        const decoded = InstructionDecoder.decode(vm)
+        const result = InstructionExecutor.execute(vm, decoded)
+
+        expect(result.success).toBe(true)
+        expect(vm.getRegister("A")).toBe(0x3333) // 条件成立でコピー
+      })
+
+      test("CMOV_C（キャリーフラグセット時）", () => {
+        vm.setRegister("A", 0x1111)
+        vm.setRegister("B", 0x4444)
+        vm.carryFlag = true
+
+        vm.writeMemory8(0, 0xc7) // CMOV_C
+        vm.writeMemory8(1, 0x00)
+        vm.writeMemory8(2, 0x00)
+        vm.writeMemory8(3, 0x00)
+        vm.writeMemory8(4, 0x00)
+
+        const decoded = InstructionDecoder.decode(vm)
+        const result = InstructionExecutor.execute(vm, decoded)
+
+        expect(result.success).toBe(true)
+        expect(vm.getRegister("A")).toBe(0x4444) // 条件成立でコピー
+      })
+
+      test("CMOV_NC（キャリーフラグクリア時）", () => {
+        vm.setRegister("A", 0x1111)
+        vm.setRegister("B", 0x5555)
+        vm.carryFlag = false
+
+        vm.writeMemory8(0, 0xc8) // CMOV_NC
+        vm.writeMemory8(1, 0x00)
+        vm.writeMemory8(2, 0x00)
+        vm.writeMemory8(3, 0x00)
+        vm.writeMemory8(4, 0x00)
+
+        const decoded = InstructionDecoder.decode(vm)
+        const result = InstructionExecutor.execute(vm, decoded)
+
+        expect(result.success).toBe(true)
+        expect(vm.getRegister("A")).toBe(0x5555) // 条件成立でコピー
+      })
+    })
   })
 
   describe("算術演算命令", () => {
