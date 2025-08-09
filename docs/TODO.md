@@ -17,6 +17,7 @@
 
 ## マイルストーンなし
 
+- README.md へ現在のスクリーンショットを含むゲーム解説を記載する
 - git worktreeのために、localhostのポート番号などを環境変数などで変更できるようにする
 - 😀 スクリーンショットのダウンロード機能を追加する
 - nullチェックに関する `docs/coding-guidelines.md` の変更に追従する
@@ -24,9 +25,10 @@
 
 ### 自己複製エージェントの実行
 
-- `docs/実装計画/エネルギー消費仕様を調整可能にする.md` を実施する
-- `AssemblerConstructionSystem` は利用されていない？ コンストラクタ引数で `ConstructionParameters` を渡している意味は？ `createHeatParametersFromEnergyParams()` は不要ではないか
-- `EnergyParameters` （世界の法則）と `WorldParameters` （世界の一部分の土地の性質）を分離する
+- ✅ `docs/実装計画/エネルギー消費仕様を調整可能にする.md` を実施する
+- ✅ `AssemblerConstructionSystem` は利用されていない？ コンストラクタ引数で `ConstructionParameters` を渡している意味は？ `createHeatParametersFromEnergyParams()` は不要ではないか
+- ✅ `EnergyParameters` （世界の法則）と `WorldParameters` （世界の一部分の土地の性質）を分離する
+- `SELF_REPLICATOR_PRESET` のパラメータを自己複製可能な最小要素で更新し、エージェントの自己複製を試みる
 
 ### エージェントのデバッグ機能の追加
 

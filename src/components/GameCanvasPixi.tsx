@@ -13,19 +13,26 @@ type GameCanvasProps = {
   width?: number
   height?: number
   ticksPerFrame?: number
+  isPaused?: boolean
 }
 
 /**
  * PixiJSを使用したゲームキャンバスコンポーネント
  * requestAnimationFrameごとにゲームがn tick進む
  */
-const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCanvasProps) => {
+const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused = false }: GameCanvasProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const appRef = useRef<PIXI.Application | null>(null)
   const gameWorldRef = useRef<GameWorld | null>(null)
   const viewportRef = useRef<Viewport | null>(null)
+  const isPausedRef = useRef(isPaused)
   const [isHeatMapVisible, setIsHeatMapVisible] = useState(false)
   const [energyPreset, setEnergyPreset] = useState<'default' | 'balanced' | 'experimental'>('default')
+  
+  // isPausedの最新値を保持
+  useEffect(() => {
+    isPausedRef.current = isPaused
+  }, [isPaused])
 
   useEffect(() => {
     if (containerRef.current == null) {
@@ -213,12 +220,15 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
           lastTime = currentTime
         }
 
-        // ゲームをn tick進める
-        for (let i = 0; i < ticksPerFrame; i++) {
-          gameWorld.tick()
+        // 一時停止中はtickを進めない
+        if (!isPausedRef.current) {
+          // ゲームをn tick進める
+          for (let i = 0; i < ticksPerFrame; i++) {
+            gameWorld.tick()
+          }
         }
 
-        // ゲーム世界をレンダリング
+        // ゲーム世界をレンダリング（一時停止中も描画は継続）
         gameWorld.renderPixi(gameContainer)
 
         // デバッグ情報更新
@@ -228,7 +238,8 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1 }: GameCa
         const posX = Math.round(viewportPos.x)
         const posY = Math.round(viewportPos.y)
         const heatMapStatus = gameWorld.isHeatMapVisible ? "ON" : "OFF"
-        debugText.text = `FPS: ${fps}\nTicks per frame: ${ticksPerFrame}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}\nZoom: ${zoom}x\nCamera: (${posX}, ${posY})\nHeat Map: ${heatMapStatus}`
+        const pauseStatus = isPausedRef.current ? " [PAUSED]" : ""
+        debugText.text = `FPS: ${fps}${pauseStatus}\nTicks per frame: ${ticksPerFrame}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}\nZoom: ${zoom}x\nCamera: (${posX}, ${posY})\nHeat Map: ${heatMapStatus}`
       })
     }
 

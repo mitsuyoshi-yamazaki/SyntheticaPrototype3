@@ -4,18 +4,17 @@ import GameCanvasPixi from "@/components/GameCanvasPixi"
 import { useState } from "react"
 
 export default function Home() {
-  const [isRunning, setIsRunning] = useState(true)
-  const [key, setKey] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
+  const [resetKey, setResetKey] = useState(0)
 
-  const handleToggleSimulation = () => {
-    if (isRunning) {
-      // 停止
-      setIsRunning(false)
-    } else {
-      // 再起動（新しいキーで再マウント）
-      setKey(prev => prev + 1)
-      setIsRunning(true)
-    }
+  const handleTogglePause = () => {
+    setIsPaused(prev => !prev)
+  }
+
+  const handleReset = () => {
+    // 新しいキーで再マウント
+    setResetKey(prev => prev + 1)
+    setIsPaused(false)
   }
 
   return (
@@ -27,14 +26,20 @@ export default function Home() {
         </p>
 
         {/* ゲームキャンバス */}
-        <div className="mb-8">
-          {isRunning && <GameCanvasPixi key={key} width={800} height={600} ticksPerFrame={1} />}
-          {!isRunning && (
+        <div className="mb-8 relative">
+          <GameCanvasPixi 
+            key={resetKey} 
+            width={800} 
+            height={600} 
+            ticksPerFrame={1} 
+            isPaused={isPaused}
+          />
+          {isPaused && (
             <div
-              className="flex justify-center items-center bg-gray-200 rounded-lg"
+              className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 rounded-lg pointer-events-none"
               style={{ width: 800, height: 600 }}
             >
-              <p className="text-gray-600 text-lg">シミュレーション停止中</p>
+              <p className="text-white text-2xl font-bold">一時停止中</p>
             </div>
           )}
         </div>
@@ -44,22 +49,28 @@ export default function Home() {
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-semibold mb-4">ゲーム設定</h2>
 
-            {/* 停止/再起動ボタン */}
-            <div className="mb-4">
+            {/* 一時停止/再開ボタン */}
+            <div className="mb-4 flex gap-2">
               <button
-                onClick={handleToggleSimulation}
+                onClick={handleTogglePause}
                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                  isRunning
-                    ? "bg-red-500 hover:bg-red-600 text-white"
-                    : "bg-green-500 hover:bg-green-600 text-white"
+                  isPaused
+                    ? "bg-green-500 hover:bg-green-600 text-white"
+                    : "bg-yellow-500 hover:bg-yellow-600 text-white"
                 }`}
               >
-                {isRunning ? "停止" : "再起動"}
+                {isPaused ? "再開" : "一時停止"}
+              </button>
+              <button
+                onClick={handleReset}
+                className="px-6 py-2 rounded-lg font-medium transition-colors bg-red-500 hover:bg-red-600 text-white"
+              >
+                リセット
               </button>
             </div>
 
             <p className="text-sm text-gray-600">
-              {isRunning ? "シミュレーション実行中" : "シミュレーション停止中"}
+              {isPaused ? "シミュレーション一時停止中" : "シミュレーション実行中"}
             </p>
           </div>
         </div>
