@@ -21,6 +21,7 @@ jest.mock("pixi.js", () => ({
     y: 0,
     text: "",
     style: {},
+    anchor: { x: 0, y: 0 },
   })),
 }))
 
