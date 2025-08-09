@@ -589,6 +589,52 @@ export const InstructionExecutor = {
         }
         break
 
+      // 符号付き比較ジャンプ（直前のCMP_AB結果に基づく）
+      case "JGE":
+        // A >= B（符号付き）：キャリーフラグで符号付き比較結果を判定
+        shouldJump = !vm.carryFlag || vm.zeroFlag
+        if (shouldJump && decoded.operands.offset16 !== undefined) {
+          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+        }
+        break
+      case "JL":
+        // A < B（符号付き）：キャリーフラグがセットかつゼロフラグがクリア
+        shouldJump = vm.carryFlag && !vm.zeroFlag
+        if (shouldJump && decoded.operands.offset16 !== undefined) {
+          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+        }
+        break
+      case "JLE":
+        // A <= B（符号付き）：キャリーフラグがセットまたはゼロフラグがセット
+        shouldJump = vm.carryFlag || vm.zeroFlag
+        if (shouldJump && decoded.operands.offset16 !== undefined) {
+          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+        }
+        break
+      case "JG":
+        // A > B（符号付き）：キャリーフラグがクリアかつゼロフラグがクリア
+        shouldJump = !vm.carryFlag && !vm.zeroFlag
+        if (shouldJump && decoded.operands.offset16 !== undefined) {
+          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+        }
+        break
+
+      // 符号なし比較ジャンプ（直前のCMP_AB結果に基づく）
+      case "JUL":
+        // A < B（符号なし）：キャリーフラグで符号なし比較結果を判定
+        shouldJump = vm.carryFlag && !vm.zeroFlag
+        if (shouldJump && decoded.operands.offset16 !== undefined) {
+          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+        }
+        break
+      case "JUGE":
+        // A >= B（符号なし）：キャリーフラグがクリアまたはゼロフラグがセット
+        shouldJump = !vm.carryFlag || vm.zeroFlag
+        if (shouldJump && decoded.operands.offset16 !== undefined) {
+          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+        }
+        break
+
       // サブルーチン呼び出し
       case "CALL":
         shouldJump = true

@@ -92,6 +92,12 @@ export class InstructionDecoder {
           case "JC":
           case "JNC":
           case "CALL":
+          case "JG":
+          case "JGE":
+          case "JL":
+          case "JLE":
+          case "JUL":
+          case "JUGE":
             operands.offset16 = this.toSigned16(byte2 | (byte3 << 8))
             break
 

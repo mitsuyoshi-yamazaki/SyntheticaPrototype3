@@ -1,7 +1,7 @@
 import { VMState } from "./vm-state"
 import { InstructionDecoder } from "./vm-decoder"
 import { InstructionExecutor } from "./vm-executor"
-import type { ObjectId, Assembler, Computer } from "@/types/game"
+// Removed unused imports for ObjectId, Assembler, Computer
 
 describe("InstructionExecutor", () => {
   let vm: VMState
@@ -364,6 +364,56 @@ describe("InstructionExecutor", () => {
       InstructionExecutor.execute(vm, decoded)
 
       expect(vm.pc).toBe(0x1234)
+    })
+
+    test("JUGE（符号なし以上 - BGE相当）", () => {
+      vm.setRegister("A", 10)
+      vm.setRegister("B", 5)
+      vm.writeMemory8(0, 0x1e) // CMP_AB
+      vm.writeMemory8(1, 0x6b) // JUGE
+      vm.writeMemory8(2, 0x05) // +5へジャンプ
+      vm.writeMemory8(3, 0x00)
+
+      // CMP_AB実行
+      let decoded = InstructionDecoder.decode(vm)
+      InstructionExecutor.execute(vm, decoded)
+      
+      // フラグ状態確認
+      expect(vm.zeroFlag).toBe(false) // A != B
+      expect(vm.carryFlag).toBe(false) // A >= B (10 >= 5)
+
+      // JUGE実行
+      decoded = InstructionDecoder.decode(vm)
+      expect(decoded.instruction?.mnemonic).toBe("JUGE")
+      const result = InstructionExecutor.execute(vm, decoded)
+
+      expect(result.success).toBe(true)
+      expect(vm.pc).toBe(0x09) // 1 + 3 + 5 = 9
+    })
+
+    test("JUL（符号なし小なり - BLT相当）", () => {
+      vm.setRegister("A", 5)
+      vm.setRegister("B", 10)
+      vm.writeMemory8(0, 0x1e) // CMP_AB
+      vm.writeMemory8(1, 0x6a) // JUL
+      vm.writeMemory8(2, 0x05) // +5へジャンプ
+      vm.writeMemory8(3, 0x00)
+
+      // CMP_AB実行
+      let decoded = InstructionDecoder.decode(vm)
+      InstructionExecutor.execute(vm, decoded)
+      
+      // フラグ状態確認
+      expect(vm.zeroFlag).toBe(false) // A != B
+      expect(vm.carryFlag).toBe(true) // A < B (5 < 10)
+
+      // JUL実行
+      decoded = InstructionDecoder.decode(vm)
+      expect(decoded.instruction?.mnemonic).toBe("JUL")
+      const result = InstructionExecutor.execute(vm, decoded)
+
+      expect(result.success).toBe(true)
+      expect(vm.pc).toBe(0x09) // 1 + 3 + 5 = 9
     })
   })
 

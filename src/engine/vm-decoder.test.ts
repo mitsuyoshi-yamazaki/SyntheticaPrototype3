@@ -94,6 +94,29 @@ describe("InstructionDecoder", () => {
       expect(decoded.address).toBe(0x1000)
     })
 
+    test("新しい符号なし分岐命令", () => {
+      // JUGE (符号なし以上)
+      vm.writeMemory8(0, 0x6b) // JUGE
+      vm.writeMemory8(1, 0x05) // offset low
+      vm.writeMemory8(2, 0x00) // offset high
+      let decoded = InstructionDecoder.decode(vm)
+
+      expect(decoded.instruction?.mnemonic).toBe("JUGE")
+      expect(decoded.operands.offset16).toBe(0x0005)
+      expect(decoded.length).toBe(3)
+
+      // JUL (符号なし小なり)
+      vm.pc = 0
+      vm.writeMemory8(0, 0x6a) // JUL
+      vm.writeMemory8(1, 0x08) // offset low
+      vm.writeMemory8(2, 0x00) // offset high
+      decoded = InstructionDecoder.decode(vm)
+
+      expect(decoded.instruction?.mnemonic).toBe("JUL")
+      expect(decoded.operands.offset16).toBe(0x0008)
+      expect(decoded.length).toBe(3)
+    })
+
     test("即値ロード命令", () => {
       vm.writeMemory8(0, 0xe0) // LOAD_IMM
       vm.writeMemory8(1, 0xcd) // immediate low

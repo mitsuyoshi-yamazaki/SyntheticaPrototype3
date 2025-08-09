@@ -101,6 +101,8 @@ export const THREE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   0x67: { opcode: 0x67, mnemonic: "JLE", length: 3, type: "JUMP", description: "符号付き以下（A <= B after CMP_AB）" },
   0x68: { opcode: 0x68, mnemonic: "JGE", length: 3, type: "JUMP", description: "符号付き以上（A >= B after CMP_AB）" },
   0x69: { opcode: 0x69, mnemonic: "JL", length: 3, type: "JUMP", description: "符号付き小なり（A < B after CMP_AB）" },
+  0x6A: { opcode: 0x6A, mnemonic: "JUL", length: 3, type: "JUMP", description: "符号なし小なり（A < B after CMP_AB）" },
+  0x6B: { opcode: 0x6B, mnemonic: "JUGE", length: 3, type: "JUMP", description: "符号なし以上（A >= B after CMP_AB）" },
 }
 
 /** 4バイト命令（0x80-0xBF） */
