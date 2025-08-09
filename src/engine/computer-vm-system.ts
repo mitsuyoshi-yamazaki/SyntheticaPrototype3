@@ -58,11 +58,6 @@ export const ComputerVMSystem = {
    * @param computer COMPUTERユニット
    */
   executeVM(computer: Computer): void {
-    // 実行中でない場合はスキップ
-    if (!computer.isRunning) {
-      return
-    }
-
     // エラーが発生している場合はスキップ
     if (computer.vmError != null) {
       return
@@ -90,14 +85,12 @@ export const ComputerVMSystem = {
       if (!result.success) {
         // エラー発生
         computer.vmError = result.error ?? "Unknown error"
-        computer.isRunning = false
         errorOccurred = true
         break
       }
 
       if (result.halted === true) {
-        // HALT命令で停止
-        computer.isRunning = false
+        // HALT命令で停止（エラーではないが実行を終了）
         break
       }
     }
@@ -126,17 +119,16 @@ export const ComputerVMSystem = {
    */
   startProgram(computer: Computer, startAddress = 0): void {
     computer.programCounter = startAddress
-    computer.isRunning = true
     delete computer.vmError
     computer.vmCyclesExecuted = 0
   },
 
   /**
-   * プログラムを停止
+   * プログラムを停止（エラーを設定して実行を停止）
    * @param computer COMPUTERユニット
    */
   stopProgram(computer: Computer): void {
-    computer.isRunning = false
+    computer.vmError = "Program stopped"
   },
 
   /**

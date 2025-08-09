@@ -59,7 +59,7 @@ export const isAssemblerAssembling = (assembler: Assembler): boolean => {
 
 // Computer状態ガード
 export const isComputerRunning = (computer: Computer): boolean => {
-  return computer.isRunning
+  return computer.vmError == null
 }
 
 export const isComputerError = (computer: Computer): boolean => {

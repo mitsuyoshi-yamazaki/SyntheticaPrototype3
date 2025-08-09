@@ -185,7 +185,6 @@ export class ObjectFactory {
       stackPointer: memorySize - 1, // スタックは最上位から下に向かって成長
       zeroFlag: false,
       carryFlag: false,
-      isRunning: false,
       vmCyclesExecuted: 0,
     }
   }

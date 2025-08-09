@@ -80,7 +80,6 @@ export type Computer = BaseUnit & {
   stackPointer: number // スタックポインタ
   zeroFlag: boolean // ゼロフラグ
   carryFlag: boolean // キャリーフラグ
-  isRunning: boolean // 実行中フラグ
   vmCyclesExecuted: number // 現在のtickで実行済みサイクル数
   vmError?: string // VM実行エラー
 }
@@ -106,7 +105,7 @@ export type ComputerSpec = {
 
 export type UnitSpec = HullSpec | AssemblerSpec | ComputerSpec
 
-/** 
+/**
  * ワールドパラメータ
  * このワールド固有のローカル設定（ゲーム世界の一部分の性質）
  */

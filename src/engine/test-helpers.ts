@@ -48,7 +48,6 @@ export const createTestComputer = (overrides: Partial<Computer> = {}): Computer 
     stackPointer: 255,
     zeroFlag: false,
     carryFlag: false,
-    isRunning: false,
     vmCyclesExecuted: 0,
     ...overrides,
   }

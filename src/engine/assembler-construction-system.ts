@@ -253,7 +253,6 @@ export class AssemblerConstructionSystem {
           stackPointer: producingUnit.targetSpec.memorySize - 1,
           zeroFlag: false,
           carryFlag: false,
-          isRunning: false,
           vmCyclesExecuted: 0,
         } as Computer
     }
@@ -355,7 +354,6 @@ export class AssemblerConstructionSystem {
           stackPointer: spec.memorySize - 1,
           zeroFlag: false,
           carryFlag: false,
-          isRunning: false,
           vmCyclesExecuted: 0,
         } as Partial<Computer>
     }

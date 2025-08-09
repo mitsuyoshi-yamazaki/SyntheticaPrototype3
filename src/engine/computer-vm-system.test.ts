@@ -92,8 +92,8 @@ describe("ComputerVMSystem", () => {
   })
 
   describe("executeVM", () => {
-    test("実行中でない場合はスキップ", () => {
-      computer.isRunning = false
+    test("エラーがある場合はスキップ", () => {
+      computer.vmError = "Some error"
       computer.programCounter = 0
 
       ComputerVMSystem.executeVM(computer)
@@ -102,8 +102,7 @@ describe("ComputerVMSystem", () => {
       expect(computer.vmCyclesExecuted).toBe(0)
     })
 
-    test("エラーが発生している場合はスキップ", () => {
-      computer.isRunning = true
+    test("エラーが発生している場合はスキップ（重複テスト）", () => {
       computer.vmError = "Previous error"
       computer.programCounter = 0
 
@@ -123,14 +122,12 @@ describe("ComputerVMSystem", () => {
       computer.memory[5] = 0x00
       computer.memory[6] = 0x00
 
-      computer.isRunning = true
       computer.registers[0] = 5 // A = 5
 
       ComputerVMSystem.executeVM(computer)
 
       expect(computer.registers[0]).toBe(7) // 5 + 2
       expect(computer.programCounter).toBe(2) // HALTで停止
-      expect(computer.isRunning).toBe(false) // HALT実行
       expect(computer.vmCyclesExecuted).toBe(3) // 1 + 1 + 1
       expect(computer.vmError).toBeUndefined()
     })
@@ -141,7 +138,6 @@ describe("ComputerVMSystem", () => {
         computer.memory[i] = 0x10 // INC_A
       }
 
-      computer.isRunning = true
       computer.processingPower = 5 // 5サイクル/tick
       computer.registers[0] = 0
 
@@ -150,14 +146,13 @@ describe("ComputerVMSystem", () => {
       expect(computer.registers[0]).toBe(5) // 5回実行
       expect(computer.programCounter).toBe(5)
       expect(computer.vmCyclesExecuted).toBe(5)
-      expect(computer.isRunning).toBe(true) // まだ実行中
+      expect(computer.vmError).toBeUndefined() // エラーなし
     })
 
     test("既に実行済みサイクルがある場合", () => {
       computer.memory[0] = 0x10 // INC_A
       computer.memory[1] = 0x10 // INC_A
 
-      computer.isRunning = true
       computer.processingPower = 10
       computer.vmCyclesExecuted = 9 // 既に9サイクル実行済み
       computer.registers[0] = 0
@@ -171,11 +166,9 @@ describe("ComputerVMSystem", () => {
 
     test("未定義命令でエラー", () => {
       computer.memory[0] = 0xff // 未定義命令
-      computer.isRunning = true
 
       ComputerVMSystem.executeVM(computer)
 
-      expect(computer.isRunning).toBe(false)
       expect(computer.vmError).toContain("Undefined instruction")
       expect(computer.vmCyclesExecuted).toBe(1)
     })
@@ -195,7 +188,6 @@ describe("ComputerVMSystem", () => {
       computer.memory[10] = 0x00
       computer.memory[11] = 0x00
 
-      computer.isRunning = true
       computer.processingPower = 10
       computer.registers[0] = 0
 
@@ -204,7 +196,7 @@ describe("ComputerVMSystem", () => {
       expect(computer.registers[0]).toBe(1)
       expect(computer.programCounter).toBe(7) // JMP後INC_A実行(6→7)、HALTで停止
       expect(computer.vmCyclesExecuted).toBe(5) // JMP(3) + INC_A(1) + HALT(1)
-      expect(computer.isRunning).toBe(false) // HALTで停止
+      expect(computer.vmError).toBeUndefined() // エラーなし
     })
   })
 
@@ -220,14 +212,12 @@ describe("ComputerVMSystem", () => {
 
   describe("startProgram", () => {
     test("プログラムの開始", () => {
-      computer.isRunning = false
       computer.programCounter = 99
       computer.vmError = "Some error"
       computer.vmCyclesExecuted = 10
 
       ComputerVMSystem.startProgram(computer)
 
-      expect(computer.isRunning).toBe(true)
       expect(computer.programCounter).toBe(0)
       expect(computer.vmError).toBeUndefined()
       expect(computer.vmCyclesExecuted).toBe(0)
@@ -237,17 +227,15 @@ describe("ComputerVMSystem", () => {
       ComputerVMSystem.startProgram(computer, 0x50)
 
       expect(computer.programCounter).toBe(0x50)
-      expect(computer.isRunning).toBe(true)
+      expect(computer.vmError).toBeUndefined()
     })
   })
 
   describe("stopProgram", () => {
     test("プログラムの停止", () => {
-      computer.isRunning = true
-
       ComputerVMSystem.stopProgram(computer)
 
-      expect(computer.isRunning).toBe(false)
+      expect(computer.vmError).toBe("Program stopped")
     })
   })
 

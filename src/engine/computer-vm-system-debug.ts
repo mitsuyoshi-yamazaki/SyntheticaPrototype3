@@ -49,8 +49,8 @@ export class ComputerVMSystemDebug {
    * VMを実行（インスタンスメソッド、デバッグ機能付き）
    */
   public executeVMWithDebug(computer: Computer, tick: number): void {
-    // 実行前の初期化
-    if (!computer.isRunning) {
+    // エラーが発生している場合はスキップ
+    if (computer.vmError != null) {
       return
     }
 
@@ -84,7 +84,7 @@ export class ComputerVMSystemDebug {
 
     // 命令実行ループ
     computer.vmCyclesExecuted = 0
-    while (computer.vmCyclesExecuted < computer.processingPower && computer.isRunning) {
+    while (computer.vmCyclesExecuted < computer.processingPower && computer.vmError == null) {
       const beforePC = vmState.pc
       
       // 現在の命令を取得
@@ -117,7 +117,6 @@ export class ComputerVMSystemDebug {
 
         // 実行停止
         if (!result.success || vmState.pc >= computer.memorySize) {
-          computer.isRunning = false
           if (!result.success && result.error != null) {
             computer.vmError = result.error
             if (isTarget) {
@@ -128,7 +127,6 @@ export class ComputerVMSystemDebug {
         }
       } catch (error) {
         // エラー処理
-        computer.isRunning = false
         computer.vmError = error instanceof Error ? error.message : String(error)
         if (isTarget) {
           this.debugger.logError(computer, computer.vmError)

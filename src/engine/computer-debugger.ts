@@ -85,7 +85,7 @@ export class ComputerDebugger {
     // 実行予定
     console.log("実行予定:", {
       最大サイクル数: computer.processingPower,
-      実行中: computer.isRunning,
+      エラー状態: computer.vmError ?? "None",
     })
   }
 
@@ -152,11 +152,11 @@ export class ComputerDebugger {
         Zero: computer.zeroFlag,
         Carry: computer.carryFlag,
       },
-      実行状態: computer.isRunning ? "実行中" : "停止",
+      実行状態: computer.vmError == null ? "実行中" : "停止",
     })
 
     // 現在の命令を表示
-    if (computer.isRunning && computer.programCounter < computer.memorySize) {
+    if (computer.vmError == null && computer.programCounter < computer.memorySize) {
       const opcode = computer.memory[computer.programCounter]
       if (opcode !== undefined) {
         const instructionName = this.getInstructionName(opcode)
