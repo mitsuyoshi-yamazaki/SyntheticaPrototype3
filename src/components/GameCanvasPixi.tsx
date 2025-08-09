@@ -22,7 +22,14 @@ type GameCanvasProps = {
  * PixiJSを使用したゲームキャンバスコンポーネント
  * requestAnimationFrameごとにゲームがn tick進む
  */
-const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused = false, targetTPS = 60, debugMode = false }: GameCanvasProps) => {
+const GameCanvasPixi = ({
+  width = 800,
+  height = 600,
+  ticksPerFrame = 1,
+  isPaused = false,
+  targetTPS = 60,
+  debugMode = false,
+}: GameCanvasProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const appRef = useRef<PIXI.Application | null>(null)
   const gameWorldRef = useRef<GameWorld | null>(null)
@@ -30,13 +37,15 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
   const isPausedRef = useRef(isPaused)
   const targetTPSRef = useRef(targetTPS)
   const [isHeatMapVisible, setIsHeatMapVisible] = useState(false)
-  const [energyPreset, setEnergyPreset] = useState<'default' | 'balanced' | 'experimental'>('default')
-  
+  const [energyPreset, setEnergyPreset] = useState<"default" | "balanced" | "experimental">(
+    "default"
+  )
+
   // isPausedの最新値を保持
   useEffect(() => {
     isPausedRef.current = isPaused
   }, [isPaused])
-  
+
   // targetTPSの最新値を保持とFPS設定
   useEffect(() => {
     targetTPSRef.current = targetTPS
@@ -70,9 +79,9 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
       }
 
       appRef.current = app
-      
-      // 初期FPS設定
-      app.ticker.maxFPS = targetTPS
+
+      // 初期FPS設定（refから読み取る）
+      app.ticker.maxFPS = targetTPSRef.current
 
       // エネルギーパラメータプリセットを適用
       setPresetParameters(energyPreset)
@@ -167,7 +176,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
       let isDragging = false
       let dragStartPos = { x: 0, y: 0 }
       const DRAG_THRESHOLD = 5 // ピクセル
-      
+
       app.stage.on("pointerdown", (event: PIXI.FederatedPointerEvent) => {
         dragStartPos = { x: event.global.x, y: event.global.y }
         isDragging = true
@@ -184,15 +193,15 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
         // ドラッグではなくクリックだった場合、オブジェクト選択
         const dragDistance = Math.sqrt(
           Math.pow(event.global.x - dragStartPos.x, 2) +
-          Math.pow(event.global.y - dragStartPos.y, 2)
+            Math.pow(event.global.y - dragStartPos.y, 2)
         )
-        
+
         if (dragDistance < DRAG_THRESHOLD) {
           // スクリーン座標からワールド座標へ変換
           const worldPos = viewport.screenToWorld({ x: event.global.x, y: event.global.y })
           gameWorld.selectObjectAt(worldPos.x, worldPos.y)
         }
-        
+
         isDragging = false
         viewport.endDrag()
       })
@@ -275,7 +284,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
       gameWorldRef.current = null
       viewportRef.current = null
     }
-  }, [width, height, ticksPerFrame, energyPreset, debugMode, targetTPS])
+  }, [width, height, ticksPerFrame, energyPreset, debugMode])
 
   // 熱マップ表示状態の変更を反映
   useEffect(() => {
@@ -296,7 +305,7 @@ const GameCanvasPixi = ({ width = 800, height = 600, ticksPerFrame = 1, isPaused
         </button>
         <select
           value={energyPreset}
-          onChange={(e) => setEnergyPreset(e.target.value as 'default' | 'balanced' | 'experimental')}
+          onChange={e => setEnergyPreset(e.target.value as "default" | "balanced" | "experimental")}
           className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
         >
           <option value="default">デフォルト</option>
