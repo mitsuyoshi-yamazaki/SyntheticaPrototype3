@@ -23,7 +23,7 @@ import { VMState } from "./vm-state"
  */
 
 // VMの全状態を検証するためのヘルパー関数
-interface VMSnapshot {
+type VMSnapshot = {
   pc: number
   sp: number
   registerA: number
@@ -219,11 +219,16 @@ describe("0x02 XCHG", () => {
     vm.setRegister("B", 0x0001)
     vm.writeMemory8(0, 0x02) // XCHG
 
-    expect(vm.pc).toBe(0)
-    expect(vm.getRegister("A")).toBe(0xffff)
-    expect(vm.getRegister("B")).toBe(0x0001)
-    expect(vm.getRegister("C")).toBe(0)
-    expect(vm.getRegister("D")).toBe(0)
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xffff,
+      registerA: 0xffff,
+      registerB: 0x0001,
+      registerC: 0,
+      registerD: 0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
     expect(vm.readMemory8(0x00)).toBe(0x02)
 
     const result = InstructionExecutor.step(vm)
@@ -232,11 +237,17 @@ describe("0x02 XCHG", () => {
     expect(result.error).toBeUndefined()
     expect(result.cycles).toBe(1)
 
-    expect(vm.pc).toBe(1)
-    expect(vm.getRegister("A")).toBe(0x0001)
-    expect(vm.getRegister("B")).toBe(0xffff)
-    expect(vm.getRegister("C")).toBe(0)
-    expect(vm.getRegister("D")).toBe(0)
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xffff,
+      registerA: 0x0001,
+      registerB: 0xffff,
+      registerC: 0,
+      registerD: 0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
     expect(vm.readMemory8(0x00)).toBe(0x02)
   })
 })
@@ -440,11 +451,16 @@ describe("0x07 MOV_BC", () => {
     vm.setRegister("D", 0x3333)
     vm.writeMemory8(0, 0x07) // MOV_BC
 
-    expect(vm.pc).toBe(0)
-    expect(vm.getRegister("A")).toBe(0x1111)
-    expect(vm.getRegister("B")).toBe(0xabcd)
-    expect(vm.getRegister("C")).toBe(0x2222)
-    expect(vm.getRegister("D")).toBe(0x3333)
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xffff,
+      registerA: 0x1111,
+      registerB: 0xabcd,
+      registerC: 0x2222,
+      registerD: 0x3333,
+      carryFlag: false,
+      zeroFlag: false,
+    })
 
     const result = InstructionExecutor.step(vm)
 
@@ -452,11 +468,16 @@ describe("0x07 MOV_BC", () => {
     expect(result.error).toBeUndefined()
     expect(result.cycles).toBe(1)
 
-    expect(vm.pc).toBe(1)
-    expect(vm.getRegister("A")).toBe(0x1111)
-    expect(vm.getRegister("B")).toBe(0xabcd)
-    expect(vm.getRegister("C")).toBe(0xabcd)
-    expect(vm.getRegister("D")).toBe(0x3333)
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xffff,
+      registerA: 0x1111,
+      registerB: 0xabcd,
+      registerC: 0xabcd,
+      registerD: 0x3333,
+      carryFlag: false,
+      zeroFlag: false,
+    })
   })
 })
 
