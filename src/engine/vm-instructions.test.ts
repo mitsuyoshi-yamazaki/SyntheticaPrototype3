@@ -1115,6 +1115,7 @@ describe("0x18 ADD_AB", () => {
     expect(vm.getRegister("B")).toBe(0x5678)
     expect(vm.getRegister("C")).toBe(0x1111)
     expect(vm.getRegister("D")).toBe(0x2222)
+    expect(vm.carryFlag).toBe(false)
 
     const result = InstructionExecutor.step(vm)
 
@@ -1142,6 +1143,7 @@ describe("0x18 ADD_AB", () => {
     expect(vm.getRegister("B")).toBe(0x0001)
     expect(vm.getRegister("C")).toBe(0x3333)
     expect(vm.getRegister("D")).toBe(0x4444)
+    expect(vm.carryFlag).toBe(false) // キャリーなし
 
     const result = InstructionExecutor.step(vm)
 
@@ -1177,6 +1179,7 @@ describe("0x19 SUB_AB", () => {
     expect(vm.getRegister("B")).toBe(0x1234)
     expect(vm.getRegister("C")).toBe(0xaaaa)
     expect(vm.getRegister("D")).toBe(0xbbbb)
+    expect(vm.carryFlag).toBe(false)
 
     const result = InstructionExecutor.step(vm)
 
@@ -1204,6 +1207,7 @@ describe("0x19 SUB_AB", () => {
     expect(vm.getRegister("B")).toBe(0x0001)
     expect(vm.getRegister("C")).toBe(0xcccc)
     expect(vm.getRegister("D")).toBe(0xdddd)
+    expect(vm.carryFlag).toBe(false)
 
     const result = InstructionExecutor.step(vm)
 
