@@ -600,6 +600,7 @@ describe("0x10 INC_A", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x1234)
     expect(vm.getRegister("B")).toBe(0xaaaa)
     expect(vm.getRegister("C")).toBe(0xbbbb)
@@ -613,6 +614,7 @@ describe("0x10 INC_A", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false) // 0x1235 != 0
     expect(vm.getRegister("A")).toBe(0x1235)
     expect(vm.getRegister("B")).toBe(0xaaaa)
     expect(vm.getRegister("C")).toBe(0xbbbb)
@@ -628,6 +630,7 @@ describe("0x10 INC_A", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xffff)
     expect(vm.getRegister("B")).toBe(0x1111)
     expect(vm.getRegister("C")).toBe(0x2222)
@@ -641,10 +644,26 @@ describe("0x10 INC_A", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(true)
+    expect(vm.zeroFlag).toBe(true) // 0x0000 == 0
     expect(vm.getRegister("A")).toBe(0x0000) // 16bitでラップアラウンド
     expect(vm.getRegister("B")).toBe(0x1111)
     expect(vm.getRegister("C")).toBe(0x2222)
     expect(vm.getRegister("D")).toBe(0x3333)
+  })
+
+  test("INC_A実行 - ゼロフラグセット", () => {
+    vm.setRegister("A", 0xffff)
+    vm.setRegister("B", 0x1111)
+    vm.setRegister("C", 0x2222)
+    vm.setRegister("D", 0x3333)
+    vm.writeMemory8(0, 0x10) // INC_A
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(vm.getRegister("A")).toBe(0x0000)
+    expect(vm.zeroFlag).toBe(true) // 結果が0なのでゼロフラグがセット
+    expect(vm.carryFlag).toBe(true) // オーバーフローでキャリーもセット
   })
 })
 
@@ -664,6 +683,7 @@ describe("0x11 INC_B", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0x1234)
     expect(vm.getRegister("C")).toBe(0xbbbb)
@@ -677,6 +697,7 @@ describe("0x11 INC_B", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false) // 0x1235 != 0
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0x1235)
     expect(vm.getRegister("C")).toBe(0xbbbb)
@@ -692,6 +713,7 @@ describe("0x11 INC_B", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xffff)
     expect(vm.getRegister("C")).toBe(0x2222)
@@ -705,10 +727,23 @@ describe("0x11 INC_B", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(true)
+    expect(vm.zeroFlag).toBe(true) // 0x0000 == 0
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0x0000) // 16bitでラップアラウンド
     expect(vm.getRegister("C")).toBe(0x2222)
     expect(vm.getRegister("D")).toBe(0x3333)
+  })
+
+  test("INC_B実行 - ゼロフラグセット", () => {
+    vm.setRegister("B", 0xffff)
+    vm.writeMemory8(0, 0x11) // INC_B
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(vm.getRegister("B")).toBe(0x0000)
+    expect(vm.zeroFlag).toBe(true) // 結果が0なのでゼロフラグがセット
+    expect(vm.carryFlag).toBe(true) // オーバーフローでキャリーもセット
   })
 })
 
@@ -728,6 +763,7 @@ describe("0x12 INC_C", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xbbbb)
     expect(vm.getRegister("C")).toBe(0x1234)
@@ -741,6 +777,7 @@ describe("0x12 INC_C", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false) // 0x1235 != 0
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xbbbb)
     expect(vm.getRegister("C")).toBe(0x1235)
@@ -756,6 +793,7 @@ describe("0x12 INC_C", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0x2222)
     expect(vm.getRegister("C")).toBe(0xffff)
@@ -769,10 +807,23 @@ describe("0x12 INC_C", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(true)
+    expect(vm.zeroFlag).toBe(true) // 0x0000 == 0
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0x2222)
     expect(vm.getRegister("C")).toBe(0x0000) // 16bitでラップアラウンド
     expect(vm.getRegister("D")).toBe(0x3333)
+  })
+
+  test("INC_C実行 - ゼロフラグセット", () => {
+    vm.setRegister("C", 0xffff)
+    vm.writeMemory8(0, 0x12) // INC_C
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(vm.getRegister("C")).toBe(0x0000)
+    expect(vm.zeroFlag).toBe(true) // 結果が0なのでゼロフラグがセット
+    expect(vm.carryFlag).toBe(true) // オーバーフローでキャリーもセット
   })
 })
 
@@ -792,6 +843,7 @@ describe("0x13 INC_D", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xbbbb)
     expect(vm.getRegister("C")).toBe(0xcccc)
@@ -805,6 +857,7 @@ describe("0x13 INC_D", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false) // 0x1235 != 0
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xbbbb)
     expect(vm.getRegister("C")).toBe(0xcccc)
@@ -820,6 +873,7 @@ describe("0x13 INC_D", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x4444)
     expect(vm.getRegister("B")).toBe(0x5555)
     expect(vm.getRegister("C")).toBe(0x6666)
@@ -833,10 +887,23 @@ describe("0x13 INC_D", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(true)
+    expect(vm.zeroFlag).toBe(true) // 0x0000 == 0
     expect(vm.getRegister("A")).toBe(0x4444)
     expect(vm.getRegister("B")).toBe(0x5555)
     expect(vm.getRegister("C")).toBe(0x6666)
     expect(vm.getRegister("D")).toBe(0x0000) // 16bitでラップアラウンド
+  })
+
+  test("INC_D実行 - ゼロフラグセット", () => {
+    vm.setRegister("D", 0xffff)
+    vm.writeMemory8(0, 0x13) // INC_D
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(vm.getRegister("D")).toBe(0x0000)
+    expect(vm.zeroFlag).toBe(true) // 結果が0なのでゼロフラグがセット
+    expect(vm.carryFlag).toBe(true) // オーバーフローでキャリーもセット
   })
 })
 
@@ -856,6 +923,7 @@ describe("0x14 DEC_A", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x1234)
     expect(vm.getRegister("B")).toBe(0x5555)
     expect(vm.getRegister("C")).toBe(0x6666)
@@ -869,6 +937,7 @@ describe("0x14 DEC_A", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(false) // 通常の減算ではキャリーフラグは変更なし
+    expect(vm.zeroFlag).toBe(false) // 0x1233 != 0
     expect(vm.getRegister("A")).toBe(0x1233)
     expect(vm.getRegister("B")).toBe(0x5555)
     expect(vm.getRegister("C")).toBe(0x6666)
@@ -884,6 +953,7 @@ describe("0x14 DEC_A", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x0000)
     expect(vm.getRegister("B")).toBe(0x8888)
     expect(vm.getRegister("C")).toBe(0x9999)
@@ -897,10 +967,23 @@ describe("0x14 DEC_A", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(true) // アンダーフロー時はキャリーフラグがセット
+    expect(vm.zeroFlag).toBe(false) // 0xffff != 0
     expect(vm.getRegister("A")).toBe(0xffff) // 16bitでラップアラウンド
     expect(vm.getRegister("B")).toBe(0x8888)
     expect(vm.getRegister("C")).toBe(0x9999)
     expect(vm.getRegister("D")).toBe(0xaaaa)
+  })
+
+  test("DEC_A実行 - ゼロフラグセット", () => {
+    vm.setRegister("A", 0x0001)
+    vm.writeMemory8(0, 0x14) // DEC_A
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(vm.getRegister("A")).toBe(0x0000)
+    expect(vm.zeroFlag).toBe(true) // 結果が0なのでゼロフラグがセット
+    expect(vm.carryFlag).toBe(false) // アンダーフローではないのでキャリーはクリア
   })
 })
 
@@ -920,6 +1003,7 @@ describe("0x15 DEC_B", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x1234)
     expect(vm.getRegister("C")).toBe(0x6666)
@@ -933,6 +1017,7 @@ describe("0x15 DEC_B", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false) // 0x1233 != 0
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x1233)
     expect(vm.getRegister("C")).toBe(0x6666)
@@ -948,6 +1033,7 @@ describe("0x15 DEC_B", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0x0000)
     expect(vm.getRegister("C")).toBe(0x2222)
@@ -961,10 +1047,23 @@ describe("0x15 DEC_B", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(true) // アンダーフロー時はキャリーフラグがセット
+    expect(vm.zeroFlag).toBe(false) // 0xffff != 0
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0xffff) // 16bitでラップアラウンド
     expect(vm.getRegister("C")).toBe(0x2222)
     expect(vm.getRegister("D")).toBe(0x3333)
+  })
+
+  test("DEC_B実行 - ゼロフラグセット", () => {
+    vm.setRegister("B", 0x0001)
+    vm.writeMemory8(0, 0x15) // DEC_B
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(vm.getRegister("B")).toBe(0x0000)
+    expect(vm.zeroFlag).toBe(true) // 結果が0なのでゼロフラグがセット
+    expect(vm.carryFlag).toBe(false) // アンダーフローではないのでキャリーはクリア
   })
 })
 
@@ -984,6 +1083,7 @@ describe("0x16 DEC_C", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x6666)
     expect(vm.getRegister("C")).toBe(0x1234)
@@ -997,6 +1097,7 @@ describe("0x16 DEC_C", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(false) // 通常のデクリメントではキャリーフラグは変わらない
+    expect(vm.zeroFlag).toBe(false) // 0x1233 != 0
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x6666)
     expect(vm.getRegister("C")).toBe(0x1233)
@@ -1012,6 +1113,7 @@ describe("0x16 DEC_C", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0x2222)
     expect(vm.getRegister("C")).toBe(0x0000)
@@ -1025,10 +1127,23 @@ describe("0x16 DEC_C", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(true) // アンダーフロー時はキャリーフラグがセット
+    expect(vm.zeroFlag).toBe(false) // 0xffff != 0
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0x2222)
     expect(vm.getRegister("C")).toBe(0xffff) // 16bitでラップアラウンド
     expect(vm.getRegister("D")).toBe(0x3333)
+  })
+
+  test("DEC_C実行 - ゼロフラグセット", () => {
+    vm.setRegister("C", 0x0001)
+    vm.writeMemory8(0, 0x16) // DEC_C
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(vm.getRegister("C")).toBe(0x0000)
+    expect(vm.zeroFlag).toBe(true) // 結果が0なのでゼロフラグがセット
+    expect(vm.carryFlag).toBe(false) // アンダーフローではないのでキャリーはクリア
   })
 })
 
@@ -1048,6 +1163,7 @@ describe("0x17 DEC_D", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x6666)
     expect(vm.getRegister("C")).toBe(0x7777)
@@ -1061,6 +1177,7 @@ describe("0x17 DEC_D", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(false) // 通常のデクリメントではキャリーフラグは変わらない
+    expect(vm.zeroFlag).toBe(false) // 0x1233 != 0
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x6666)
     expect(vm.getRegister("C")).toBe(0x7777)
@@ -1076,6 +1193,7 @@ describe("0x17 DEC_D", () => {
 
     expect(vm.pc).toBe(0)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0x2222)
     expect(vm.getRegister("C")).toBe(0x3333)
@@ -1089,10 +1207,23 @@ describe("0x17 DEC_D", () => {
 
     expect(vm.pc).toBe(1)
     expect(vm.carryFlag).toBe(true) // アンダーフロー時はキャリーフラグがセット
+    expect(vm.zeroFlag).toBe(false) // 0xffff != 0
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0x2222)
     expect(vm.getRegister("C")).toBe(0x3333)
     expect(vm.getRegister("D")).toBe(0xffff) // 16bitでラップアラウンド
+  })
+
+  test("DEC_D実行 - ゼロフラグセット", () => {
+    vm.setRegister("D", 0x0001)
+    vm.writeMemory8(0, 0x17) // DEC_D
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(vm.getRegister("D")).toBe(0x0000)
+    expect(vm.zeroFlag).toBe(true) // 結果が0なのでゼロフラグがセット
+    expect(vm.carryFlag).toBe(false) // アンダーフローではないのでキャリーはクリア
   })
 })
 
@@ -1116,6 +1247,7 @@ describe("0x18 ADD_AB", () => {
     expect(vm.getRegister("C")).toBe(0x1111)
     expect(vm.getRegister("D")).toBe(0x2222)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
 
     const result = InstructionExecutor.step(vm)
 
@@ -1129,6 +1261,7 @@ describe("0x18 ADD_AB", () => {
     expect(vm.getRegister("C")).toBe(0x1111)
     expect(vm.getRegister("D")).toBe(0x2222)
     expect(vm.carryFlag).toBe(false) // キャリーなし
+    expect(vm.zeroFlag).toBe(false) // 0x68ac != 0
   })
 
   test("ADD_AB実行 - キャリー発生", () => {
@@ -1144,6 +1277,7 @@ describe("0x18 ADD_AB", () => {
     expect(vm.getRegister("C")).toBe(0x3333)
     expect(vm.getRegister("D")).toBe(0x4444)
     expect(vm.carryFlag).toBe(false) // キャリーなし
+    expect(vm.zeroFlag).toBe(false)
 
     const result = InstructionExecutor.step(vm)
 
@@ -1157,6 +1291,20 @@ describe("0x18 ADD_AB", () => {
     expect(vm.getRegister("C")).toBe(0x3333)
     expect(vm.getRegister("D")).toBe(0x4444)
     expect(vm.carryFlag).toBe(true) // キャリー発生
+    expect(vm.zeroFlag).toBe(true) // 0x0000 == 0 (桁上がりによる0)
+  })
+
+  test("ADD_AB実行 - ゼロフラグセット", () => {
+    vm.setRegister("A", 0xffff)
+    vm.setRegister("B", 0x0001)
+    vm.writeMemory8(0, 0x18) // ADD_AB
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(vm.getRegister("A")).toBe(0x0000)
+    expect(vm.zeroFlag).toBe(true) // 結果が0なのでゼロフラグがセット
+    expect(vm.carryFlag).toBe(true) // 桁上がりも発生
   })
 })
 
@@ -1180,6 +1328,7 @@ describe("0x19 SUB_AB", () => {
     expect(vm.getRegister("C")).toBe(0xaaaa)
     expect(vm.getRegister("D")).toBe(0xbbbb)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
 
     const result = InstructionExecutor.step(vm)
 
@@ -1193,6 +1342,7 @@ describe("0x19 SUB_AB", () => {
     expect(vm.getRegister("C")).toBe(0xaaaa)
     expect(vm.getRegister("D")).toBe(0xbbbb)
     expect(vm.carryFlag).toBe(false) // ボローなし
+    expect(vm.zeroFlag).toBe(false) // 0x4444 != 0
   })
 
   test("SUB_AB実行 - ボロー発生", () => {
@@ -1208,6 +1358,7 @@ describe("0x19 SUB_AB", () => {
     expect(vm.getRegister("C")).toBe(0xcccc)
     expect(vm.getRegister("D")).toBe(0xdddd)
     expect(vm.carryFlag).toBe(false)
+    expect(vm.zeroFlag).toBe(false)
 
     const result = InstructionExecutor.step(vm)
 
@@ -1221,6 +1372,20 @@ describe("0x19 SUB_AB", () => {
     expect(vm.getRegister("C")).toBe(0xcccc)
     expect(vm.getRegister("D")).toBe(0xdddd)
     expect(vm.carryFlag).toBe(true) // ボロー発生
+    expect(vm.zeroFlag).toBe(false) // 0xffff != 0
+  })
+
+  test("SUB_AB実行 - ゼロフラグセット", () => {
+    vm.setRegister("A", 0x5555)
+    vm.setRegister("B", 0x5555)
+    vm.writeMemory8(0, 0x19) // SUB_AB
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(vm.getRegister("A")).toBe(0x0000)
+    expect(vm.zeroFlag).toBe(true) // 結果が0なのでゼロフラグがセット
+    expect(vm.carryFlag).toBe(false) // ボローは発生しない
   })
 })
 
