@@ -12,15 +12,38 @@ import { VMState } from "./vm-state"
 ## テスト内容
 - 実装ではなく、 docs/spec-v3/synthetica-script.md の仕様をもとにテスト内容を作成する
   - 実装不備を洗い出すことが目的なので、 **テストが通る必要はない。** 仕様上必要とされるテスト内容を実装する
-- 以下の内容は各 test() で必ず検証する
+- すべてのテストケースで必ず検証する項目
   - InstructionExecutor.step() の返り値の success, error, cycles の各値の検証
-  - InstructionExecutor.step() の実行前後の、VMのPCと各レジスタの内容
-  - InstructionExecutor.step() の実行前後の、テスト対象の命令がVMに加える操作の対象（例：メモリを操作するならメモリの内容を確認する）
+  - InstructionExecutor.step() の **実行前後** の、VMのPC, 各レジスタおよびすべてのフラグの内容
+  - InstructionExecutor.step() の **実行前後** の、テスト対象の命令がVMに加える操作の対象（例：メモリを操作するならメモリの内容を確認する）
 
 ## 備考
 - ユニット操作に関する命令などのように、VM以外への副作用を持つ命令については、後に実装するため、コメントでテストのプレースホルダを記述するのみとする
 
  */
+
+// VMの全状態を検証するためのヘルパー関数
+interface VMSnapshot {
+  pc: number
+  sp: number
+  registerA: number
+  registerB: number
+  registerC: number
+  registerD: number
+  carryFlag: boolean
+  zeroFlag: boolean
+}
+
+function expectVMState(vm: VMState, expected: VMSnapshot): void {
+  expect(vm.pc).toBe(expected.pc)
+  expect(vm.sp).toBe(expected.sp)
+  expect(vm.getRegister("A")).toBe(expected.registerA)
+  expect(vm.getRegister("B")).toBe(expected.registerB)
+  expect(vm.getRegister("C")).toBe(expected.registerC)
+  expect(vm.getRegister("D")).toBe(expected.registerD)
+  expect(vm.carryFlag).toBe(expected.carryFlag)
+  expect(vm.zeroFlag).toBe(expected.zeroFlag)
+}
 
 describe("0x00 NOP0", () => {
   let vm: VMState
@@ -32,11 +55,17 @@ describe("0x00 NOP0", () => {
   test("NOP0実行", () => {
     vm.writeMemory8(0, 0x00) // NOP0
 
-    expect(vm.pc).toBe(0)
-    expect(vm.getRegister("A")).toBe(0)
-    expect(vm.getRegister("B")).toBe(0)
-    expect(vm.getRegister("C")).toBe(0)
-    expect(vm.getRegister("D")).toBe(0)
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xffff,
+      registerA: 0,
+      registerB: 0,
+      registerC: 0,
+      registerD: 0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
     expect(vm.readMemory8(0x00)).toBe(0x00)
 
     const result = InstructionExecutor.step(vm)
@@ -45,11 +74,17 @@ describe("0x00 NOP0", () => {
     expect(result.error).toBeUndefined()
     expect(result.cycles).toBe(1)
 
-    expect(vm.pc).toBe(1)
-    expect(vm.getRegister("A")).toBe(0)
-    expect(vm.getRegister("B")).toBe(0)
-    expect(vm.getRegister("C")).toBe(0)
-    expect(vm.getRegister("D")).toBe(0)
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xffff,
+      registerA: 0,
+      registerB: 0,
+      registerC: 0,
+      registerD: 0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
     expect(vm.readMemory8(0x00)).toBe(0x00)
   })
 })
@@ -64,11 +99,17 @@ describe("0x01 NOP1", () => {
   test("NOP1実行", () => {
     vm.writeMemory8(0, 0x01) // NOP1
 
-    expect(vm.pc).toBe(0)
-    expect(vm.getRegister("A")).toBe(0)
-    expect(vm.getRegister("B")).toBe(0)
-    expect(vm.getRegister("C")).toBe(0)
-    expect(vm.getRegister("D")).toBe(0)
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xffff,
+      registerA: 0,
+      registerB: 0,
+      registerC: 0,
+      registerD: 0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
     expect(vm.readMemory8(0x00)).toBe(0x01)
 
     const result = InstructionExecutor.step(vm)
@@ -77,11 +118,17 @@ describe("0x01 NOP1", () => {
     expect(result.error).toBeUndefined()
     expect(result.cycles).toBe(1)
 
-    expect(vm.pc).toBe(1)
-    expect(vm.getRegister("A")).toBe(0)
-    expect(vm.getRegister("B")).toBe(0)
-    expect(vm.getRegister("C")).toBe(0)
-    expect(vm.getRegister("D")).toBe(0)
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xffff,
+      registerA: 0,
+      registerB: 0,
+      registerC: 0,
+      registerD: 0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
     expect(vm.readMemory8(0x00)).toBe(0x01)
   })
 })
@@ -98,11 +145,17 @@ describe("0x02 XCHG", () => {
     vm.setRegister("B", 0x5678)
     vm.writeMemory8(0, 0x02) // XCHG
 
-    expect(vm.pc).toBe(0)
-    expect(vm.getRegister("A")).toBe(0x1234)
-    expect(vm.getRegister("B")).toBe(0x5678)
-    expect(vm.getRegister("C")).toBe(0)
-    expect(vm.getRegister("D")).toBe(0)
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xffff,
+      registerA: 0x1234,
+      registerB: 0x5678,
+      registerC: 0,
+      registerD: 0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
     expect(vm.readMemory8(0x00)).toBe(0x02)
 
     const result = InstructionExecutor.step(vm)
@@ -111,22 +164,34 @@ describe("0x02 XCHG", () => {
     expect(result.error).toBeUndefined()
     expect(result.cycles).toBe(1)
 
-    expect(vm.pc).toBe(1)
-    expect(vm.getRegister("A")).toBe(0x5678)
-    expect(vm.getRegister("B")).toBe(0x1234)
-    expect(vm.getRegister("C")).toBe(0)
-    expect(vm.getRegister("D")).toBe(0)
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xffff,
+      registerA: 0x5678,
+      registerB: 0x1234,
+      registerC: 0,
+      registerD: 0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
     expect(vm.readMemory8(0x00)).toBe(0x02)
   })
 
   test("XCHG実行 - 両方のレジスタが0の場合", () => {
     vm.writeMemory8(0, 0x02) // XCHG
 
-    expect(vm.pc).toBe(0)
-    expect(vm.getRegister("A")).toBe(0)
-    expect(vm.getRegister("B")).toBe(0)
-    expect(vm.getRegister("C")).toBe(0)
-    expect(vm.getRegister("D")).toBe(0)
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xffff,
+      registerA: 0,
+      registerB: 0,
+      registerC: 0,
+      registerD: 0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
     expect(vm.readMemory8(0x00)).toBe(0x02)
 
     const result = InstructionExecutor.step(vm)
@@ -135,11 +200,17 @@ describe("0x02 XCHG", () => {
     expect(result.error).toBeUndefined()
     expect(result.cycles).toBe(1)
 
-    expect(vm.pc).toBe(1)
-    expect(vm.getRegister("A")).toBe(0)
-    expect(vm.getRegister("B")).toBe(0)
-    expect(vm.getRegister("C")).toBe(0)
-    expect(vm.getRegister("D")).toBe(0)
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xffff,
+      registerA: 0,
+      registerB: 0,
+      registerC: 0,
+      registerD: 0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
     expect(vm.readMemory8(0x00)).toBe(0x02)
   })
 
@@ -185,11 +256,17 @@ describe("0x03 MOV_AB", () => {
     vm.setRegister("D", 0xef01)
     vm.writeMemory8(0, 0x03) // MOV_AB
 
-    expect(vm.pc).toBe(0)
-    expect(vm.getRegister("A")).toBe(0x1234)
-    expect(vm.getRegister("B")).toBe(0x5678)
-    expect(vm.getRegister("C")).toBe(0xabcd)
-    expect(vm.getRegister("D")).toBe(0xef01)
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xffff,
+      registerA: 0x1234,
+      registerB: 0x5678,
+      registerC: 0xabcd,
+      registerD: 0xef01,
+      carryFlag: false,
+      zeroFlag: false,
+    })
 
     const result = InstructionExecutor.step(vm)
 
@@ -197,11 +274,17 @@ describe("0x03 MOV_AB", () => {
     expect(result.error).toBeUndefined()
     expect(result.cycles).toBe(1)
 
-    expect(vm.pc).toBe(1)
-    expect(vm.getRegister("A")).toBe(0x1234)
-    expect(vm.getRegister("B")).toBe(0x1234)
-    expect(vm.getRegister("C")).toBe(0xabcd)
-    expect(vm.getRegister("D")).toBe(0xef01)
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xffff,
+      registerA: 0x1234,
+      registerB: 0x1234,
+      registerC: 0xabcd,
+      registerD: 0xef01,
+      carryFlag: false,
+      zeroFlag: false,
+    })
   })
 })
 
@@ -219,11 +302,17 @@ describe("0x04 MOV_AD", () => {
     vm.setRegister("D", 0x1234)
     vm.writeMemory8(0, 0x04) // MOV_AD
 
-    expect(vm.pc).toBe(0)
-    expect(vm.getRegister("A")).toBe(0xabcd)
-    expect(vm.getRegister("B")).toBe(0x2345)
-    expect(vm.getRegister("C")).toBe(0x6789)
-    expect(vm.getRegister("D")).toBe(0x1234)
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xffff,
+      registerA: 0xabcd,
+      registerB: 0x2345,
+      registerC: 0x6789,
+      registerD: 0x1234,
+      carryFlag: false,
+      zeroFlag: false,
+    })
 
     const result = InstructionExecutor.step(vm)
 
@@ -231,11 +320,17 @@ describe("0x04 MOV_AD", () => {
     expect(result.error).toBeUndefined()
     expect(result.cycles).toBe(1)
 
-    expect(vm.pc).toBe(1)
-    expect(vm.getRegister("A")).toBe(0xabcd)
-    expect(vm.getRegister("B")).toBe(0x2345)
-    expect(vm.getRegister("C")).toBe(0x6789)
-    expect(vm.getRegister("D")).toBe(0xabcd)
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xffff,
+      registerA: 0xabcd,
+      registerB: 0x2345,
+      registerC: 0x6789,
+      registerD: 0xabcd,
+      carryFlag: false,
+      zeroFlag: false,
+    })
   })
 })
 
