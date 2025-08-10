@@ -527,6 +527,7 @@ describe("0x0d MOV_SP", () => {
     vm.writeMemory8(0, 0x0d) // MOV_SP
 
     expect(vm.pc).toBe(0)
+    expect(vm.sp).toBe(0xffff)
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0x2222)
     expect(vm.getRegister("C")).toBe(0x3333)
@@ -561,6 +562,7 @@ describe("0x0e SET_SP", () => {
     vm.writeMemory8(0, 0x0e) // SET_SP
 
     expect(vm.pc).toBe(0)
+    expect(vm.sp).toBe(0xffff)
     expect(vm.getRegister("A")).toBe(0xe000)
     expect(vm.getRegister("B")).toBe(0x1111)
     expect(vm.getRegister("C")).toBe(0x2222)
@@ -573,15 +575,11 @@ describe("0x0e SET_SP", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.sp).toBe(0xe000)
     expect(vm.getRegister("A")).toBe(0xe000)
     expect(vm.getRegister("B")).toBe(0x1111)
     expect(vm.getRegister("C")).toBe(0x2222)
     expect(vm.getRegister("D")).toBe(0x3333)
-    
-    // スタックポインタが設定されたことを確認するため、MOV_SPで読み出してテスト
-    vm.writeMemory8(1, 0x0d) // MOV_SP
-    InstructionExecutor.step(vm)
-    expect(vm.getRegister("A")).toBe(0xe000)
   })
 })
 
@@ -601,6 +599,7 @@ describe("0x10 INC_A", () => {
     vm.writeMemory8(0, 0x10) // INC_A
 
     expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x1234)
     expect(vm.getRegister("B")).toBe(0xaaaa)
     expect(vm.getRegister("C")).toBe(0xbbbb)
@@ -613,6 +612,7 @@ describe("0x10 INC_A", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x1235)
     expect(vm.getRegister("B")).toBe(0xaaaa)
     expect(vm.getRegister("C")).toBe(0xbbbb)
@@ -627,6 +627,7 @@ describe("0x10 INC_A", () => {
     vm.writeMemory8(0, 0x10) // INC_A
 
     expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xffff)
     expect(vm.getRegister("B")).toBe(0x1111)
     expect(vm.getRegister("C")).toBe(0x2222)
@@ -639,6 +640,7 @@ describe("0x10 INC_A", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(true)
     expect(vm.getRegister("A")).toBe(0x0000) // 16bitでラップアラウンド
     expect(vm.getRegister("B")).toBe(0x1111)
     expect(vm.getRegister("C")).toBe(0x2222)
@@ -661,6 +663,7 @@ describe("0x11 INC_B", () => {
     vm.writeMemory8(0, 0x11) // INC_B
 
     expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0x1234)
     expect(vm.getRegister("C")).toBe(0xbbbb)
@@ -673,10 +676,39 @@ describe("0x11 INC_B", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0x1235)
     expect(vm.getRegister("C")).toBe(0xbbbb)
     expect(vm.getRegister("D")).toBe(0xcccc)
+  })
+
+  test("INC_B実行 - オーバーフロー", () => {
+    vm.setRegister("A", 0xaaaa)
+    vm.setRegister("B", 0xffff)
+    vm.setRegister("C", 0x2222)
+    vm.setRegister("D", 0x3333)
+    vm.writeMemory8(0, 0x11) // INC_B
+
+    expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
+    expect(vm.getRegister("A")).toBe(0xaaaa)
+    expect(vm.getRegister("B")).toBe(0xffff)
+    expect(vm.getRegister("C")).toBe(0x2222)
+    expect(vm.getRegister("D")).toBe(0x3333)
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(true)
+    expect(vm.getRegister("A")).toBe(0xaaaa)
+    expect(vm.getRegister("B")).toBe(0x0000) // 16bitでラップアラウンド
+    expect(vm.getRegister("C")).toBe(0x2222)
+    expect(vm.getRegister("D")).toBe(0x3333)
   })
 })
 
@@ -695,6 +727,7 @@ describe("0x12 INC_C", () => {
     vm.writeMemory8(0, 0x12) // INC_C
 
     expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xbbbb)
     expect(vm.getRegister("C")).toBe(0x1234)
@@ -707,10 +740,39 @@ describe("0x12 INC_C", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xbbbb)
     expect(vm.getRegister("C")).toBe(0x1235)
     expect(vm.getRegister("D")).toBe(0xcccc)
+  })
+
+  test("INC_C実行 - オーバーフロー", () => {
+    vm.setRegister("A", 0x1111)
+    vm.setRegister("B", 0x2222)
+    vm.setRegister("C", 0xffff)
+    vm.setRegister("D", 0x3333)
+    vm.writeMemory8(0, 0x12) // INC_C
+
+    expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
+    expect(vm.getRegister("A")).toBe(0x1111)
+    expect(vm.getRegister("B")).toBe(0x2222)
+    expect(vm.getRegister("C")).toBe(0xffff)
+    expect(vm.getRegister("D")).toBe(0x3333)
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(true)
+    expect(vm.getRegister("A")).toBe(0x1111)
+    expect(vm.getRegister("B")).toBe(0x2222)
+    expect(vm.getRegister("C")).toBe(0x0000) // 16bitでラップアラウンド
+    expect(vm.getRegister("D")).toBe(0x3333)
   })
 })
 
@@ -729,6 +791,7 @@ describe("0x13 INC_D", () => {
     vm.writeMemory8(0, 0x13) // INC_D
 
     expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xbbbb)
     expect(vm.getRegister("C")).toBe(0xcccc)
@@ -741,10 +804,39 @@ describe("0x13 INC_D", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xbbbb)
     expect(vm.getRegister("C")).toBe(0xcccc)
     expect(vm.getRegister("D")).toBe(0x1235)
+  })
+
+  test("INC_D実行 - オーバーフロー", () => {
+    vm.setRegister("A", 0x4444)
+    vm.setRegister("B", 0x5555)
+    vm.setRegister("C", 0x6666)
+    vm.setRegister("D", 0xffff)
+    vm.writeMemory8(0, 0x13) // INC_D
+
+    expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
+    expect(vm.getRegister("A")).toBe(0x4444)
+    expect(vm.getRegister("B")).toBe(0x5555)
+    expect(vm.getRegister("C")).toBe(0x6666)
+    expect(vm.getRegister("D")).toBe(0xffff)
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(true)
+    expect(vm.getRegister("A")).toBe(0x4444)
+    expect(vm.getRegister("B")).toBe(0x5555)
+    expect(vm.getRegister("C")).toBe(0x6666)
+    expect(vm.getRegister("D")).toBe(0x0000) // 16bitでラップアラウンド
   })
 })
 
@@ -763,6 +855,7 @@ describe("0x14 DEC_A", () => {
     vm.writeMemory8(0, 0x14) // DEC_A
 
     expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x1234)
     expect(vm.getRegister("B")).toBe(0x5555)
     expect(vm.getRegister("C")).toBe(0x6666)
@@ -775,6 +868,7 @@ describe("0x14 DEC_A", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(false) // 通常の減算ではキャリーフラグは変更なし
     expect(vm.getRegister("A")).toBe(0x1233)
     expect(vm.getRegister("B")).toBe(0x5555)
     expect(vm.getRegister("C")).toBe(0x6666)
@@ -789,6 +883,7 @@ describe("0x14 DEC_A", () => {
     vm.writeMemory8(0, 0x14) // DEC_A
 
     expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x0000)
     expect(vm.getRegister("B")).toBe(0x8888)
     expect(vm.getRegister("C")).toBe(0x9999)
@@ -801,6 +896,7 @@ describe("0x14 DEC_A", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(true) // アンダーフロー時はキャリーフラグがセット
     expect(vm.getRegister("A")).toBe(0xffff) // 16bitでラップアラウンド
     expect(vm.getRegister("B")).toBe(0x8888)
     expect(vm.getRegister("C")).toBe(0x9999)
@@ -823,6 +919,7 @@ describe("0x15 DEC_B", () => {
     vm.writeMemory8(0, 0x15) // DEC_B
 
     expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x1234)
     expect(vm.getRegister("C")).toBe(0x6666)
@@ -835,10 +932,39 @@ describe("0x15 DEC_B", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x1233)
     expect(vm.getRegister("C")).toBe(0x6666)
     expect(vm.getRegister("D")).toBe(0x7777)
+  })
+
+  test("DEC_B実行 - アンダーフロー", () => {
+    vm.setRegister("A", 0x1111)
+    vm.setRegister("B", 0x0000)
+    vm.setRegister("C", 0x2222)
+    vm.setRegister("D", 0x3333)
+    vm.writeMemory8(0, 0x15) // DEC_B
+
+    expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
+    expect(vm.getRegister("A")).toBe(0x1111)
+    expect(vm.getRegister("B")).toBe(0x0000)
+    expect(vm.getRegister("C")).toBe(0x2222)
+    expect(vm.getRegister("D")).toBe(0x3333)
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(true) // アンダーフロー時はキャリーフラグがセット
+    expect(vm.getRegister("A")).toBe(0x1111)
+    expect(vm.getRegister("B")).toBe(0xffff) // 16bitでラップアラウンド
+    expect(vm.getRegister("C")).toBe(0x2222)
+    expect(vm.getRegister("D")).toBe(0x3333)
   })
 })
 
@@ -857,6 +983,7 @@ describe("0x16 DEC_C", () => {
     vm.writeMemory8(0, 0x16) // DEC_C
 
     expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x6666)
     expect(vm.getRegister("C")).toBe(0x1234)
@@ -869,10 +996,39 @@ describe("0x16 DEC_C", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(false) // 通常のデクリメントではキャリーフラグは変わらない
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x6666)
     expect(vm.getRegister("C")).toBe(0x1233)
     expect(vm.getRegister("D")).toBe(0x7777)
+  })
+
+  test("DEC_C実行 - アンダーフロー", () => {
+    vm.setRegister("A", 0x1111)
+    vm.setRegister("B", 0x2222)
+    vm.setRegister("C", 0x0000)
+    vm.setRegister("D", 0x3333)
+    vm.writeMemory8(0, 0x16) // DEC_C
+
+    expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
+    expect(vm.getRegister("A")).toBe(0x1111)
+    expect(vm.getRegister("B")).toBe(0x2222)
+    expect(vm.getRegister("C")).toBe(0x0000)
+    expect(vm.getRegister("D")).toBe(0x3333)
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(true) // アンダーフロー時はキャリーフラグがセット
+    expect(vm.getRegister("A")).toBe(0x1111)
+    expect(vm.getRegister("B")).toBe(0x2222)
+    expect(vm.getRegister("C")).toBe(0xffff) // 16bitでラップアラウンド
+    expect(vm.getRegister("D")).toBe(0x3333)
   })
 })
 
@@ -891,6 +1047,7 @@ describe("0x17 DEC_D", () => {
     vm.writeMemory8(0, 0x17) // DEC_D
 
     expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x6666)
     expect(vm.getRegister("C")).toBe(0x7777)
@@ -903,10 +1060,39 @@ describe("0x17 DEC_D", () => {
     expect(result.cycles).toBe(1)
 
     expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(false) // 通常のデクリメントではキャリーフラグは変わらない
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x6666)
     expect(vm.getRegister("C")).toBe(0x7777)
     expect(vm.getRegister("D")).toBe(0x1233)
+  })
+
+  test("DEC_D実行 - アンダーフロー", () => {
+    vm.setRegister("A", 0x1111)
+    vm.setRegister("B", 0x2222)
+    vm.setRegister("C", 0x3333)
+    vm.setRegister("D", 0x0000)
+    vm.writeMemory8(0, 0x17) // DEC_D
+
+    expect(vm.pc).toBe(0)
+    expect(vm.carryFlag).toBe(false)
+    expect(vm.getRegister("A")).toBe(0x1111)
+    expect(vm.getRegister("B")).toBe(0x2222)
+    expect(vm.getRegister("C")).toBe(0x3333)
+    expect(vm.getRegister("D")).toBe(0x0000)
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    expect(vm.pc).toBe(1)
+    expect(vm.carryFlag).toBe(true) // アンダーフロー時はキャリーフラグがセット
+    expect(vm.getRegister("A")).toBe(0x1111)
+    expect(vm.getRegister("B")).toBe(0x2222)
+    expect(vm.getRegister("C")).toBe(0x3333)
+    expect(vm.getRegister("D")).toBe(0xffff) // 16bitでラップアラウンド
   })
 })
 
@@ -1535,7 +1721,7 @@ describe("0x2e POP_A", () => {
     vm.setRegister("D", 0x3333)
     vm.writeMemory8(0, 0x1f) // PUSH_A
     InstructionExecutor.step(vm)
-    
+
     // Aを別の値に変更
     vm.setRegister("A", 0x0000)
     vm.writeMemory8(1, 0x2e) // POP_A
@@ -1575,7 +1761,7 @@ describe("0x2f POP_B", () => {
     vm.setRegister("D", 0x3333)
     vm.writeMemory8(0, 0x20) // PUSH_B
     InstructionExecutor.step(vm)
-    
+
     // Bを別の値に変更
     vm.setRegister("B", 0x0000)
     vm.writeMemory8(1, 0x2f) // POP_B
@@ -1615,7 +1801,7 @@ describe("0x30 POP_C", () => {
     vm.setRegister("D", 0x3333)
     vm.writeMemory8(0, 0x21) // PUSH_C
     InstructionExecutor.step(vm)
-    
+
     // Cを別の値に変更
     vm.setRegister("C", 0x0000)
     vm.writeMemory8(1, 0x30) // POP_C
@@ -1655,7 +1841,7 @@ describe("0x31 POP_D", () => {
     vm.setRegister("C", 0x3333)
     vm.writeMemory8(0, 0x22) // PUSH_D
     InstructionExecutor.step(vm)
-    
+
     // Dを別の値に変更
     vm.setRegister("D", 0x0000)
     vm.writeMemory8(1, 0x31) // POP_D
@@ -1691,13 +1877,13 @@ describe("0x40 LOAD_A", () => {
   test("LOAD_A実行 - 相対アドレスからの8bit読み込み", () => {
     // メモリにデータを配置
     vm.writeMemory8(0x10, 0xab) // アドレス0x10に値を書き込み
-    
+
     // レジスタ初期化
     vm.setRegister("A", 0x1111)
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    
+
     // LOAD_A命令（PC=0から相対オフセット0x10）
     vm.writeMemory8(0, 0x40) // LOAD_A
     vm.writeMemory8(1, 0x10) // 下位バイト
@@ -1725,12 +1911,12 @@ describe("0x40 LOAD_A", () => {
   test("LOAD_A実行 - 負の相対オフセット", () => {
     vm.pc = 0x50
     vm.writeMemory8(0x40, 0xcd) // アドレス0x40に値を書き込み
-    
+
     vm.setRegister("A", 0xaaaa)
     vm.setRegister("B", 0xbbbb)
     vm.setRegister("C", 0xcccc)
     vm.setRegister("D", 0xdddd)
-    
+
     // LOAD_A命令（PC=0x50から相対オフセット-0x10）
     vm.writeMemory8(0x50, 0x40) // LOAD_A
     vm.writeMemory8(0x51, 0xf0) // 下位バイト
@@ -1768,7 +1954,7 @@ describe("0x41 STORE_A", () => {
     vm.setRegister("B", 0x5678)
     vm.setRegister("C", 0x9abc)
     vm.setRegister("D", 0xdef0)
-    
+
     // STORE_A命令（PC=0から相対オフセット0x20）
     vm.writeMemory8(0, 0x41) // STORE_A
     vm.writeMemory8(1, 0x20) // 下位バイト
@@ -1807,10 +1993,10 @@ describe("0x42 LOAD_IND", () => {
     vm.setRegister("B", 0x0020)
     vm.setRegister("C", 0xcccc)
     vm.setRegister("D", 0xdddd)
-    
+
     // メモリにデータを配置
     vm.writeMemory8(0x30, 0xab) // B(0x20) + offset(0x10) = 0x30
-    
+
     // LOAD_IND命令
     vm.writeMemory8(0, 0x42) // LOAD_IND
     vm.writeMemory8(1, 0x10) // 下位バイト
@@ -1848,7 +2034,7 @@ describe("0x43 STORE_IND", () => {
     vm.setRegister("B", 0x0040)
     vm.setRegister("C", 0xaaaa)
     vm.setRegister("D", 0xbbbb)
-    
+
     // STORE_IND命令
     vm.writeMemory8(0, 0x43) // STORE_IND
     vm.writeMemory8(1, 0x20) // 下位バイト
@@ -1886,12 +2072,12 @@ describe("0x44 LOAD_A_W", () => {
     // メモリに16bit値を配置（リトルエンディアン）
     vm.writeMemory8(0x10, 0x34) // 下位バイト
     vm.writeMemory8(0x11, 0x12) // 上位バイト（値は0x1234）
-    
+
     vm.setRegister("A", 0xffff)
     vm.setRegister("B", 0xeeee)
     vm.setRegister("C", 0xdddd)
     vm.setRegister("D", 0xcccc)
-    
+
     // LOAD_A_W命令
     vm.writeMemory8(0, 0x44) // LOAD_A_W
     vm.writeMemory8(1, 0x10) // 下位バイト
@@ -1929,7 +2115,7 @@ describe("0x45 STORE_A_W", () => {
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     // STORE_A_W命令
     vm.writeMemory8(0, 0x45) // STORE_A_W
     vm.writeMemory8(1, 0x10) // 下位バイト
@@ -1969,10 +2155,10 @@ describe("0x50 LOAD_REG", () => {
     vm.setRegister("B", 0x0080)
     vm.setRegister("C", 0x0050)
     vm.setRegister("D", 0x0030)
-    
+
     // メモリにデータを配置
     vm.writeMemory8(0x80, 0xef)
-    
+
     // LOAD_REG命令（Bレジスタの値から読み込み）
     vm.writeMemory8(0, 0x50) // LOAD_REG
     vm.writeMemory8(1, 0x01) // レジスタ指定 (1=B)
@@ -2010,7 +2196,7 @@ describe("0x51 STORE_REG", () => {
     vm.setRegister("B", 0x0040)
     vm.setRegister("C", 0x0060)
     vm.setRegister("D", 0x0080)
-    
+
     // STORE_REG命令（Cレジスタの値へ書き込み）
     vm.writeMemory8(0, 0x51) // STORE_REG
     vm.writeMemory8(1, 0x02) // レジスタ指定 (2=C)
@@ -2049,12 +2235,12 @@ describe("0x52 LOAD_IND_REG", () => {
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     // 間接アドレスを設定
     vm.writeMemory8(0x50, 0x80) // アドレス0x50に0x0080をポインタとして格納
     vm.writeMemory8(0x51, 0x00)
     vm.writeMemory8(0x80, 0xab) // 実際のデータ
-    
+
     // LOAD_IND_REG命令
     vm.writeMemory8(0, 0x52) // LOAD_IND_REG
     vm.writeMemory8(1, 0x50) // 下位バイト
@@ -2092,11 +2278,11 @@ describe("0x53 STORE_IND_REG", () => {
     vm.setRegister("B", 0x5678)
     vm.setRegister("C", 0x9abc)
     vm.setRegister("D", 0xdef0)
-    
+
     // 間接アドレスを設定
     vm.writeMemory8(0x60, 0x90) // アドレス0x60に0x0090をポインタとして格納
     vm.writeMemory8(0x61, 0x00)
-    
+
     // STORE_IND_REG命令
     vm.writeMemory8(0, 0x53) // STORE_IND_REG
     vm.writeMemory8(1, 0x60) // 下位バイト
@@ -2137,7 +2323,7 @@ describe("0x60 JMP", () => {
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    
+
     // JMP命令（相対オフセット+0x20）
     vm.writeMemory8(0x10, 0x60) // JMP
     vm.writeMemory8(0x11, 0x20) // 下位バイト
@@ -2168,7 +2354,7 @@ describe("0x60 JMP", () => {
     vm.setRegister("B", 0x6666)
     vm.setRegister("C", 0x7777)
     vm.setRegister("D", 0x8888)
-    
+
     // JMP命令（相対オフセット-0x10）
     vm.writeMemory8(0x50, 0x60) // JMP
     vm.writeMemory8(0x51, 0xf0) // 下位バイト
@@ -2207,7 +2393,7 @@ describe("0x61 JZ", () => {
     vm.setRegister("B", 0xaaaa)
     vm.setRegister("C", 0xbbbb)
     vm.setRegister("D", 0xcccc)
-    
+
     vm.writeMemory8(0, 0x61) // JZ
     vm.writeMemory8(1, 0x10) // 下位バイト
     vm.writeMemory8(2, 0x00) // 上位バイト（オフセット = 0x0010）
@@ -2237,7 +2423,7 @@ describe("0x61 JZ", () => {
     vm.setRegister("B", 0xeeee)
     vm.setRegister("C", 0xffff)
     vm.setRegister("D", 0x0001)
-    
+
     vm.writeMemory8(0, 0x61) // JZ
     vm.writeMemory8(1, 0x10) // 下位バイト
     vm.writeMemory8(2, 0x00) // 上位バイト
@@ -2275,7 +2461,7 @@ describe("0x62 JNZ", () => {
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    
+
     vm.writeMemory8(0, 0x62) // JNZ
     vm.writeMemory8(1, 0x20) // 下位バイト
     vm.writeMemory8(2, 0x00) // 上位バイト（オフセット = 0x0020）
@@ -2305,7 +2491,7 @@ describe("0x62 JNZ", () => {
     vm.setRegister("B", 0x6666)
     vm.setRegister("C", 0x7777)
     vm.setRegister("D", 0x8888)
-    
+
     vm.writeMemory8(0, 0x62) // JNZ
     vm.writeMemory8(1, 0x20) // 下位バイト
     vm.writeMemory8(2, 0x00) // 上位バイト
@@ -2343,7 +2529,7 @@ describe("0x63 JC", () => {
     vm.setRegister("B", 0xbbbb)
     vm.setRegister("C", 0xcccc)
     vm.setRegister("D", 0xdddd)
-    
+
     vm.writeMemory8(0, 0x63) // JC
     vm.writeMemory8(1, 0x30) // 下位バイト
     vm.writeMemory8(2, 0x00) // 上位バイト（オフセット = 0x0030）
@@ -2381,7 +2567,7 @@ describe("0x64 JNC", () => {
     vm.setRegister("B", 0xffff)
     vm.setRegister("C", 0x0001)
     vm.setRegister("D", 0x0002)
-    
+
     vm.writeMemory8(0, 0x64) // JNC
     vm.writeMemory8(1, 0x40) // 下位バイト
     vm.writeMemory8(2, 0x00) // 上位バイト（オフセット = 0x0040）
@@ -2419,7 +2605,7 @@ describe("0x65 CALL", () => {
     vm.setRegister("B", 0x5678)
     vm.setRegister("C", 0x0000)
     vm.setRegister("D", 0xabcd)
-    
+
     vm.writeMemory8(0x20, 0x65) // CALL
     vm.writeMemory8(0x21, 0x30) // 下位バイト
     vm.writeMemory8(0x22, 0x00) // 上位バイト（オフセット = 0x0030）
@@ -2459,7 +2645,7 @@ describe("0x66 JG", () => {
     vm.setRegister("D", 0x2222)
     vm.writeMemory8(0, 0x1e) // CMP_AB
     InstructionExecutor.step(vm)
-    
+
     vm.writeMemory8(1, 0x66) // JG
     vm.writeMemory8(2, 0x10) // 下位バイト
     vm.writeMemory8(3, 0x00) // 上位バイト（オフセット = 0x0010）
@@ -2499,7 +2685,7 @@ describe("0x67 JLE", () => {
     vm.setRegister("D", 0x4444)
     vm.writeMemory8(0, 0x1e) // CMP_AB
     InstructionExecutor.step(vm)
-    
+
     vm.writeMemory8(1, 0x67) // JLE
     vm.writeMemory8(2, 0x20) // 下位バイト
     vm.writeMemory8(3, 0x00) // 上位バイト（オフセット = 0x0020）
@@ -2539,7 +2725,7 @@ describe("0x68 JGE", () => {
     vm.setRegister("D", 0x6666)
     vm.writeMemory8(0, 0x1e) // CMP_AB
     InstructionExecutor.step(vm)
-    
+
     vm.writeMemory8(1, 0x68) // JGE
     vm.writeMemory8(2, 0x30) // 下位バイト
     vm.writeMemory8(3, 0x00) // 上位バイト（オフセット = 0x0030）
@@ -2579,7 +2765,7 @@ describe("0x69 JL", () => {
     vm.setRegister("D", 0x8888)
     vm.writeMemory8(0, 0x1e) // CMP_AB
     InstructionExecutor.step(vm)
-    
+
     vm.writeMemory8(1, 0x69) // JL
     vm.writeMemory8(2, 0x40) // 下位バイト
     vm.writeMemory8(3, 0x00) // 上位バイト（オフセット = 0x0040）
@@ -2614,12 +2800,12 @@ describe("0xa0 LOAD_ABS", () => {
 
   test("LOAD_ABS実行 - 絶対アドレスからの8bit読み込み", () => {
     vm.writeMemory8(0x80, 0xef) // アドレス0x80に値を書き込み
-    
+
     vm.setRegister("A", 0xaaaa)
     vm.setRegister("B", 0xbbbb)
     vm.setRegister("C", 0xcccc)
     vm.setRegister("D", 0xdddd)
-    
+
     // LOAD_ABS命令
     vm.writeMemory8(0, 0xa0) // LOAD_ABS
     vm.writeMemory8(1, 0x80) // 下位バイト
@@ -2658,7 +2844,7 @@ describe("0xa1 STORE_ABS", () => {
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     // STORE_ABS命令
     vm.writeMemory8(0, 0xa1) // STORE_ABS
     vm.writeMemory8(1, 0x90) // 下位バイト
@@ -2696,12 +2882,12 @@ describe("0xa2 LOAD_ABS_W", () => {
   test("LOAD_ABS_W実行 - 絶対アドレスからの16bit読み込み", () => {
     vm.writeMemory8(0xa0, 0x34) // 下位バイト
     vm.writeMemory8(0xa1, 0x12) // 上位バイト
-    
+
     vm.setRegister("A", 0xffff)
     vm.setRegister("B", 0xeeee)
     vm.setRegister("C", 0xdddd)
     vm.setRegister("D", 0xcccc)
-    
+
     // LOAD_ABS_W命令
     vm.writeMemory8(0, 0xa2) // LOAD_ABS_W
     vm.writeMemory8(1, 0xa0) // 下位バイト
@@ -2740,7 +2926,7 @@ describe("0xa3 STORE_ABS_W", () => {
     vm.setRegister("B", 0x9999)
     vm.setRegister("C", 0xaaaa)
     vm.setRegister("D", 0xbbbb)
-    
+
     // STORE_ABS_W命令
     vm.writeMemory8(0, 0xa3) // STORE_ABS_W
     vm.writeMemory8(1, 0xb0) // 下位バイト
@@ -2782,7 +2968,7 @@ describe("0xb0 JMP_IND", () => {
     vm.setRegister("B", 0x5678)
     vm.setRegister("C", 0x9abc)
     vm.setRegister("D", 0xdef0)
-    
+
     // JMP_IND命令（Bレジスタの値へジャンプ）
     vm.writeMemory8(0x10, 0xb0) // JMP_IND
     vm.writeMemory8(0x11, 0x01) // レジスタ指定（0=A, 1=B, 2=C, 3=D）
@@ -2822,7 +3008,7 @@ describe("0xb1 JMP_ABS", () => {
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    
+
     // JMP_ABS命令
     vm.writeMemory8(0x10, 0xb1) // JMP_ABS
     vm.writeMemory8(0x11, 0x34) // 下位バイト
@@ -2862,7 +3048,7 @@ describe("0xb2 RET", () => {
     vm.setRegister("B", 0x6666)
     vm.setRegister("C", 0x1234)
     vm.setRegister("D", 0x7777)
-    
+
     vm.writeMemory8(0x50, 0xb2) // RET
     vm.writeMemory8(0x51, 0x00) // 第2バイト（未使用）
     vm.writeMemory8(0x52, 0x00) // 第3バイト（未使用）
@@ -2901,7 +3087,7 @@ describe("0xc0 MUL_AB", () => {
     vm.setRegister("B", 0x0020)
     vm.setRegister("C", 0x8888)
     vm.setRegister("D", 0x9999)
-    
+
     vm.writeMemory8(0, 0xc0) // MUL_AB
     vm.writeMemory8(1, 0x00) // 第2-5バイト（未使用）
     vm.writeMemory8(2, 0x00)
@@ -2932,7 +3118,7 @@ describe("0xc0 MUL_AB", () => {
     vm.setRegister("B", 0x1000)
     vm.setRegister("C", 0xaaaa)
     vm.setRegister("D", 0xbbbb)
-    
+
     vm.writeMemory8(0, 0xc0) // MUL_AB
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
@@ -2971,7 +3157,7 @@ describe("0xc1 DIV_AB", () => {
     vm.setRegister("B", 0x0007) // 7
     vm.setRegister("C", 0xcccc)
     vm.setRegister("D", 0xdddd)
-    
+
     vm.writeMemory8(0, 0xc1) // DIV_AB
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
@@ -3000,7 +3186,7 @@ describe("0xc1 DIV_AB", () => {
   test("DIV_AB実行 - ゼロ除算はエラー", () => {
     vm.setRegister("A", 0x0064)
     vm.setRegister("B", 0x0000)
-    
+
     vm.writeMemory8(0, 0xc1) // DIV_AB
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
@@ -3027,7 +3213,7 @@ describe("0xc2 SHL", () => {
     vm.setRegister("B", 0x0004) // 4ビットシフト
     vm.setRegister("C", 0xaaaa)
     vm.setRegister("D", 0xbbbb)
-    
+
     vm.writeMemory8(0, 0xc2) // SHL
     vm.writeMemory8(1, 0x00) // 第2-5バイト（未使用）
     vm.writeMemory8(2, 0x00)
@@ -3066,7 +3252,7 @@ describe("0xc3 SHR", () => {
     vm.setRegister("B", 0x0008) // 8ビットシフト
     vm.setRegister("C", 0xcccc)
     vm.setRegister("D", 0xdddd)
-    
+
     vm.writeMemory8(0, 0xc3) // SHR
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
@@ -3105,7 +3291,7 @@ describe("0xc4 SAR", () => {
     vm.setRegister("B", 0x0004) // 4ビットシフト
     vm.setRegister("C", 0xeeee)
     vm.setRegister("D", 0xffff)
-    
+
     vm.writeMemory8(0, 0xc4) // SAR
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
@@ -3145,7 +3331,7 @@ describe("0xc5 CMOV_Z", () => {
     vm.setRegister("B", 0xabcd)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     vm.writeMemory8(0, 0xc5) // CMOV_Z
     vm.writeMemory8(1, 0x01) // ソースレジスタ (1=B)
     vm.writeMemory8(2, 0x00) // 宛先レジスタ (0=A)
@@ -3177,7 +3363,7 @@ describe("0xc5 CMOV_Z", () => {
     vm.setRegister("B", 0xabcd)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     vm.writeMemory8(0, 0xc5) // CMOV_Z
     vm.writeMemory8(1, 0x01) // ソースレジスタ (1=B)
     vm.writeMemory8(2, 0x00) // 宛先レジスタ (0=A)
@@ -3211,7 +3397,7 @@ describe("0xc6 CMOV_NZ", () => {
     vm.setRegister("B", 0x5555)
     vm.setRegister("C", 0xeeee)
     vm.setRegister("D", 0xffff)
-    
+
     vm.writeMemory8(0, 0xc6) // CMOV_NZ
     vm.writeMemory8(1, 0x03) // ソースレジスタ (3=D)
     vm.writeMemory8(2, 0x02) // 宛先レジスタ (2=C)
@@ -3251,7 +3437,7 @@ describe("0xc7 CMOV_C", () => {
     vm.setRegister("B", 0x7777)
     vm.setRegister("C", 0x8888)
     vm.setRegister("D", 0x9999)
-    
+
     vm.writeMemory8(0, 0xc7) // CMOV_C
     vm.writeMemory8(1, 0x02) // ソースレジスタ (2=C)
     vm.writeMemory8(2, 0x01) // 宛先レジスタ (1=B)
@@ -3291,7 +3477,7 @@ describe("0xc8 CMOV_NC", () => {
     vm.setRegister("B", 0xbbbb)
     vm.setRegister("C", 0xcccc)
     vm.setRegister("D", 0xdddd)
-    
+
     vm.writeMemory8(0, 0xc8) // CMOV_NC
     vm.writeMemory8(1, 0x00) // ソースレジスタ (0=A)
     vm.writeMemory8(2, 0x03) // 宛先レジスタ (3=D)
@@ -3330,7 +3516,7 @@ describe("0xe0 LOAD_IMM", () => {
     vm.setRegister("B", 0xffff)
     vm.setRegister("C", 0x0000)
     vm.setRegister("D", 0x1111)
-    
+
     vm.writeMemory8(0, 0xe0) // LOAD_IMM
     vm.writeMemory8(1, 0x34) // 下位バイト
     vm.writeMemory8(2, 0x12) // 上位バイト（値 = 0x1234、リトルエンディアン）
@@ -3369,7 +3555,7 @@ describe("0xe1 LOAD_IMM_B", () => {
     vm.setRegister("B", 0xffff)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     vm.writeMemory8(0, 0xe1) // LOAD_IMM_B
     vm.writeMemory8(1, 0x78) // 下位バイト
     vm.writeMemory8(2, 0x56) // 上位バイト（値 = 0x5678、リトルエンディアン）
@@ -3408,7 +3594,7 @@ describe("0xf0 NOP5", () => {
     vm.setRegister("B", 0x5555)
     vm.setRegister("C", 0x6666)
     vm.setRegister("D", 0x7777)
-    
+
     vm.writeMemory8(0, 0xf0) // NOP5
     vm.writeMemory8(1, 0x00) // パディング
     vm.writeMemory8(2, 0x00)
