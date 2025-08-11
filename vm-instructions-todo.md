@@ -19,104 +19,104 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 
 ### 既存テストの修正
 - [x] vm-instructions.test.ts冒頭のコメント更新
-- [ ] NOP0テストのsp期待値修正（0xffff → 0x09）
-- [ ] NOP1テストのsp期待値修正（0xffff → 0x09）
-- [ ] XCHGテストのsp期待値修正（0xffff → 0x09）
+- [x] NOP0テストのsp期待値修正（0xffff → 0x09）
+- [x] NOP1テストのsp期待値修正（0xffff → 0x09）
+- [x] XCHGテストのsp期待値修正（0xffff → 0x09）
 
 ### 1バイト命令テスト実装（0x00-0x3F）
 
 #### データ移動命令
-- [ ] 0x00: NOP0（既存・修正のみ）
-- [ ] 0x01: NOP1（既存・修正のみ）
-- [ ] 0x02: XCHG（既存・修正のみ）
-- [ ] 0x03: MOV_AB
-- [ ] 0x04: MOV_AD
-- [ ] 0x05: MOV_BA
-- [ ] 0x06: MOV_DA
-- [ ] 0x07: MOV_BC
-- [ ] 0x08: MOV_CB
-- [ ] 0x09: MOV_AC
-- [ ] 0x0A: MOV_CA
-- [ ] 0x0B: MOV_CD
-- [ ] 0x0C: MOV_DC
-- [ ] 0x0D: MOV_SP
-- [ ] 0x0E: SET_SP
+- [x] 0x00: NOP0（既存・修正済み）
+- [x] 0x01: NOP1（既存・修正済み）
+- [x] 0x02: XCHG（既存・修正済み）
+- [x] 0x03: MOV_AB
+- [x] 0x04: MOV_AD
+- [x] 0x05: MOV_BA
+- [x] 0x06: MOV_DA
+- [x] 0x07: MOV_BC
+- [x] 0x08: MOV_CB
+- [x] 0x09: MOV_AC
+- [x] 0x0A: MOV_CA
+- [x] 0x0B: MOV_CD
+- [x] 0x0C: MOV_DC
+- [x] 0x0D: MOV_SP
+- [x] 0x0E: SET_SP
 
 #### 算術演算命令（16bit演算）
-- [ ] 0x10: INC_A
-- [ ] 0x11: INC_B
-- [ ] 0x12: INC_C
-- [ ] 0x13: INC_D
-- [ ] 0x14: DEC_A（参考実装あり）
-- [ ] 0x15: DEC_B
-- [ ] 0x16: DEC_C
-- [ ] 0x17: DEC_D
-- [ ] 0x18: ADD_AB
-- [ ] 0x19: SUB_AB
-- [ ] 0x1A: XOR_AB
-- [ ] 0x1B: AND_AB
-- [ ] 0x1C: OR_AB
-- [ ] 0x1D: NOT_A
-- [ ] 0x1E: CMP_AB
-- [ ] 0x1F: PUSH_A
-- [ ] 0x20: PUSH_B
-- [ ] 0x21: PUSH_C
-- [ ] 0x22: PUSH_D
-- [ ] 0x2E: POP_A
-- [ ] 0x2F: POP_B
-- [ ] 0x30: POP_C
-- [ ] 0x31: POP_D
+- [x] 0x10: INC_A
+- [x] 0x11: INC_B
+- [x] 0x12: INC_C
+- [x] 0x13: INC_D
+- [x] 0x14: DEC_A
+- [x] 0x15: DEC_B
+- [x] 0x16: DEC_C
+- [x] 0x17: DEC_D
+- [x] 0x18: ADD_AB
+- [x] 0x19: SUB_AB
+- [x] 0x1A: XOR_AB
+- [x] 0x1B: AND_AB
+- [x] 0x1C: OR_AB
+- [x] 0x1D: NOT_A
+- [x] 0x1E: CMP_AB
+- [x] 0x1F: PUSH_A
+- [x] 0x20: PUSH_B
+- [x] 0x21: PUSH_C
+- [x] 0x22: PUSH_D
+- [x] 0x2E: POP_A
+- [x] 0x2F: POP_B
+- [x] 0x30: POP_C
+- [x] 0x31: POP_D
 
 ### 3バイト命令テスト実装（0x40-0x7F）
 
 #### メモリアクセス命令（相対アドレス）
-- [ ] 0x40: LOAD_A
-- [ ] 0x41: STORE_A
-- [ ] 0x42: LOAD_IND
-- [ ] 0x43: STORE_IND
-- [ ] 0x44: LOAD_A_W
-- [ ] 0x45: STORE_A_W
+- [x] 0x40: LOAD_A
+- [x] 0x41: STORE_A
+- [x] 0x42: LOAD_IND
+- [x] 0x43: STORE_IND
+- [x] 0x44: LOAD_A_W
+- [x] 0x45: STORE_A_W
 
 #### レジスタベースメモリアクセス命令
-- [ ] 0x50: LOAD_REG
-- [ ] 0x51: STORE_REG
-- [ ] 0x52: LOAD_IND_REG
-- [ ] 0x53: STORE_IND_REG
+- [x] 0x50: LOAD_REG
+- [x] 0x51: STORE_REG
+- [x] 0x52: LOAD_IND_REG
+- [x] 0x53: STORE_IND_REG
 
 #### 制御命令
-- [ ] 0x60: JMP
-- [ ] 0x61: JZ
-- [ ] 0x62: JNZ
-- [ ] 0x63: JC
-- [ ] 0x64: JNC
-- [ ] 0x65: CALL
-- [ ] 0x66: JG
-- [ ] 0x67: JLE
-- [ ] 0x68: JGE
-- [ ] 0x69: JL
+- [x] 0x60: JMP
+- [x] 0x61: JZ
+- [x] 0x62: JNZ
+- [x] 0x63: JC
+- [x] 0x64: JNC
+- [x] 0x65: CALL
+- [x] 0x66: JG
+- [x] 0x67: JLE
+- [x] 0x68: JGE
+- [x] 0x69: JL
 
 ### 4バイト命令テスト実装（0x80-0xBF）
 
 #### パターンマッチング命令
-- [ ] 0x80: SEARCH_F（プレースホルダ）
-- [ ] 0x81: SEARCH_B（プレースホルダ）
-- [ ] 0x82: SEARCH_F_MAX（プレースホルダ）
-- [ ] 0x83: SEARCH_B_MAX（プレースホルダ）
+- [x] 0x80: SEARCH_F（プレースホルダ）
+- [x] 0x81: SEARCH_B（プレースホルダ）
+- [x] 0x82: SEARCH_F_MAX（プレースホルダ）
+- [x] 0x83: SEARCH_B_MAX（プレースホルダ）
 
 #### ユニット操作命令（プレースホルダのみ）
-- [ ] 0x90: UNIT_MEM_READ
-- [ ] 0x91: UNIT_MEM_WRITE
-- [ ] 0x92: UNIT_MEM_READ_REG
-- [ ] 0x93: UNIT_MEM_WRITE_REG
-- [ ] 0x94: UNIT_EXISTS
-- [ ] 0x9B: UNIT_MEM_WRITE_DYN
+- [x] 0x90: UNIT_MEM_READ（プレースホルダ）
+- [x] 0x91: UNIT_MEM_WRITE（プレースホルダ）
+- [x] 0x92: UNIT_MEM_READ_REG（プレースホルダ）
+- [x] 0x93: UNIT_MEM_WRITE_REG（プレースホルダ）
+- [x] 0x94: UNIT_EXISTS（プレースホルダ）
+- [x] 0x9B: UNIT_MEM_WRITE_DYN（プレースホルダ）
 
 #### エネルギー計算命令
-- [ ] 0x95: ADD_E32
-- [ ] 0x96: SUB_E32
-- [ ] 0x97: CMP_E32
-- [ ] 0x98: SHR_E10
-- [ ] 0x99: SHL_E10
+- [x] 0x95: ADD_E32（プレースホルダ）
+- [x] 0x96: SUB_E32（プレースホルダ）
+- [x] 0x97: CMP_E32（プレースホルダ）
+- [x] 0x98: SHR_E10（プレースホルダ）
+- [x] 0x99: SHL_E10（プレースホルダ）
 
 #### メモリアクセス命令（絶対アドレス）
 - [ ] 0xA0: LOAD_ABS
@@ -143,11 +143,11 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 - [ ] 0xC8: CMOV_NC
 
 #### 即値ロード命令
-- [ ] 0xE0: LOAD_IMM
-- [ ] 0xE1: LOAD_IMM_B
+- [x] 0xE0: LOAD_IMM
+- [x] 0xE1: LOAD_IMM_B
 
 #### NOP命令
-- [ ] 0xF0: NOP5
+- [x] 0xF0: NOP5
 
 ### 未定義命令テスト実装
 
@@ -172,17 +172,31 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 - [ ] 0xE2-0xEF（14命令）
 - [ ] 0xF1-0xFF（15命令）
 
+## 実装状況サマリー
+
+### 完了済み
+- ✅ 1バイト命令（0x00-0x3F）: すべて実装済み
+- ✅ 3バイト命令（0x40-0x7F）: すべて実装済み
+- ✅ 5バイト命令の一部（0xE0, 0xE1, 0xF0）: 実装済み
+- ✅ プレースホルダ: パターンマッチング、ユニット操作、エネルギー計算
+
+### 未実装
+- ⏳ 4バイト命令の一部（0xA0-0xA3, 0xB0-0xB2）: メモリアクセス（絶対アドレス）、間接ジャンプ
+- ⏳ 5バイト命令の一部（0xC0-0xC8）: 拡張演算命令
+- ⏳ 未定義命令の一括テスト
+
 ## 実装優先度
 
-1. 既存テストのsp期待値修正
-2. 1バイト命令の基本命令（データ移動、算術演算）
-3. 3バイト命令（メモリアクセス、制御）
-4. 4バイト命令（エネルギー計算以外はプレースホルダ）
-5. 5バイト命令
-6. 未定義命令の一括テスト
+1. ✅ 既存テストのsp期待値修正（完了）
+2. ✅ 1バイト命令の基本命令（完了）
+3. ✅ 3バイト命令（完了）
+4. 🔄 4バイト命令（一部実装中）
+5. 🔄 5バイト命令（一部実装中）
+6. ⏳ 未定義命令の一括テスト
 
 ## 備考
 
 - ユニット操作命令はVM以外への副作用を持つため、プレースホルダのみ実装
 - テストが通る必要はない（実装不備の洗い出しが目的）
 - 仕様に疑問がある場合は実装コードではなく人間に確認
+- 2024年1月時点：主要な命令のテストは実装済み、残りは実装優先度に従って進行中
