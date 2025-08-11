@@ -14,13 +14,11 @@ src/engine/vm-instructions.test.ts のテストを編集せよ
 現在は、命令セットの定義が src/engine/vm-instructions.ts に実装されており、仮想CPUの状態保持は src/engine/vm-state.ts に、また命令セットの実行系が src/engine/vm-executor.ts へ実装されている状態である
 しかし、完全に仕様に沿った実装とはなっていないため、網羅的なテストを記述する必要がある
 
-テストの実装状況としては、以下の「テスト実装方法」に沿ったテストが一部記述されている状況である
-しかし、「テスト実装方法」に完全に沿った実装にはなっていない状況である
-
 ## テスト実装方法
 ### テスト実装方法
 - ルート階層の describe() に各命令セットのテストをまとめ、その中に必要な条件のテストを test() で記述する
 - 命令の実行は InstructionExecutor.step() で行う
+- スタックポインタ（sp）の初期値は `new VMState(メモリサイズ)` の引数値から1を引いた値（例：VMState(0x0a)の場合、sp初期値は0x09）
 
 ### テスト内容
 - docs/spec-v3/synthetica-script.md の仕様をもとにテスト内容を作成する。仕様に疑問が生じた場合は、 **実装されたコードを参照するのではなく、人間に確認せよ**
@@ -29,6 +27,9 @@ src/engine/vm-instructions.test.ts のテストを編集せよ
   - InstructionExecutor.step() の返り値の success, error, cycles の各値の検証
   - InstructionExecutor.step() の **実行前後** の、VMのPC, 各レジスタおよびすべてのフラグの内容（ `expectVMState()` により確認する）
   - InstructionExecutor.step() の **実行前後** の、テスト対象の命令がVMに加える操作の対象（例：メモリを操作するならメモリの内容を確認する）
+- 未定義命令のテスト
+  - 未定義命令実行時：PCが1進む、success=true、error=undefined、cycles=1、他のレジスタ・フラグ・メモリは変化なし
+  - ファイル末尾に describe.each() や test.each() を使用して一括テストを実装
 
 ### 備考
 - ユニット操作に関する命令などのように、VM以外への副作用を持つ命令については、後に実装するため、テストのプレースホルダを記述するのみで良い
@@ -70,7 +71,7 @@ describe("0x00 NOP0", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0xffff,
+      sp: 0x09,
       registerA: 0,
       registerB: 0,
       registerC: 0,
@@ -89,7 +90,7 @@ describe("0x00 NOP0", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xffff,
+      sp: 0x09,
       registerA: 0,
       registerB: 0,
       registerC: 0,
@@ -114,7 +115,7 @@ describe("0x01 NOP1", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0xffff,
+      sp: 0x09,
       registerA: 0,
       registerB: 0,
       registerC: 0,
@@ -133,7 +134,7 @@ describe("0x01 NOP1", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xffff,
+      sp: 0x09,
       registerA: 0,
       registerB: 0,
       registerC: 0,
@@ -160,7 +161,7 @@ describe("0x02 XCHG", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0xffff,
+      sp: 0x09,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0,
@@ -179,7 +180,7 @@ describe("0x02 XCHG", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xffff,
+      sp: 0x09,
       registerA: 0x5678,
       registerB: 0x1234,
       registerC: 0,
@@ -196,7 +197,7 @@ describe("0x02 XCHG", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0xffff,
+      sp: 0x09,
       registerA: 0,
       registerB: 0,
       registerC: 0,
@@ -215,7 +216,7 @@ describe("0x02 XCHG", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xffff,
+      sp: 0x09,
       registerA: 0,
       registerB: 0,
       registerC: 0,
@@ -233,7 +234,7 @@ describe("0x02 XCHG", () => {
 
     expectVMState(vm, {
       pc: 0,
-      sp: 0xffff,
+      sp: 0x09,
       registerA: 0xffff,
       registerB: 0x0001,
       registerC: 0,
@@ -251,7 +252,7 @@ describe("0x02 XCHG", () => {
 
     expectVMState(vm, {
       pc: 1,
-      sp: 0xffff,
+      sp: 0x09,
       registerA: 0x0001,
       registerB: 0xffff,
       registerC: 0,
