@@ -151,6 +151,13 @@ export class InstructionDecoder {
             operands.unitId = bytes[1] ?? 0
             operands.unitMemAddr = bytes[2] ?? 0  // レジスタインデックス
             break
+
+          // 間接ジャンプ命令
+          case "JMP_IND":
+            // 仕様: 第2バイト: レジスタ指定（0=A, 1=B, 2=C, 3=D）
+            //       第3,4バイト: 未使用
+            operands.register = bytes[1] ?? 0
+            break
         }
       }
     }

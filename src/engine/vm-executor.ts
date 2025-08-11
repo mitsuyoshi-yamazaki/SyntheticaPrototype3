@@ -611,6 +611,12 @@ export const InstructionExecutor = {
         shouldJump = true
         newPC = decoded.operands.address16
         break
+      case "JMP_IND":
+        shouldJump = true
+        if (decoded.operands.register !== undefined) {
+          newPC = vm.getRegisterByIndex(decoded.operands.register)
+        }
+        break
 
       // 条件ジャンプ
       case "JZ":
