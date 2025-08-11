@@ -532,6 +532,25 @@ export const InstructionExecutor = {
         }
         break
 
+      // 間接アドレス
+      case "LOAD_IND_REG":
+        if (decoded.operands.address16 !== undefined) {
+          // メモリから16bitアドレスを読み込み
+          const indirectAddress = vm.readMemory16(decoded.operands.address16)
+          // そのアドレスから8bit値を読み込み
+          vm.setRegister("A", vm.readMemory8(indirectAddress))
+        }
+        break
+
+      case "STORE_IND_REG":
+        if (decoded.operands.address16 !== undefined) {
+          // メモリから16bitアドレスを読み込み
+          const indirectAddress = vm.readMemory16(decoded.operands.address16)
+          // そのアドレスに8bit値を書き込み
+          vm.writeMemory8(indirectAddress, vm.getRegister("A") & 0xff)
+        }
+        break
+
       // 絶対アドレス
       case "LOAD_ABS":
         if (decoded.operands.address16 !== undefined) {

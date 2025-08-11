@@ -85,6 +85,13 @@ export class InstructionDecoder {
             operands.register = byte2 & 0x03 // 下位2bit
             break
 
+          // 間接アドレスメモリアクセス
+          case "LOAD_IND_REG":
+          case "STORE_IND_REG":
+            // 第2,3バイトが16bitアドレス（リトルエンディアン）
+            operands.address16 = byte2 | (byte3 << 8)
+            break
+
           // ジャンプ命令（相対）
           case "JMP":
           case "JZ":
