@@ -2306,7 +2306,7 @@ describe("0x1F PUSH_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0x9abc,
@@ -2323,7 +2323,7 @@ describe("0x1F PUSH_A", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xfffd, // スタックポインタは0xFFFF - 2 = 0xFFFD
+      sp: 0xfd, // スタックポインタは0xFF - 2 = 0xFD
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0x9abc,
@@ -2332,8 +2332,8 @@ describe("0x1F PUSH_A", () => {
       zeroFlag: false,
     })
     // メモリに16bit値がリトルエンディアンで格納される
-    expect(vm.readMemory8(0xfffd)).toBe(0x34) // 下位バイト
-    expect(vm.readMemory8(0xfffe)).toBe(0x12) // 上位バイト
+    expect(vm.readMemory8(0xfd)).toBe(0x34) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x12) // 上位バイト
   })
 })
 
@@ -2354,7 +2354,7 @@ describe("0x20 PUSH_B", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0xabcd,
       registerC: 0x2222,
@@ -2371,7 +2371,7 @@ describe("0x20 PUSH_B", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xfffd,
+      sp: 0xfd,
       registerA: 0x1111,
       registerB: 0xabcd,
       registerC: 0x2222,
@@ -2379,8 +2379,8 @@ describe("0x20 PUSH_B", () => {
       carryFlag: false,
       zeroFlag: false,
     })
-    expect(vm.readMemory8(0xfffd)).toBe(0xcd) // 下位バイト
-    expect(vm.readMemory8(0xfffe)).toBe(0xab) // 上位バイト
+    expect(vm.readMemory8(0xfd)).toBe(0xcd) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0xab) // 上位バイト
   })
 })
 
@@ -2401,7 +2401,7 @@ describe("0x21 PUSH_C", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0xabcd,
@@ -2418,7 +2418,7 @@ describe("0x21 PUSH_C", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xfffd,
+      sp: 0xfd,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0xabcd,
@@ -2426,8 +2426,8 @@ describe("0x21 PUSH_C", () => {
       carryFlag: false,
       zeroFlag: false,
     })
-    expect(vm.readMemory8(0xfffd)).toBe(0xcd) // 下位バイト
-    expect(vm.readMemory8(0xfffe)).toBe(0xab) // 上位バイト
+    expect(vm.readMemory8(0xfd)).toBe(0xcd) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0xab) // 上位バイト
   })
 })
 
@@ -2448,7 +2448,7 @@ describe("0x22 PUSH_D", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -2465,7 +2465,7 @@ describe("0x22 PUSH_D", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xfffd,
+      sp: 0xfd,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -2473,8 +2473,8 @@ describe("0x22 PUSH_D", () => {
       carryFlag: false,
       zeroFlag: false,
     })
-    expect(vm.readMemory8(0xfffd)).toBe(0xcd) // 下位バイト
-    expect(vm.readMemory8(0xfffe)).toBe(0xab) // 上位バイト
+    expect(vm.readMemory8(0xfd)).toBe(0xcd) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0xab) // 上位バイト
   })
 })
 
@@ -2501,7 +2501,7 @@ describe("0x2E POP_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xfffd, // PUSH後のSP
+      sp: 0xfd, // PUSH後のSP
       registerA: 0x0000,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -2552,7 +2552,7 @@ describe("0x2F POP_B", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xfffd, // PUSH後のSP
+      sp: 0xfd, // PUSH後のSP
       registerA: 0x1111,
       registerB: 0x0000,
       registerC: 0x2222,
@@ -2603,7 +2603,7 @@ describe("0x30 POP_C", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xfffd, // PUSH後のSP
+      sp: 0xfd, // PUSH後のSP
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x0000,
@@ -2654,7 +2654,7 @@ describe("0x31 POP_D", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xfffd, // PUSH後のSP
+      sp: 0xfd, // PUSH後のSP
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -3657,7 +3657,7 @@ describe("0x65 CALL", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0x20,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0x0000,
@@ -3675,7 +3675,7 @@ describe("0x65 CALL", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x50, // 0x20 + 0x30
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0x23, // 戻り先（次の命令のアドレス）
