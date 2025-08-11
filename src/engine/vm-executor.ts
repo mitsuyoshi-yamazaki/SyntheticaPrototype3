@@ -599,7 +599,7 @@ export const InstructionExecutor = {
       case "JMP":
         shouldJump = true
         if (decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
       case "JMP_ABS":
@@ -611,25 +611,25 @@ export const InstructionExecutor = {
       case "JZ":
         shouldJump = vm.zeroFlag
         if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
       case "JNZ":
         shouldJump = !vm.zeroFlag
         if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
       case "JC":
         shouldJump = vm.carryFlag
         if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
       case "JNC":
         shouldJump = !vm.carryFlag
         if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
 
@@ -638,28 +638,28 @@ export const InstructionExecutor = {
         // A >= B（符号付き）：キャリーフラグで符号付き比較結果を判定
         shouldJump = !vm.carryFlag || vm.zeroFlag
         if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
       case "JL":
         // A < B（符号付き）：キャリーフラグがセットかつゼロフラグがクリア
         shouldJump = vm.carryFlag && !vm.zeroFlag
         if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
       case "JLE":
         // A <= B（符号付き）：キャリーフラグがセットまたはゼロフラグがセット
         shouldJump = vm.carryFlag || vm.zeroFlag
         if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
       case "JG":
         // A > B（符号付き）：キャリーフラグがクリアかつゼロフラグがクリア
         shouldJump = !vm.carryFlag && !vm.zeroFlag
         if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
 
@@ -668,14 +668,14 @@ export const InstructionExecutor = {
         // A < B（符号なし）：キャリーフラグで符号なし比較結果を判定
         shouldJump = vm.carryFlag && !vm.zeroFlag
         if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
       case "JUGE":
         // A >= B（符号なし）：キャリーフラグがクリアまたはゼロフラグがセット
         shouldJump = !vm.carryFlag || vm.zeroFlag
         if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
 
@@ -684,7 +684,7 @@ export const InstructionExecutor = {
         shouldJump = true
         vm.push16(vm.pc + decoded.length) // リターンアドレスをプッシュ
         if (decoded.operands.offset16 !== undefined) {
-          newPC = (vm.pc + decoded.length + decoded.operands.offset16) & 0xffff
+          newPC = vm.pc + decoded.operands.offset16
         }
         break
       case "CALL_ABS":

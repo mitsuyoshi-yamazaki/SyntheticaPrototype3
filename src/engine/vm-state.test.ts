@@ -1,5 +1,7 @@
 import { VMState } from "./vm-state"
 
+// TODO: pcに新しい値をセットする際、メモリ外番地である場合のテスト
+
 describe("VMState", () => {
   let vm: VMState
 
