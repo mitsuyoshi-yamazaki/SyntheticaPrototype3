@@ -143,17 +143,23 @@ export const InstructionExecutor = {
         if (decoded.operands.immediate16 !== undefined) {
           vm.setRegister("A", decoded.operands.immediate16)
         }
+        cycles = 3
         break
       case "LOAD_IMM_B":
         if (decoded.operands.immediate16 !== undefined) {
           vm.setRegister("B", decoded.operands.immediate16)
         }
+        cycles = 3
         break
 
       // 条件付き移動命令（CMOV系）
       case "CMOV_Z":
         // ゼロフラグがセットされている場合のみコピー
-        if (vm.zeroFlag && decoded.operands.sourceRegister !== undefined && decoded.operands.destRegister !== undefined) {
+        if (
+          vm.zeroFlag &&
+          decoded.operands.sourceRegister !== undefined &&
+          decoded.operands.destRegister !== undefined
+        ) {
           const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
           vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
         }
@@ -161,7 +167,11 @@ export const InstructionExecutor = {
         break
       case "CMOV_NZ":
         // ゼロフラグがクリアされている場合のみコピー
-        if (!vm.zeroFlag && decoded.operands.sourceRegister !== undefined && decoded.operands.destRegister !== undefined) {
+        if (
+          !vm.zeroFlag &&
+          decoded.operands.sourceRegister !== undefined &&
+          decoded.operands.destRegister !== undefined
+        ) {
           const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
           vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
         }
@@ -169,7 +179,11 @@ export const InstructionExecutor = {
         break
       case "CMOV_C":
         // キャリーフラグがセットされている場合のみコピー
-        if (vm.carryFlag && decoded.operands.sourceRegister !== undefined && decoded.operands.destRegister !== undefined) {
+        if (
+          vm.carryFlag &&
+          decoded.operands.sourceRegister !== undefined &&
+          decoded.operands.destRegister !== undefined
+        ) {
           const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
           vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
         }
@@ -177,7 +191,11 @@ export const InstructionExecutor = {
         break
       case "CMOV_NC":
         // キャリーフラグがクリアされている場合のみコピー
-        if (!vm.carryFlag && decoded.operands.sourceRegister !== undefined && decoded.operands.destRegister !== undefined) {
+        if (
+          !vm.carryFlag &&
+          decoded.operands.sourceRegister !== undefined &&
+          decoded.operands.destRegister !== undefined
+        ) {
           const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
           vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
         }
