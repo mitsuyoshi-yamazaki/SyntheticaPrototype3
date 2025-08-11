@@ -761,7 +761,7 @@ describe("0x0D MOV_SP", () => {
     expectVMState(vm, {
       pc: 1,
       sp: 0xff,
-      registerA: 0x0f, // スタックポインタの値
+      registerA: 0xff, // スタックポインタの値
       registerB: 0x2222,
       registerC: 0x3333,
       registerD: 0x4444,
