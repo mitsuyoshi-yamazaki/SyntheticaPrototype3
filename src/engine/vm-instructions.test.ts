@@ -598,7 +598,7 @@ describe("0x0A MOV_CA", () => {
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0xabcd)
     vm.setRegister("D", 0x3333)
-    vm.writeMemory8(0, 0x0A) // MOV_CA
+    vm.writeMemory8(0, 0x0a) // MOV_CA
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -644,7 +644,7 @@ describe("0x0B MOV_CD", () => {
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0xabcd)
     vm.setRegister("D", 0x3333)
-    vm.writeMemory8(0, 0x0B) // MOV_CD
+    vm.writeMemory8(0, 0x0b) // MOV_CD
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -690,7 +690,7 @@ describe("0x0C MOV_DC", () => {
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0xabcd)
-    vm.writeMemory8(0, 0x0C) // MOV_DC
+    vm.writeMemory8(0, 0x0c) // MOV_DC
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -737,7 +737,7 @@ describe("0x0D MOV_SP", () => {
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    vm.writeMemory8(0, 0x0D) // MOV_SP
+    vm.writeMemory8(0, 0x0d) // MOV_SP
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -783,7 +783,7 @@ describe("0x0E SET_SP", () => {
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    vm.writeMemory8(0, 0x0E) // SET_SP
+    vm.writeMemory8(0, 0x0e) // SET_SP
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -1853,7 +1853,7 @@ describe("0x1A XOR_AB", () => {
     vm.setRegister("B", 0x3333)
     vm.setRegister("C", 0x7777)
     vm.setRegister("D", 0x8888)
-    vm.writeMemory8(0, 0x1A) // XOR_AB
+    vm.writeMemory8(0, 0x1a) // XOR_AB
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -1890,7 +1890,7 @@ describe("0x1A XOR_AB", () => {
     vm.setRegister("B", 0x5555)
     vm.setRegister("C", 0x9999)
     vm.setRegister("D", 0xaaaa)
-    vm.writeMemory8(0, 0x1A) // XOR_AB
+    vm.writeMemory8(0, 0x1a) // XOR_AB
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -1935,7 +1935,7 @@ describe("0x1B AND_AB", () => {
     vm.setRegister("B", 0x0ff0)
     vm.setRegister("C", 0x1111)
     vm.setRegister("D", 0x2222)
-    vm.writeMemory8(0, 0x1B) // AND_AB
+    vm.writeMemory8(0, 0x1b) // AND_AB
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -1972,7 +1972,7 @@ describe("0x1B AND_AB", () => {
     vm.setRegister("B", 0x00ff)
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    vm.writeMemory8(0, 0x1B) // AND_AB
+    vm.writeMemory8(0, 0x1b) // AND_AB
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -2017,7 +2017,7 @@ describe("0x1C OR_AB", () => {
     vm.setRegister("B", 0x00ff)
     vm.setRegister("C", 0x5555)
     vm.setRegister("D", 0x6666)
-    vm.writeMemory8(0, 0x1C) // OR_AB
+    vm.writeMemory8(0, 0x1c) // OR_AB
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -2054,7 +2054,7 @@ describe("0x1C OR_AB", () => {
     vm.setRegister("B", 0x0000)
     vm.setRegister("C", 0x7777)
     vm.setRegister("D", 0x8888)
-    vm.writeMemory8(0, 0x1C) // OR_AB
+    vm.writeMemory8(0, 0x1c) // OR_AB
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -2099,7 +2099,7 @@ describe("0x1D NOT_A", () => {
     vm.setRegister("B", 0x9999)
     vm.setRegister("C", 0xaaaa)
     vm.setRegister("D", 0xbbbb)
-    vm.writeMemory8(0, 0x1D) // NOT_A
+    vm.writeMemory8(0, 0x1d) // NOT_A
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -2136,7 +2136,7 @@ describe("0x1D NOT_A", () => {
     vm.setRegister("B", 0xcccc)
     vm.setRegister("C", 0xdddd)
     vm.setRegister("D", 0xeeee)
-    vm.writeMemory8(0, 0x1D) // NOT_A
+    vm.writeMemory8(0, 0x1d) // NOT_A
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -2181,7 +2181,7 @@ describe("0x1E CMP_AB", () => {
     vm.setRegister("B", 0x1234)
     vm.setRegister("C", 0xbcde)
     vm.setRegister("D", 0xf012)
-    vm.writeMemory8(0, 0x1E) // CMP_AB
+    vm.writeMemory8(0, 0x1e) // CMP_AB
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -2218,7 +2218,7 @@ describe("0x1E CMP_AB", () => {
     vm.setRegister("B", 0x5678)
     vm.setRegister("C", 0x3456)
     vm.setRegister("D", 0x789a)
-    vm.writeMemory8(0, 0x1E) // CMP_AB
+    vm.writeMemory8(0, 0x1e) // CMP_AB
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -2255,7 +2255,7 @@ describe("0x1E CMP_AB", () => {
     vm.setRegister("B", 0x1234)
     vm.setRegister("C", 0x5555)
     vm.setRegister("D", 0x6666)
-    vm.writeMemory8(0, 0x1E) // CMP_AB
+    vm.writeMemory8(0, 0x1e) // CMP_AB
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -2301,7 +2301,7 @@ describe("0x1F PUSH_A", () => {
     vm.setRegister("B", 0x5678)
     vm.setRegister("C", 0x9abc)
     vm.setRegister("D", 0xdef0)
-    vm.writeMemory8(0, 0x1F) // PUSH_A
+    vm.writeMemory8(0, 0x1f) // PUSH_A
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -2314,6 +2314,8 @@ describe("0x1F PUSH_A", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+    expect(vm.readMemory8(0xfd)).toBe(0x00) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x00) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
     expect(result.success).toBe(true)
@@ -2362,6 +2364,8 @@ describe("0x20 PUSH_B", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+    expect(vm.readMemory8(0xfd)).toBe(0x00) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x00) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
     expect(result.success).toBe(true)
@@ -2409,6 +2413,8 @@ describe("0x21 PUSH_C", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+    expect(vm.readMemory8(0xfd)).toBe(0x00) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x00) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
     expect(result.success).toBe(true)
@@ -2456,6 +2462,8 @@ describe("0x22 PUSH_D", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+    expect(vm.readMemory8(0xfd)).toBe(0x00) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x00) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
     expect(result.success).toBe(true)
@@ -2491,12 +2499,12 @@ describe("0x2E POP_A", () => {
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    vm.writeMemory8(0, 0x1F) // PUSH_A
+    vm.writeMemory8(0, 0x1f) // PUSH_A
     InstructionExecutor.step(vm)
 
     // Aを別の値に変更
     vm.setRegister("A", 0x0000)
-    vm.writeMemory8(1, 0x2E) // POP_A
+    vm.writeMemory8(1, 0x2e) // POP_A
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -2547,7 +2555,7 @@ describe("0x2F POP_B", () => {
 
     // Bを別の値に変更
     vm.setRegister("B", 0x0000)
-    vm.writeMemory8(1, 0x2F) // POP_B
+    vm.writeMemory8(1, 0x2f) // POP_B
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -3699,7 +3707,7 @@ describe("0x66 JG", () => {
     vm.setRegister("B", 0x0005)
     vm.setRegister("C", 0x1111)
     vm.setRegister("D", 0x2222)
-    vm.writeMemory8(0, 0x1E) // CMP_AB
+    vm.writeMemory8(0, 0x1e) // CMP_AB
     InstructionExecutor.step(vm)
 
     vm.writeMemory8(1, 0x66) // JG
@@ -3751,7 +3759,7 @@ describe("0x67 JLE", () => {
     vm.setRegister("B", 0x0010)
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    vm.writeMemory8(0, 0x1E) // CMP_AB
+    vm.writeMemory8(0, 0x1e) // CMP_AB
     InstructionExecutor.step(vm)
 
     vm.writeMemory8(1, 0x67) // JLE
@@ -3803,7 +3811,7 @@ describe("0x68 JGE", () => {
     vm.setRegister("B", 0x0010)
     vm.setRegister("C", 0x5555)
     vm.setRegister("D", 0x6666)
-    vm.writeMemory8(0, 0x1E) // CMP_AB
+    vm.writeMemory8(0, 0x1e) // CMP_AB
     InstructionExecutor.step(vm)
 
     vm.writeMemory8(1, 0x68) // JGE
@@ -3855,7 +3863,7 @@ describe("0x69 JL", () => {
     vm.setRegister("B", 0x0001) // 1
     vm.setRegister("C", 0x7777)
     vm.setRegister("D", 0x8888)
-    vm.writeMemory8(0, 0x1E) // CMP_AB
+    vm.writeMemory8(0, 0x1e) // CMP_AB
     InstructionExecutor.step(vm)
 
     vm.writeMemory8(1, 0x69) // JL
@@ -4657,7 +4665,7 @@ describe("0xE0 LOAD_IMM", () => {
     vm.setRegister("C", 0x0000)
     vm.setRegister("D", 0x1111)
 
-    vm.writeMemory8(0, 0xE0) // LOAD_IMM
+    vm.writeMemory8(0, 0xe0) // LOAD_IMM
     vm.writeMemory8(1, 0x34) // 下位バイト
     vm.writeMemory8(2, 0x12) // 上位バイト（値 = 0x1234、リトルエンディアン）
     vm.writeMemory8(3, 0x00) // 第4バイト（未使用）
@@ -4708,7 +4716,7 @@ describe("0xE1 LOAD_IMM_B", () => {
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
 
-    vm.writeMemory8(0, 0xE1) // LOAD_IMM_B
+    vm.writeMemory8(0, 0xe1) // LOAD_IMM_B
     vm.writeMemory8(1, 0x78) // 下位バイト
     vm.writeMemory8(2, 0x56) // 上位バイト（値 = 0x5678、リトルエンディアン）
     vm.writeMemory8(3, 0x00) // 第4バイト（未使用）
@@ -4759,7 +4767,7 @@ describe("0xF0 NOP5", () => {
     vm.setRegister("C", 0x6666)
     vm.setRegister("D", 0x7777)
 
-    vm.writeMemory8(0, 0xF0) // NOP5
+    vm.writeMemory8(0, 0xf0) // NOP5
     vm.writeMemory8(1, 0x00) // パディング
     vm.writeMemory8(2, 0x00)
     vm.writeMemory8(3, 0x00)
@@ -4810,12 +4818,12 @@ describe("0xA0 LOAD_ABS", () => {
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     // メモリアドレス0x80に値を書き込み
     vm.writeMemory8(0x80, 0x42)
-    
+
     // LOAD_ABS命令を配置
-    vm.writeMemory8(0, 0xA0) // LOAD_ABS
+    vm.writeMemory8(0, 0xa0) // LOAD_ABS
     vm.writeMemory8(1, 0x80) // アドレス下位バイト
     vm.writeMemory8(2, 0x00) // アドレス上位バイト（0x0080）
     vm.writeMemory8(3, 0x00) // 第4バイト（未使用）
@@ -4866,9 +4874,9 @@ describe("0xA1 STORE_ABS", () => {
     vm.setRegister("B", 0x5678)
     vm.setRegister("C", 0x9abc)
     vm.setRegister("D", 0xdef0)
-    
+
     // STORE_ABS命令を配置
-    vm.writeMemory8(0, 0xA1) // STORE_ABS
+    vm.writeMemory8(0, 0xa1) // STORE_ABS
     vm.writeMemory8(1, 0x90) // アドレス下位バイト
     vm.writeMemory8(2, 0x00) // アドレス上位バイト（0x0090）
     vm.writeMemory8(3, 0x00) // 第4バイト（未使用）
@@ -4919,13 +4927,13 @@ describe("0xA2 LOAD_ABS_W", () => {
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     // メモリアドレス0x80に16bit値を書き込み（リトルエンディアン）
     vm.writeMemory8(0x80, 0x34) // 下位バイト
     vm.writeMemory8(0x81, 0x12) // 上位バイト（値 = 0x1234）
-    
+
     // LOAD_ABS_W命令を配置
-    vm.writeMemory8(0, 0xA2) // LOAD_ABS_W
+    vm.writeMemory8(0, 0xa2) // LOAD_ABS_W
     vm.writeMemory8(1, 0x80) // アドレス下位バイト
     vm.writeMemory8(2, 0x00) // アドレス上位バイト（0x0080）
     vm.writeMemory8(3, 0x00) // 第4バイト（未使用）
@@ -4978,9 +4986,9 @@ describe("0xA3 STORE_ABS_W", () => {
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     // STORE_ABS_W命令を配置
-    vm.writeMemory8(0, 0xA3) // STORE_ABS_W
+    vm.writeMemory8(0, 0xa3) // STORE_ABS_W
     vm.writeMemory8(1, 0x90) // アドレス下位バイト
     vm.writeMemory8(2, 0x00) // アドレス上位バイト（0x0090）
     vm.writeMemory8(3, 0x00) // 第4バイト（未使用）
@@ -5034,9 +5042,9 @@ describe("0xB0 JMP_IND", () => {
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     // JMP_IND命令を配置
-    vm.writeMemory8(0, 0xB0) // JMP_IND
+    vm.writeMemory8(0, 0xb0) // JMP_IND
     vm.writeMemory8(1, 0x00) // レジスタ指定（0=A）
     vm.writeMemory8(2, 0x00) // 未使用
     vm.writeMemory8(3, 0x00) // 未使用
@@ -5077,9 +5085,9 @@ describe("0xB0 JMP_IND", () => {
     vm.setRegister("B", 0x0080)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    
+
     // JMP_IND命令を配置
-    vm.writeMemory8(0, 0xB0) // JMP_IND
+    vm.writeMemory8(0, 0xb0) // JMP_IND
     vm.writeMemory8(1, 0x01) // レジスタ指定（1=B）
     vm.writeMemory8(2, 0x00) // 未使用
     vm.writeMemory8(3, 0x00) // 未使用
@@ -5128,9 +5136,9 @@ describe("0xB1 JMP_ABS", () => {
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    
+
     // JMP_ABS命令を配置
-    vm.writeMemory8(0, 0xB1) // JMP_ABS
+    vm.writeMemory8(0, 0xb1) // JMP_ABS
     vm.writeMemory8(1, 0x00) // アドレス下位バイト
     vm.writeMemory8(2, 0x80) // アドレス上位バイト（0x8000）
     vm.writeMemory8(3, 0x00) // 第4バイト（未使用）
@@ -5179,9 +5187,9 @@ describe("0xB2 RET", () => {
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x0040) // 戻り先アドレス
     vm.setRegister("D", 0x4444)
-    
+
     // RET命令を配置
-    vm.writeMemory8(0, 0xB2) // RET
+    vm.writeMemory8(0, 0xb2) // RET
     vm.writeMemory8(1, 0x00) // 未使用
     vm.writeMemory8(2, 0x00) // 未使用
     vm.writeMemory8(3, 0x00) // 未使用
@@ -5231,8 +5239,8 @@ describe("0xC0 MUL_AB", () => {
     vm.setRegister("B", 0x0020)
     vm.setRegister("C", 0x1111)
     vm.setRegister("D", 0x2222)
-    
-    vm.writeMemory8(0, 0xC0) // MUL_AB
+
+    vm.writeMemory8(0, 0xc0) // MUL_AB
     vm.writeMemory8(1, 0x00) // 未使用
     vm.writeMemory8(2, 0x00) // 未使用
     vm.writeMemory8(3, 0x00) // 未使用
@@ -5274,8 +5282,8 @@ describe("0xC0 MUL_AB", () => {
     vm.setRegister("B", 0x0100)
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    
-    vm.writeMemory8(0, 0xC0) // MUL_AB
+
+    vm.writeMemory8(0, 0xc0) // MUL_AB
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
     vm.writeMemory8(3, 0x00)
@@ -5325,8 +5333,8 @@ describe("0xC1 DIV_AB", () => {
     vm.setRegister("B", 0x0007) // 7
     vm.setRegister("C", 0x1111)
     vm.setRegister("D", 0x2222)
-    
-    vm.writeMemory8(0, 0xC1) // DIV_AB
+
+    vm.writeMemory8(0, 0xc1) // DIV_AB
     vm.writeMemory8(1, 0x00) // 未使用
     vm.writeMemory8(2, 0x00)
     vm.writeMemory8(3, 0x00)
@@ -5368,8 +5376,8 @@ describe("0xC1 DIV_AB", () => {
     vm.setRegister("B", 0x0000) // ゼロで除算
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    
-    vm.writeMemory8(0, 0xC1) // DIV_AB
+
+    vm.writeMemory8(0, 0xc1) // DIV_AB
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
     vm.writeMemory8(3, 0x00)
@@ -5395,8 +5403,8 @@ describe("0xC2 SHL", () => {
     vm.setRegister("B", 0x0004) // 4ビット左シフト
     vm.setRegister("C", 0x1111)
     vm.setRegister("D", 0x2222)
-    
-    vm.writeMemory8(0, 0xC2) // SHL
+
+    vm.writeMemory8(0, 0xc2) // SHL
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
     vm.writeMemory8(3, 0x00)
@@ -5438,8 +5446,8 @@ describe("0xC2 SHL", () => {
     vm.setRegister("B", 0x100f) // 下位4bitのみ使用 → 15ビット左シフト
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
-    
-    vm.writeMemory8(0, 0xC2) // SHL
+
+    vm.writeMemory8(0, 0xc2) // SHL
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
     vm.writeMemory8(3, 0x00)
@@ -5477,8 +5485,8 @@ describe("0xC3 SHR", () => {
     vm.setRegister("B", 0x0004) // 4ビット右シフト
     vm.setRegister("C", 0x1111)
     vm.setRegister("D", 0x2222)
-    
-    vm.writeMemory8(0, 0xC3) // SHR
+
+    vm.writeMemory8(0, 0xc3) // SHR
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
     vm.writeMemory8(3, 0x00)
@@ -5528,8 +5536,8 @@ describe("0xC4 SAR", () => {
     vm.setRegister("B", 0x0004) // 4ビット右シフト
     vm.setRegister("C", 0x1111)
     vm.setRegister("D", 0x2222)
-    
-    vm.writeMemory8(0, 0xC4) // SAR
+
+    vm.writeMemory8(0, 0xc4) // SAR
     vm.writeMemory8(1, 0x00)
     vm.writeMemory8(2, 0x00)
     vm.writeMemory8(3, 0x00)
@@ -5580,8 +5588,8 @@ describe("0xC5 CMOV_Z", () => {
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
     vm.zeroFlag = true // ゼロフラグをセット
-    
-    vm.writeMemory8(0, 0xC5) // CMOV_Z
+
+    vm.writeMemory8(0, 0xc5) // CMOV_Z
     vm.writeMemory8(1, 0x01) // ソース: B
     vm.writeMemory8(2, 0x00) // 宛先: A
     vm.writeMemory8(3, 0x00) // 未使用
@@ -5624,8 +5632,8 @@ describe("0xC5 CMOV_Z", () => {
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
     vm.zeroFlag = false // ゼロフラグはクリア
-    
-    vm.writeMemory8(0, 0xC5) // CMOV_Z
+
+    vm.writeMemory8(0, 0xc5) // CMOV_Z
     vm.writeMemory8(1, 0x01) // ソース: B
     vm.writeMemory8(2, 0x00) // 宛先: A
     vm.writeMemory8(3, 0x00)
@@ -5664,8 +5672,8 @@ describe("0xC6 CMOV_NZ", () => {
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
     vm.zeroFlag = false // ゼロフラグはクリア
-    
-    vm.writeMemory8(0, 0xC6) // CMOV_NZ
+
+    vm.writeMemory8(0, 0xc6) // CMOV_NZ
     vm.writeMemory8(1, 0x02) // ソース: C
     vm.writeMemory8(2, 0x03) // 宛先: D
     vm.writeMemory8(3, 0x00)
@@ -5716,8 +5724,8 @@ describe("0xC7 CMOV_C", () => {
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
     vm.carryFlag = true // キャリーフラグをセット
-    
-    vm.writeMemory8(0, 0xC7) // CMOV_C
+
+    vm.writeMemory8(0, 0xc7) // CMOV_C
     vm.writeMemory8(1, 0x03) // ソース: D
     vm.writeMemory8(2, 0x01) // 宛先: B
     vm.writeMemory8(3, 0x00)
@@ -5768,8 +5776,8 @@ describe("0xC8 CMOV_NC", () => {
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x4444)
     vm.carryFlag = false // キャリーフラグはクリア
-    
-    vm.writeMemory8(0, 0xC8) // CMOV_NC
+
+    vm.writeMemory8(0, 0xc8) // CMOV_NC
     vm.writeMemory8(1, 0x00) // ソース: A
     vm.writeMemory8(2, 0x02) // 宛先: C
     vm.writeMemory8(3, 0x00)
@@ -5857,7 +5865,7 @@ describe("未定義命令", () => {
     ...Array.from({ length: 15 }, (_, i) => 0xf1 + i), // 0xF1-0xFF
   ]
 
-  test.each(undefinedOpcodes)("オペコード 0x%02X - PCが1増加、他の状態は変化しない", (opcode) => {
+  test.each(undefinedOpcodes)("オペコード 0x%02X - PCが1増加、他の状態は変化しない", opcode => {
     const vm = new VMState(0x100)
 
     // 初期状態を設定
