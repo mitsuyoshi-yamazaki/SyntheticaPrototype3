@@ -4534,7 +4534,7 @@ describe("0xc5 CMOV_Z", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(2)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0x1111) // 変更されない
@@ -4564,23 +4564,33 @@ describe("0xc6 CMOV_NZ", () => {
     vm.writeMemory8(3, 0x00)
     vm.writeMemory8(4, 0x00)
 
-    expect(vm.pc).toBe(0)
-    expect(vm.getRegister("A")).toBe(0x4444)
-    expect(vm.getRegister("B")).toBe(0x5555)
-    expect(vm.getRegister("C")).toBe(0xeeee)
-    expect(vm.getRegister("D")).toBe(0xffff)
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x4444,
+      registerB: 0x5555,
+      registerC: 0xeeee,
+      registerD: 0xffff,
+      carryFlag: false,
+      zeroFlag: false,
+    })
 
     const result = InstructionExecutor.step(vm)
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(2)
+    expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(5)
-    expect(vm.getRegister("A")).toBe(0x4444)
-    expect(vm.getRegister("B")).toBe(0x5555)
-    expect(vm.getRegister("C")).toBe(0xffff) // DからCへコピー
-    expect(vm.getRegister("D")).toBe(0xffff)
+    expectVMState(vm, {
+      pc: 5,
+      sp: 0xff,
+      registerA: 0x4444,
+      registerB: 0x5555,
+      registerC: 0xffff, // DからCへコピー
+      registerD: 0xffff,
+      carryFlag: false,
+      zeroFlag: false,
+    })
   })
 })
 
@@ -4614,7 +4624,7 @@ describe("0xc7 CMOV_C", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(2)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0x6666)
@@ -4654,7 +4664,7 @@ describe("0xc8 CMOV_NC", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(2)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0xaaaa)

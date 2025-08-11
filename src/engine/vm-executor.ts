@@ -91,6 +91,8 @@ export const InstructionExecutor = {
       return { success: false, error: "No instruction", cycles: 1 }
     }
 
+    let cycles = 1
+
     switch (decoded.instruction.mnemonic) {
       case "XCHG": {
         const a = vm.getRegister("A")
@@ -150,28 +152,36 @@ export const InstructionExecutor = {
 
       // 条件付き移動命令（CMOV系）
       case "CMOV_Z":
-        // ゼロフラグがセットされている場合のみA = B
-        if (vm.zeroFlag) {
-          vm.setRegister("A", vm.getRegister("B"))
+        // ゼロフラグがセットされている場合のみコピー
+        if (vm.zeroFlag && decoded.operands.sourceRegister !== undefined && decoded.operands.destRegister !== undefined) {
+          const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
+          vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
         }
+        cycles = 3 // 条件の成否に関わらず3サイクル
         break
       case "CMOV_NZ":
-        // ゼロフラグがクリアされている場合のみA = B
-        if (!vm.zeroFlag) {
-          vm.setRegister("A", vm.getRegister("B"))
+        // ゼロフラグがクリアされている場合のみコピー
+        if (!vm.zeroFlag && decoded.operands.sourceRegister !== undefined && decoded.operands.destRegister !== undefined) {
+          const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
+          vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
         }
+        cycles = 3 // 条件の成否に関わらず3サイクル
         break
       case "CMOV_C":
-        // キャリーフラグがセットされている場合のみA = B
-        if (vm.carryFlag) {
-          vm.setRegister("A", vm.getRegister("B"))
+        // キャリーフラグがセットされている場合のみコピー
+        if (vm.carryFlag && decoded.operands.sourceRegister !== undefined && decoded.operands.destRegister !== undefined) {
+          const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
+          vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
         }
+        cycles = 3 // 条件の成否に関わらず3サイクル
         break
       case "CMOV_NC":
-        // キャリーフラグがクリアされている場合のみA = B
-        if (!vm.carryFlag) {
-          vm.setRegister("A", vm.getRegister("B"))
+        // キャリーフラグがクリアされている場合のみコピー
+        if (!vm.carryFlag && decoded.operands.sourceRegister !== undefined && decoded.operands.destRegister !== undefined) {
+          const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
+          vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
         }
+        cycles = 3 // 条件の成否に関わらず3サイクル
         break
 
       default:
@@ -183,7 +193,7 @@ export const InstructionExecutor = {
     }
 
     vm.advancePC(decoded.length)
-    return { success: true, cycles: 1 }
+    return { success: true, cycles }
   },
 
   /** 算術演算命令実行 */

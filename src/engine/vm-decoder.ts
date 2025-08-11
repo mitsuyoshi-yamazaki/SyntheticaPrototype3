@@ -26,6 +26,10 @@ export type DecodedInstruction = {
     address16?: number
     /** レジスタインデックス（0-3） */
     register?: number
+    /** ソースレジスタインデックス（0-3） */
+    sourceRegister?: number
+    /** 宛先レジスタインデックス（0-3） */
+    destRegister?: number
     /** ユニット識別子 */
     unitId?: number
     /** ユニットメモリアドレス */
@@ -143,13 +147,13 @@ export class InstructionDecoder {
             operands.unitId = bytes[1] ?? 0
             operands.unitMemAddr = (bytes[2] ?? 0) | ((bytes[3] ?? 0) << 8)
             break
-          
+
           // 動的ユニット操作命令
           case "UNIT_MEM_WRITE_DYN":
             // 仕様: 第2バイト: ユニット種別とインデックス
             //       第3バイト: アドレス指定レジスタ
             operands.unitId = bytes[1] ?? 0
-            operands.unitMemAddr = bytes[2] ?? 0  // レジスタインデックス
+            operands.unitMemAddr = bytes[2] ?? 0 // レジスタインデックス
             break
 
           // 間接ジャンプ命令
@@ -172,6 +176,17 @@ export class InstructionDecoder {
             // 仕様: 第2,3バイトが16bit即値（リトルエンディアン）
             // bytesは0-indexed: bytes[0]=opcode, bytes[1]=第2バイト, bytes[2]=第3バイト
             operands.immediate16 = (bytes[1] ?? 0) | ((bytes[2] ?? 0) << 8)
+            break
+
+          // 条件付き移動命令（5バイト）
+          case "CMOV_Z":
+          case "CMOV_NZ":
+          case "CMOV_C":
+          case "CMOV_NC":
+            // 仕様: 第2バイト: ソースレジスタ (0=A, 1=B, 2=C, 3=D)
+            //       第3バイト: 宛先レジスタ (0=A, 1=B, 2=C, 3=D)
+            operands.sourceRegister = bytes[1] ?? 0
+            operands.destRegister = bytes[2] ?? 0
             break
 
           // その他の5バイト命令（MUL_AB, DIV_AB, SHL, SHR等）
