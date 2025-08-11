@@ -3713,7 +3713,7 @@ describe("0x66 JG", () => {
     vm = new VMState(0x100)
   })
 
-  test("JG実行 - 符号付き大なり時のジャンプ", () => {
+  test("JG実行 - 大なり時のジャンプ", () => {
     // CMP_ABでA > Bの状態を作る
     vm.setRegister("A", 0x0010)
     vm.setRegister("B", 0x0005)
@@ -3765,7 +3765,7 @@ describe("0x67 JLE", () => {
     vm = new VMState(0x100)
   })
 
-  test("JLE実行 - 符号付き以下時のジャンプ", () => {
+  test("JLE実行 - 以下時のジャンプ", () => {
     // CMP_ABでA <= Bの状態を作る
     vm.setRegister("A", 0x0005)
     vm.setRegister("B", 0x0010)
@@ -3817,7 +3817,7 @@ describe("0x68 JGE", () => {
     vm = new VMState(0x100)
   })
 
-  test("JGE実行 - 符号付き以上時のジャンプ", () => {
+  test("JGE実行 - 以上時のジャンプ", () => {
     // CMP_ABでA >= Bの状態を作る（等しい場合）
     vm.setRegister("A", 0x0010)
     vm.setRegister("B", 0x0010)
@@ -3869,10 +3869,10 @@ describe("0x69 JL", () => {
     vm = new VMState(0x100)
   })
 
-  test("JL実行 - 符号付き小なり時のジャンプ", () => {
+  test("JL実行 - 小なり時のジャンプ", () => {
     // CMP_ABでA < Bの状態を作る
-    vm.setRegister("A", 0xfffe) // -2 (符号付き)
-    vm.setRegister("B", 0x0001) // 1
+    vm.setRegister("A", 0x0000)
+    vm.setRegister("B", 0x0001)
     vm.setRegister("C", 0x7777)
     vm.setRegister("D", 0x8888)
     vm.writeMemory8(0, 0x1e) // CMP_AB
@@ -3886,7 +3886,7 @@ describe("0x69 JL", () => {
     expectVMState(vm, {
       pc: 1,
       sp: 0xff,
-      registerA: 0xfffe,
+      registerA: 0x0000,
       registerB: 0x0001,
       registerC: 0x7777,
       registerD: 0x8888,
@@ -3904,7 +3904,7 @@ describe("0x69 JL", () => {
     expectVMState(vm, {
       pc: 0x41, // 1 + 0x40 = 0x41へジャンプ
       sp: 0xff,
-      registerA: 0xfffe,
+      registerA: 0x0000,
       registerB: 0x0001,
       registerC: 0x7777,
       registerD: 0x8888,

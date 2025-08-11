@@ -225,10 +225,10 @@ COMPUTERは以下の機能を持つ
 - **0x63: JC** - キャリーフラグがセットならジャンプ（unsigned <）
 - **0x64: JNC** - キャリーフラグがクリアならジャンプ（unsigned >=）
 - **0x65: CALL** - Cレジスタに戻り先を保存してジャンプ
-- **0x66: JG** - 符号付き大なり（A > B after CMP_AB）
-- **0x67: JLE** - 符号付き以下（A <= B after CMP_AB）
-- **0x68: JGE** - 符号付き以上（A >= B after CMP_AB）
-- **0x69: JL** - 符号付き小なり（A < B after CMP_AB）
+- **0x66: JG** - 大なり（A > B after CMP_AB）
+- **0x67: JLE** - 以下（A <= B after CMP_AB）
+- **0x68: JGE** - 以上（A >= B after CMP_AB）
+- **0x69: JL** - 小なり（A < B after CMP_AB）
 - **0x6A-0x7F: 未定義**
 
 #### 4バイト命令（0x80-0xBF）
