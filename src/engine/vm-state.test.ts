@@ -4,13 +4,13 @@ describe("VMState", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(256) // 256バイトメモリ
+    vm = new VMState(0x100) // 256バイトメモリ
   })
 
   describe("初期化", () => {
     test("正常な初期化", () => {
       expect(vm.pc).toBe(0)
-      expect(vm.sp).toBe(0xffff)
+      expect(vm.sp).toBe(0x100)
       expect(vm.zeroFlag).toBe(false)
       expect(vm.carryFlag).toBe(false)
       expect(vm.memorySize).toBe(256)

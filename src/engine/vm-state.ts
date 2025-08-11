@@ -32,7 +32,7 @@ export class VMState {
   private readonly _registers: Uint16Array
 
   /** スタックポインタ（16bit） */
-  private _sp = 0xffff
+  private _sp: number
 
   /** フラグ */
   private _zeroFlag = false
@@ -94,6 +94,7 @@ export class VMState {
       throw new Error(`Invalid memory size: ${memorySize}. Must be 1-65536`)
     }
     this._memorySize = memorySize
+    this._sp = memorySize
 
     if (existingMemory != null) {
       if (existingMemory.length !== memorySize) {
