@@ -10,7 +10,7 @@ describe("VMState", () => {
   describe("初期化", () => {
     test("正常な初期化", () => {
       expect(vm.pc).toBe(0)
-      expect(vm.sp).toBe(0x100)
+      expect(vm.sp).toBe(0x0ff)
       expect(vm.zeroFlag).toBe(false)
       expect(vm.carryFlag).toBe(false)
       expect(vm.memorySize).toBe(256)

@@ -94,7 +94,7 @@ export class VMState {
       throw new Error(`Invalid memory size: ${memorySize}. Must be 1-65536`)
     }
     this._memorySize = memorySize
-    this._sp = memorySize
+    this._sp = memorySize - 1
 
     if (existingMemory != null) {
       if (existingMemory.length !== memorySize) {
