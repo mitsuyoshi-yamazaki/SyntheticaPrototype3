@@ -481,25 +481,25 @@ export const InstructionExecutor = {
       // 相対アドレス
       case "LOAD_A":
         if (decoded.operands.offset16 !== undefined) {
-          address = vm.pc + (decoded.operands.offset16 ?? 0)
+          address = vm.pc + decoded.operands.offset16
           vm.setRegister("A", vm.readMemory8(address))
         }
         break
       case "STORE_A":
         if (decoded.operands.offset16 !== undefined) {
-          address = vm.pc + (decoded.operands.offset16 ?? 0)
+          address = vm.pc + decoded.operands.offset16
           vm.writeMemory8(address, vm.getRegister("A") & 0xff)
         }
         break
       case "LOAD_A_W":
         if (decoded.operands.offset16 !== undefined) {
-          address = vm.pc + (decoded.operands.offset16 ?? 0)
+          address = vm.pc + decoded.operands.offset16
           vm.setRegister("A", vm.readMemory16(address))
         }
         break
       case "STORE_A_W":
         if (decoded.operands.offset16 !== undefined) {
-          address = vm.pc + (decoded.operands.offset16 ?? 0)
+          address = vm.pc + decoded.operands.offset16
           vm.writeMemory16(address, vm.getRegister("A"))
         }
         break
@@ -682,7 +682,7 @@ export const InstructionExecutor = {
       // サブルーチン呼び出し
       case "CALL":
         shouldJump = true
-        vm.push16(vm.pc + decoded.length) // リターンアドレスをプッシュ
+        vm.setRegister("C", vm.pc + decoded.length)
         if (decoded.operands.offset16 !== undefined) {
           newPC = vm.pc + decoded.operands.offset16
         }
