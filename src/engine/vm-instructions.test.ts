@@ -2494,22 +2494,19 @@ describe("0x2E POP_A", () => {
   })
 
   test("POP_A実行 - 16bit値のポップ", () => {
-    // まずPUSHして値をスタックに入れる
-    vm.setRegister("A", 0x5678)
+    vm.setRegister("A", 0x0000)
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    vm.writeMemory8(0, 0x1f) // PUSH_A
-    InstructionExecutor.step(vm)
-
-    // Aを別の値に変更
-    vm.setRegister("A", 0x0000)
-    vm.writeMemory8(1, 0x2e) // POP_A
+    vm.writeMemory8(0, 0x2e) // POP_A
+    vm.sp = 0xfd
+    vm.writeMemory8(0xfd, 0x78) // 下位バイト
+    vm.writeMemory8(0xfe, 0x56) // 上位バイト
 
     // 実行前の状態を検証
     expectVMState(vm, {
-      pc: 1,
-      sp: 0xfd, // PUSH後のSP
+      pc: 0,
+      sp: 0xfd,
       registerA: 0x0000,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -2517,6 +2514,8 @@ describe("0x2E POP_A", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+    expect(vm.readMemory8(0xfd)).toBe(0x78) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
     expect(result.success).toBe(true)
@@ -2525,7 +2524,7 @@ describe("0x2E POP_A", () => {
 
     // 実行後の状態を検証
     expectVMState(vm, {
-      pc: 2,
+      pc: 1,
       sp: 0xff, // POP後のSP
       registerA: 0x5678, // 元の値が復元される
       registerB: 0x1111,
@@ -2534,6 +2533,10 @@ describe("0x2E POP_A", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+
+    // メモリはクリアされない
+    expect(vm.readMemory8(0xfd)).toBe(0x78) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
   })
 })
 
@@ -2545,22 +2548,19 @@ describe("0x2F POP_B", () => {
   })
 
   test("POP_B実行 - 16bit値のポップ", () => {
-    // まずPUSHして値をスタックに入れる
-    vm.setRegister("B", 0x5678)
     vm.setRegister("A", 0x1111)
+    vm.setRegister("B", 0x0000)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
-    vm.writeMemory8(0, 0x20) // PUSH_B
-    InstructionExecutor.step(vm)
-
-    // Bを別の値に変更
-    vm.setRegister("B", 0x0000)
-    vm.writeMemory8(1, 0x2f) // POP_B
+    vm.writeMemory8(0, 0x2f) // POP_B
+    vm.sp = 0xfd
+    vm.writeMemory8(0xfd, 0x78) // 下位バイト
+    vm.writeMemory8(0xfe, 0x56) // 上位バイト
 
     // 実行前の状態を検証
     expectVMState(vm, {
-      pc: 1,
-      sp: 0xfd, // PUSH後のSP
+      pc: 0,
+      sp: 0xfd,
       registerA: 0x1111,
       registerB: 0x0000,
       registerC: 0x2222,
@@ -2568,6 +2568,8 @@ describe("0x2F POP_B", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+    expect(vm.readMemory8(0xfd)).toBe(0x78) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
     expect(result.success).toBe(true)
@@ -2576,7 +2578,7 @@ describe("0x2F POP_B", () => {
 
     // 実行後の状態を検証
     expectVMState(vm, {
-      pc: 2,
+      pc: 1,
       sp: 0xff, // POP後のSP
       registerA: 0x1111,
       registerB: 0x5678, // 元の値が復元される
@@ -2585,6 +2587,10 @@ describe("0x2F POP_B", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+
+    // メモリはクリアされない
+    expect(vm.readMemory8(0xfd)).toBe(0x78) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
   })
 })
 
@@ -2596,22 +2602,19 @@ describe("0x30 POP_C", () => {
   })
 
   test("POP_C実行 - 16bit値のポップ", () => {
-    // まずPUSHして値をスタックに入れる
-    vm.setRegister("C", 0x5678)
     vm.setRegister("A", 0x1111)
     vm.setRegister("B", 0x2222)
-    vm.setRegister("D", 0x3333)
-    vm.writeMemory8(0, 0x21) // PUSH_C
-    InstructionExecutor.step(vm)
-
-    // Cを別の値に変更
     vm.setRegister("C", 0x0000)
-    vm.writeMemory8(1, 0x30) // POP_C
+    vm.setRegister("D", 0x3333)
+    vm.writeMemory8(0, 0x30) // POP_C
+    vm.sp = 0xfd
+    vm.writeMemory8(0xfd, 0x78) // 下位バイト
+    vm.writeMemory8(0xfe, 0x56) // 上位バイト
 
     // 実行前の状態を検証
     expectVMState(vm, {
-      pc: 1,
-      sp: 0xfd, // PUSH後のSP
+      pc: 0,
+      sp: 0xfd,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x0000,
@@ -2619,6 +2622,8 @@ describe("0x30 POP_C", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+    expect(vm.readMemory8(0xfd)).toBe(0x78) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
     expect(result.success).toBe(true)
@@ -2627,7 +2632,7 @@ describe("0x30 POP_C", () => {
 
     // 実行後の状態を検証
     expectVMState(vm, {
-      pc: 2,
+      pc: 1,
       sp: 0xff, // POP後のSP
       registerA: 0x1111,
       registerB: 0x2222,
@@ -2636,6 +2641,10 @@ describe("0x30 POP_C", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+
+    // メモリはクリアされない
+    expect(vm.readMemory8(0xfd)).toBe(0x78) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
   })
 })
 
@@ -2647,22 +2656,19 @@ describe("0x31 POP_D", () => {
   })
 
   test("POP_D実行 - 16bit値のポップ", () => {
-    // まずPUSHして値をスタックに入れる
-    vm.setRegister("D", 0x5678)
     vm.setRegister("A", 0x1111)
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x3333)
-    vm.writeMemory8(0, 0x22) // PUSH_D
-    InstructionExecutor.step(vm)
-
-    // Dを別の値に変更
     vm.setRegister("D", 0x0000)
-    vm.writeMemory8(1, 0x31) // POP_D
+    vm.writeMemory8(0, 0x31) // POP_D
+    vm.sp = 0xfd
+    vm.writeMemory8(0xfd, 0x78) // 下位バイト
+    vm.writeMemory8(0xfe, 0x56) // 上位バイト
 
     // 実行前の状態を検証
     expectVMState(vm, {
-      pc: 1,
-      sp: 0xfd, // PUSH後のSP
+      pc: 0,
+      sp: 0xfd,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -2670,6 +2676,8 @@ describe("0x31 POP_D", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+    expect(vm.readMemory8(0xfd)).toBe(0x78) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
     expect(result.success).toBe(true)
@@ -2678,7 +2686,7 @@ describe("0x31 POP_D", () => {
 
     // 実行後の状態を検証
     expectVMState(vm, {
-      pc: 2,
+      pc: 1,
       sp: 0xff, // POP後のSP
       registerA: 0x1111,
       registerB: 0x2222,
@@ -2687,6 +2695,10 @@ describe("0x31 POP_D", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+
+    // メモリはクリアされない
+    expect(vm.readMemory8(0xfd)).toBe(0x78) // 下位バイト
+    expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
   })
 })
 
