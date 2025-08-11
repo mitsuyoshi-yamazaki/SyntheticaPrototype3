@@ -270,7 +270,7 @@ describe("0x03 MOV_AB", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_AB実行 - レジスタAをBにコピー", () => {
@@ -283,7 +283,7 @@ describe("0x03 MOV_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0xabcd,
@@ -301,7 +301,7 @@ describe("0x03 MOV_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x1234,
       registerC: 0xabcd,
@@ -316,7 +316,7 @@ describe("0x04 MOV_AD", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_AD実行 - レジスタAをDにコピー", () => {
@@ -329,7 +329,7 @@ describe("0x04 MOV_AD", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0x2345,
       registerC: 0x6789,
@@ -347,7 +347,7 @@ describe("0x04 MOV_AD", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0x2345,
       registerC: 0x6789,
@@ -362,7 +362,7 @@ describe("0x05 MOV_BA", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_BA実行 - レジスタBをAにコピー", () => {
@@ -375,7 +375,7 @@ describe("0x05 MOV_BA", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0xabcd,
       registerC: 0x2222,
@@ -393,7 +393,7 @@ describe("0x05 MOV_BA", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0xabcd,
       registerC: 0x2222,
@@ -408,7 +408,7 @@ describe("0x06 MOV_DA", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_DA実行 - レジスタDをAにコピー", () => {
@@ -421,7 +421,7 @@ describe("0x06 MOV_DA", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -439,7 +439,7 @@ describe("0x06 MOV_DA", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -454,7 +454,7 @@ describe("0x07 MOV_BC", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_BC実行 - レジスタBをCにコピー", () => {
@@ -466,7 +466,7 @@ describe("0x07 MOV_BC", () => {
 
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0xabcd,
       registerC: 0x2222,
@@ -483,7 +483,7 @@ describe("0x07 MOV_BC", () => {
 
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0xabcd,
       registerC: 0xabcd,
@@ -498,7 +498,7 @@ describe("0x08 MOV_CB", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_CB実行 - レジスタCをBにコピー", () => {
@@ -511,7 +511,7 @@ describe("0x08 MOV_CB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0xabcd,
@@ -529,7 +529,7 @@ describe("0x08 MOV_CB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0xabcd,
       registerC: 0xabcd,
@@ -544,7 +544,7 @@ describe("0x09 MOV_AC", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_AC実行 - レジスタAをCにコピー", () => {
@@ -557,7 +557,7 @@ describe("0x09 MOV_AC", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -575,7 +575,7 @@ describe("0x09 MOV_AC", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0x1111,
       registerC: 0xabcd,
@@ -590,7 +590,7 @@ describe("0x0A MOV_CA", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_CA実行 - レジスタCをAにコピー", () => {
@@ -603,7 +603,7 @@ describe("0x0A MOV_CA", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0xabcd,
@@ -621,7 +621,7 @@ describe("0x0A MOV_CA", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0x2222,
       registerC: 0xabcd,
@@ -636,7 +636,7 @@ describe("0x0B MOV_CD", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_CD実行 - レジスタCをDにコピー", () => {
@@ -649,7 +649,7 @@ describe("0x0B MOV_CD", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0xabcd,
@@ -667,7 +667,7 @@ describe("0x0B MOV_CD", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0xabcd,
@@ -682,7 +682,7 @@ describe("0x0C MOV_DC", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_DC実行 - レジスタDをCにコピー", () => {
@@ -695,7 +695,7 @@ describe("0x0C MOV_DC", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -713,7 +713,7 @@ describe("0x0C MOV_DC", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0xabcd,
@@ -728,7 +728,7 @@ describe("0x0D MOV_SP", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("MOV_SP実行 - スタックポインタをAレジスタにコピー", () => {
@@ -742,7 +742,7 @@ describe("0x0D MOV_SP", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -760,7 +760,7 @@ describe("0x0D MOV_SP", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0f, // スタックポインタの値
       registerB: 0x2222,
       registerC: 0x3333,
@@ -775,7 +775,7 @@ describe("0x0E SET_SP", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("SET_SP実行 - Aレジスタをスタックポインタにコピー", () => {
@@ -788,7 +788,7 @@ describe("0x0E SET_SP", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xe000,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -822,7 +822,7 @@ describe("0x10 INC_A", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("INC_A実行 - 通常の値", () => {
@@ -835,7 +835,7 @@ describe("0x10 INC_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0xaaaa,
       registerC: 0xbbbb,
@@ -853,7 +853,7 @@ describe("0x10 INC_A", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1235,
       registerB: 0xaaaa,
       registerC: 0xbbbb,
@@ -873,7 +873,7 @@ describe("0x10 INC_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -891,7 +891,7 @@ describe("0x10 INC_A", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000, // 16bitでラップアラウンド
       registerB: 0x1111,
       registerC: 0x2222,
@@ -906,7 +906,7 @@ describe("0x11 INC_B", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("INC_B実行 - 通常の値", () => {
@@ -919,7 +919,7 @@ describe("0x11 INC_B", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0x1234,
       registerC: 0xbbbb,
@@ -937,7 +937,7 @@ describe("0x11 INC_B", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0x1235,
       registerC: 0xbbbb,
@@ -957,7 +957,7 @@ describe("0x11 INC_B", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0xffff,
       registerC: 0x2222,
@@ -975,7 +975,7 @@ describe("0x11 INC_B", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0x0000, // 16bitでラップアラウンド
       registerC: 0x2222,
@@ -990,7 +990,7 @@ describe("0x12 INC_C", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("INC_C実行 - 通常の値", () => {
@@ -1002,7 +1002,7 @@ describe("0x12 INC_C", () => {
 
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0xbbbb,
       registerC: 0x1234,
@@ -1019,7 +1019,7 @@ describe("0x12 INC_C", () => {
 
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0xbbbb,
       registerC: 0x1235,
@@ -1039,7 +1039,7 @@ describe("0x12 INC_C", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0xffff,
@@ -1057,7 +1057,7 @@ describe("0x12 INC_C", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x0000, // 16bitでラップアラウンド
@@ -1072,7 +1072,7 @@ describe("0x13 INC_D", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("INC_D実行 - 通常の値", () => {
@@ -1085,7 +1085,7 @@ describe("0x13 INC_D", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0xbbbb,
       registerC: 0xcccc,
@@ -1103,7 +1103,7 @@ describe("0x13 INC_D", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0xbbbb,
       registerC: 0xcccc,
@@ -1123,7 +1123,7 @@ describe("0x13 INC_D", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x4444,
       registerB: 0x5555,
       registerC: 0x6666,
@@ -1141,7 +1141,7 @@ describe("0x13 INC_D", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x4444,
       registerB: 0x5555,
       registerC: 0x6666,
@@ -1156,7 +1156,7 @@ describe("0x14 DEC_A", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("DEC_A実行 - 通常の値", () => {
@@ -1169,7 +1169,7 @@ describe("0x14 DEC_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5555,
       registerC: 0x6666,
@@ -1187,7 +1187,7 @@ describe("0x14 DEC_A", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1233,
       registerB: 0x5555,
       registerC: 0x6666,
@@ -1207,7 +1207,7 @@ describe("0x14 DEC_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0x8888,
       registerC: 0x9999,
@@ -1225,7 +1225,7 @@ describe("0x14 DEC_A", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff, // 16bitでラップアラウンド
       registerB: 0x8888,
       registerC: 0x9999,
@@ -1242,7 +1242,7 @@ describe("0x14 DEC_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0001,
       registerB: 0,
       registerC: 0,
@@ -1258,7 +1258,7 @@ describe("0x14 DEC_A", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0,
       registerC: 0,
@@ -1273,7 +1273,7 @@ describe("0x15 DEC_B", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("DEC_B実行 - 通常の値", () => {
@@ -1286,7 +1286,7 @@ describe("0x15 DEC_B", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x1234,
       registerC: 0x6666,
@@ -1303,7 +1303,7 @@ describe("0x15 DEC_B", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x1233,
       registerC: 0x6666,
@@ -1323,7 +1323,7 @@ describe("0x15 DEC_B", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x0000,
       registerC: 0x2222,
@@ -1340,7 +1340,7 @@ describe("0x15 DEC_B", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0xffff, // 16bitでラップアラウンド
       registerC: 0x2222,
@@ -1357,7 +1357,7 @@ describe("0x15 DEC_B", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0,
       registerB: 0x0001,
       registerC: 0,
@@ -1372,7 +1372,7 @@ describe("0x15 DEC_B", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0,
       registerB: 0x0000,
       registerC: 0,
@@ -1387,7 +1387,7 @@ describe("0x16 DEC_C", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("DEC_C実行 - 通常の値", () => {
@@ -1400,7 +1400,7 @@ describe("0x16 DEC_C", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x6666,
       registerC: 0x1234,
@@ -1417,7 +1417,7 @@ describe("0x16 DEC_C", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x6666,
       registerC: 0x1233,
@@ -1437,7 +1437,7 @@ describe("0x16 DEC_C", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x0000,
@@ -1454,7 +1454,7 @@ describe("0x16 DEC_C", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0xffff, // 16bitでラップアラウンド
@@ -1471,7 +1471,7 @@ describe("0x16 DEC_C", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0,
       registerB: 0,
       registerC: 0x0001,
@@ -1486,7 +1486,7 @@ describe("0x16 DEC_C", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0,
       registerB: 0,
       registerC: 0x0000,
@@ -1501,7 +1501,7 @@ describe("0x17 DEC_D", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("DEC_D実行 - 通常の値", () => {
@@ -1514,7 +1514,7 @@ describe("0x17 DEC_D", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x6666,
       registerC: 0x7777,
@@ -1531,7 +1531,7 @@ describe("0x17 DEC_D", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x6666,
       registerC: 0x7777,
@@ -1551,7 +1551,7 @@ describe("0x17 DEC_D", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -1568,7 +1568,7 @@ describe("0x17 DEC_D", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -1585,7 +1585,7 @@ describe("0x17 DEC_D", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0,
       registerB: 0,
       registerC: 0,
@@ -1600,7 +1600,7 @@ describe("0x17 DEC_D", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0,
       registerB: 0,
       registerC: 0,
@@ -1615,7 +1615,7 @@ describe("0x18 ADD_AB", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("ADD_AB実行 - 通常の加算", () => {
@@ -1628,7 +1628,7 @@ describe("0x18 ADD_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0x1111,
@@ -1645,7 +1645,7 @@ describe("0x18 ADD_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x68ac,
       registerB: 0x5678,
       registerC: 0x1111,
@@ -1665,7 +1665,7 @@ describe("0x18 ADD_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff,
       registerB: 0x0010,
       registerC: 0x3333,
@@ -1682,7 +1682,7 @@ describe("0x18 ADD_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0x000f,
       registerC: 0x3333,
@@ -1700,7 +1700,7 @@ describe("0x18 ADD_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff,
       registerB: 0x0001,
       registerC: 0,
@@ -1715,7 +1715,7 @@ describe("0x18 ADD_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0x0001,
       registerC: 0,
@@ -1730,7 +1730,7 @@ describe("0x19 SUB_AB", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("SUB_AB実行 - 通常の減算", () => {
@@ -1743,7 +1743,7 @@ describe("0x19 SUB_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5678,
       registerB: 0x1234,
       registerC: 0xaaaa,
@@ -1760,7 +1760,7 @@ describe("0x19 SUB_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x4444,
       registerB: 0x1234,
       registerC: 0xaaaa,
@@ -1780,7 +1780,7 @@ describe("0x19 SUB_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0x0010,
       registerC: 0xcccc,
@@ -1797,7 +1797,7 @@ describe("0x19 SUB_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xfff0,
       registerB: 0x0010,
       registerC: 0xcccc,
@@ -1815,7 +1815,7 @@ describe("0x19 SUB_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x5555,
       registerC: 0,
@@ -1830,7 +1830,7 @@ describe("0x19 SUB_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0x5555,
       registerC: 0,
@@ -1845,7 +1845,7 @@ describe("0x1A XOR_AB", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("XOR_AB実行 - 通常のXOR", () => {
@@ -1858,7 +1858,7 @@ describe("0x1A XOR_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x3333,
       registerC: 0x7777,
@@ -1875,7 +1875,7 @@ describe("0x1A XOR_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x6666,
       registerB: 0x3333,
       registerC: 0x7777,
@@ -1895,7 +1895,7 @@ describe("0x1A XOR_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x5555,
       registerC: 0x9999,
@@ -1912,7 +1912,7 @@ describe("0x1A XOR_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0x5555,
       registerC: 0x9999,
@@ -1927,7 +1927,7 @@ describe("0x1B AND_AB", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("AND_AB実行 - 通常のAND", () => {
@@ -1940,7 +1940,7 @@ describe("0x1B AND_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xff00,
       registerB: 0x0ff0,
       registerC: 0x1111,
@@ -1957,7 +1957,7 @@ describe("0x1B AND_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0f00,
       registerB: 0x0ff0,
       registerC: 0x1111,
@@ -1977,7 +1977,7 @@ describe("0x1B AND_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xff00,
       registerB: 0x00ff,
       registerC: 0x3333,
@@ -1994,7 +1994,7 @@ describe("0x1B AND_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0x00ff,
       registerC: 0x3333,
@@ -2009,7 +2009,7 @@ describe("0x1C OR_AB", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("OR_AB実行 - 通常のOR", () => {
@@ -2022,7 +2022,7 @@ describe("0x1C OR_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xff00,
       registerB: 0x00ff,
       registerC: 0x5555,
@@ -2039,7 +2039,7 @@ describe("0x1C OR_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff,
       registerB: 0x00ff,
       registerC: 0x5555,
@@ -2059,7 +2059,7 @@ describe("0x1C OR_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0x0000,
       registerC: 0x7777,
@@ -2076,7 +2076,7 @@ describe("0x1C OR_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0x0000,
       registerC: 0x7777,
@@ -2091,7 +2091,7 @@ describe("0x1D NOT_A", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("NOT_A実行 - ビット反転", () => {
@@ -2104,7 +2104,7 @@ describe("0x1D NOT_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x9999,
       registerC: 0xaaaa,
@@ -2121,7 +2121,7 @@ describe("0x1D NOT_A", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0x9999,
       registerC: 0xaaaa,
@@ -2141,7 +2141,7 @@ describe("0x1D NOT_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff,
       registerB: 0xcccc,
       registerC: 0xdddd,
@@ -2158,7 +2158,7 @@ describe("0x1D NOT_A", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0000,
       registerB: 0xcccc,
       registerC: 0xdddd,
@@ -2173,7 +2173,7 @@ describe("0x1E CMP_AB", () => {
   let vm: VMState
 
   beforeEach(() => {
-    vm = new VMState(0x10)
+    vm = new VMState(0x100)
   })
 
   test("CMP_AB実行 - A > B", () => {
@@ -2186,7 +2186,7 @@ describe("0x1E CMP_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5678,
       registerB: 0x1234,
       registerC: 0xbcde,
@@ -2203,7 +2203,7 @@ describe("0x1E CMP_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5678, // Aは変更されない
       registerB: 0x1234,
       registerC: 0xbcde,
@@ -2223,7 +2223,7 @@ describe("0x1E CMP_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0x3456,
@@ -2240,7 +2240,7 @@ describe("0x1E CMP_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234, // Aは変更されない
       registerB: 0x5678,
       registerC: 0x3456,
@@ -2260,7 +2260,7 @@ describe("0x1E CMP_AB", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x1234,
       registerC: 0x5555,
@@ -2277,7 +2277,7 @@ describe("0x1E CMP_AB", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234, // Aは変更されない
       registerB: 0x1234,
       registerC: 0x5555,
@@ -2728,7 +2728,7 @@ describe("0x40 LOAD_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -2741,12 +2741,12 @@ describe("0x40 LOAD_A", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x00ab, // 上位8bitは0、下位8bitに読み込んだ値
       registerB: 0x2222,
       registerC: 0x3333,
@@ -2773,7 +2773,7 @@ describe("0x40 LOAD_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0x50,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0xbbbb,
       registerC: 0xcccc,
@@ -2786,12 +2786,12 @@ describe("0x40 LOAD_A", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x53,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x00cd,
       registerB: 0xbbbb,
       registerC: 0xcccc,
@@ -2823,7 +2823,7 @@ describe("0x41 STORE_A", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0x9abc,
@@ -2836,12 +2836,12 @@ describe("0x41 STORE_A", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0x9abc,
@@ -2877,7 +2877,7 @@ describe("0x42 LOAD_IND", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff,
       registerB: 0x0020,
       registerC: 0xcccc,
@@ -2890,12 +2890,12 @@ describe("0x42 LOAD_IND", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x00ab,
       registerB: 0x0020,
       registerC: 0xcccc,
@@ -2927,7 +2927,7 @@ describe("0x43 STORE_IND", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x0040,
       registerC: 0xaaaa,
@@ -2940,12 +2940,12 @@ describe("0x43 STORE_IND", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x0040,
       registerC: 0xaaaa,
@@ -2982,7 +2982,7 @@ describe("0x44 LOAD_A_W", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff,
       registerB: 0xeeee,
       registerC: 0xdddd,
@@ -2995,12 +2995,12 @@ describe("0x44 LOAD_A_W", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0xeeee,
       registerC: 0xdddd,
@@ -3032,7 +3032,7 @@ describe("0x45 STORE_A_W", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -3045,12 +3045,12 @@ describe("0x45 STORE_A_W", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -3087,7 +3087,7 @@ describe("0x50 LOAD_REG", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff,
       registerB: 0x0080,
       registerC: 0x0050,
@@ -3100,12 +3100,12 @@ describe("0x50 LOAD_REG", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x00ef,
       registerB: 0x0080,
       registerC: 0x0050,
@@ -3137,7 +3137,7 @@ describe("0x51 STORE_REG", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5678,
       registerB: 0x0040,
       registerC: 0x0060,
@@ -3150,12 +3150,12 @@ describe("0x51 STORE_REG", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5678,
       registerB: 0x0040,
       registerC: 0x0060,
@@ -3193,7 +3193,7 @@ describe("0x52 LOAD_IND_REG", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -3206,12 +3206,12 @@ describe("0x52 LOAD_IND_REG", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4) // 間接アドレスは4サイクル
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x00ab,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -3247,7 +3247,7 @@ describe("0x53 STORE_IND_REG", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0x9abc,
@@ -3260,12 +3260,12 @@ describe("0x53 STORE_IND_REG", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4) // 間接アドレスは4サイクル
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0x5678,
       registerC: 0x9abc,
@@ -3300,7 +3300,7 @@ describe("0x60 JMP", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0x10,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -3318,7 +3318,7 @@ describe("0x60 JMP", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x30, // 0x10 + 0x20
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -3343,7 +3343,7 @@ describe("0x60 JMP", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0x50,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x6666,
       registerC: 0x7777,
@@ -3361,7 +3361,7 @@ describe("0x60 JMP", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x40, // 0x50 - 0x10
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x6666,
       registerC: 0x7777,
@@ -3393,7 +3393,7 @@ describe("0x61 JZ", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x9999,
       registerB: 0xaaaa,
       registerC: 0xbbbb,
@@ -3411,7 +3411,7 @@ describe("0x61 JZ", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x10, // ジャンプ実行
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x9999,
       registerB: 0xaaaa,
       registerC: 0xbbbb,
@@ -3435,7 +3435,7 @@ describe("0x61 JZ", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xdddd,
       registerB: 0xeeee,
       registerC: 0xffff,
@@ -3448,12 +3448,12 @@ describe("0x61 JZ", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3, // ジャンプせず次の命令へ
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xdddd,
       registerB: 0xeeee,
       registerC: 0xffff,
@@ -3485,7 +3485,7 @@ describe("0x62 JNZ", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -3503,7 +3503,7 @@ describe("0x62 JNZ", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x20, // ジャンプ実行
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1111,
       registerB: 0x2222,
       registerC: 0x3333,
@@ -3527,7 +3527,7 @@ describe("0x62 JNZ", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x6666,
       registerC: 0x7777,
@@ -3540,12 +3540,12 @@ describe("0x62 JNZ", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 3, // ジャンプせず次の命令へ
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x5555,
       registerB: 0x6666,
       registerC: 0x7777,
@@ -3577,7 +3577,7 @@ describe("0x63 JC", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0xbbbb,
       registerC: 0xcccc,
@@ -3595,7 +3595,7 @@ describe("0x63 JC", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x30, // ジャンプ実行
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0xbbbb,
       registerC: 0xcccc,
@@ -3627,7 +3627,7 @@ describe("0x64 JNC", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xeeee,
       registerB: 0xffff,
       registerC: 0x0001,
@@ -3645,7 +3645,7 @@ describe("0x64 JNC", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x40, // ジャンプ実行
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xeeee,
       registerB: 0xffff,
       registerC: 0x0001,
@@ -3729,7 +3729,7 @@ describe("0x66 JG", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0010,
       registerB: 0x0005,
       registerC: 0x1111,
@@ -3747,7 +3747,7 @@ describe("0x66 JG", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x11, // 1 + 0x10 = 0x11へジャンプ
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0010,
       registerB: 0x0005,
       registerC: 0x1111,
@@ -3781,7 +3781,7 @@ describe("0x67 JLE", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0005,
       registerB: 0x0010,
       registerC: 0x3333,
@@ -3799,7 +3799,7 @@ describe("0x67 JLE", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x21, // 1 + 0x20 = 0x21へジャンプ
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0005,
       registerB: 0x0010,
       registerC: 0x3333,
@@ -3833,7 +3833,7 @@ describe("0x68 JGE", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0010,
       registerB: 0x0010,
       registerC: 0x5555,
@@ -3851,7 +3851,7 @@ describe("0x68 JGE", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x31, // 1 + 0x30 = 0x31へジャンプ
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x0010,
       registerB: 0x0010,
       registerC: 0x5555,
@@ -3885,7 +3885,7 @@ describe("0x69 JL", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xfffe,
       registerB: 0x0001,
       registerC: 0x7777,
@@ -3903,7 +3903,7 @@ describe("0x69 JL", () => {
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 0x41, // 1 + 0x40 = 0x41へジャンプ
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xfffe,
       registerB: 0x0001,
       registerC: 0x7777,
@@ -3939,7 +3939,7 @@ describe("0xa0 LOAD_ABS", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xaaaa,
       registerB: 0xbbbb,
       registerC: 0xcccc,
@@ -3952,12 +3952,12 @@ describe("0xa0 LOAD_ABS", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(6) // 絶対アドレス命令は高コスト
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 4,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x00ef,
       registerB: 0xbbbb,
       registerC: 0xcccc,
@@ -3990,7 +3990,7 @@ describe("0xa1 STORE_ABS", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -4003,12 +4003,12 @@ describe("0xa1 STORE_ABS", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(6) // 絶対アドレス命令は高コスト
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 4,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xabcd,
       registerB: 0x1111,
       registerC: 0x2222,
@@ -4045,7 +4045,7 @@ describe("0xa2 LOAD_ABS_W", () => {
     // 実行前の状態を検証
     expectVMState(vm, {
       pc: 0,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0xffff,
       registerB: 0xeeee,
       registerC: 0xdddd,
@@ -4058,12 +4058,12 @@ describe("0xa2 LOAD_ABS_W", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(6)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 4,
-      sp: 0x0f,
+      sp: 0xff,
       registerA: 0x1234,
       registerB: 0xeeee,
       registerC: 0xdddd,
@@ -4103,7 +4103,7 @@ describe("0xa3 STORE_ABS_W", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(6)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(4)
     expect(vm.getRegister("A")).toBe(0x5678)
@@ -4145,7 +4145,7 @@ describe("0xb0 JMP_IND", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(0x5678) // Bレジスタの値
     expect(vm.getRegister("A")).toBe(0x1234)
@@ -4185,7 +4185,7 @@ describe("0xb1 JMP_ABS", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(6) // 絶対アドレス命令は高コスト
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(0x1234)
     expect(vm.getRegister("A")).toBe(0x1111)
@@ -4224,7 +4224,7 @@ describe("0xb2 RET", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(0x1234)
     expect(vm.getRegister("A")).toBe(0x5555)
@@ -4264,7 +4264,7 @@ describe("0xc0 MUL_AB", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(5)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0x0200) // 0x10 * 0x20 = 0x200
@@ -4295,7 +4295,7 @@ describe("0xc0 MUL_AB", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(5)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0x0000) // 0x1000000 & 0xFFFF = 0x0000
@@ -4334,7 +4334,7 @@ describe("0xc1 DIV_AB", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(5)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0x000e) // 100 / 7 = 14
@@ -4390,7 +4390,7 @@ describe("0xc2 SHL", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4) // ビット操作のため4サイクル
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0x2340) // 0x1234 << 4
@@ -4429,7 +4429,7 @@ describe("0xc3 SHR", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0x0080) // 0x8000 >> 8
@@ -4468,7 +4468,7 @@ describe("0xc4 SAR", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4)
+    expect(result.cycles).toBe(3)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0xf800) // 符号ビットが保持される
@@ -4534,7 +4534,7 @@ describe("0xc5 CMOV_Z", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0x1111) // 変更されない
@@ -4574,7 +4574,7 @@ describe("0xc6 CMOV_NZ", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0x4444)
@@ -4614,7 +4614,7 @@ describe("0xc7 CMOV_C", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0x6666)
@@ -4654,7 +4654,7 @@ describe("0xc8 CMOV_NC", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     expect(vm.pc).toBe(5)
     expect(vm.getRegister("A")).toBe(0xaaaa)
@@ -4699,7 +4699,7 @@ describe("0xE0 LOAD_IMM", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(5)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -4750,7 +4750,7 @@ describe("0xE1 LOAD_IMM_B", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(5)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -4801,7 +4801,7 @@ describe("0xF0 NOP5", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(5)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -4857,7 +4857,7 @@ describe("0xA0 LOAD_ABS", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(6) // 絶対アドレス命令は高コスト
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -4910,7 +4910,7 @@ describe("0xA1 STORE_ABS", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(6) // 絶対アドレス命令は高コスト
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -4968,7 +4968,7 @@ describe("0xA2 LOAD_ABS_W", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(6) // 絶対アドレス命令は高コスト
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5023,7 +5023,7 @@ describe("0xA3 STORE_ABS_W", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(6) // 絶対アドレス命令は高コスト
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5077,7 +5077,7 @@ describe("0xB0 JMP_IND", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5120,7 +5120,7 @@ describe("0xB0 JMP_IND", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5171,7 +5171,7 @@ describe("0xB1 JMP_ABS", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(6) // 絶対アドレス命令は高コスト
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5222,7 +5222,7 @@ describe("0xB2 RET", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5274,7 +5274,7 @@ describe("0xC0 MUL_AB", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(5)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5317,7 +5317,7 @@ describe("0xC0 MUL_AB", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(5)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5368,7 +5368,7 @@ describe("0xC1 DIV_AB", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(5)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5399,7 +5399,7 @@ describe("0xC1 DIV_AB", () => {
 
     expect(result.success).toBe(false)
     expect(result.error).toBeDefined()
-    expect(result.cycles).toBe(5)
+    expect(result.cycles).toBe(3)
   })
 })
 
@@ -5438,7 +5438,7 @@ describe("0xC2 SHL", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4) // ビット操作は4サイクル
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5469,7 +5469,7 @@ describe("0xC2 SHL", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5520,7 +5520,7 @@ describe("0xC3 SHR", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5571,7 +5571,7 @@ describe("0xC4 SAR", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(4)
+    expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5655,7 +5655,7 @@ describe("0xC5 CMOV_Z", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5707,7 +5707,7 @@ describe("0xC6 CMOV_NZ", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5759,7 +5759,7 @@ describe("0xC7 CMOV_C", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -5811,7 +5811,7 @@ describe("0xC8 CMOV_NC", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
     expectVMState(vm, {
