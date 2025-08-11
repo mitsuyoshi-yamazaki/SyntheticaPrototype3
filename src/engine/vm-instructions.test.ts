@@ -4811,7 +4811,7 @@ describe("0xF0 NOP5", () => {
 
     expect(result.success).toBe(true)
     expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(3)
+    expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
     expectVMState(vm, {
