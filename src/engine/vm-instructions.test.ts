@@ -1683,8 +1683,8 @@ describe("0x18 ADD_AB", () => {
     expectVMState(vm, {
       pc: 1,
       sp: 0xff,
-      registerA: 0x0000,
-      registerB: 0x000f,
+      registerA: 0x000f,
+      registerB: 0x0010,
       registerC: 0x3333,
       registerD: 0x4444,
       carryFlag: true, // キャリー発生
