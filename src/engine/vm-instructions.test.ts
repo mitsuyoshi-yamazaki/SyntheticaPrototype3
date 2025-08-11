@@ -4868,7 +4868,8 @@ describe("未定義命令", () => {
     ...Array.from({ length: 22 }, (_, i) => 0x6a + i), // 0x6A-0x7F
     // 4バイト未定義命令
     ...Array.from({ length: 12 }, (_, i) => 0x84 + i), // 0x84-0x8F
-    ...Array.from({ length: 6 }, (_, i) => 0x9a + i), // 0x9A-0x9F
+    0x9a,
+    ...Array.from({ length: 4 }, (_, i) => 0x9c + i), // 0x9C-0x9F
     ...Array.from({ length: 12 }, (_, i) => 0xa4 + i), // 0xA4-0xAF
     ...Array.from({ length: 13 }, (_, i) => 0xb3 + i), // 0xB3-0xBF
     // 5バイト未定義命令

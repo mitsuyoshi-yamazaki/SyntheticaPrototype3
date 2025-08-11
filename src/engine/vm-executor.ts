@@ -32,6 +32,7 @@ export const InstructionExecutor = {
   execute(vm: VMState, decoded: DecodedInstruction, unit?: Unit): ExecutionResult {
     // 未定義命令
     if (decoded.isUndefined || decoded.instruction == null) {
+      vm.advancePC(1)
       return {
         success: false,
         error: `Undefined instruction: 0x${decoded.opcode.toString(16).padStart(2, "0")}`,
@@ -203,6 +204,7 @@ export const InstructionExecutor = {
         break
 
       default:
+        vm.advancePC(1)
         return {
           success: false,
           error: `Unknown data move instruction: ${decoded.instruction.mnemonic}`,
@@ -466,6 +468,7 @@ export const InstructionExecutor = {
       }
 
       default:
+        vm.advancePC(1)
         return {
           success: false,
           error: `Unknown arithmetic instruction: ${decoded.instruction.mnemonic}`,
@@ -520,6 +523,7 @@ export const InstructionExecutor = {
         vm.setRegister("D", vm.pop16())
         break
       default:
+        vm.advancePC(1)
         return {
           success: false,
           error: `Unknown stack instruction: ${decoded.instruction.mnemonic}`,
@@ -641,6 +645,7 @@ export const InstructionExecutor = {
         break
 
       default:
+        vm.advancePC(1)
         return {
           success: false,
           error: `Unknown memory instruction: ${decoded.instruction.mnemonic}`,
@@ -773,6 +778,7 @@ export const InstructionExecutor = {
         break
 
       default:
+        vm.advancePC(1)
         return {
           success: false,
           error: `Unknown jump instruction: ${decoded.instruction.mnemonic}`,
@@ -793,10 +799,12 @@ export const InstructionExecutor = {
   /** ユニット制御命令実行 */
   executeUnit(vm: VMState, decoded: DecodedInstruction, unit?: Unit): ExecutionResult {
     if (decoded.instruction == null) {
+      vm.advancePC(decoded.length)
       return { success: false, error: "No instruction", cycles: 1 }
     }
 
     if (unit == null) {
+      vm.advancePC(decoded.length)
       return {
         success: false,
         error: "Unit control instruction requires unit context",
@@ -813,6 +821,7 @@ export const InstructionExecutor = {
     const memAddr = decoded.operands.unitMemAddr
 
     if (unitId === undefined || memAddr === undefined) {
+      vm.advancePC(decoded.length)
       return {
         success: false,
         error: "Missing unit control operands",
@@ -823,6 +832,7 @@ export const InstructionExecutor = {
     // ターゲットユニットを識別子から取得
     const targetUnit = this.findUnitById(unit, unitId)
     if (targetUnit == null) {
+      vm.advancePC(decoded.length)
       return {
         success: false,
         error: `Unit not found: 0x${unitId.toString(16).padStart(2, "0")}`,
@@ -832,6 +842,7 @@ export const InstructionExecutor = {
 
     // アクセス権限チェック
     if (!CircuitConnectionSystem.canAccess(unit, targetUnit)) {
+      vm.advancePC(decoded.length)
       return {
         success: false,
         error: "Access denied: units not on same hull",
@@ -842,6 +853,7 @@ export const InstructionExecutor = {
     // メモリインターフェース取得
     const memInterface = createMemoryInterface(targetUnit)
     if (memInterface == null) {
+      vm.advancePC(decoded.length)
       return {
         success: false,
         error: "Target unit has no memory interface",
@@ -853,6 +865,7 @@ export const InstructionExecutor = {
       case "UNIT_MEM_READ": {
         const value = memInterface.readMemory(memAddr)
         if (value == null) {
+          vm.advancePC(decoded.length)
           return {
             success: false,
             error: `Cannot read from address 0x${memAddr.toString(16).padStart(2, "0")}`,
@@ -866,6 +879,7 @@ export const InstructionExecutor = {
         const value = vm.getRegister("C") & 0xff
         const success = memInterface.writeMemory(memAddr, value)
         if (!success) {
+          vm.advancePC(decoded.length)
           return {
             success: false,
             error: `Cannot write to address 0x${memAddr.toString(16).padStart(2, "0")}`,
@@ -875,6 +889,7 @@ export const InstructionExecutor = {
         break
       }
       default:
+        vm.advancePC(1)
         return {
           success: false,
           error: `Unknown unit instruction: ${decoded.instruction.mnemonic}`,
@@ -1080,6 +1095,7 @@ export const InstructionExecutor = {
       }
 
       default:
+        vm.advancePC(1)
         return {
           success: false,
           error: `Unknown special instruction: ${decoded.instruction.mnemonic}`,
@@ -1105,6 +1121,7 @@ export const InstructionExecutor = {
         vm.setRegister("A", 0xffff)
         break
       default:
+        vm.advancePC(1)
         return {
           success: false,
           error: `Unknown template instruction: ${decoded.instruction.mnemonic}`,
@@ -1134,6 +1151,7 @@ export const InstructionExecutor = {
         vm.setRegister("A", 0)
         break
       default:
+        vm.advancePC(1)
         return {
           success: false,
           error: `Unknown energy instruction: ${decoded.instruction.mnemonic}`,
@@ -1160,6 +1178,7 @@ export const InstructionExecutor = {
     const regIndex = decoded.operands.unitMemAddr // 第3バイトがレジスタインデックスとして使用される
 
     if (unitByte === undefined || regIndex === undefined) {
+      vm.advancePC(decoded.length)
       return {
         success: false,
         error: "Invalid UNIT_MEM_WRITE_DYN operands",
@@ -1179,6 +1198,7 @@ export const InstructionExecutor = {
     if (targetUnit == null) {
       // 仕様: 失敗してもエネルギー消費、副作用なし
       // エラーを返すが、サイクル数は消費される
+      vm.advancePC(decoded.length)
       return {
         success: false,
         error: `Unit ${unitType}:${unitIndex} not found`,
@@ -1189,6 +1209,7 @@ export const InstructionExecutor = {
     const memInterface = createMemoryInterface(targetUnit)
     if (memInterface == null) {
       // 仕様: 失敗してもエネルギー消費、副作用なし
+      vm.advancePC(decoded.length)
       return {
         success: false,
         error: "Target unit has no memory interface",
@@ -1202,6 +1223,7 @@ export const InstructionExecutor = {
 
     // 仕様: 失敗してもエネルギー消費、副作用なし
     if (!success) {
+      vm.advancePC(decoded.length)
       return {
         success: false,
         error: `Cannot write to address 0x${dynamicAddr.toString(16).padStart(2, "0")}`,
