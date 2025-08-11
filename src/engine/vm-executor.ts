@@ -419,10 +419,16 @@ export const InstructionExecutor = {
 
     vm.advancePC(decoded.length)
     // 命令長に基づいてサイクル数を決定
-    let cycles = 1
-    if (decoded.length === 3) {
-      cycles = 2
-    } // 3バイト命令は2サイクル
+    const cycles = ((): number => {
+      switch (decoded.length) {
+        case 3:
+          return 2
+        case 5:
+          return 3
+        default:
+          return 1
+      }
+    })()
     return { success: true, cycles }
   },
 
