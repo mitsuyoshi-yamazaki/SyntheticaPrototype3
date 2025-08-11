@@ -408,6 +408,34 @@ export const InstructionExecutor = {
         vm.updateZeroFlag(result)
         break
       }
+      case "SAR": {
+        const a = vm.getRegister("A")
+        const b = vm.getRegister("B") & 0x1f // 下位5ビット使用（0-31）
+        if (b >= 16) {
+          // 16ビット以上のシフトは符号ビットで埋める
+          result = (a & 0x8000) > 0 ? 0xffff : 0x0000
+          vm.carryFlag = a !== 0
+        } else if (b === 0) {
+          result = a
+          vm.carryFlag = false
+        } else {
+          // 算術右シフト: 符号ビットを保持
+          const signBit = a & 0x8000
+          if (signBit > 0) {
+            // 負数の場合: 左側を1で埋める
+            const mask = (0xffff << (16 - b)) & 0xffff
+            result = ((a >> b) | mask) & 0xffff
+          } else {
+            // 正数の場合: 通常の右シフト
+            result = (a >> b) & 0xffff
+          }
+          // キャリーフラグ: シフトで失われたビットがある場合
+          vm.carryFlag = b > 0 && (a & ((1 << b) - 1)) !== 0
+        }
+        vm.setRegister("A", result)
+        vm.updateZeroFlag(result)
+        break
+      }
 
       default:
         return {
