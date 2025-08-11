@@ -476,6 +476,7 @@ export const InstructionExecutor = {
     }
 
     let address: number
+    let cycles = 2 // 3バイト命令は2サイクル
 
     switch (decoded.instruction.mnemonic) {
       // 相対アドレス
@@ -553,21 +554,25 @@ export const InstructionExecutor = {
 
       // 絶対アドレス
       case "LOAD_ABS":
+        cycles = 3
         if (decoded.operands.address16 !== undefined) {
           vm.setRegister("A", vm.readMemory8(decoded.operands.address16))
         }
         break
       case "STORE_ABS":
+        cycles = 3
         if (decoded.operands.address16 !== undefined) {
           vm.writeMemory8(decoded.operands.address16, vm.getRegister("A") & 0xff)
         }
         break
       case "LOAD_ABS_W":
+        cycles = 3
         if (decoded.operands.address16 !== undefined) {
           vm.setRegister("A", vm.readMemory16(decoded.operands.address16))
         }
         break
       case "STORE_ABS_W":
+        cycles = 3
         if (decoded.operands.address16 !== undefined) {
           vm.writeMemory16(decoded.operands.address16, vm.getRegister("A"))
         }
@@ -582,7 +587,7 @@ export const InstructionExecutor = {
     }
 
     vm.advancePC(decoded.length)
-    return { success: true, cycles: 2 } // メモリアクセスは2サイクル
+    return { success: true, cycles }
   },
 
   /** ジャンプ命令実行 */
