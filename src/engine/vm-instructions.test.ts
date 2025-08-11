@@ -4357,7 +4357,7 @@ describe("0xc1 DIV_AB", () => {
 
     expect(result.success).toBe(false)
     expect(result.error).toBeDefined()
-    expect(result.error).toContain("division by zero")
+    expect(result.error).toContain("Division by zero")
   })
 })
 
