@@ -2851,6 +2851,51 @@ describe("0x41 STORE_A", () => {
     })
     expect(vm.readMemory8(0x20)).toBe(0x34) // Aの下位8bitのみ書き込まれる
   })
+
+  test("STORE_A実行 - 負の相対オフセット", () => {
+    vm.pc = 0x60
+    vm.setRegister("A", 0xbeef)
+    vm.setRegister("B", 0x1111)
+    vm.setRegister("C", 0x2222)
+    vm.setRegister("D", 0x3333)
+
+    // STORE_A命令（PC=0x60から相対オフセット-0x20）
+    vm.writeMemory8(0x60, 0x41) // STORE_A
+    vm.writeMemory8(0x61, 0xe0) // 下位バイト
+    vm.writeMemory8(0x62, 0xff) // 上位バイト（オフセット = -0x20）
+    // 書き込みアドレス: PC(0x60) + 3(命令長) + (-0x20) = 0x43
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0x60,
+      sp: 0xff,
+      registerA: 0xbeef,
+      registerB: 0x1111,
+      registerC: 0x2222,
+      registerD: 0x3333,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(2)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 0x63,
+      sp: 0xff,
+      registerA: 0xbeef,
+      registerB: 0x1111,
+      registerC: 0x2222,
+      registerD: 0x3333,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(vm.readMemory8(0x43)).toBe(0xef) // Aの下位8bitのみ書き込まれる
+  })
 })
 
 describe("0x42 LOAD_IND", () => {
@@ -2898,6 +2943,100 @@ describe("0x42 LOAD_IND", () => {
       sp: 0xff,
       registerA: 0x00ab,
       registerB: 0x0020,
+      registerC: 0xcccc,
+      registerD: 0xdddd,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("LOAD_IND実行 - 負のオフセット", () => {
+    vm.setRegister("A", 0x0000)
+    vm.setRegister("B", 0x0050)
+    vm.setRegister("C", 0x1111)
+    vm.setRegister("D", 0x2222)
+
+    // メモリにデータを配置
+    vm.writeMemory8(0x40, 0x99) // B(0x50) + offset(-0x10) = 0x40
+
+    // LOAD_IND命令
+    vm.writeMemory8(0, 0x42) // LOAD_IND
+    vm.writeMemory8(1, 0xf0) // 下位バイト
+    vm.writeMemory8(2, 0xff) // 上位バイト（オフセット = -0x10）
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x0000,
+      registerB: 0x0050,
+      registerC: 0x1111,
+      registerD: 0x2222,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(2)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 3,
+      sp: 0xff,
+      registerA: 0x0099,
+      registerB: 0x0050,
+      registerC: 0x1111,
+      registerD: 0x2222,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("LOAD_IND実行 - 配列要素アクセスパターン", () => {
+    // 配列データを準備（アドレス0x80から）
+    const arrayBase = 0x80
+    vm.writeMemory8(arrayBase + 0, 10)
+    vm.writeMemory8(arrayBase + 1, 20)
+    vm.writeMemory8(arrayBase + 2, 30)
+    vm.writeMemory8(arrayBase + 3, 40)
+
+    vm.setRegister("A", 0xffff)
+    vm.setRegister("B", arrayBase)
+    vm.setRegister("C", 0xcccc)
+    vm.setRegister("D", 0xdddd)
+
+    // インデックス3の要素を読み込み
+    vm.writeMemory8(0, 0x42) // LOAD_IND
+    vm.writeMemory8(1, 0x03) // offset: +3
+    vm.writeMemory8(2, 0x00)
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xffff,
+      registerB: arrayBase,
+      registerC: 0xcccc,
+      registerD: 0xdddd,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(2)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 3,
+      sp: 0xff,
+      registerA: 40,
+      registerB: arrayBase,
       registerC: 0xcccc,
       registerD: 0xdddd,
       carryFlag: false,
@@ -2955,6 +3094,50 @@ describe("0x43 STORE_IND", () => {
     })
     expect(vm.readMemory8(0x60)).toBe(0x34) // B(0x40) + offset(0x20) = 0x60にAの下位8bit
   })
+
+  test("STORE_IND実行 - 負のオフセット", () => {
+    vm.setRegister("A", 0xfeed)
+    vm.setRegister("B", 0x0070)
+    vm.setRegister("C", 0x3333)
+    vm.setRegister("D", 0x4444)
+
+    // STORE_IND命令
+    vm.writeMemory8(0, 0x43) // STORE_IND
+    vm.writeMemory8(1, 0xf0) // 下位バイト
+    vm.writeMemory8(2, 0xff) // 上位バイト（オフセット = -0x10）
+    // 書き込みアドレス: B(0x70) + (-0x10) = 0x60
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xfeed,
+      registerB: 0x0070,
+      registerC: 0x3333,
+      registerD: 0x4444,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(2)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 3,
+      sp: 0xff,
+      registerA: 0xfeed,
+      registerB: 0x0070,
+      registerC: 0x3333,
+      registerD: 0x4444,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(vm.readMemory8(0x60)).toBe(0xed) // Aの下位8bitのみ書き込まれる
+  })
 })
 
 describe("0x44 LOAD_A_W", () => {
@@ -3005,6 +3188,52 @@ describe("0x44 LOAD_A_W", () => {
       registerB: 0xeeee,
       registerC: 0xdddd,
       registerD: 0xcccc,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("LOAD_A_W実行 - 負の相対オフセット", () => {
+    vm.pc = 0x80
+    vm.writeMemory16(0x70, 0xabcd) // アドレス0x70に値を書き込み
+
+    vm.setRegister("A", 0x0000)
+    vm.setRegister("B", 0x1111)
+    vm.setRegister("C", 0x2222)
+    vm.setRegister("D", 0x3333)
+
+    // LOAD_A_W命令（PC=0x80から相対オフセット-0x10）
+    vm.writeMemory8(0x80, 0x44) // LOAD_A_W
+    vm.writeMemory8(0x81, 0xf0) // 下位バイト
+    vm.writeMemory8(0x82, 0xff) // 上位バイト（オフセット = -0x10）
+    // 読み込みアドレス: PC(0x80) + 3(命令長) + (-0x10) = 0x73
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0x80,
+      sp: 0xff,
+      registerA: 0x0000,
+      registerB: 0x1111,
+      registerC: 0x2222,
+      registerD: 0x3333,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(2)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 0x83,
+      sp: 0xff,
+      registerA: 0xabcd,
+      registerB: 0x1111,
+      registerC: 0x2222,
+      registerD: 0x3333,
       carryFlag: false,
       zeroFlag: false,
     })
@@ -3060,6 +3289,51 @@ describe("0x45 STORE_A_W", () => {
     })
     expect(vm.readMemory8(0x10)).toBe(0xcd) // 下位バイト
     expect(vm.readMemory8(0x11)).toBe(0xab) // 上位バイト
+  })
+
+  test("STORE_A_W実行 - 負の相対オフセット", () => {
+    vm.pc = 0x90
+    vm.setRegister("A", 0xbeef)
+    vm.setRegister("B", 0x4444)
+    vm.setRegister("C", 0x5555)
+    vm.setRegister("D", 0x6666)
+
+    // STORE_A_W命令（PC=0x90から相対オフセット-0x20）
+    vm.writeMemory8(0x90, 0x45) // STORE_A_W
+    vm.writeMemory8(0x91, 0xe0) // 下位バイト
+    vm.writeMemory8(0x92, 0xff) // 上位バイト（オフセット = -0x20）
+    // 書き込みアドレス: PC(0x90) + 3(命令長) + (-0x20) = 0x73
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0x90,
+      sp: 0xff,
+      registerA: 0xbeef,
+      registerB: 0x4444,
+      registerC: 0x5555,
+      registerD: 0x6666,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(2)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 0x93,
+      sp: 0xff,
+      registerA: 0xbeef,
+      registerB: 0x4444,
+      registerC: 0x5555,
+      registerD: 0x6666,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(vm.readMemory16(0x73)).toBe(0xbeef)
   })
 })
 
@@ -3164,6 +3438,135 @@ describe("0x51 STORE_REG", () => {
       zeroFlag: false,
     })
     expect(vm.readMemory8(0x60)).toBe(0x78) // Cレジスタの値のアドレスにAの下位8bit
+  })
+
+  test("STORE_REG実行 - 異なるレジスタへの書き込み（レジスタA）", () => {
+    vm.setRegister("A", 0xbeef)
+    vm.setRegister("B", 0x0040)
+    vm.setRegister("C", 0x0050)
+    vm.setRegister("D", 0x0060)
+
+    // STORE_REG命令（Aレジスタが指すアドレスに書き込み）
+    vm.writeMemory8(0, 0x51) // STORE_REG
+    vm.writeMemory8(1, 0x00) // レジスタ指定 (0=A)
+    vm.writeMemory8(2, 0x00) // 未使用
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xbeef,
+      registerB: 0x0040,
+      registerC: 0x0050,
+      registerD: 0x0060,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(2)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 3,
+      sp: 0xff,
+      registerA: 0xbeef,
+      registerB: 0x0040,
+      registerC: 0x0050,
+      registerD: 0x0060,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(vm.readMemory8(0xbeef)).toBe(0xef) // Aレジスタの下位8bitが書き込まれる
+  })
+
+  test("STORE_REG実行 - 異なるレジスタへの書き込み（レジスタB）", () => {
+    vm.setRegister("A", 0xfeed)
+    vm.setRegister("B", 0x0070)
+    vm.setRegister("C", 0x0080)
+    vm.setRegister("D", 0x0090)
+
+    // STORE_REG命令（Bレジスタが指すアドレスに書き込み）
+    vm.writeMemory8(0, 0x51) // STORE_REG
+    vm.writeMemory8(1, 0x01) // レジスタ指定 (1=B)
+    vm.writeMemory8(2, 0x00) // 未使用
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xfeed,
+      registerB: 0x0070,
+      registerC: 0x0080,
+      registerD: 0x0090,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(2)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 3,
+      sp: 0xff,
+      registerA: 0xfeed,
+      registerB: 0x0070,
+      registerC: 0x0080,
+      registerD: 0x0090,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(vm.readMemory8(0x70)).toBe(0xed) // Aレジスタの下位8bitが書き込まれる
+  })
+
+  test("STORE_REG実行 - 異なるレジスタへの書き込み（レジスタD）", () => {
+    vm.setRegister("A", 0xcafe)
+    vm.setRegister("B", 0x0010)
+    vm.setRegister("C", 0x0020)
+    vm.setRegister("D", 0x00a0)
+
+    // STORE_REG命令（Dレジスタが指すアドレスに書き込み）
+    vm.writeMemory8(0, 0x51) // STORE_REG
+    vm.writeMemory8(1, 0x03) // レジスタ指定 (3=D)
+    vm.writeMemory8(2, 0x00) // 未使用
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xcafe,
+      registerB: 0x0010,
+      registerC: 0x0020,
+      registerD: 0x00a0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(2)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 3,
+      sp: 0xff,
+      registerA: 0xcafe,
+      registerB: 0x0010,
+      registerC: 0x0020,
+      registerD: 0x00a0,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(vm.readMemory8(0xa0)).toBe(0xfe) // Aレジスタの下位8bitが書き込まれる
   })
 })
 
@@ -4072,6 +4475,53 @@ describe("0xa2 LOAD_ABS_W", () => {
       zeroFlag: false,
     })
   })
+
+  test("LOAD_ABS_W実行 - メモリ境界でのワード読み込み", () => {
+    // メモリ最後尾にワードデータを配置
+    vm.writeMemory8(0xfe, 0x34) // 下位バイト
+    vm.writeMemory8(0xff, 0x12) // 上位バイト
+
+    vm.setRegister("A", 0x0000)
+    vm.setRegister("B", 0x1111)
+    vm.setRegister("C", 0x2222)
+    vm.setRegister("D", 0x3333)
+
+    // LOAD_ABS_W命令
+    vm.writeMemory8(0, 0xa2) // LOAD_ABS_W
+    vm.writeMemory8(1, 0xfe) // 下位バイト
+    vm.writeMemory8(2, 0x00) // 上位バイト（アドレス = 0x00fe）
+    vm.writeMemory8(3, 0x00) // 第4バイト（未使用）
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x0000,
+      registerB: 0x1111,
+      registerC: 0x2222,
+      registerD: 0x3333,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 4,
+      sp: 0xff,
+      registerA: 0x1234,
+      registerB: 0x1111,
+      registerC: 0x2222,
+      registerD: 0x3333,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
 })
 
 describe("0xa3 STORE_ABS_W", () => {
@@ -4112,6 +4562,51 @@ describe("0xa3 STORE_ABS_W", () => {
     expect(vm.getRegister("D")).toBe(0xbbbb)
     expect(vm.readMemory8(0xb0)).toBe(0x78) // 下位バイト
     expect(vm.readMemory8(0xb1)).toBe(0x56) // 上位バイト
+  })
+
+  test("STORE_ABS_W実行 - メモリ境界でのワード書き込み", () => {
+    vm.setRegister("A", 0xabcd)
+    vm.setRegister("B", 0x4444)
+    vm.setRegister("C", 0x5555)
+    vm.setRegister("D", 0x6666)
+
+    // STORE_ABS_W命令
+    vm.writeMemory8(0, 0xa3) // STORE_ABS_W
+    vm.writeMemory8(1, 0xff) // 下位バイト
+    vm.writeMemory8(2, 0x00) // 上位バイト（アドレス = 0x00ff）
+    vm.writeMemory8(3, 0x00) // 第4バイト（未使用）
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xabcd,
+      registerB: 0x4444,
+      registerC: 0x5555,
+      registerD: 0x6666,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 4,
+      sp: 0xff,
+      registerA: 0xabcd,
+      registerB: 0x4444,
+      registerC: 0x5555,
+      registerD: 0x6666,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(vm.readMemory8(0xff)).toBe(0xcd) // 下位バイト
+    expect(vm.readMemory8(0x00)).toBe(0xab) // 上位バイト（ラップアラウンド）
   })
 })
 
