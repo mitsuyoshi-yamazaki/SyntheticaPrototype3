@@ -223,28 +223,28 @@ export const InstructionExecutor = {
 
       // デクリメント
       case "DEC_A":
+        vm.updateCarryFlagSub(vm.getRegister("A"), 1)
         result = vm.getRegister("A") - 1
         vm.setRegister("A", result)
         vm.updateZeroFlag(result)
-        vm.updateCarryFlagSub(vm.getRegister("A") + 1, 1)
         break
       case "DEC_B":
+        vm.updateCarryFlagSub(vm.getRegister("B"), 1)
         result = vm.getRegister("B") - 1
         vm.setRegister("B", result)
         vm.updateZeroFlag(result)
-        vm.updateCarryFlagSub(vm.getRegister("B") + 1, 1)
         break
       case "DEC_C":
+        vm.updateCarryFlagSub(vm.getRegister("C"), 1)
         result = vm.getRegister("C") - 1
         vm.setRegister("C", result)
         vm.updateZeroFlag(result)
-        vm.updateCarryFlagSub(vm.getRegister("C") + 1, 1)
         break
       case "DEC_D":
+        vm.updateCarryFlagSub(vm.getRegister("D"), 1)
         result = vm.getRegister("D") - 1
         vm.setRegister("D", result)
         vm.updateZeroFlag(result)
-        vm.updateCarryFlagSub(vm.getRegister("D") + 1, 1)
         break
 
       // レジスタ間演算
@@ -402,7 +402,7 @@ export const InstructionExecutor = {
         } else {
           result = (a >>> b) & 0xffff // 論理右シフト
           // キャリーフラグ: シフトで失われたビットがある場合
-          vm.carryFlag = b > 0 && ((a & ((1 << b) - 1)) !== 0)
+          vm.carryFlag = b > 0 && (a & ((1 << b) - 1)) !== 0
         }
         vm.setRegister("A", result)
         vm.updateZeroFlag(result)
@@ -1066,7 +1066,7 @@ export const InstructionExecutor = {
     // 第3バイト: アドレス指定レジスタ（0=A, 1=B, 2=C, 3=D）
     const unitByte = decoded.operands.unitId
     const regIndex = decoded.operands.unitMemAddr // 第3バイトがレジスタインデックスとして使用される
-    
+
     if (unitByte === undefined || regIndex === undefined) {
       return {
         success: false,
@@ -1074,14 +1074,14 @@ export const InstructionExecutor = {
         cycles: 1,
       }
     }
-    
+
     // レジスタから動的アドレスを取得
     const dynamicAddr = vm.getRegisterByIndex(regIndex & 0x03) & 0xff
-    
+
     // ユニット種別とインデックスを分離
     const unitType = (unitByte >> 4) & 0x0f
     const unitIndex = unitByte & 0x0f
-    
+
     // 対象ユニットの特定
     const targetUnit = this.findUnit(unit, unitType, unitIndex)
     if (targetUnit == null) {
@@ -1093,7 +1093,7 @@ export const InstructionExecutor = {
         cycles: 3, // ユニット操作は3サイクル消費
       }
     }
-    
+
     const memInterface = createMemoryInterface(targetUnit)
     if (memInterface == null) {
       // 仕様: 失敗してもエネルギー消費、副作用なし
@@ -1103,11 +1103,11 @@ export const InstructionExecutor = {
         cycles: 3, // ユニット操作は3サイクル消費
       }
     }
-    
+
     // Aレジスタの下位8bitを書き込み
     const value = vm.getRegister("A") & 0xff
     const success = memInterface.writeMemory(dynamicAddr, value)
-    
+
     // 仕様: 失敗してもエネルギー消費、副作用なし
     if (!success) {
       return {
@@ -1116,7 +1116,7 @@ export const InstructionExecutor = {
         cycles: 3, // ユニット操作は3サイクル消費
       }
     }
-    
+
     // 成功時はPCを進める
     vm.advancePC(decoded.length)
     return { success: true, cycles: 3 }
@@ -1133,7 +1133,7 @@ export const InstructionExecutor = {
     // 現在は仮実装としてnullを返す
     return null
   },
-  
+
   /**
    * ユニット種別とインデックスからユニットを検索
    * @param currentUnit 現在のユニット
@@ -1172,7 +1172,7 @@ export const InstructionExecutor = {
     while (totalCycles < maxCycles) {
       const result = this.step(vm, unit)
       totalCycles += result.cycles
-      
+
       // エラーが発生した場合は実行を停止
       if (!result.success) {
         break
