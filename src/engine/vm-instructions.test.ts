@@ -5155,6 +5155,178 @@ describe("0xc2 SHL", () => {
     expect(vm.getRegister("C")).toBe(0xaaaa)
     expect(vm.getRegister("D")).toBe(0xbbbb)
   })
+
+  test("SHL実行 - 0ビットシフト（境界値）", () => {
+    vm.setRegister("A", 0x5555)
+    vm.setRegister("B", 0x0000) // 0ビットシフト
+    vm.setRegister("C", 0x1111)
+    vm.setRegister("D", 0x2222)
+
+    vm.writeMemory8(0, 0xc2) // SHL
+    vm.writeMemory8(1, 0x00)
+    vm.writeMemory8(2, 0x00)
+    vm.writeMemory8(3, 0x00)
+    vm.writeMemory8(4, 0x00)
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x5555,
+      registerB: 0x0000,
+      registerC: 0x1111,
+      registerD: 0x2222,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証 - 0ビットシフトは値が変わらない
+    expectVMState(vm, {
+      pc: 5,
+      sp: 0xff,
+      registerA: 0x5555, // 変化なし
+      registerB: 0x0000,
+      registerC: 0x1111,
+      registerD: 0x2222,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("SHL実行 - 15ビットシフト（最大値）", () => {
+    vm.setRegister("A", 0x0001)
+    vm.setRegister("B", 0x000f) // 15ビットシフト
+    vm.setRegister("C", 0x3333)
+    vm.setRegister("D", 0x4444)
+
+    vm.writeMemory8(0, 0xc2) // SHL
+    vm.writeMemory8(1, 0x00)
+    vm.writeMemory8(2, 0x00)
+    vm.writeMemory8(3, 0x00)
+    vm.writeMemory8(4, 0x00)
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x0001,
+      registerB: 0x000f,
+      registerC: 0x3333,
+      registerD: 0x4444,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証 - 1 << 15 = 0x8000
+    expectVMState(vm, {
+      pc: 5,
+      sp: 0xff,
+      registerA: 0x8000, // 1 << 15
+      registerB: 0x000f,
+      registerC: 0x3333,
+      registerD: 0x4444,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("SHL実行 - 下位4ビット制限（Bレジスタが16以上）", () => {
+    vm.setRegister("A", 0x0001)
+    vm.setRegister("B", 0x0023) // 0x23 = 35 -> 下位4ビット = 0x3 = 3
+    vm.setRegister("C", 0x5555)
+    vm.setRegister("D", 0x6666)
+
+    vm.writeMemory8(0, 0xc2) // SHL
+    vm.writeMemory8(1, 0x00)
+    vm.writeMemory8(2, 0x00)
+    vm.writeMemory8(3, 0x00)
+    vm.writeMemory8(4, 0x00)
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x0001,
+      registerB: 0x0023,
+      registerC: 0x5555,
+      registerD: 0x6666,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証 - 下位4ビットのみ使用される
+    expectVMState(vm, {
+      pc: 5,
+      sp: 0xff,
+      registerA: 0x0008, // 1 << 3
+      registerB: 0x0023,
+      registerC: 0x5555,
+      registerD: 0x6666,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("SHL実行 - ゼロフラグセット", () => {
+    vm.setRegister("A", 0x0001)
+    vm.setRegister("B", 0x0010) // 16ビット -> 下位4ビット = 0
+    vm.setRegister("C", 0x7777)
+    vm.setRegister("D", 0x8888)
+
+    vm.writeMemory8(0, 0xc2) // SHL
+    vm.writeMemory8(1, 0x00)
+    vm.writeMemory8(2, 0x00)
+    vm.writeMemory8(3, 0x00)
+    vm.writeMemory8(4, 0x00)
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x0001,
+      registerB: 0x0010,
+      registerC: 0x7777,
+      registerD: 0x8888,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証 - 0x10 & 0xF = 0 -> 0ビットシフト
+    expectVMState(vm, {
+      pc: 5,
+      sp: 0xff,
+      registerA: 0x0001, // 1 << 0 = 1
+      registerB: 0x0010,
+      registerC: 0x7777,
+      registerD: 0x8888,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
 })
 
 describe("0xc3 SHR", () => {
@@ -5193,6 +5365,221 @@ describe("0xc3 SHR", () => {
     expect(vm.getRegister("B")).toBe(0x0008)
     expect(vm.getRegister("C")).toBe(0xcccc)
     expect(vm.getRegister("D")).toBe(0xdddd)
+  })
+
+  test("SHR実行 - 0ビットシフト（境界値）", () => {
+    vm.setRegister("A", 0xaaaa)
+    vm.setRegister("B", 0x0000) // 0ビットシフト
+    vm.setRegister("C", 0x1111)
+    vm.setRegister("D", 0x2222)
+
+    vm.writeMemory8(0, 0xc3) // SHR
+    vm.writeMemory8(1, 0x00)
+    vm.writeMemory8(2, 0x00)
+    vm.writeMemory8(3, 0x00)
+    vm.writeMemory8(4, 0x00)
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xaaaa,
+      registerB: 0x0000,
+      registerC: 0x1111,
+      registerD: 0x2222,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証 - 0ビットシフトは値が変わらない
+    expectVMState(vm, {
+      pc: 5,
+      sp: 0xff,
+      registerA: 0xaaaa, // 変化なし
+      registerB: 0x0000,
+      registerC: 0x1111,
+      registerD: 0x2222,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("SHR実行 - 15ビットシフト（最大値）", () => {
+    vm.setRegister("A", 0x8000)
+    vm.setRegister("B", 0x000f) // 15ビットシフト
+    vm.setRegister("C", 0x3333)
+    vm.setRegister("D", 0x4444)
+
+    vm.writeMemory8(0, 0xc3) // SHR
+    vm.writeMemory8(1, 0x00)
+    vm.writeMemory8(2, 0x00)
+    vm.writeMemory8(3, 0x00)
+    vm.writeMemory8(4, 0x00)
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x8000,
+      registerB: 0x000f,
+      registerC: 0x3333,
+      registerD: 0x4444,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証 - 0x8000 >> 15 = 1
+    expectVMState(vm, {
+      pc: 5,
+      sp: 0xff,
+      registerA: 0x0001, // 0x8000 >> 15
+      registerB: 0x000f,
+      registerC: 0x3333,
+      registerD: 0x4444,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("SHR実行 - 下位4ビット制限（Bレジスタが16以上）", () => {
+    vm.setRegister("A", 0xf000)
+    vm.setRegister("B", 0x0024) // 0x24 = 36 -> 下位4ビット = 0x4 = 4
+    vm.setRegister("C", 0x5555)
+    vm.setRegister("D", 0x6666)
+
+    vm.writeMemory8(0, 0xc3) // SHR
+    vm.writeMemory8(1, 0x00)
+    vm.writeMemory8(2, 0x00)
+    vm.writeMemory8(3, 0x00)
+    vm.writeMemory8(4, 0x00)
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xf000,
+      registerB: 0x0024,
+      registerC: 0x5555,
+      registerD: 0x6666,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証 - 下位4ビットのみ使用される
+    expectVMState(vm, {
+      pc: 5,
+      sp: 0xff,
+      registerA: 0x0f00, // 0xf000 >> 4
+      registerB: 0x0024,
+      registerC: 0x5555,
+      registerD: 0x6666,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("SHR実行 - 符号なし右シフト（最上位ビットが1）", () => {
+    vm.setRegister("A", 0x8000) // 最上位ビットが1
+    vm.setRegister("B", 0x0001) // 1ビットシフト
+    vm.setRegister("C", 0x7777)
+    vm.setRegister("D", 0x8888)
+
+    vm.writeMemory8(0, 0xc3) // SHR
+    vm.writeMemory8(1, 0x00)
+    vm.writeMemory8(2, 0x00)
+    vm.writeMemory8(3, 0x00)
+    vm.writeMemory8(4, 0x00)
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x8000,
+      registerB: 0x0001,
+      registerC: 0x7777,
+      registerD: 0x8888,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証 - 論理シフトなので0埋め
+    expectVMState(vm, {
+      pc: 5,
+      sp: 0xff,
+      registerA: 0x4000, // 0x8000 >> 1 = 0x4000（論理シフト）
+      registerB: 0x0001,
+      registerC: 0x7777,
+      registerD: 0x8888,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("SHR実行 - ゼロフラグセット", () => {
+    vm.setRegister("A", 0x0001)
+    vm.setRegister("B", 0x0001) // 1ビットシフト
+    vm.setRegister("C", 0x9999)
+    vm.setRegister("D", 0xaaaa)
+
+    vm.writeMemory8(0, 0xc3) // SHR
+    vm.writeMemory8(1, 0x00)
+    vm.writeMemory8(2, 0x00)
+    vm.writeMemory8(3, 0x00)
+    vm.writeMemory8(4, 0x00)
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x0001,
+      registerB: 0x0001,
+      registerC: 0x9999,
+      registerD: 0xaaaa,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証 - 1 >> 1 = 0
+    expectVMState(vm, {
+      pc: 5,
+      sp: 0xff,
+      registerA: 0x0000, // 1 >> 1 = 0
+      registerB: 0x0001,
+      registerC: 0x9999,
+      registerD: 0xaaaa,
+      carryFlag: false,
+      zeroFlag: true, // ゼロフラグセット
+    })
   })
 })
 
