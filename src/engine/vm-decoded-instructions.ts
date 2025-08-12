@@ -2,7 +2,8 @@ import { UnitType } from "../types/game"
 import { Instruction } from "./vm-instructions"
 import { RegisterName } from "./vm-state"
 
-type OperandOffset16 = { readonly offset16: number } /** 16bit符号付きオフセット（3バイト命令） */
+type OperandOffset16 = { readonly offset16: number } /** 16bit符号付きオフセット */
+type OperandAddress16 = { readonly address16: number } /** 16bit絶対アドレス */
 type OperandRegister = { readonly register: RegisterName } /** レジスタ名 */
 type OperandUnit = {
   readonly unitType: UnitType
@@ -106,6 +107,20 @@ export type InstructionCmpE32 = Instruction & { readonly mnemonic: "CMP_E32" }
 export type InstructionShrE10 = Instruction & { readonly mnemonic: "SHR_E10" }
 export type InstructionShlE10 = Instruction & { readonly mnemonic: "SHL_E10" }
 
+// 動的ユニット操作命令
+export type InstructionUnitMemWriteDyn = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE_DYN", readonly operand: OperandUnit & OperandRegister }
+
+// メモリアクセス命令（絶対アドレス）
+export type InstructionLoadAbs = Instruction & { readonly mnemonic: "LOAD_ABS", readonly operand: OperandAddress16 }
+export type InstructionStoreAbs = Instruction & { readonly mnemonic: "STORE_ABS", readonly operand: OperandAddress16 }
+export type InstructionLoadAbsW = Instruction & { readonly mnemonic: "LOAD_ABS_W", readonly operand: OperandAddress16 }
+export type InstructionStoreAbsW = Instruction & { readonly mnemonic: "STORE_ABS_W", readonly operand: OperandAddress16 }
+
+// 間接ジャンプ命令
+export type InstructionJmpInd = Instruction & { readonly mnemonic: "JMP_IND", readonly operand: OperandRegister }
+export type InstructionJmpAbs = Instruction & { readonly mnemonic: "JMP_ABS", readonly operand: OperandAddress16 }
+export type InstructionRet = Instruction & { readonly mnemonic: "RET" }
+
 export type DecodedInstruction =
   | InstructionNop0
   | InstructionNop1
@@ -179,3 +194,11 @@ export type DecodedInstruction =
   | InstructionCmpE32
   | InstructionShrE10
   | InstructionShlE10
+  | InstructionUnitMemWriteDyn
+  | InstructionLoadAbs
+  | InstructionStoreAbs
+  | InstructionLoadAbsW
+  | InstructionStoreAbsW
+  | InstructionJmpInd
+  | InstructionJmpAbs
+  | InstructionRet
