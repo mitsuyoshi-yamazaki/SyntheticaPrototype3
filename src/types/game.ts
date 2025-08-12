@@ -9,7 +9,8 @@ export type ObjectId = number & { readonly __brand: "ObjectId" }
 export type HullType = "HULL" // HULLユニット
 export type AssemblerType = "ASSEMBLER" // ASSEMBLERユニット
 export type ComputerType = "COMPUTER" // COMPUTERユニット
-export type UnitType = HullType | AssemblerType | ComputerType
+export const UnitTypes = ["HULL", "ASSEMBLER", "COMPUTER"] as const
+export type UnitType = (typeof UnitTypes)[number]
 
 /** ゲームオブジェクトの種別 */
 export type EnergyType = "ENERGY" // エネルギーオブジェクト
