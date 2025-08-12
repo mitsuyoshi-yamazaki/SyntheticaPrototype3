@@ -4,17 +4,29 @@
  */
 
 /** 命令タイプ */
-export type InstructionType =
-  | "NOP"
-  | "DATA_MOVE"
-  | "ARITHMETIC"
-  | "STACK"
-  | "MEMORY"
-  | "JUMP"
-  | "UNIT"
-  | "SPECIAL"
-  | "TEMPLATE"
-  | "ENERGY"
+export type NOP = "NOP"
+export type DATA_MOVE = "DATA_MOVE"
+export type ARITHMETIC = "ARITHMETIC"
+export type STACK = "STACK"
+export type MEMORY = "MEMORY"
+export type JUMP = "JUMP"
+export type UNIT = "UNIT"
+export type SPECIAL = "SPECIAL"
+export type TEMPLATE = "TEMPLATE"
+export type ENERGY = "ENERGY"
+export const InstructionTypes = [
+  "NOP",
+  "DATA_MOVE",
+  "ARITHMETIC",
+  "STACK",
+  "MEMORY",
+  "JUMP",
+  "UNIT",
+  "SPECIAL",
+  "TEMPLATE",
+  "ENERGY",
+] as const
+export type InstructionType = (typeof InstructionTypes)[number]
 
 /** 命令情報 */
 export type Instruction = {
