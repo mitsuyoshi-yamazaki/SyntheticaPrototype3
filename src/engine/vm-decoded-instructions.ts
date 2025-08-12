@@ -1,4 +1,5 @@
 import { Instruction } from "./vm-instructions"
+import { RegisterName } from "./vm-state"
 
 // 1バイト命令
 export type InstructionNop0 = Instruction & { readonly mnemonic: "NOP0" }
@@ -40,6 +41,33 @@ export type InstructionPopB = Instruction & { readonly mnemonic: "POP_B" }
 export type InstructionPopC = Instruction & { readonly mnemonic: "POP_C" }
 export type InstructionPopD = Instruction & { readonly mnemonic: "POP_D" }
 
+type OperandOffset16 = { readonly offset16: number } /** 16bit符号付きオフセット（3バイト命令） */
+type OperandRegister = { readonly register: RegisterName } /** レジスタ名 */
+
+// 3バイト命令
+export type InstructionLoadA = Instruction & { readonly mnemonic: "LOAD_A", readonly operand: OperandOffset16 }
+export type InstructionStoreA = Instruction & { readonly mnemonic: "STORE_A", readonly operand: OperandOffset16 }
+export type InstructionLoadInd = Instruction & { readonly mnemonic: "LOAD_IND", readonly operand: OperandOffset16 }
+export type InstructionStoreInd = Instruction & { readonly mnemonic: "STORE_IND", readonly operand: OperandOffset16 }
+export type InstructionLoadAW = Instruction & { readonly mnemonic: "LOAD_A_W", readonly operand: OperandOffset16 }
+export type InstructionStoreAW = Instruction & { readonly mnemonic: "STORE_A_W", readonly operand: OperandOffset16 }
+
+export type InstructionLoadReg = Instruction & { readonly mnemonic: "LOAD_REG", readonly operand: OperandRegister }
+export type InstructionStoreReg = Instruction & { readonly mnemonic: "STORE_REG", readonly operand: OperandRegister }
+export type InstructionLoadIndReg = Instruction & { readonly mnemonic: "LOAD_IND_REG", readonly operand: OperandRegister }
+export type InstructionStoreIndReg = Instruction & { readonly mnemonic: "STORE_IND_REG", readonly operand: OperandRegister }
+
+export type InstructionJmp = Instruction & { readonly mnemonic: "JMP", readonly operand: OperandOffset16 }
+export type InstructionJz = Instruction & { readonly mnemonic: "JZ", readonly operand: OperandOffset16 }
+export type InstructionJnz = Instruction & { readonly mnemonic: "JNZ", readonly operand: OperandOffset16 }
+export type InstructionJc = Instruction & { readonly mnemonic: "JC", readonly operand: OperandOffset16 }
+export type InstructionJnc = Instruction & { readonly mnemonic: "JNC", readonly operand: OperandOffset16 }
+export type InstructionCall = Instruction & { readonly mnemonic: "CALL", readonly operand: OperandOffset16 }
+export type InstructionJg = Instruction & { readonly mnemonic: "JG", readonly operand: OperandOffset16 }
+export type InstructionJle = Instruction & { readonly mnemonic: "JLE", readonly operand: OperandOffset16 }
+export type InstructionJge = Instruction & { readonly mnemonic: "JGE", readonly operand: OperandOffset16 }
+export type InstructionJl = Instruction & { readonly mnemonic: "JL", readonly operand: OperandOffset16 }
+
 
 export type DecodedInstruction =
   | InstructionNop0
@@ -80,3 +108,23 @@ export type DecodedInstruction =
   | InstructionPopB
   | InstructionPopC
   | InstructionPopD
+  | InstructionLoadA
+  | InstructionStoreA
+  | InstructionLoadInd
+  | InstructionStoreInd
+  | InstructionLoadAW
+  | InstructionStoreAW
+  | InstructionLoadReg
+  | InstructionStoreReg
+  | InstructionLoadIndReg
+  | InstructionStoreIndReg
+  | InstructionJmp
+  | InstructionJz
+  | InstructionJnz
+  | InstructionJc
+  | InstructionJnc
+  | InstructionCall
+  | InstructionJg
+  | InstructionJle
+  | InstructionJge
+  | InstructionJl
