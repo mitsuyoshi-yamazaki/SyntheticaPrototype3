@@ -3105,7 +3105,9 @@ describe("0x41 STORE_A", () => {
       carryFlag: false,
       zeroFlag: false,
     })
+    expect(vm.readMemory8(0x1f)).toBe(0x00)
     expect(vm.readMemory8(0x20)).toBe(0x34) // Aの下位8bitのみ書き込まれる
+    expect(vm.readMemory8(0x21)).toBe(0x00)
   })
 
   test("STORE_A実行 - 負の相対オフセット", () => {
@@ -3119,7 +3121,7 @@ describe("0x41 STORE_A", () => {
     vm.writeMemory8(0x60, 0x41) // STORE_A
     vm.writeMemory8(0x61, 0xe0) // 下位バイト
     vm.writeMemory8(0x62, 0xff) // 上位バイト（オフセット = -0x20）
-    // 書き込みアドレス: PC(0x60) + 3(命令長) + (-0x20) = 0x43
+    // 書き込みアドレス: PC(0x60) + (-0x20) = 0x40
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -3150,7 +3152,9 @@ describe("0x41 STORE_A", () => {
       carryFlag: false,
       zeroFlag: false,
     })
-    expect(vm.readMemory8(0x43)).toBe(0xef) // Aの下位8bitのみ書き込まれる
+    expect(vm.readMemory8(0x3f)).toBe(0x00)
+    expect(vm.readMemory8(0x40)).toBe(0xef) // Aの下位8bitのみ書き込まれる
+    expect(vm.readMemory8(0x41)).toBe(0x00)
   })
 })
 
@@ -3462,7 +3466,7 @@ describe("0x44 LOAD_A_W", () => {
     vm.writeMemory8(0x80, 0x44) // LOAD_A_W
     vm.writeMemory8(0x81, 0xf0) // 下位バイト
     vm.writeMemory8(0x82, 0xff) // 上位バイト（オフセット = -0x10）
-    // 読み込みアドレス: PC(0x80) + 3(命令長) + (-0x10) = 0x73
+    // 読み込みアドレス: PC(0x80) + (-0x10) = 0x70
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -3558,7 +3562,7 @@ describe("0x45 STORE_A_W", () => {
     vm.writeMemory8(0x90, 0x45) // STORE_A_W
     vm.writeMemory8(0x91, 0xe0) // 下位バイト
     vm.writeMemory8(0x92, 0xff) // 上位バイト（オフセット = -0x20）
-    // 書き込みアドレス: PC(0x90) + 3(命令長) + (-0x20) = 0x73
+    // 書き込みアドレス: PC(0x90) + (-0x20) = 0x70
 
     // 実行前の状態を検証
     expectVMState(vm, {
@@ -3589,7 +3593,9 @@ describe("0x45 STORE_A_W", () => {
       carryFlag: false,
       zeroFlag: false,
     })
-    expect(vm.readMemory16(0x73)).toBe(0xbeef)
+    expect(vm.readMemory16(0x68)).toBe(0x0000)
+    expect(vm.readMemory16(0x70)).toBe(0xbeef)
+    expect(vm.readMemory16(0x72)).toBe(0x0000)
   })
 })
 
