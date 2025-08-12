@@ -5577,7 +5577,7 @@ describe("0xc3 SHR", () => {
       registerB: 0x0001,
       registerC: 0x9999,
       registerD: 0xaaaa,
-      carryFlag: false,
+      carryFlag: true,
       zeroFlag: true, // ゼロフラグセット
     })
   })

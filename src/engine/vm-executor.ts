@@ -407,33 +407,21 @@ export const InstructionExecutor = {
       }
       case "SHL": {
         const a = vm.getRegister("A")
-        const b = vm.getRegister("B") & 0x1f // 下位5ビット使用（0-31）
-        if (b >= 16) {
-          // 16ビット以上のシフトは0
-          result = 0
-          vm.carryFlag = a !== 0
-        } else {
-          const shifted = a << b
-          result = shifted & 0xffff
-          // キャリーフラグ: 16ビットを超えた場合にtrue
-          vm.carryFlag = (shifted & 0x10000) !== 0
-        }
+        const b = vm.getRegister("B") & 0x0f // 下位4ビット使用（0-15）
+        const shifted = a << b
+        result = shifted & 0xffff
+        // キャリーフラグ: 16ビットを超えた場合にtrue
+        vm.carryFlag = (shifted & 0x10000) !== 0
         vm.setRegister("A", result)
         vm.updateZeroFlag(result)
         break
       }
       case "SHR": {
         const a = vm.getRegister("A")
-        const b = vm.getRegister("B") & 0x1f // 下位5ビット使用（0-31）
-        if (b >= 16) {
-          // 16ビット以上のシフトは0
-          result = 0
-          vm.carryFlag = a !== 0
-        } else {
-          result = (a >>> b) & 0xffff // 論理右シフト
-          // キャリーフラグ: シフトで失われたビットがある場合
-          vm.carryFlag = b > 0 && (a & ((1 << b) - 1)) !== 0
-        }
+        const b = vm.getRegister("B") & 0x0f // 下位5ビット使用（0-15）
+        result = (a >>> b) & 0xffff // 論理右シフト
+        // キャリーフラグ: シフトで失われたビットがある場合
+        vm.carryFlag = b > 0 && (a & ((1 << b) - 1)) !== 0
         vm.setRegister("A", result)
         vm.updateZeroFlag(result)
         break
