@@ -1,6 +1,11 @@
 import { UnitType } from "../types/game"
-import { Instruction } from "./vm-instructions"
+import { Instruction as InstructionDefinition } from "./vm-instructions"
 import { RegisterName } from "./vm-state"
+
+type Instruction = InstructionDefinition & {
+  /** 命令のアドレス */
+  readonly address: number
+}
 
 type OperandOffset16 = { readonly offset16: number } /** 16bit符号付きオフセット */
 type OperandAddress16 = { readonly address16: number } /** 16bit絶対アドレス */
@@ -14,7 +19,12 @@ type OperandUnit = {
   readonly unitType: UnitType
   readonly unitIndex: number
 }
+type OperandUnitMemoryAddress = {
+  readonly unitMemoryAddress: number
+}
 
+export type InstructionUndefined = Instruction & { readonly mnemonic: "NOP" }
+export type InstructionInvalid = Instruction & { readonly mnemonic: "INVALID", readonly invalidReason: string }
 
 // 1バイト命令
 // テンプレート用NOP
@@ -76,8 +86,8 @@ export type InstructionStoreAW = Instruction & { readonly mnemonic: "STORE_A_W",
 // レジスタベースメモリアクセス命令
 export type InstructionLoadReg = Instruction & { readonly mnemonic: "LOAD_REG", readonly operand: OperandRegister }
 export type InstructionStoreReg = Instruction & { readonly mnemonic: "STORE_REG", readonly operand: OperandRegister }
-export type InstructionLoadIndReg = Instruction & { readonly mnemonic: "LOAD_IND_REG", readonly operand: OperandRegister }
-export type InstructionStoreIndReg = Instruction & { readonly mnemonic: "STORE_IND_REG", readonly operand: OperandRegister }
+export type InstructionLoadIndReg = Instruction & { readonly mnemonic: "LOAD_IND_REG", readonly operand: OperandAddress16 }
+export type InstructionStoreIndReg = Instruction & { readonly mnemonic: "STORE_IND_REG", readonly operand: OperandAddress16 }
 
 // 制御命令
 export type InstructionJmp = Instruction & { readonly mnemonic: "JMP", readonly operand: OperandOffset16 }
@@ -91,6 +101,16 @@ export type InstructionJle = Instruction & { readonly mnemonic: "JLE", readonly 
 export type InstructionJge = Instruction & { readonly mnemonic: "JGE", readonly operand: OperandOffset16 }
 export type InstructionJl = Instruction & { readonly mnemonic: "JL", readonly operand: OperandOffset16 }
 
+// ユニット操作命令（メモリマップドI/O）
+export type InstructionUnitMemRead = Instruction & { readonly mnemonic: "UNIT_MEM_READ", readonly operand: OperandUnit & OperandUnitMemoryAddress }
+export type InstructionUnitMemWrite = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE", readonly operand: OperandUnit & OperandUnitMemoryAddress }
+export type InstructionUnitMemReadReg = Instruction & { readonly mnemonic: "UNIT_MEM_READ_REG", readonly operand: OperandUnit & OperandRegister }
+export type InstructionUnitMemWriteReg = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE_REG", readonly operand: OperandUnit & OperandRegister }
+export type InstructionUnitExists = Instruction & { readonly mnemonic: "UNIT_EXISTS", readonly operand: OperandUnit }
+
+// 動的ユニット操作命令
+export type InstructionUnitMemWriteDyn = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE_DYN", readonly operand: OperandUnit & OperandRegister }
+
 // 4バイト命令
 // パターンマッチング命令
 export type InstructionSearchF = Instruction & { readonly mnemonic: "SEARCH_F" }
@@ -98,22 +118,12 @@ export type InstructionSearchB = Instruction & { readonly mnemonic: "SEARCH_B" }
 export type InstructionSearchFMax = Instruction & { readonly mnemonic: "SEARCH_F_MAX" }
 export type InstructionSearchBMax = Instruction & { readonly mnemonic: "SEARCH_B_MAX" }
 
-// ユニット操作命令（メモリマップドI/O）
-export type InstructionUnitMemRead = Instruction & { readonly mnemonic: "UNIT_MEM_READ", readonly operand: OperandUnit }
-export type InstructionUnitMemWrite = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE", readonly operand: OperandUnit }
-export type InstructionUnitMemReadReg = Instruction & { readonly mnemonic: "UNIT_MEM_READ_REG", readonly operand: OperandUnit }
-export type InstructionUnitMemWriteReg = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE_REG", readonly operand: OperandUnit }
-export type InstructionUnitExists = Instruction & { readonly mnemonic: "UNIT_EXISTS", readonly operand: OperandUnit }
-
 // エネルギー計算命令（1024進法32bit演算）
 export type InstructionAddE32 = Instruction & { readonly mnemonic: "ADD_E32" }
 export type InstructionSubE32 = Instruction & { readonly mnemonic: "SUB_E32" }
 export type InstructionCmpE32 = Instruction & { readonly mnemonic: "CMP_E32" }
 export type InstructionShrE10 = Instruction & { readonly mnemonic: "SHR_E10" }
 export type InstructionShlE10 = Instruction & { readonly mnemonic: "SHL_E10" }
-
-// 動的ユニット操作命令
-export type InstructionUnitMemWriteDyn = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE_DYN", readonly operand: OperandUnit & OperandRegister }
 
 // メモリアクセス命令（絶対アドレス）
 export type InstructionLoadAbs = Instruction & { readonly mnemonic: "LOAD_ABS", readonly operand: OperandAddress16 }
@@ -147,7 +157,26 @@ export type InstructionLoadImmB = Instruction & { readonly mnemonic: "LOAD_IMM_B
 // NOP命令
 export type InstructionNop5 = Instruction & { readonly mnemonic: "NOP5" }
 
+// プログラムカウンタの変更を行う命令
+export type DecodedJumpInstruction = 
+  | InstructionJmp
+  | InstructionJz
+  | InstructionJnz
+  | InstructionJc
+  | InstructionJnc
+  | InstructionJg
+  | InstructionJle
+  | InstructionJge
+  | InstructionJl
+  | InstructionJmpInd
+  | InstructionJmpAbs
+  | InstructionCall
+  | InstructionRet
+
 export type DecodedInstruction =
+  | DecodedJumpInstruction
+  | InstructionUndefined
+  | InstructionInvalid
   | InstructionNop0
   | InstructionNop1
   | InstructionXchg
@@ -196,16 +225,6 @@ export type DecodedInstruction =
   | InstructionStoreReg
   | InstructionLoadIndReg
   | InstructionStoreIndReg
-  | InstructionJmp
-  | InstructionJz
-  | InstructionJnz
-  | InstructionJc
-  | InstructionJnc
-  | InstructionCall
-  | InstructionJg
-  | InstructionJle
-  | InstructionJge
-  | InstructionJl
   | InstructionSearchF
   | InstructionSearchB
   | InstructionSearchFMax
@@ -225,9 +244,6 @@ export type DecodedInstruction =
   | InstructionStoreAbs
   | InstructionLoadAbsW
   | InstructionStoreAbsW
-  | InstructionJmpInd
-  | InstructionJmpAbs
-  | InstructionRet
   | InstructionMulAb
   | InstructionDivAb
   | InstructionShl

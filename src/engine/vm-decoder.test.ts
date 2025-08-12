@@ -83,7 +83,7 @@ describe("InstructionDecoder", () => {
     })
 
     test("相対ジャンプ命令", () => {
-      vm.pc = 0x1000
+      vm.programCounter = 0x1000
       vm.writeMemory8(0x1000, 0x60) // JMP
       vm.writeMemory8(0x1001, 0x10) // offset low
       vm.writeMemory8(0x1002, 0x00) // offset high
@@ -106,7 +106,7 @@ describe("InstructionDecoder", () => {
       expect(decoded.length).toBe(3)
 
       // JUL (符号なし小なり)
-      vm.pc = 0
+      vm.programCounter = 0
       vm.writeMemory8(0, 0x6a) // JUL
       vm.writeMemory8(1, 0x08) // offset low
       vm.writeMemory8(2, 0x00) // offset high
@@ -233,7 +233,7 @@ describe("InstructionDecoder", () => {
 
   describe("decodeAt", () => {
     test("指定アドレスでのデコード", () => {
-      vm.pc = 0x500 // 現在のPC
+      vm.programCounter = 0x500 // 現在のPC
       vm.writeMemory8(0x100, 0xe0) // LOAD_IMM
       vm.writeMemory8(0x101, 0x34)
       vm.writeMemory8(0x102, 0x12)
@@ -245,7 +245,7 @@ describe("InstructionDecoder", () => {
       expect(decoded.address).toBe(0x100)
       expect(decoded.instruction?.mnemonic).toBe("LOAD_IMM")
       expect(decoded.operands.immediate16).toBe(0x1234)
-      expect(vm.pc).toBe(0x500) // PCは変更されない
+      expect(vm.programCounter).toBe(0x500) // PCは変更されない
     })
   })
 
@@ -259,7 +259,7 @@ describe("InstructionDecoder", () => {
     })
 
     test("メモリアクセス命令のフォーマット（相対）", () => {
-      vm.pc = 0x1000
+      vm.programCounter = 0x1000
       vm.writeMemory8(0x1000, 0x40) // LOAD_A
       vm.writeMemory8(0x1001, 0x10)
       vm.writeMemory8(0x1002, 0x00)
@@ -291,7 +291,7 @@ describe("InstructionDecoder", () => {
     })
 
     test("ジャンプ命令のフォーマット（相対）", () => {
-      vm.pc = 0x1000
+      vm.programCounter = 0x1000
       vm.writeMemory8(0x1000, 0x60) // JMP
       vm.writeMemory8(0x1001, 0xfc) // -4
       vm.writeMemory8(0x1002, 0xff)
@@ -350,7 +350,7 @@ describe("InstructionDecoder", () => {
   describe("境界条件", () => {
     test("メモリ境界での命令読み取り", () => {
       // メモリサイズ1024での境界テスト（5バイト命令）
-      vm.pc = 1020
+      vm.programCounter = 1020
       vm.writeMemory8(1020, 0xe0) // LOAD_IMM
       vm.writeMemory8(1021, 0xab)
       vm.writeMemory8(1022, 0xcd)

@@ -24,8 +24,8 @@ export const ComputerVMSystem = {
     vm.setRegister("D", computer.registers[3] ?? 0)
 
     // 状態の復元
-    vm.pc = computer.programCounter
-    vm.sp = computer.stackPointer
+    vm.programCounter = computer.programCounter
+    vm.stackPointer = computer.stackPointer
     vm.zeroFlag = computer.zeroFlag
     vm.carryFlag = computer.carryFlag
 
@@ -47,8 +47,8 @@ export const ComputerVMSystem = {
     computer.registers[3] = vm.getRegister("D")
 
     // 状態の同期
-    computer.programCounter = vm.pc
-    computer.stackPointer = vm.sp
+    computer.programCounter = vm.programCounter
+    computer.stackPointer = vm.stackPointer
     computer.zeroFlag = vm.zeroFlag
     computer.carryFlag = vm.carryFlag
   },
@@ -89,14 +89,13 @@ export const ComputerVMSystem = {
       if (!result.success) {
         // エラー発生（無効な命令をスキップして継続）
         // PCを次の命令に進める（無効な命令をスキップ）
-        vm.pc = (vm.pc + 1) % computer.memorySize
+        vm.programCounter = (vm.programCounter + 1) % computer.memorySize
         // 最小サイクル消費
         if (result.cycles === 0) {
           cyclesUsed += 1
         }
         continue
       }
-
     }
 
     // VM状態をユニットに同期（エラーがあっても同期）
@@ -124,7 +123,6 @@ export const ComputerVMSystem = {
     delete computer.vmError
     computer.vmCyclesExecuted = 0
   },
-
 
   /**
    * プログラムをロード

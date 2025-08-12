@@ -41,7 +41,9 @@ export class ComputerVMSystemDebug {
    * COMPUTERの親HULLを検索
    */
   private findParentHull(computer: Computer): Hull | null {
-    if (computer.parentHull === undefined) {return null}
+    if (computer.parentHull === undefined) {
+      return null
+    }
     return this.hullMap.get(computer.parentHull) ?? null
   }
 
@@ -70,16 +72,16 @@ export class ComputerVMSystemDebug {
 
     // VMStateを作成（Computerのメモリ配列を使用）
     const vmState = new VMState(computer.memorySize, computer.memory)
-    
+
     // レジスタの復元
     vmState.setRegister("A", computer.registers[0] ?? 0)
     vmState.setRegister("B", computer.registers[1] ?? 0)
     vmState.setRegister("C", computer.registers[2] ?? 0)
     vmState.setRegister("D", computer.registers[3] ?? 0)
-    
+
     // 状態の復元
-    vmState.pc = computer.programCounter
-    vmState.sp = computer.stackPointer
+    vmState.programCounter = computer.programCounter
+    vmState.stackPointer = computer.stackPointer
     vmState.zeroFlag = computer.zeroFlag
     vmState.carryFlag = computer.carryFlag
 
@@ -90,15 +92,15 @@ export class ComputerVMSystemDebug {
     // 命令実行ループ
     computer.vmCyclesExecuted = 0
     while (computer.vmCyclesExecuted < computer.processingPower) {
-      const beforePC = vmState.pc
-      
+      const beforePC = vmState.programCounter
+
       // 現在の命令を取得
       const opcode = vmState.readMemory8(beforePC) ?? 0
 
       try {
         // 1命令実行
         const result = InstructionExecutor.step(vmState)
-        
+
         // 実行サイクル数を更新
         computer.vmCyclesExecuted += result.cycles
 
@@ -127,17 +129,17 @@ export class ComputerVMSystemDebug {
             this.debugger.logError(computer, errorMsg)
           }
           // PCを次の命令に進める（無効な命令をスキップ）
-          vmState.pc = (vmState.pc + 1) % computer.memorySize
+          vmState.programCounter = (vmState.programCounter + 1) % computer.memorySize
           // 最小サイクル消費
           if (result.cycles === 0) {
             computer.vmCyclesExecuted += 1
           }
           continue
         }
-        
+
         // PCが範囲外の場合
-        if (vmState.pc >= computer.memorySize) {
-          vmState.pc = 0 // ラップアラウンド
+        if (vmState.programCounter >= computer.memorySize) {
+          vmState.programCounter = 0 // ラップアラウンド
         }
       } catch (error) {
         // エラー処理（スキップして継続）
@@ -146,7 +148,7 @@ export class ComputerVMSystemDebug {
           this.debugger.logError(computer, errorMsg)
         }
         // PCを次の命令に進める
-        vmState.pc = (vmState.pc + 1) % computer.memorySize
+        vmState.programCounter = (vmState.programCounter + 1) % computer.memorySize
         computer.vmCyclesExecuted += 1
       }
     }
@@ -157,10 +159,10 @@ export class ComputerVMSystemDebug {
     computer.registers[1] = vmState.getRegister("B")
     computer.registers[2] = vmState.getRegister("C")
     computer.registers[3] = vmState.getRegister("D")
-    
+
     // 状態の同期
-    computer.programCounter = vmState.pc
-    computer.stackPointer = vmState.sp
+    computer.programCounter = vmState.programCounter
+    computer.stackPointer = vmState.stackPointer
     computer.zeroFlag = vmState.zeroFlag
     computer.carryFlag = vmState.carryFlag
 
@@ -179,6 +181,6 @@ export class ComputerVMSystemDebug {
     if (instruction != null) {
       return instruction.mnemonic
     }
-    return `UNKNOWN(0x${opcode.toString(16).padStart(2, '0')})`
+    return `UNKNOWN(0x${opcode.toString(16).padStart(2, "0")})`
   }
 }

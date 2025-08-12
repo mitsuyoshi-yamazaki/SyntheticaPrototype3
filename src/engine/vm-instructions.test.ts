@@ -48,8 +48,8 @@ type VMSnapshot = {
 }
 
 function expectVMState(vm: VMState, expected: VMSnapshot): void {
-  expect(vm.pc).toBe(expected.pc)
-  expect(vm.sp).toBe(expected.sp)
+  expect(vm.programCounter).toBe(expected.pc)
+  expect(vm.stackPointer).toBe(expected.sp)
   expect(vm.getRegister("A")).toBe(expected.registerA)
   expect(vm.getRegister("B")).toBe(expected.registerB)
   expect(vm.getRegister("C")).toBe(expected.registerC)
@@ -83,8 +83,7 @@ describe("0x00 NOP0", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -127,8 +126,7 @@ describe("0x01 NOP1", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -173,8 +171,7 @@ describe("0x02 XCHG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -209,8 +206,7 @@ describe("0x02 XCHG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -246,8 +242,7 @@ describe("0x02 XCHG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     expectVMState(vm, {
@@ -294,8 +289,7 @@ describe("0x03 MOV_AB", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -340,8 +334,7 @@ describe("0x04 MOV_AD", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -386,8 +379,7 @@ describe("0x05 MOV_BA", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -432,8 +424,7 @@ describe("0x06 MOV_DA", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -477,8 +468,7 @@ describe("0x07 MOV_BC", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     expectVMState(vm, {
@@ -522,8 +512,7 @@ describe("0x08 MOV_CB", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -568,8 +557,7 @@ describe("0x09 MOV_AC", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -614,8 +602,7 @@ describe("0x0A MOV_CA", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -660,8 +647,7 @@ describe("0x0B MOV_CD", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -706,8 +692,7 @@ describe("0x0C MOV_DC", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -753,8 +738,7 @@ describe("0x0D MOV_SP", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -779,7 +763,7 @@ describe("0x0E SET_SP", () => {
   })
 
   test("SET_SP実行 - Aレジスタをスタックポインタにコピー", () => {
-    vm.setRegister("A", 0xe000)
+    vm.setRegister("A", 0x00c0)
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
@@ -789,7 +773,7 @@ describe("0x0E SET_SP", () => {
     expectVMState(vm, {
       pc: 0,
       sp: 0xff,
-      registerA: 0xe000,
+      registerA: 0x00c0,
       registerB: 0x1111,
       registerC: 0x2222,
       registerD: 0x3333,
@@ -799,15 +783,14 @@ describe("0x0E SET_SP", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
     expectVMState(vm, {
       pc: 1,
-      sp: 0xe000,
-      registerA: 0xe000,
+      sp: 0xc0,
+      registerA: 0x00c0,
       registerB: 0x1111,
       registerC: 0x2222,
       registerD: 0x3333,
@@ -846,8 +829,7 @@ describe("0x10 INC_A", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -884,8 +866,7 @@ describe("0x10 INC_A", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -930,8 +911,7 @@ describe("0x11 INC_B", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -968,8 +948,7 @@ describe("0x11 INC_B", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1013,8 +992,7 @@ describe("0x12 INC_C", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     expectVMState(vm, {
@@ -1050,8 +1028,7 @@ describe("0x12 INC_C", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1096,8 +1073,7 @@ describe("0x13 INC_D", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1134,8 +1110,7 @@ describe("0x13 INC_D", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1180,8 +1155,7 @@ describe("0x14 DEC_A", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1218,8 +1192,7 @@ describe("0x14 DEC_A", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1253,7 +1226,8 @@ describe("0x14 DEC_A", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -1296,8 +1270,7 @@ describe("0x15 DEC_B", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1333,8 +1306,7 @@ describe("0x15 DEC_B", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1367,7 +1339,8 @@ describe("0x15 DEC_B", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -1410,8 +1383,7 @@ describe("0x16 DEC_C", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1447,8 +1419,7 @@ describe("0x16 DEC_C", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1481,7 +1452,8 @@ describe("0x16 DEC_C", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -1524,8 +1496,7 @@ describe("0x17 DEC_D", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1561,8 +1532,7 @@ describe("0x17 DEC_D", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1595,7 +1565,8 @@ describe("0x17 DEC_D", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -1638,8 +1609,7 @@ describe("0x18 ADD_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1675,8 +1645,7 @@ describe("0x18 ADD_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1710,7 +1679,8 @@ describe("0x18 ADD_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -1753,8 +1723,7 @@ describe("0x19 SUB_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1790,8 +1759,7 @@ describe("0x19 SUB_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1825,7 +1793,8 @@ describe("0x19 SUB_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
     expectVMState(vm, {
@@ -1868,8 +1837,7 @@ describe("0x1A XOR_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1905,8 +1873,7 @@ describe("0x1A XOR_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -1943,8 +1910,7 @@ describe("0x1A XOR_AB", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証 - 同じ値のXORは0になる
@@ -1982,8 +1948,7 @@ describe("0x1A XOR_AB", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証 - 下位8ビットが反転
@@ -2027,8 +1992,7 @@ describe("0x1B AND_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -2064,8 +2028,7 @@ describe("0x1B AND_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -2103,8 +2066,7 @@ describe("0x1B AND_AB", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証 - ビット4-7がクリアされる
@@ -2117,69 +2079,6 @@ describe("0x1B AND_AB", () => {
       registerD: 0x6666,
       carryFlag: false,
       zeroFlag: false,
-    })
-  })
-
-  test("AND_AB実行 - ビットテスト（特定ビットの判定）", () => {
-    // ビット12が立っているかテスト
-    vm.setRegister("A", 0x1000) // ビット12が1
-    vm.setRegister("B", 0x1000) // ビット12のマスク
-    vm.setRegister("C", 0x7777)
-    vm.setRegister("D", 0x8888)
-    vm.writeMemory8(0, 0x1b) // AND_AB
-
-    // 実行前の状態を検証
-    expectVMState(vm, {
-      pc: 0,
-      sp: 0xff,
-      registerA: 0x1000,
-      registerB: 0x1000,
-      registerC: 0x7777,
-      registerD: 0x8888,
-      carryFlag: false,
-      zeroFlag: false,
-    })
-
-    const result = InstructionExecutor.step(vm)
-
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
-    expect(result.cycles).toBe(1)
-
-    // 実行後の状態を検証 - ビットが立っている
-    expectVMState(vm, {
-      pc: 1,
-      sp: 0xff,
-      registerA: 0x1000, // ビットが立っている
-      registerB: 0x1000,
-      registerC: 0x7777,
-      registerD: 0x8888,
-      carryFlag: false,
-      zeroFlag: false, // ゼロではない
-    })
-
-    // ビット12が立っていない場合のテスト
-    vm.pc = 1
-    vm.setRegister("A", 0x0fff) // ビット12が0
-    vm.setRegister("B", 0x1000) // ビット12のマスク
-    vm.writeMemory8(1, 0x1b) // AND_AB
-
-    const result2 = InstructionExecutor.step(vm)
-
-    expect(result2.success).toBe(true)
-    expect(result2.error).toBeUndefined()
-    expect(result2.cycles).toBe(1)
-
-    // ビットが立っていない場合
-    expectVMState(vm, {
-      pc: 2,
-      sp: 0xff,
-      registerA: 0x0000, // ビットが立っていない
-      registerB: 0x1000,
-      registerC: 0x7777,
-      registerD: 0x8888,
-      carryFlag: false,
-      zeroFlag: true, // ゼロフラグがセットされる
     })
   })
 })
@@ -2211,8 +2110,7 @@ describe("0x1C OR_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -2248,8 +2146,7 @@ describe("0x1C OR_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -2287,8 +2184,7 @@ describe("0x1C OR_AB", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証 - ビット8-11がセットされる
@@ -2332,8 +2228,7 @@ describe("0x1D NOT_A", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -2369,8 +2264,7 @@ describe("0x1D NOT_A", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -2407,8 +2301,7 @@ describe("0x1D NOT_A", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証 - ゼロの否定は0xFFFF
@@ -2452,8 +2345,7 @@ describe("0x1E CMP_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -2489,8 +2381,7 @@ describe("0x1E CMP_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -2526,8 +2417,7 @@ describe("0x1E CMP_AB", () => {
     })
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -2574,8 +2464,7 @@ describe("0x1F PUSH_A", () => {
     expect(vm.readMemory8(0xfe)).toBe(0x00) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2) // スタック操作は2サイクル
 
     // 実行後の状態を検証
@@ -2624,8 +2513,7 @@ describe("0x20 PUSH_B", () => {
     expect(vm.readMemory8(0xfe)).toBe(0x00) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -2673,8 +2561,7 @@ describe("0x21 PUSH_C", () => {
     expect(vm.readMemory8(0xfe)).toBe(0x00) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -2722,8 +2609,7 @@ describe("0x22 PUSH_D", () => {
     expect(vm.readMemory8(0xfe)).toBe(0x00) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -2755,7 +2641,7 @@ describe("0x2E POP_A", () => {
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
     vm.writeMemory8(0, 0x2e) // POP_A
-    vm.sp = 0xfd
+    vm.stackPointer = 0xfd
     vm.writeMemory8(0xfd, 0x78) // 下位バイト
     vm.writeMemory8(0xfe, 0x56) // 上位バイト
 
@@ -2774,8 +2660,7 @@ describe("0x2E POP_A", () => {
     expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2) // スタック操作は2サイクル
 
     // 実行後の状態を検証
@@ -2809,7 +2694,7 @@ describe("0x2F POP_B", () => {
     vm.setRegister("C", 0x2222)
     vm.setRegister("D", 0x3333)
     vm.writeMemory8(0, 0x2f) // POP_B
-    vm.sp = 0xfd
+    vm.stackPointer = 0xfd
     vm.writeMemory8(0xfd, 0x78) // 下位バイト
     vm.writeMemory8(0xfe, 0x56) // 上位バイト
 
@@ -2828,8 +2713,7 @@ describe("0x2F POP_B", () => {
     expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -2863,7 +2747,7 @@ describe("0x30 POP_C", () => {
     vm.setRegister("C", 0x0000)
     vm.setRegister("D", 0x3333)
     vm.writeMemory8(0, 0x30) // POP_C
-    vm.sp = 0xfd
+    vm.stackPointer = 0xfd
     vm.writeMemory8(0xfd, 0x78) // 下位バイト
     vm.writeMemory8(0xfe, 0x56) // 上位バイト
 
@@ -2882,8 +2766,7 @@ describe("0x30 POP_C", () => {
     expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -2917,7 +2800,7 @@ describe("0x31 POP_D", () => {
     vm.setRegister("C", 0x3333)
     vm.setRegister("D", 0x0000)
     vm.writeMemory8(0, 0x31) // POP_D
-    vm.sp = 0xfd
+    vm.stackPointer = 0xfd
     vm.writeMemory8(0xfd, 0x78) // 下位バイト
     vm.writeMemory8(0xfe, 0x56) // 上位バイト
 
@@ -2936,8 +2819,7 @@ describe("0x31 POP_D", () => {
     expect(vm.readMemory8(0xfe)).toBe(0x56) // 上位バイト
 
     const result = InstructionExecutor.step(vm)
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -2995,8 +2877,7 @@ describe("0x40 LOAD_A", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3013,7 +2894,7 @@ describe("0x40 LOAD_A", () => {
   })
 
   test("LOAD_A実行 - 負の相対オフセット", () => {
-    vm.pc = 0x50
+    vm.programCounter = 0x50
     vm.writeMemory8(0x40, 0xcd) // アドレス0x40に値を書き込み
 
     vm.setRegister("A", 0xaaaa)
@@ -3040,8 +2921,7 @@ describe("0x40 LOAD_A", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3090,8 +2970,7 @@ describe("0x41 STORE_A", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3111,7 +2990,7 @@ describe("0x41 STORE_A", () => {
   })
 
   test("STORE_A実行 - 負の相対オフセット", () => {
-    vm.pc = 0x60
+    vm.programCounter = 0x60
     vm.setRegister("A", 0xbeef)
     vm.setRegister("B", 0x1111)
     vm.setRegister("C", 0x2222)
@@ -3137,8 +3016,7 @@ describe("0x41 STORE_A", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3193,8 +3071,7 @@ describe("0x42 LOAD_IND", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3238,8 +3115,7 @@ describe("0x42 LOAD_IND", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3287,8 +3163,7 @@ describe("0x42 LOAD_IND", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3337,8 +3212,7 @@ describe("0x43 STORE_IND", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3381,8 +3255,7 @@ describe("0x43 STORE_IND", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3436,8 +3309,7 @@ describe("0x44 LOAD_A_W", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3454,7 +3326,7 @@ describe("0x44 LOAD_A_W", () => {
   })
 
   test("LOAD_A_W実行 - 負の相対オフセット", () => {
-    vm.pc = 0x80
+    vm.programCounter = 0x80
     vm.writeMemory16(0x70, 0xabcd) // アドレス0x70に値を書き込み
 
     vm.setRegister("A", 0x0000)
@@ -3482,8 +3354,7 @@ describe("0x44 LOAD_A_W", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3532,8 +3403,7 @@ describe("0x45 STORE_A_W", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3552,7 +3422,7 @@ describe("0x45 STORE_A_W", () => {
   })
 
   test("STORE_A_W実行 - 負の相対オフセット", () => {
-    vm.pc = 0x90
+    vm.programCounter = 0x90
     vm.setRegister("A", 0xbeef)
     vm.setRegister("B", 0x4444)
     vm.setRegister("C", 0x5555)
@@ -3578,8 +3448,7 @@ describe("0x45 STORE_A_W", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3634,8 +3503,7 @@ describe("0x50 LOAD_REG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3684,8 +3552,7 @@ describe("0x51 STORE_REG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3727,8 +3594,7 @@ describe("0x51 STORE_REG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3770,8 +3636,7 @@ describe("0x51 STORE_REG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3813,8 +3678,7 @@ describe("0x51 STORE_REG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3869,8 +3733,7 @@ describe("0x52 LOAD_IND_REG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3923,8 +3786,7 @@ describe("0x53 STORE_IND_REG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(2)
 
     // 実行後の状態を検証
@@ -3951,7 +3813,7 @@ describe("0x60 JMP", () => {
   })
 
   test("JMP実行 - 前方ジャンプ", () => {
-    vm.pc = 0x10
+    vm.programCounter = 0x10
     vm.setRegister("A", 0x1111)
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x3333)
@@ -3976,8 +3838,7 @@ describe("0x60 JMP", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -3994,7 +3855,7 @@ describe("0x60 JMP", () => {
   })
 
   test("JMP実行 - 後方ジャンプ（ループ）", () => {
-    vm.pc = 0x50
+    vm.programCounter = 0x50
     vm.setRegister("A", 0x5555)
     vm.setRegister("B", 0x6666)
     vm.setRegister("C", 0x7777)
@@ -4019,8 +3880,7 @@ describe("0x60 JMP", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4069,8 +3929,7 @@ describe("0x61 JZ", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4111,8 +3970,7 @@ describe("0x61 JZ", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -4161,8 +4019,7 @@ describe("0x62 JNZ", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4203,8 +4060,7 @@ describe("0x62 JNZ", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -4253,8 +4109,7 @@ describe("0x63 JC", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4303,8 +4158,7 @@ describe("0x64 JNC", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4329,7 +4183,7 @@ describe("0x65 CALL", () => {
   })
 
   test("CALL実行 - 戻り先をCレジスタに保存してジャンプ", () => {
-    vm.pc = 0x20
+    vm.programCounter = 0x20
     vm.setRegister("A", 0x1234)
     vm.setRegister("B", 0x5678)
     vm.setRegister("C", 0x0000)
@@ -4353,8 +4207,7 @@ describe("0x65 CALL", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4405,8 +4258,7 @@ describe("0x66 JG", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4457,8 +4309,7 @@ describe("0x67 JLE", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4509,8 +4360,7 @@ describe("0x68 JGE", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4561,8 +4411,7 @@ describe("0x69 JL", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4615,8 +4464,7 @@ describe("0xa0 LOAD_ABS", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4666,8 +4514,7 @@ describe("0xa1 STORE_ABS", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4721,8 +4568,7 @@ describe("0xa2 LOAD_ABS_W", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4768,8 +4614,7 @@ describe("0xa2 LOAD_ABS_W", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4805,7 +4650,7 @@ describe("0xa3 STORE_ABS_W", () => {
     vm.writeMemory8(2, 0x00) // 上位バイト（アドレス = 0x00b0）
     vm.writeMemory8(3, 0x00) // 第4バイト（未使用）
 
-    expect(vm.pc).toBe(0)
+    expect(vm.programCounter).toBe(0)
     expect(vm.getRegister("A")).toBe(0x5678)
     expect(vm.getRegister("B")).toBe(0x9999)
     expect(vm.getRegister("C")).toBe(0xaaaa)
@@ -4813,11 +4658,10 @@ describe("0xa3 STORE_ABS_W", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(4)
+    expect(vm.programCounter).toBe(4)
     expect(vm.getRegister("A")).toBe(0x5678)
     expect(vm.getRegister("B")).toBe(0x9999)
     expect(vm.getRegister("C")).toBe(0xaaaa)
@@ -4852,8 +4696,7 @@ describe("0xa3 STORE_ABS_W", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -4880,7 +4723,7 @@ describe("0xb0 JMP_IND", () => {
   })
 
   test("JMP_IND実行 - レジスタの値へジャンプ", () => {
-    vm.pc = 0x10
+    vm.programCounter = 0x10
     vm.setRegister("A", 0x1234)
     vm.setRegister("B", 0x5678)
     vm.setRegister("C", 0x9abc)
@@ -4892,7 +4735,7 @@ describe("0xb0 JMP_IND", () => {
     vm.writeMemory8(0x12, 0x00) // 第3バイト（未使用）
     vm.writeMemory8(0x13, 0x00) // 第4バイト（未使用）
 
-    expect(vm.pc).toBe(0x10)
+    expect(vm.programCounter).toBe(0x10)
     expect(vm.getRegister("A")).toBe(0x1234)
     expect(vm.getRegister("B")).toBe(0x5678)
     expect(vm.getRegister("C")).toBe(0x9abc)
@@ -4900,11 +4743,10 @@ describe("0xb0 JMP_IND", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(0x5678) // Bレジスタの値
+    expect(vm.programCounter).toBe(0x78) // Bレジスタの値（0x5678 % 0x100 = 0x78）
     expect(vm.getRegister("A")).toBe(0x1234)
     expect(vm.getRegister("B")).toBe(0x5678)
     expect(vm.getRegister("C")).toBe(0x9abc)
@@ -4920,7 +4762,7 @@ describe("0xb1 JMP_ABS", () => {
   })
 
   test("JMP_ABS実行 - 絶対アドレスへのジャンプ", () => {
-    vm.pc = 0x10
+    vm.programCounter = 0x10
     vm.setRegister("A", 0x1111)
     vm.setRegister("B", 0x2222)
     vm.setRegister("C", 0x3333)
@@ -4932,7 +4774,7 @@ describe("0xb1 JMP_ABS", () => {
     vm.writeMemory8(0x12, 0x12) // 上位バイト（アドレス = 0x1234）
     vm.writeMemory8(0x13, 0x00) // 第4バイト（未使用）
 
-    expect(vm.pc).toBe(0x10)
+    expect(vm.programCounter).toBe(0x10)
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0x2222)
     expect(vm.getRegister("C")).toBe(0x3333)
@@ -4940,11 +4782,10 @@ describe("0xb1 JMP_ABS", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(0x1234)
+    expect(vm.programCounter).toBe(0x34) // 0x1234 % 0x100 = 0x34
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0x2222)
     expect(vm.getRegister("C")).toBe(0x3333)
@@ -4960,7 +4801,7 @@ describe("0xb2 RET", () => {
   })
 
   test("RET実行 - Cレジスタの値にジャンプ", () => {
-    vm.pc = 0x50
+    vm.programCounter = 0x50
     vm.setRegister("A", 0x5555)
     vm.setRegister("B", 0x6666)
     vm.setRegister("C", 0x1234)
@@ -4971,7 +4812,7 @@ describe("0xb2 RET", () => {
     vm.writeMemory8(0x52, 0x00) // 第3バイト（未使用）
     vm.writeMemory8(0x53, 0x00) // 第4バイト（未使用）
 
-    expect(vm.pc).toBe(0x50)
+    expect(vm.programCounter).toBe(0x50)
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x6666)
     expect(vm.getRegister("C")).toBe(0x1234)
@@ -4979,11 +4820,10 @@ describe("0xb2 RET", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(0x1234)
+    expect(vm.programCounter).toBe(0x34) // 0x1234 % 0x100 = 0x34
     expect(vm.getRegister("A")).toBe(0x5555)
     expect(vm.getRegister("B")).toBe(0x6666)
     expect(vm.getRegister("C")).toBe(0x1234)
@@ -5011,7 +4851,7 @@ describe("0xc0 MUL_AB", () => {
     vm.writeMemory8(3, 0x00)
     vm.writeMemory8(4, 0x00)
 
-    expect(vm.pc).toBe(0)
+    expect(vm.programCounter).toBe(0)
     expect(vm.getRegister("A")).toBe(0x0010)
     expect(vm.getRegister("B")).toBe(0x0020)
     expect(vm.getRegister("C")).toBe(0x8888)
@@ -5019,11 +4859,10 @@ describe("0xc0 MUL_AB", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(0x0200) // 0x10 * 0x20 = 0x200
     expect(vm.getRegister("B")).toBe(0x0020)
     expect(vm.getRegister("C")).toBe(0x8888)
@@ -5042,7 +4881,7 @@ describe("0xc0 MUL_AB", () => {
     vm.writeMemory8(3, 0x00)
     vm.writeMemory8(4, 0x00)
 
-    expect(vm.pc).toBe(0)
+    expect(vm.programCounter).toBe(0)
     expect(vm.getRegister("A")).toBe(0x1000)
     expect(vm.getRegister("B")).toBe(0x1000)
     expect(vm.getRegister("C")).toBe(0xaaaa)
@@ -5050,11 +4889,10 @@ describe("0xc0 MUL_AB", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(0x0000) // 0x1000000 & 0xFFFF = 0x0000
     expect(vm.getRegister("B")).toBe(0x1000)
     expect(vm.getRegister("C")).toBe(0xaaaa)
@@ -5081,7 +4919,7 @@ describe("0xc1 DIV_AB", () => {
     vm.writeMemory8(3, 0x00)
     vm.writeMemory8(4, 0x00)
 
-    expect(vm.pc).toBe(0)
+    expect(vm.programCounter).toBe(0)
     expect(vm.getRegister("A")).toBe(0x0064)
     expect(vm.getRegister("B")).toBe(0x0007)
     expect(vm.getRegister("C")).toBe(0xcccc)
@@ -5089,11 +4927,10 @@ describe("0xc1 DIV_AB", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(0x000e) // 100 / 7 = 14
     expect(vm.getRegister("B")).toBe(0x0002) // 100 % 7 = 2
     expect(vm.getRegister("C")).toBe(0xcccc)
@@ -5112,9 +4949,14 @@ describe("0xc1 DIV_AB", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(false)
-    expect(result.error).toBeDefined()
-    expect(result.error).toContain("Division by zero")
+    switch (result.case) {
+      case "success":
+        fail("ゼロ除算は成功しない")
+      // eslint-disable-next-line no-fallthrough
+      case "failure":
+        expect(result.failureReason).toContain("Division by zero")
+        break
+    }
   })
 })
 
@@ -5137,7 +4979,7 @@ describe("0xc2 SHL", () => {
     vm.writeMemory8(3, 0x00)
     vm.writeMemory8(4, 0x00)
 
-    expect(vm.pc).toBe(0)
+    expect(vm.programCounter).toBe(0)
     expect(vm.getRegister("A")).toBe(0x1234)
     expect(vm.getRegister("B")).toBe(0x0004)
     expect(vm.getRegister("C")).toBe(0xaaaa)
@@ -5145,11 +4987,10 @@ describe("0xc2 SHL", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(0x2340) // 0x1234 << 4
     expect(vm.getRegister("B")).toBe(0x0004)
     expect(vm.getRegister("C")).toBe(0xaaaa)
@@ -5182,8 +5023,7 @@ describe("0xc2 SHL", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証 - 0ビットシフトは値が変わらない
@@ -5225,8 +5065,7 @@ describe("0xc2 SHL", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証 - 1 << 15 = 0x8000
@@ -5268,8 +5107,7 @@ describe("0xc2 SHL", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証 - 下位4ビットのみ使用される
@@ -5311,8 +5149,7 @@ describe("0xc2 SHL", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証 - 0x10 & 0xF = 0 -> 0ビットシフト
@@ -5348,7 +5185,7 @@ describe("0xc3 SHR", () => {
     vm.writeMemory8(3, 0x00)
     vm.writeMemory8(4, 0x00)
 
-    expect(vm.pc).toBe(0)
+    expect(vm.programCounter).toBe(0)
     expect(vm.getRegister("A")).toBe(0x8000)
     expect(vm.getRegister("B")).toBe(0x0008)
     expect(vm.getRegister("C")).toBe(0xcccc)
@@ -5356,11 +5193,10 @@ describe("0xc3 SHR", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(0x0080) // 0x8000 >> 8
     expect(vm.getRegister("B")).toBe(0x0008)
     expect(vm.getRegister("C")).toBe(0xcccc)
@@ -5393,8 +5229,7 @@ describe("0xc3 SHR", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証 - 0ビットシフトは値が変わらない
@@ -5436,8 +5271,7 @@ describe("0xc3 SHR", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証 - 0x8000 >> 15 = 1
@@ -5479,8 +5313,7 @@ describe("0xc3 SHR", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証 - 下位4ビットのみ使用される
@@ -5522,8 +5355,7 @@ describe("0xc3 SHR", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証 - 論理シフトなので0埋め
@@ -5565,8 +5397,7 @@ describe("0xc3 SHR", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証 - 1 >> 1 = 0
@@ -5602,7 +5433,7 @@ describe("0xc4 SAR", () => {
     vm.writeMemory8(3, 0x00)
     vm.writeMemory8(4, 0x00)
 
-    expect(vm.pc).toBe(0)
+    expect(vm.programCounter).toBe(0)
     expect(vm.getRegister("A")).toBe(0x8000)
     expect(vm.getRegister("B")).toBe(0x0004)
     expect(vm.getRegister("C")).toBe(0xeeee)
@@ -5610,11 +5441,10 @@ describe("0xc4 SAR", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(0xf800) // 符号ビットが保持される
     expect(vm.getRegister("B")).toBe(0x0004)
     expect(vm.getRegister("C")).toBe(0xeeee)
@@ -5642,7 +5472,7 @@ describe("0xc5 CMOV_Z", () => {
     vm.writeMemory8(3, 0x00) // 未使用
     vm.writeMemory8(4, 0x00) // 未使用
 
-    expect(vm.pc).toBe(0)
+    expect(vm.programCounter).toBe(0)
     expect(vm.getRegister("A")).toBe(0x1111)
     expect(vm.getRegister("B")).toBe(0xabcd)
     expect(vm.getRegister("C")).toBe(0x2222)
@@ -5650,11 +5480,10 @@ describe("0xc5 CMOV_Z", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3) // 分岐を伴わないため3サイクル
 
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(0xabcd) // BからAへコピー
     expect(vm.getRegister("B")).toBe(0xabcd)
     expect(vm.getRegister("C")).toBe(0x2222)
@@ -5676,11 +5505,10 @@ describe("0xc5 CMOV_Z", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(0x1111) // 変更されない
     expect(vm.getRegister("B")).toBe(0xabcd)
     expect(vm.getRegister("C")).toBe(0x2222)
@@ -5721,8 +5549,7 @@ describe("0xc6 CMOV_NZ", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     expectVMState(vm, {
@@ -5758,7 +5585,7 @@ describe("0xc7 CMOV_C", () => {
     vm.writeMemory8(3, 0x00)
     vm.writeMemory8(4, 0x00)
 
-    expect(vm.pc).toBe(0)
+    expect(vm.programCounter).toBe(0)
     expect(vm.getRegister("A")).toBe(0x6666)
     expect(vm.getRegister("B")).toBe(0x7777)
     expect(vm.getRegister("C")).toBe(0x8888)
@@ -5766,11 +5593,10 @@ describe("0xc7 CMOV_C", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(0x6666)
     expect(vm.getRegister("B")).toBe(0x8888) // CからBへコピー
     expect(vm.getRegister("C")).toBe(0x8888)
@@ -5798,7 +5624,7 @@ describe("0xc8 CMOV_NC", () => {
     vm.writeMemory8(3, 0x00)
     vm.writeMemory8(4, 0x00)
 
-    expect(vm.pc).toBe(0)
+    expect(vm.programCounter).toBe(0)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xbbbb)
     expect(vm.getRegister("C")).toBe(0xcccc)
@@ -5806,11 +5632,10 @@ describe("0xc8 CMOV_NC", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(0xaaaa)
     expect(vm.getRegister("B")).toBe(0xbbbb)
     expect(vm.getRegister("C")).toBe(0xcccc)
@@ -5851,8 +5676,7 @@ describe("0xE0 LOAD_IMM", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -5902,8 +5726,7 @@ describe("0xE1 LOAD_IMM_B", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(3)
 
     // 実行後の状態を検証
@@ -5953,8 +5776,7 @@ describe("0xF0 NOP5", () => {
 
     const result = InstructionExecutor.step(vm)
 
-    expect(result.success).toBe(true)
-    expect(result.error).toBeUndefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1)
 
     // 実行後の状態を検証
@@ -6054,9 +5876,7 @@ describe("未定義命令", () => {
     // 命令実行
     const result = InstructionExecutor.step(vm)
 
-    // エラーが返されることを確認（未定義命令）
-    expect(result.success).toBe(false)
-    expect(result.error).toBeDefined()
+    expect(result.case).toBe("success")
     expect(result.cycles).toBe(1) // 未定義命令でも1サイクル消費
 
     // 実行後の状態を検証 - PCのみ1増加

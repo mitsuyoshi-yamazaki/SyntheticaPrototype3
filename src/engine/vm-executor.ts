@@ -4,698 +4,465 @@
 
 import { VMState } from "./vm-state"
 import { InstructionDecoder } from "./vm-decoder"
-import type { DecodedInstruction } from "./vm-decoder"
-import type { Unit, UnitSpec } from "@/types/game"
-import { CircuitConnectionSystem } from "./circuit-connection-system"
-import { createMemoryInterface } from "./unit-memory-interface"
-import { UnitEnergyControlSystem } from "./unit-energy-control"
+import { DecodedInstruction, DecodedJumpInstruction } from "./vm-decoded-instructions"
+import { VMUnitPort, VMUnitPortNone } from "./vm-unit-port"
 
 /** 実行結果 */
-export type ExecutionResult = {
-  /** 実行成功フラグ */
-  readonly success: boolean
-  /** エラーメッセージ（失敗時） */
-  readonly error?: string
-  /** 消費サイクル数 */
+type ExecutionResultSuccess = {
+  readonly case: "success"
   readonly cycles: number
 }
+type ExecutionResultFailure = {
+  readonly case: "failure"
+  readonly failureReason: string
+  readonly cycles: number
+}
+export type ExecutionResult = ExecutionResultSuccess | ExecutionResultFailure
 
 /** 命令実行エンジン */
 export const InstructionExecutor = {
-  /**
-   * 命令を実行
-   * @param vm VM状態
-   * @param decoded デコード済み命令
-   * @param unit 実行ユニット（ユニット制御命令で必要）
-   * @returns 実行結果
-   */
-  execute(vm: VMState, decoded: DecodedInstruction, unit?: Unit): ExecutionResult {
-    // 未定義命令
-    if (decoded.isUndefined || decoded.instruction == null) {
-      vm.advancePC(1)
-      return {
-        success: false,
-        error: `Undefined instruction: 0x${decoded.opcode.toString(16).padStart(2, "0")}`,
-        cycles: 1,
-      }
-    }
-
+  execute(vm: VMState, decoded: DecodedInstruction, _unitPort: VMUnitPort): ExecutionResult {
     try {
-      switch (decoded.instruction.type) {
+      switch (decoded.mnemonic) {
         case "NOP":
-          return this.executeNOP(vm, decoded)
-        case "DATA_MOVE":
-          return this.executeDataMove(vm, decoded)
-        case "ARITHMETIC":
-          return this.executeArithmetic(vm, decoded)
-        case "STACK":
-          return this.executeStack(vm, decoded)
-        case "MEMORY":
-          return this.executeMemory(vm, decoded)
-        case "JUMP":
-          return this.executeJump(vm, decoded)
-        case "UNIT":
-          return this.executeUnit(vm, decoded, unit)
-        case "SPECIAL":
-          return this.executeSpecial(vm, decoded, unit)
-        case "TEMPLATE":
-          return this.executeTemplate(vm, decoded, unit)
-        case "ENERGY":
-          return this.executeEnergy(vm, decoded, unit)
-        default: {
-          const exhaustiveCheck: never = decoded.instruction.type
-          return {
-            success: false,
-            error: `Unknown instruction type: ${exhaustiveCheck as string}`,
-            cycles: 1,
-          }
+        case "INVALID":
+        case "NOP0":
+        case "NOP1":
+        case "NOP5":
+          break
+
+        case "XCHG": {
+          const a = vm.getRegister("A")
+          const b = vm.getRegister("B")
+          vm.setRegister("A", b)
+          vm.setRegister("B", a)
+          break
         }
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-        cycles: 1,
-      }
-    }
-  },
 
-  /** NOP命令実行 */
-  executeNOP(vm: VMState, decoded: DecodedInstruction): ExecutionResult {
-    vm.advancePC(decoded.length)
-    return { success: true, cycles: 1 }
-  },
-
-  /** データ移動命令実行 */
-  executeDataMove(vm: VMState, decoded: DecodedInstruction): ExecutionResult {
-    if (decoded.instruction == null) {
-      return { success: false, error: "No instruction", cycles: 1 }
-    }
-
-    let cycles = 1
-
-    switch (decoded.instruction.mnemonic) {
-      case "XCHG": {
-        const a = vm.getRegister("A")
-        const b = vm.getRegister("B")
-        vm.setRegister("A", b)
-        vm.setRegister("B", a)
-        break
-      }
-      case "MOV_AB":
-        vm.setRegister("B", vm.getRegister("A"))
-        break
-      case "MOV_AD":
-        vm.setRegister("D", vm.getRegister("A"))
-        break
-      case "MOV_BA":
-        vm.setRegister("A", vm.getRegister("B"))
-        break
-      case "MOV_DA":
-        vm.setRegister("A", vm.getRegister("D"))
-        break
-      case "MOV_BC":
-        vm.setRegister("C", vm.getRegister("B"))
-        break
-      case "MOV_CB":
-        vm.setRegister("B", vm.getRegister("C"))
-        break
-      case "MOV_AC":
-        vm.setRegister("C", vm.getRegister("A"))
-        break
-      case "MOV_CA":
-        vm.setRegister("A", vm.getRegister("C"))
-        break
-      case "MOV_CD":
-        vm.setRegister("D", vm.getRegister("C"))
-        break
-      case "MOV_DC":
-        vm.setRegister("C", vm.getRegister("D"))
-        break
-      case "MOV_SP":
-        vm.setRegister("A", vm.sp)
-        break
-      case "SET_SP":
-        vm.sp = vm.getRegister("A")
-        break
-
-      // 即値ロード
-      case "LOAD_IMM":
-        if (decoded.operands.immediate16 !== undefined) {
-          vm.setRegister("A", decoded.operands.immediate16)
-        }
-        cycles = 3
-        break
-      case "LOAD_IMM_B":
-        if (decoded.operands.immediate16 !== undefined) {
-          vm.setRegister("B", decoded.operands.immediate16)
-        }
-        cycles = 3
-        break
-
-      // 条件付き移動命令（CMOV系）
-      case "CMOV_Z":
-        // ゼロフラグがセットされている場合のみコピー
-        if (
-          vm.zeroFlag &&
-          decoded.operands.sourceRegister !== undefined &&
-          decoded.operands.destRegister !== undefined
-        ) {
-          const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
-          vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
-        }
-        cycles = 3 // 条件の成否に関わらず3サイクル
-        break
-      case "CMOV_NZ":
-        // ゼロフラグがクリアされている場合のみコピー
-        if (
-          !vm.zeroFlag &&
-          decoded.operands.sourceRegister !== undefined &&
-          decoded.operands.destRegister !== undefined
-        ) {
-          const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
-          vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
-        }
-        cycles = 3 // 条件の成否に関わらず3サイクル
-        break
-      case "CMOV_C":
-        // キャリーフラグがセットされている場合のみコピー
-        if (
-          vm.carryFlag &&
-          decoded.operands.sourceRegister !== undefined &&
-          decoded.operands.destRegister !== undefined
-        ) {
-          const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
-          vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
-        }
-        cycles = 3 // 条件の成否に関わらず3サイクル
-        break
-      case "CMOV_NC":
-        // キャリーフラグがクリアされている場合のみコピー
-        if (
-          !vm.carryFlag &&
-          decoded.operands.sourceRegister !== undefined &&
-          decoded.operands.destRegister !== undefined
-        ) {
-          const srcValue = vm.getRegisterByIndex(decoded.operands.sourceRegister)
-          vm.setRegisterByIndex(decoded.operands.destRegister, srcValue)
-        }
-        cycles = 3 // 条件の成否に関わらず3サイクル
-        break
-
-      default:
-        vm.advancePC(1)
-        return {
-          success: false,
-          error: `Unknown data move instruction: ${decoded.instruction.mnemonic}`,
-          cycles: 1,
-        }
-    }
-
-    vm.advancePC(decoded.length)
-    return { success: true, cycles }
-  },
-
-  /** 算術演算命令実行 */
-  executeArithmetic(vm: VMState, decoded: DecodedInstruction): ExecutionResult {
-    if (decoded.instruction == null) {
-      return { success: false, error: "No instruction", cycles: 1 }
-    }
-
-    let result: number
-
-    switch (decoded.instruction.mnemonic) {
-      // インクリメント
-      case "INC_A":
-        result = vm.getRegister("A") + 1
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        vm.updateCarryFlagAdd(result)
-        break
-      case "INC_B":
-        result = vm.getRegister("B") + 1
-        vm.setRegister("B", result)
-        vm.updateZeroFlag(result)
-        vm.updateCarryFlagAdd(result)
-        break
-      case "INC_C":
-        result = vm.getRegister("C") + 1
-        vm.setRegister("C", result)
-        vm.updateZeroFlag(result)
-        vm.updateCarryFlagAdd(result)
-        break
-      case "INC_D":
-        result = vm.getRegister("D") + 1
-        vm.setRegister("D", result)
-        vm.updateZeroFlag(result)
-        vm.updateCarryFlagAdd(result)
-        break
-
-      // デクリメント
-      case "DEC_A":
-        vm.updateCarryFlagSub(vm.getRegister("A"), 1)
-        result = vm.getRegister("A") - 1
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        break
-      case "DEC_B":
-        vm.updateCarryFlagSub(vm.getRegister("B"), 1)
-        result = vm.getRegister("B") - 1
-        vm.setRegister("B", result)
-        vm.updateZeroFlag(result)
-        break
-      case "DEC_C":
-        vm.updateCarryFlagSub(vm.getRegister("C"), 1)
-        result = vm.getRegister("C") - 1
-        vm.setRegister("C", result)
-        vm.updateZeroFlag(result)
-        break
-      case "DEC_D":
-        vm.updateCarryFlagSub(vm.getRegister("D"), 1)
-        result = vm.getRegister("D") - 1
-        vm.setRegister("D", result)
-        vm.updateZeroFlag(result)
-        break
-
-      // レジスタ間演算
-      case "ADD_AB":
-        result = vm.getRegister("A") + vm.getRegister("B")
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        vm.updateCarryFlagAdd(result)
-        break
-      case "SUB_AB": {
-        const a = vm.getRegister("A")
-        const b = vm.getRegister("B")
-        result = a - b
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        vm.updateCarryFlagSub(a, b)
-        break
-      }
-      case "XOR_AB":
-        result = vm.getRegister("A") ^ vm.getRegister("B")
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        vm.carryFlag = false
-        break
-      case "AND_AB":
-        result = vm.getRegister("A") & vm.getRegister("B")
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        vm.carryFlag = false
-        break
-      case "OR_AB":
-        result = vm.getRegister("A") | vm.getRegister("B")
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        vm.carryFlag = false
-        break
-      case "NOT_A":
-        result = ~vm.getRegister("A")
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        vm.carryFlag = false
-        break
-      case "CMP_AB": {
-        const a = vm.getRegister("A")
-        const b = vm.getRegister("B")
-        result = a - b
-        vm.updateZeroFlag(result)
-        vm.updateCarryFlagSub(a, b)
-        break
-      }
-
-      // 即値演算
-      case "ADD_A_IMM":
-        if (decoded.operands.immediate16 !== undefined) {
-          result = vm.getRegister("A") + decoded.operands.immediate16
+        case "MOV_AB":
+          vm.setRegister("B", vm.getRegister("A"))
+          break
+        case "MOV_AD":
+          vm.setRegister("D", vm.getRegister("A"))
+          break
+        case "MOV_BA":
+          vm.setRegister("A", vm.getRegister("B"))
+          break
+        case "MOV_DA":
+          vm.setRegister("A", vm.getRegister("D"))
+          break
+        case "MOV_BC":
+          vm.setRegister("C", vm.getRegister("B"))
+          break
+        case "MOV_CB":
+          vm.setRegister("B", vm.getRegister("C"))
+          break
+        case "MOV_AC":
+          vm.setRegister("C", vm.getRegister("A"))
+          break
+        case "MOV_CA":
+          vm.setRegister("A", vm.getRegister("C"))
+          break
+        case "MOV_CD":
+          vm.setRegister("D", vm.getRegister("C"))
+          break
+        case "MOV_DC":
+          vm.setRegister("C", vm.getRegister("D"))
+          break
+        case "MOV_SP":
+          vm.setRegister("A", vm.stackPointer)
+          break
+        case "SET_SP":
+          vm.stackPointer = vm.getRegister("A")
+          break
+        case "INC_A": {
+          const result = vm.getRegister("A") + 1
           vm.setRegister("A", result)
           vm.updateZeroFlag(result)
           vm.updateCarryFlagAdd(result)
+          break
         }
-        break
-      case "SUB_A_IMM":
-        if (decoded.operands.immediate16 !== undefined) {
+        case "INC_B": {
+          const result = vm.getRegister("B") + 1
+          vm.setRegister("B", result)
+          vm.updateZeroFlag(result)
+          vm.updateCarryFlagAdd(result)
+          break
+        }
+        case "INC_C": {
+          const result = vm.getRegister("C") + 1
+          vm.setRegister("C", result)
+          vm.updateZeroFlag(result)
+          vm.updateCarryFlagAdd(result)
+          break
+        }
+        case "INC_D": {
+          const result = vm.getRegister("D") + 1
+          vm.setRegister("D", result)
+          vm.updateZeroFlag(result)
+          vm.updateCarryFlagAdd(result)
+          break
+        }
+        case "DEC_A": {
+          vm.updateCarryFlagSub(vm.getRegister("A"), 1)
+          const result = vm.getRegister("A") - 1
+          vm.setRegister("A", result)
+          vm.updateZeroFlag(result)
+          break
+        }
+        case "DEC_B": {
+          vm.updateCarryFlagSub(vm.getRegister("B"), 1)
+          const result = vm.getRegister("B") - 1
+          vm.setRegister("B", result)
+          vm.updateZeroFlag(result)
+          break
+        }
+        case "DEC_C": {
+          vm.updateCarryFlagSub(vm.getRegister("C"), 1)
+          const result = vm.getRegister("C") - 1
+          vm.setRegister("C", result)
+          vm.updateZeroFlag(result)
+          break
+        }
+        case "DEC_D": {
+          vm.updateCarryFlagSub(vm.getRegister("D"), 1)
+          const result = vm.getRegister("D") - 1
+          vm.setRegister("D", result)
+          vm.updateZeroFlag(result)
+          break
+        }
+        case "ADD_AB": {
+          const result = vm.getRegister("A") + vm.getRegister("B")
+          vm.setRegister("A", result)
+          vm.updateZeroFlag(result)
+          vm.updateCarryFlagAdd(result)
+          break
+        }
+        case "SUB_AB": {
           const a = vm.getRegister("A")
-          result = a - decoded.operands.immediate16
+          const b = vm.getRegister("B")
+          const result = a - b
           vm.setRegister("A", result)
           vm.updateZeroFlag(result)
-          vm.updateCarryFlagSub(a, decoded.operands.immediate16)
+          vm.updateCarryFlagSub(a, b)
+          break
         }
-        break
-      case "AND_A_IMM":
-        if (decoded.operands.immediate16 !== undefined) {
-          result = vm.getRegister("A") & decoded.operands.immediate16
-          vm.setRegister("A", result)
-          vm.updateZeroFlag(result)
-          vm.carryFlag = false
-        }
-        break
-      case "OR_A_IMM":
-        if (decoded.operands.immediate16 !== undefined) {
-          result = vm.getRegister("A") | decoded.operands.immediate16
+        case "XOR_AB": {
+          const result = vm.getRegister("A") ^ vm.getRegister("B")
           vm.setRegister("A", result)
           vm.updateZeroFlag(result)
           vm.carryFlag = false
+          break
         }
-        break
-      case "XOR_A_IMM":
-        if (decoded.operands.immediate16 !== undefined) {
-          result = vm.getRegister("A") ^ decoded.operands.immediate16
+        case "AND_AB": {
+          const result = vm.getRegister("A") & vm.getRegister("B")
           vm.setRegister("A", result)
           vm.updateZeroFlag(result)
           vm.carryFlag = false
+          break
         }
-        break
-      case "CMP_A_IMM":
-        if (decoded.operands.immediate16 !== undefined) {
+        case "OR_AB": {
+          const result = vm.getRegister("A") | vm.getRegister("B")
+          vm.setRegister("A", result)
+          vm.updateZeroFlag(result)
+          vm.carryFlag = false
+          break
+        }
+        case "NOT_A": {
+          const result = ~vm.getRegister("A")
+          vm.setRegister("A", result)
+          vm.updateZeroFlag(result)
+          vm.carryFlag = false
+          break
+        }
+        case "CMP_AB": {
           const a = vm.getRegister("A")
-          result = a - decoded.operands.immediate16
+          const b = vm.getRegister("B")
+          const result = a - b
           vm.updateZeroFlag(result)
-          vm.updateCarryFlagSub(a, decoded.operands.immediate16)
+          vm.updateCarryFlagSub(a, b)
+          break
         }
-        break
+        case "PUSH_A":
+          vm.push16(vm.getRegister("A"))
+          break
+        case "PUSH_B":
+          vm.push16(vm.getRegister("B"))
+          break
+        case "PUSH_C":
+          vm.push16(vm.getRegister("C"))
+          break
+        case "PUSH_D":
+          vm.push16(vm.getRegister("D"))
+          break
+        case "POP_A":
+          vm.setRegister("A", vm.pop16())
+          break
+        case "POP_B":
+          vm.setRegister("B", vm.pop16())
+          break
+        case "POP_C":
+          vm.setRegister("C", vm.pop16())
+          break
+        case "POP_D":
+          vm.setRegister("D", vm.pop16())
+          break
+        case "LOAD_A":
+          vm.setRegister("A", vm.readMemory8(vm.programCounter + decoded.operand.offset16))
+          break
+        case "STORE_A":
+          vm.writeMemory8(vm.programCounter + decoded.operand.offset16, vm.getRegister("A") & 0xff)
+          break
+        case "LOAD_A_W":
+          vm.setRegister("A", vm.readMemory16(vm.programCounter + decoded.operand.offset16))
+          break
+        case "STORE_A_W":
+          vm.writeMemory16(vm.programCounter + decoded.operand.offset16, vm.getRegister("A"))
+          break
+        case "LOAD_IND":
+          vm.setRegister(
+            "A",
+            vm.readMemory8((vm.getRegister("B") + decoded.operand.offset16) & 0xffff)
+          )
+          break
+        case "STORE_IND":
+          vm.writeMemory8(
+            (vm.getRegister("B") + decoded.operand.offset16) & 0xffff,
+            vm.getRegister("A") & 0xff
+          )
+          break
+        case "LOAD_REG":
+          vm.setRegister("A", vm.readMemory8(vm.getRegister(decoded.operand.register)))
+          break
+        case "STORE_REG":
+          vm.writeMemory8(vm.getRegister(decoded.operand.register), vm.getRegister("A") & 0xff)
+          break
+        case "LOAD_IND_REG":
+          vm.setRegister("A", vm.readMemory8(vm.readMemory16(decoded.operand.address16)))
+          break
+        case "STORE_IND_REG":
+          vm.writeMemory8(vm.readMemory16(decoded.operand.address16), vm.getRegister("A") & 0xff)
+          break
 
-      // 拡張演算命令（5バイト命令）
-      case "MUL_AB": {
-        const a = vm.getRegister("A")
-        const b = vm.getRegister("B")
-        result = (a * b) & 0xffff
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        vm.carryFlag = false
-        break
-      }
-      case "DIV_AB": {
-        const a = vm.getRegister("A")
-        const b = vm.getRegister("B")
-        if (b === 0) {
+        case "JMP":
+        case "JZ":
+        case "JNZ":
+        case "JC":
+        case "JNC":
+        case "JG":
+        case "JLE":
+        case "JGE":
+        case "JL":
+        case "JMP_IND":
+        case "JMP_ABS":
+        case "CALL":
+        case "RET":
+          return this.executeJump(vm, decoded)
+
+        case "UNIT_MEM_READ":
+        case "UNIT_MEM_WRITE":
+        case "UNIT_MEM_READ_REG":
+        case "UNIT_MEM_WRITE_REG":
+        case "UNIT_EXISTS":
+        case "UNIT_MEM_WRITE_DYN":
+        case "SEARCH_F":
+        case "SEARCH_B":
+        case "SEARCH_F_MAX":
+        case "SEARCH_B_MAX":
+        case "ADD_E32":
+        case "SUB_E32":
+        case "CMP_E32":
+        case "SHR_E10":
+        case "SHL_E10":
           return {
-            success: false,
-            error: "Division by zero",
-            cycles: 1,
-          }
-        }
-        const quotient = Math.floor(a / b) & 0xffff
-        const remainder = a % b
-        vm.setRegister("A", quotient)
-        vm.setRegister("B", remainder)
-        vm.updateZeroFlag(quotient)
-        vm.carryFlag = false
-        break
-      }
-      case "SHL": {
-        const a = vm.getRegister("A")
-        const b = vm.getRegister("B") & 0x0f // 下位4ビット使用（0-15）
-        const shifted = a << b
-        result = shifted & 0xffff
-        // キャリーフラグ: 16ビットを超えた場合にtrue
-        vm.carryFlag = (shifted & 0x10000) !== 0
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        break
-      }
-      case "SHR": {
-        const a = vm.getRegister("A")
-        const b = vm.getRegister("B") & 0x0f // 下位5ビット使用（0-15）
-        result = (a >>> b) & 0xffff // 論理右シフト
-        // キャリーフラグ: シフトで失われたビットがある場合
-        vm.carryFlag = b > 0 && (a & ((1 << b) - 1)) !== 0
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        break
-      }
-      case "SAR": {
-        const a = vm.getRegister("A")
-        const b = vm.getRegister("B") & 0x1f // 下位5ビット使用（0-31）
-        if (b >= 16) {
-          // 16ビット以上のシフトは符号ビットで埋める
-          result = (a & 0x8000) > 0 ? 0xffff : 0x0000
-          vm.carryFlag = a !== 0
-        } else if (b === 0) {
-          result = a
+            case: "failure",
+            failureReason: `${decoded.mnemonic} not implemented yet`, // TODO:
+            cycles: decoded.cycles,
+          } satisfies ExecutionResultFailure
+
+        case "LOAD_ABS":
+          vm.setRegister("A", vm.readMemory8(decoded.operand.address16))
+          break
+        case "STORE_ABS":
+          vm.writeMemory8(decoded.operand.address16, vm.getRegister("A") & 0xff)
+          break
+        case "LOAD_ABS_W":
+          vm.setRegister("A", vm.readMemory16(decoded.operand.address16))
+          break
+        case "STORE_ABS_W":
+          vm.writeMemory16(decoded.operand.address16, vm.getRegister("A"))
+          break
+
+        case "MUL_AB": {
+          const a = vm.getRegister("A")
+          const b = vm.getRegister("B")
+          const result = (a * b) & 0xffff
+          vm.setRegister("A", result)
+          vm.updateZeroFlag(result)
           vm.carryFlag = false
-        } else {
-          // 算術右シフト: 符号ビットを保持
-          const signBit = a & 0x8000
-          if (signBit > 0) {
-            // 負数の場合: 左側を1で埋める
-            const mask = (0xffff << (16 - b)) & 0xffff
-            result = ((a >> b) | mask) & 0xffff
-          } else {
-            // 正数の場合: 通常の右シフト
-            result = (a >> b) & 0xffff
+          break
+        }
+        case "DIV_AB": {
+          const a = vm.getRegister("A")
+          const b = vm.getRegister("B")
+          if (b === 0) {
+            return {
+              case: "failure",
+              failureReason: "Division by zero",
+              cycles: decoded.cycles,
+            } as ExecutionResultFailure
           }
+          const quotient = Math.floor(a / b) & 0xffff
+          const remainder = a % b
+          vm.setRegister("A", quotient)
+          vm.setRegister("B", remainder)
+          vm.updateZeroFlag(quotient)
+          vm.carryFlag = false
+          break
+        }
+        case "SHL": {
+          const a = vm.getRegister("A")
+          const b = vm.getRegister("B") & 0x0f // 下位4ビット使用（0-15）
+          const shifted = a << b
+          const result = shifted & 0xffff
+          // キャリーフラグ: 16ビットを超えた場合にtrue
+          vm.carryFlag = (shifted & 0x10000) !== 0
+          vm.setRegister("A", result)
+          vm.updateZeroFlag(result)
+          break
+        }
+        case "SHR": {
+          const a = vm.getRegister("A")
+          const b = vm.getRegister("B") & 0x0f // 下位5ビット使用（0-15）
+          const result = (a >>> b) & 0xffff // 論理右シフト
           // キャリーフラグ: シフトで失われたビットがある場合
           vm.carryFlag = b > 0 && (a & ((1 << b) - 1)) !== 0
+          vm.setRegister("A", result)
+          vm.updateZeroFlag(result)
+          break
         }
-        vm.setRegister("A", result)
-        vm.updateZeroFlag(result)
-        break
+        case "SAR": {
+          const a = vm.getRegister("A")
+          const b = vm.getRegister("B") & 0x1f // 下位5ビット使用（0-31）
+          let result = 0
+          if (b >= 16) {
+            // 16ビット以上のシフトは符号ビットで埋める
+            result = (a & 0x8000) > 0 ? 0xffff : 0x0000
+            vm.carryFlag = a !== 0
+          } else if (b === 0) {
+            result = a
+            vm.carryFlag = false
+          } else {
+            // 算術右シフト: 符号ビットを保持
+            const signBit = a & 0x8000
+            if (signBit > 0) {
+              // 負数の場合: 左側を1で埋める
+              const mask = (0xffff << (16 - b)) & 0xffff
+              result = ((a >> b) | mask) & 0xffff
+            } else {
+              // 正数の場合: 通常の右シフト
+              result = (a >> b) & 0xffff
+            }
+            // キャリーフラグ: シフトで失われたビットがある場合
+            vm.carryFlag = b > 0 && (a & ((1 << b) - 1)) !== 0
+          }
+          vm.setRegister("A", result)
+          vm.updateZeroFlag(result)
+          break
+        }
+        case "CMOV_Z":
+          // ゼロフラグがセットされている場合のみコピー
+          if (vm.zeroFlag) {
+            vm.setRegister(
+              decoded.operand.destinationRegister,
+              vm.getRegister(decoded.operand.sourceRegister)
+            )
+          }
+          break
+        case "CMOV_NZ":
+          // ゼロフラグがクリアされている場合のみコピー
+          if (!vm.zeroFlag) {
+            vm.setRegister(
+              decoded.operand.destinationRegister,
+              vm.getRegister(decoded.operand.sourceRegister)
+            )
+          }
+          break
+        case "CMOV_C":
+          // キャリーフラグがセットされている場合のみコピー
+          if (vm.carryFlag) {
+            vm.setRegister(
+              decoded.operand.destinationRegister,
+              vm.getRegister(decoded.operand.sourceRegister)
+            )
+          }
+          break
+        case "CMOV_NC":
+          // キャリーフラグがクリアされている場合のみコピー
+          if (!vm.carryFlag) {
+            vm.setRegister(
+              decoded.operand.destinationRegister,
+              vm.getRegister(decoded.operand.sourceRegister)
+            )
+          }
+          break
+        case "LOAD_IMM":
+          vm.setRegister("A", decoded.operand.immediate16)
+          break
+        case "LOAD_IMM_B":
+          vm.setRegister("B", decoded.operand.immediate16)
+          break
+
+        default: {
+          const invalidInstruction: never = decoded
+          throw new Error(
+            `Invalid mnemonic: ${(invalidInstruction as unknown as DecodedInstruction).mnemonic}`
+          )
+        }
       }
 
-      default:
-        vm.advancePC(1)
-        return {
-          success: false,
-          error: `Unknown arithmetic instruction: ${decoded.instruction.mnemonic}`,
-          cycles: 1,
-        }
+      vm.advancePC(decoded.length)
+      return { case: "success", cycles: decoded.cycles } satisfies ExecutionResultSuccess
+    } catch (error) {
+      return {
+        case: "failure",
+        failureReason: `${error as string | Error}`,
+        cycles: 1,
+      } satisfies ExecutionResultFailure
     }
-
-    vm.advancePC(decoded.length)
-    // 命令長に基づいてサイクル数を決定
-    const cycles = ((): number => {
-      switch (decoded.length) {
-        case 3:
-          return 2
-        case 5:
-          return 3
-        default:
-          return 1
-      }
-    })()
-    return { success: true, cycles }
   },
 
-  /** スタック操作命令実行 */
-  executeStack(vm: VMState, decoded: DecodedInstruction): ExecutionResult {
-    if (decoded.instruction == null) {
-      return { success: false, error: "No instruction", cycles: 1 }
-    }
-
-    switch (decoded.instruction.mnemonic) {
-      case "PUSH_A":
-        vm.push16(vm.getRegister("A"))
-        break
-      case "PUSH_B":
-        vm.push16(vm.getRegister("B"))
-        break
-      case "PUSH_C":
-        vm.push16(vm.getRegister("C"))
-        break
-      case "PUSH_D":
-        vm.push16(vm.getRegister("D"))
-        break
-      case "POP_A":
-        vm.setRegister("A", vm.pop16())
-        break
-      case "POP_B":
-        vm.setRegister("B", vm.pop16())
-        break
-      case "POP_C":
-        vm.setRegister("C", vm.pop16())
-        break
-      case "POP_D":
-        vm.setRegister("D", vm.pop16())
-        break
-      default:
-        vm.advancePC(1)
-        return {
-          success: false,
-          error: `Unknown stack instruction: ${decoded.instruction.mnemonic}`,
-          cycles: 1,
-        }
-    }
-
-    vm.advancePC(decoded.length)
-    return { success: true, cycles: 2 } // スタック操作は2サイクル
-  },
-
-  /** メモリアクセス命令実行 */
-  executeMemory(vm: VMState, decoded: DecodedInstruction): ExecutionResult {
-    if (decoded.instruction == null) {
-      return { success: false, error: "No instruction", cycles: 1 }
-    }
-
-    let address: number
-    let cycles = 2 // 3バイト命令は2サイクル
-
-    switch (decoded.instruction.mnemonic) {
-      // 相対アドレス
-      case "LOAD_A":
-        if (decoded.operands.offset16 !== undefined) {
-          address = vm.pc + decoded.operands.offset16
-          vm.setRegister("A", vm.readMemory8(address))
-        }
-        break
-      case "STORE_A":
-        if (decoded.operands.offset16 !== undefined) {
-          address = vm.pc + decoded.operands.offset16
-          vm.writeMemory8(address, vm.getRegister("A") & 0xff)
-        }
-        break
-      case "LOAD_A_W":
-        if (decoded.operands.offset16 !== undefined) {
-          address = vm.pc + decoded.operands.offset16
-          vm.setRegister("A", vm.readMemory16(address))
-        }
-        break
-      case "STORE_A_W":
-        if (decoded.operands.offset16 !== undefined) {
-          address = vm.pc + decoded.operands.offset16
-          vm.writeMemory16(address, vm.getRegister("A"))
-        }
-        break
-
-      // インデックスアドレス
-      case "LOAD_IND":
-        if (decoded.operands.offset16 !== undefined) {
-          address = (vm.getRegister("B") + decoded.operands.offset16) & 0xffff
-          vm.setRegister("A", vm.readMemory8(address))
-        }
-        break
-      case "STORE_IND":
-        if (decoded.operands.offset16 !== undefined) {
-          address = (vm.getRegister("B") + decoded.operands.offset16) & 0xffff
-          vm.writeMemory8(address, vm.getRegister("A") & 0xff)
-        }
-        break
-
-      // レジスタベース
-      case "LOAD_REG":
-        if (decoded.operands.register !== undefined) {
-          address = vm.getRegisterByIndex(decoded.operands.register)
-          vm.setRegister("A", vm.readMemory8(address))
-        }
-        break
-      case "STORE_REG":
-        if (decoded.operands.register !== undefined) {
-          address = vm.getRegisterByIndex(decoded.operands.register)
-          vm.writeMemory8(address, vm.getRegister("A") & 0xff)
-        }
-        break
-
-      // 間接アドレス
-      case "LOAD_IND_REG":
-        if (decoded.operands.address16 !== undefined) {
-          // メモリから16bitアドレスを読み込み
-          const indirectAddress = vm.readMemory16(decoded.operands.address16)
-          // そのアドレスから8bit値を読み込み
-          vm.setRegister("A", vm.readMemory8(indirectAddress))
-        }
-        break
-
-      case "STORE_IND_REG":
-        if (decoded.operands.address16 !== undefined) {
-          // メモリから16bitアドレスを読み込み
-          const indirectAddress = vm.readMemory16(decoded.operands.address16)
-          // そのアドレスに8bit値を書き込み
-          vm.writeMemory8(indirectAddress, vm.getRegister("A") & 0xff)
-        }
-        break
-
-      // 絶対アドレス
-      case "LOAD_ABS":
-        cycles = 3
-        if (decoded.operands.address16 !== undefined) {
-          vm.setRegister("A", vm.readMemory8(decoded.operands.address16))
-        }
-        break
-      case "STORE_ABS":
-        cycles = 3
-        if (decoded.operands.address16 !== undefined) {
-          vm.writeMemory8(decoded.operands.address16, vm.getRegister("A") & 0xff)
-        }
-        break
-      case "LOAD_ABS_W":
-        cycles = 3
-        if (decoded.operands.address16 !== undefined) {
-          vm.setRegister("A", vm.readMemory16(decoded.operands.address16))
-        }
-        break
-      case "STORE_ABS_W":
-        cycles = 3
-        if (decoded.operands.address16 !== undefined) {
-          vm.writeMemory16(decoded.operands.address16, vm.getRegister("A"))
-        }
-        break
-
-      default:
-        vm.advancePC(1)
-        return {
-          success: false,
-          error: `Unknown memory instruction: ${decoded.instruction.mnemonic}`,
-          cycles: 1,
-        }
-    }
-
-    vm.advancePC(decoded.length)
-    return { success: true, cycles }
-  },
-
-  /** ジャンプ命令実行 */
-  executeJump(vm: VMState, decoded: DecodedInstruction): ExecutionResult {
-    if (decoded.instruction == null) {
-      return { success: false, error: "No instruction", cycles: 1 }
-    }
-
+  executeJump(vm: VMState, decoded: DecodedJumpInstruction): ExecutionResult {
     let shouldJump = false
-    let newPC: number | undefined
+    let newProgramCounter = vm.programCounter
 
-    switch (decoded.instruction.mnemonic) {
-      // 無条件ジャンプ
+    switch (decoded.mnemonic) {
       case "JMP":
         shouldJump = true
-        if (decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
-        }
+        newProgramCounter = vm.programCounter + decoded.operand.offset16
         break
-      case "JMP_ABS":
-        shouldJump = true
-        newPC = decoded.operands.address16
-        break
-      case "JMP_IND":
-        shouldJump = true
-        if (decoded.operands.register !== undefined) {
-          newPC = vm.getRegisterByIndex(decoded.operands.register)
-        }
-        break
-
-      // 条件ジャンプ
       case "JZ":
         shouldJump = vm.zeroFlag
-        if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
+        if (shouldJump) {
+          newProgramCounter = vm.programCounter + decoded.operand.offset16
         }
         break
       case "JNZ":
         shouldJump = !vm.zeroFlag
-        if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
+        if (shouldJump) {
+          newProgramCounter = vm.programCounter + decoded.operand.offset16
         }
         break
       case "JC":
         shouldJump = vm.carryFlag
-        if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
+        if (shouldJump) {
+          newProgramCounter = vm.programCounter + decoded.operand.offset16
         }
         break
       case "JNC":
         shouldJump = !vm.carryFlag
-        if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
+        if (shouldJump) {
+          newProgramCounter = vm.programCounter + decoded.operand.offset16
         }
         break
 
@@ -703,582 +470,551 @@ export const InstructionExecutor = {
       case "JGE":
         // A >= B（符号付き）：キャリーフラグで符号付き比較結果を判定
         shouldJump = !vm.carryFlag || vm.zeroFlag
-        if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
+        if (shouldJump) {
+          newProgramCounter = vm.programCounter + decoded.operand.offset16
         }
         break
       case "JL":
         // A < B（符号付き）：キャリーフラグがセットかつゼロフラグがクリア
         shouldJump = vm.carryFlag && !vm.zeroFlag
-        if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
+        if (shouldJump) {
+          newProgramCounter = vm.programCounter + decoded.operand.offset16
         }
         break
       case "JLE":
         // A <= B（符号付き）：キャリーフラグがセットまたはゼロフラグがセット
         shouldJump = vm.carryFlag || vm.zeroFlag
-        if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
+        if (shouldJump) {
+          newProgramCounter = vm.programCounter + decoded.operand.offset16
         }
         break
       case "JG":
         // A > B（符号付き）：キャリーフラグがクリアかつゼロフラグがクリア
         shouldJump = !vm.carryFlag && !vm.zeroFlag
-        if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
+        if (shouldJump) {
+          newProgramCounter = vm.programCounter + decoded.operand.offset16
         }
         break
-
-      // 符号なし比較ジャンプ（直前のCMP_AB結果に基づく）
-      case "JUL":
-        // A < B（符号なし）：キャリーフラグで符号なし比較結果を判定
-        shouldJump = vm.carryFlag && !vm.zeroFlag
-        if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
-        }
+      case "JMP_IND":
+        shouldJump = true
+        newProgramCounter = vm.getRegister(decoded.operand.register)
         break
-      case "JUGE":
-        // A >= B（符号なし）：キャリーフラグがクリアまたはゼロフラグがセット
-        shouldJump = !vm.carryFlag || vm.zeroFlag
-        if (shouldJump && decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
-        }
+      case "JMP_ABS":
+        shouldJump = true
+        newProgramCounter = decoded.operand.address16
         break
-
-      // サブルーチン呼び出し
       case "CALL":
         shouldJump = true
-        vm.setRegister("C", vm.pc + decoded.length)
-        if (decoded.operands.offset16 !== undefined) {
-          newPC = vm.pc + decoded.operands.offset16
-        }
+        vm.setRegister("C", vm.programCounter + decoded.length)
+        newProgramCounter = vm.programCounter + decoded.operand.offset16
         break
-      case "CALL_ABS":
-        shouldJump = true
-        vm.push16(vm.pc + decoded.length) // リターンアドレスをプッシュ
-        newPC = decoded.operands.address16
-        break
-
-      // リターン（Cレジスタから）
       case "RET":
-        newPC = vm.getRegister("C")
         shouldJump = true
+        newProgramCounter = vm.getRegister("C")
         break
 
-      default:
-        vm.advancePC(1)
-        return {
-          success: false,
-          error: `Unknown jump instruction: ${decoded.instruction.mnemonic}`,
-          cycles: 1,
-        }
+      default: {
+        const invalidInstruction: never = decoded
+        throw new Error(
+          `Invalid mnemonic: ${(invalidInstruction as unknown as DecodedInstruction).mnemonic}`
+        )
+      }
     }
 
-    if (shouldJump && newPC !== undefined) {
-      vm.pc = newPC
-    } else if (!shouldJump) {
+    let cycles: number
+
+    if (shouldJump) {
+      vm.programCounter = newProgramCounter
+      cycles = decoded.conditionalCycles
+    } else {
       vm.advancePC(decoded.length)
+      cycles = decoded.cycles
     }
 
-    // ジャンプは条件により異なるサイクル数
-    return { success: true, cycles: shouldJump ? 3 : 1 }
+    return {
+      case: "success",
+      cycles,
+    } satisfies ExecutionResultSuccess
   },
 
-  /** ユニット制御命令実行 */
-  executeUnit(vm: VMState, decoded: DecodedInstruction, unit?: Unit): ExecutionResult {
-    if (decoded.instruction == null) {
-      vm.advancePC(decoded.length)
-      return { success: false, error: "No instruction", cycles: 1 }
-    }
+  // TODO: 削除する
+  // /** ユニット制御命令実行 */
+  // executeUnit(vm: VMState, decoded: DecodedInstruction, unit?: Unit): ExecutionResult {
+  //   if (decoded.instruction == null) {
+  //     vm.advancePC(decoded.length)
+  //     return { success: false, error: "No instruction", cycles: 1 }
+  //   }
 
-    if (unit == null) {
-      vm.advancePC(decoded.length)
-      return {
-        success: false,
-        error: "Unit control instruction requires unit context",
-        cycles: 1,
-      }
-    }
+  //   if (unit == null) {
+  //     vm.advancePC(decoded.length)
+  //     return {
+  //       success: false,
+  //       error: "Unit control instruction requires unit context",
+  //       cycles: 1,
+  //     }
+  //   }
 
-    // UNIT_MEM_WRITE_DYNは特別な処理が必要
-    if (decoded.instruction.mnemonic === "UNIT_MEM_WRITE_DYN") {
-      return this.executeUnitMemWriteDyn(vm, decoded, unit)
-    }
+  //   // UNIT_MEM_WRITE_DYNは特別な処理が必要
+  //   if (decoded.instruction.mnemonic === "UNIT_MEM_WRITE_DYN") {
+  //     return this.executeUnitMemWriteDyn(vm, decoded, unit)
+  //   }
 
-    const unitId = decoded.operands.unitId
-    const memAddr = decoded.operands.unitMemAddr
+  //   const unitId = decoded.operands.unitId
+  //   const memAddr = decoded.operands.unitMemAddr
 
-    if (unitId === undefined || memAddr === undefined) {
-      vm.advancePC(decoded.length)
-      return {
-        success: false,
-        error: "Missing unit control operands",
-        cycles: 1,
-      }
-    }
+  //   if (unitId === undefined || memAddr === undefined) {
+  //     vm.advancePC(decoded.length)
+  //     return {
+  //       success: false,
+  //       error: "Missing unit control operands",
+  //       cycles: 1,
+  //     }
+  //   }
 
-    // ターゲットユニットを識別子から取得
-    const targetUnit = this.findUnitById(unit, unitId)
-    if (targetUnit == null) {
-      vm.advancePC(decoded.length)
-      return {
-        success: false,
-        error: `Unit not found: 0x${unitId.toString(16).padStart(2, "0")}`,
-        cycles: 1,
-      }
-    }
+  //   // ターゲットユニットを識別子から取得
+  //   const targetUnit = this.findUnitById(unit, unitId)
+  //   if (targetUnit == null) {
+  //     vm.advancePC(decoded.length)
+  //     return {
+  //       success: false,
+  //       error: `Unit not found: 0x${unitId.toString(16).padStart(2, "0")}`,
+  //       cycles: 1,
+  //     }
+  //   }
 
-    // アクセス権限チェック
-    if (!CircuitConnectionSystem.canAccess(unit, targetUnit)) {
-      vm.advancePC(decoded.length)
-      return {
-        success: false,
-        error: "Access denied: units not on same hull",
-        cycles: 1,
-      }
-    }
+  //   // アクセス権限チェック
+  //   if (!CircuitConnectionSystem.canAccess(unit, targetUnit)) {
+  //     vm.advancePC(decoded.length)
+  //     return {
+  //       success: false,
+  //       error: "Access denied: units not on same hull",
+  //       cycles: 1,
+  //     }
+  //   }
 
-    // メモリインターフェース取得
-    const memInterface = createMemoryInterface(targetUnit)
-    if (memInterface == null) {
-      vm.advancePC(decoded.length)
-      return {
-        success: false,
-        error: "Target unit has no memory interface",
-        cycles: 1,
-      }
-    }
+  //   // メモリインターフェース取得
+  //   const memInterface = createMemoryInterface(targetUnit)
+  //   if (memInterface == null) {
+  //     vm.advancePC(decoded.length)
+  //     return {
+  //       success: false,
+  //       error: "Target unit has no memory interface",
+  //       cycles: 1,
+  //     }
+  //   }
 
-    switch (decoded.instruction.mnemonic) {
-      case "UNIT_MEM_READ": {
-        const value = memInterface.readMemory(memAddr)
-        if (value == null) {
-          vm.advancePC(decoded.length)
-          return {
-            success: false,
-            error: `Cannot read from address 0x${memAddr.toString(16).padStart(2, "0")}`,
-            cycles: 1,
-          }
-        }
-        vm.setRegister("B", value)
-        break
-      }
-      case "UNIT_MEM_WRITE": {
-        const value = vm.getRegister("C") & 0xff
-        const success = memInterface.writeMemory(memAddr, value)
-        if (!success) {
-          vm.advancePC(decoded.length)
-          return {
-            success: false,
-            error: `Cannot write to address 0x${memAddr.toString(16).padStart(2, "0")}`,
-            cycles: 1,
-          }
-        }
-        break
-      }
-      default:
-        vm.advancePC(1)
-        return {
-          success: false,
-          error: `Unknown unit instruction: ${decoded.instruction.mnemonic}`,
-          cycles: 1,
-        }
-    }
+  //   switch (decoded.instruction.mnemonic) {
+  //     case "UNIT_MEM_READ": {
+  //       const value = memInterface.readMemory(memAddr)
+  //       if (value == null) {
+  //         vm.advancePC(decoded.length)
+  //         return {
+  //           success: false,
+  //           error: `Cannot read from address 0x${memAddr.toString(16).padStart(2, "0")}`,
+  //           cycles: 1,
+  //         }
+  //       }
+  //       vm.setRegister("B", value)
+  //       break
+  //     }
+  //     case "UNIT_MEM_WRITE": {
+  //       const value = vm.getRegister("C") & 0xff
+  //       const success = memInterface.writeMemory(memAddr, value)
+  //       if (!success) {
+  //         vm.advancePC(decoded.length)
+  //         return {
+  //           success: false,
+  //           error: `Cannot write to address 0x${memAddr.toString(16).padStart(2, "0")}`,
+  //           cycles: 1,
+  //         }
+  //       }
+  //       break
+  //     }
+  //     default:
+  //       vm.advancePC(1)
+  //       return {
+  //         success: false,
+  //         error: `Unknown unit instruction: ${decoded.instruction.mnemonic}`,
+  //         cycles: 1,
+  //       }
+  //   }
 
-    vm.advancePC(decoded.length)
-    return { success: true, cycles: 3 } // ユニット制御は3サイクル
-  },
+  //   vm.advancePC(decoded.length)
+  //   return { success: true, cycles: 3 } // ユニット制御は3サイクル
+  // },
 
-  /** 特殊命令実行 */
-  executeSpecial(vm: VMState, decoded: DecodedInstruction, unit?: Unit): ExecutionResult {
-    if (decoded.instruction == null) {
-      return { success: false, error: "No instruction", cycles: 1 }
-    }
+  // /** 特殊命令実行 */
+  // executeSpecial(vm: VMState, decoded: DecodedInstruction, unit?: Unit): ExecutionResult {
+  //   if (decoded.instruction == null) {
+  //     return { success: false, error: "No instruction", cycles: 1 }
+  //   }
 
-    switch (decoded.instruction.mnemonic) {
-      case "ENERGY": {
-        if (unit == null) {
-          return {
-            success: false,
-            error: "ENERGY instruction requires unit context",
-            cycles: 1,
-          }
-        }
+  //   switch (decoded.instruction.mnemonic) {
+  //     case "ENERGY": {
+  //       if (unit == null) {
+  //         return {
+  //           success: false,
+  //           error: "ENERGY instruction requires unit context",
+  //           cycles: 1,
+  //         }
+  //       }
 
-        // オペランドからサブコマンドを取得（バイト1）
-        if (decoded.bytes == null || decoded.bytes.length < 2) {
-          return {
-            success: false,
-            error: "Invalid ENERGY instruction: insufficient bytes",
-            cycles: 1,
-          }
-        }
-        const subcommand = decoded.bytes[1] ?? 0
+  //       // オペランドからサブコマンドを取得（バイト1）
+  //       if (decoded.bytes == null || decoded.bytes.length < 2) {
+  //         return {
+  //           success: false,
+  //           error: "Invalid ENERGY instruction: insufficient bytes",
+  //           cycles: 1,
+  //         }
+  //       }
+  //       const subcommand = decoded.bytes[1] ?? 0
 
-        // エネルギー操作を実行
-        const result = UnitEnergyControlSystem.executeEnergyCommand(unit, subcommand)
+  //       // エネルギー操作を実行
+  //       const result = UnitEnergyControlSystem.executeEnergyCommand(unit, subcommand)
 
-        if (!result.success) {
-          return {
-            success: false,
-            error: result.error ?? "Energy operation failed",
-            cycles: 1,
-          }
-        }
+  //       if (!result.success) {
+  //         return {
+  //           success: false,
+  //           error: result.error ?? "Energy operation failed",
+  //           cycles: 1,
+  //         }
+  //       }
 
-        // 結果をレジスタAに格納
-        if (result.value !== undefined) {
-          vm.setRegister("A", result.value & 0xffff)
-        }
+  //       // 結果をレジスタAに格納
+  //       if (result.value !== undefined) {
+  //         vm.setRegister("A", result.value & 0xffff)
+  //       }
 
-        vm.advancePC(decoded.length)
-        return { success: true, cycles: 5 }
-      }
+  //       vm.advancePC(decoded.length)
+  //       return { success: true, cycles: 5 }
+  //     }
 
-      case "ASSEMBLE": {
-        if (unit == null) {
-          return {
-            success: false,
-            error: "ASSEMBLE instruction requires unit context",
-            cycles: 1,
-          }
-        }
+  //     case "ASSEMBLE": {
+  //       if (unit == null) {
+  //         return {
+  //           success: false,
+  //           error: "ASSEMBLE instruction requires unit context",
+  //           cycles: 1,
+  //         }
+  //       }
 
-        // オペランドから対象ASSEMBLERのIDを取得
-        // バイト1: ユニット識別子
-        // バイト2: コマンド（0=開始, 1=停止, 2=状態確認）
-        // バイト3-4: 予約
-        if (decoded.bytes == null || decoded.bytes.length < 5) {
-          return {
-            success: false,
-            error: "Invalid ASSEMBLE instruction: insufficient bytes",
-            cycles: 1,
-          }
-        }
+  //       // オペランドから対象ASSEMBLERのIDを取得
+  //       // バイト1: ユニット識別子
+  //       // バイト2: コマンド（0=開始, 1=停止, 2=状態確認）
+  //       // バイト3-4: 予約
+  //       if (decoded.bytes == null || decoded.bytes.length < 5) {
+  //         return {
+  //           success: false,
+  //           error: "Invalid ASSEMBLE instruction: insufficient bytes",
+  //           cycles: 1,
+  //         }
+  //       }
 
-        const unitId = decoded.bytes[1] ?? 0
-        const command = decoded.bytes[2] ?? 0
+  //       const unitId = decoded.bytes[1] ?? 0
+  //       const command = decoded.bytes[2] ?? 0
 
-        // ターゲットユニットを識別子から取得
-        const targetUnit = this.findUnitById(unit, unitId)
-        if (targetUnit == null) {
-          return {
-            success: false,
-            error: `Unit not found: 0x${unitId.toString(16).padStart(2, "0")}`,
-            cycles: 1,
-          }
-        }
+  //       // ターゲットユニットを識別子から取得
+  //       const targetUnit = this.findUnitById(unit, unitId)
+  //       if (targetUnit == null) {
+  //         return {
+  //           success: false,
+  //           error: `Unit not found: 0x${unitId.toString(16).padStart(2, "0")}`,
+  //           cycles: 1,
+  //         }
+  //       }
 
-        // ASSEMBLERであることを確認
-        if (targetUnit.type !== "ASSEMBLER") {
-          return {
-            success: false,
-            error: "Target unit is not an ASSEMBLER",
-            cycles: 1,
-          }
-        }
+  //       // ASSEMBLERであることを確認
+  //       if (targetUnit.type !== "ASSEMBLER") {
+  //         return {
+  //           success: false,
+  //           error: "Target unit is not an ASSEMBLER",
+  //           cycles: 1,
+  //         }
+  //       }
 
-        // アクセス権限チェック
-        if (!CircuitConnectionSystem.canAccess(unit, targetUnit)) {
-          return {
-            success: false,
-            error: "Access denied: units not on same hull",
-            cycles: 1,
-          }
-        }
+  //       // アクセス権限チェック
+  //       if (!CircuitConnectionSystem.canAccess(unit, targetUnit)) {
+  //         return {
+  //           success: false,
+  //           error: "Access denied: units not on same hull",
+  //           cycles: 1,
+  //         }
+  //       }
 
-        const assembler = targetUnit
-        const memInterface = createMemoryInterface(assembler)
+  //       const assembler = targetUnit
+  //       const memInterface = createMemoryInterface(assembler)
 
-        switch (command) {
-          case 0: {
-            // 生産開始
-            // ASSEMBLERが既に生産中でないか確認
-            if (assembler.isAssembling) {
-              vm.setRegister("A", 0) // 失敗
-              vm.advancePC(decoded.length)
-              return { success: true, cycles: 1 }
-            }
+  //       switch (command) {
+  //         case 0: {
+  //           // 生産開始
+  //           // ASSEMBLERが既に生産中でないか確認
+  //           if (assembler.isAssembling) {
+  //             vm.setRegister("A", 0) // 失敗
+  //             vm.advancePC(decoded.length)
+  //             return { success: true, cycles: 1 }
+  //           }
 
-            // メモリから生産パラメータを読み取る
-            const unitType = memInterface?.readMemory(0x01) ?? 0 // productionUnitType
-            const param1 = memInterface?.readMemory(0x03) ?? 0 // productionParam1 (capacity/power)
-            const param2 = memInterface?.readMemory(0x04) ?? 0 // productionParam2 (memSize for COMPUTER)
+  //           // メモリから生産パラメータを読み取る
+  //           const unitType = memInterface?.readMemory(0x01) ?? 0 // productionUnitType
+  //           const param1 = memInterface?.readMemory(0x03) ?? 0 // productionParam1 (capacity/power)
+  //           const param2 = memInterface?.readMemory(0x04) ?? 0 // productionParam2 (memSize for COMPUTER)
 
-            // ユニット仕様を作成
-            let targetSpec: UnitSpec | null = null
-            switch (unitType) {
-              case 1: // HULL
-                targetSpec = { type: "HULL", capacity: param1 !== 0 ? param1 : 100 }
-                break
-              case 2: // ASSEMBLER
-                targetSpec = { type: "ASSEMBLER", assemblePower: param1 !== 0 ? param1 : 1 }
-                break
-              case 3: // COMPUTER
-                targetSpec = {
-                  type: "COMPUTER",
-                  processingPower: param1 !== 0 ? param1 : 1,
-                  memorySize: param2 !== 0 ? param2 : 64,
-                }
-                break
-            }
+  //           // ユニット仕様を作成
+  //           let targetSpec: UnitSpec | null = null
+  //           switch (unitType) {
+  //             case 1: // HULL
+  //               targetSpec = { type: "HULL", capacity: param1 !== 0 ? param1 : 100 }
+  //               break
+  //             case 2: // ASSEMBLER
+  //               targetSpec = { type: "ASSEMBLER", assemblePower: param1 !== 0 ? param1 : 1 }
+  //               break
+  //             case 3: // COMPUTER
+  //               targetSpec = {
+  //                 type: "COMPUTER",
+  //                 processingPower: param1 !== 0 ? param1 : 1,
+  //                 memorySize: param2 !== 0 ? param2 : 64,
+  //               }
+  //               break
+  //           }
 
-            if (targetSpec == null) {
-              vm.setRegister("A", 0) // 失敗
-              vm.advancePC(decoded.length)
-              return { success: true, cycles: 1 }
-            }
+  //           if (targetSpec == null) {
+  //             vm.setRegister("A", 0) // 失敗
+  //             vm.advancePC(decoded.length)
+  //             return { success: true, cycles: 1 }
+  //           }
 
-            // 生産開始
-            assembler.isAssembling = true
-            assembler.targetSpec = targetSpec
-            assembler.progress = 0
+  //           // 生産開始
+  //           assembler.isAssembling = true
+  //           assembler.targetSpec = targetSpec
+  //           assembler.progress = 0
 
-            // 生産開始フラグを設定
-            const success = memInterface?.writeMemory(0x0f, 1) ?? false // 生産開始トリガー
-            if (success) {
-              memInterface?.writeMemory(0x09, 1) // productionState = 生産中
-            }
+  //           // 生産開始フラグを設定
+  //           const success = memInterface?.writeMemory(0x0f, 1) ?? false // 生産開始トリガー
+  //           if (success) {
+  //             memInterface?.writeMemory(0x09, 1) // productionState = 生産中
+  //           }
 
-            // 結果をレジスタAに格納（1=成功）
-            vm.setRegister("A", success ? 1 : 0)
-            break
-          }
+  //           // 結果をレジスタAに格納（1=成功）
+  //           vm.setRegister("A", success ? 1 : 0)
+  //           break
+  //         }
 
-          case 1: {
-            // 生産停止
-            assembler.isAssembling = false
-            delete assembler.targetSpec
-            assembler.progress = 0
+  //         case 1: {
+  //           // 生産停止
+  //           assembler.isAssembling = false
+  //           delete assembler.targetSpec
+  //           assembler.progress = 0
 
-            // 生産状態をクリア
-            memInterface?.writeMemory(0x0f, 0) // 生産停止トリガー
-            memInterface?.writeMemory(0x09, 0) // productionState = 停止
+  //           // 生産状態をクリア
+  //           memInterface?.writeMemory(0x0f, 0) // 生産停止トリガー
+  //           memInterface?.writeMemory(0x09, 0) // productionState = 停止
 
-            vm.setRegister("A", 1) // 成功
-            break
-          }
+  //           vm.setRegister("A", 1) // 成功
+  //           break
+  //         }
 
-          case 2: {
-            // 状態確認
-            // 状態コード: 0=停止, 1=生産中, 2=完了
-            let state = 0
-            if (assembler.isAssembling) {
-              state = assembler.progress >= 1.0 ? 2 : 1
-            }
-            vm.setRegister("A", state)
-            break
-          }
+  //         case 2: {
+  //           // 状態確認
+  //           // 状態コード: 0=停止, 1=生産中, 2=完了
+  //           let state = 0
+  //           if (assembler.isAssembling) {
+  //             state = assembler.progress >= 1.0 ? 2 : 1
+  //           }
+  //           vm.setRegister("A", state)
+  //           break
+  //         }
 
-          default:
-            return {
-              success: false,
-              error: `Invalid ASSEMBLE command: ${command}`,
-              cycles: 1,
-            }
-        }
+  //         default:
+  //           return {
+  //             success: false,
+  //             error: `Invalid ASSEMBLE command: ${command}`,
+  //             cycles: 1,
+  //           }
+  //       }
 
-        vm.advancePC(decoded.length)
-        return { success: true, cycles: 5 }
-      }
+  //       vm.advancePC(decoded.length)
+  //       return { success: true, cycles: 5 }
+  //     }
 
-      default:
-        vm.advancePC(1)
-        return {
-          success: false,
-          error: `Unknown special instruction: ${decoded.instruction.mnemonic}`,
-          cycles: 1,
-        }
-    }
-  },
+  //     default:
+  //       vm.advancePC(1)
+  //       return {
+  //         success: false,
+  //         error: `Unknown special instruction: ${decoded.instruction.mnemonic}`,
+  //         cycles: 1,
+  //       }
+  //   }
+  // },
 
-  /** テンプレートマッチング命令実行 */
-  executeTemplate(vm: VMState, decoded: DecodedInstruction, _unit?: Unit): ExecutionResult {
-    if (decoded.instruction == null) {
-      return { success: false, error: "No instruction", cycles: 1 }
-    }
+  // /** テンプレートマッチング命令実行 */
+  // executeTemplate(vm: VMState, decoded: DecodedInstruction, _unit?: Unit): ExecutionResult {
+  //   if (decoded.instruction == null) {
+  //     return { success: false, error: "No instruction", cycles: 1 }
+  //   }
 
-    // TODO: テンプレートマッチング命令の実装
-    // 現在は仮実装として成功を返す
-    switch (decoded.instruction.mnemonic) {
-      case "SEARCH_F":
-      case "SEARCH_B":
-      case "SEARCH_F_MAX":
-      case "SEARCH_B_MAX":
-        // 検索結果をレジスタAに格納（仮: 見つからない場合は0xFFFF）
-        vm.setRegister("A", 0xffff)
-        break
-      default:
-        vm.advancePC(1)
-        return {
-          success: false,
-          error: `Unknown template instruction: ${decoded.instruction.mnemonic}`,
-          cycles: 1,
-        }
-    }
+  //   // TODO: テンプレートマッチング命令の実装
+  //   // 現在は仮実装として成功を返す
+  //   switch (decoded.instruction.mnemonic) {
+  //     case "SEARCH_F":
+  //     case "SEARCH_B":
+  //     case "SEARCH_F_MAX":
+  //     case "SEARCH_B_MAX":
+  //       // 検索結果をレジスタAに格納（仮: 見つからない場合は0xFFFF）
+  //       vm.setRegister("A", 0xffff)
+  //       break
+  //     default:
+  //       vm.advancePC(1)
+  //       return {
+  //         success: false,
+  //         error: `Unknown template instruction: ${decoded.instruction.mnemonic}`,
+  //         cycles: 1,
+  //       }
+  //   }
 
-    vm.advancePC(decoded.length)
-    return { success: true, cycles: 5 } // テンプレート命令は5サイクル
-  },
+  //   vm.advancePC(decoded.length)
+  //   return { success: true, cycles: 5 } // テンプレート命令は5サイクル
+  // },
 
-  /** エネルギー計算命令実行 */
-  executeEnergy(vm: VMState, decoded: DecodedInstruction, _unit?: Unit): ExecutionResult {
-    if (decoded.instruction == null) {
-      return { success: false, error: "No instruction", cycles: 1 }
-    }
+  // /** エネルギー計算命令実行 */
+  // executeEnergy(vm: VMState, decoded: DecodedInstruction, _unit?: Unit): ExecutionResult {
+  //   if (decoded.instruction == null) {
+  //     return { success: false, error: "No instruction", cycles: 1 }
+  //   }
 
-    // TODO: エネルギー計算命令の実装
-    // 現在は仮実装として成功を返す
-    switch (decoded.instruction.mnemonic) {
-      case "ADD_E32":
-      case "SUB_E32":
-      case "CMP_E32":
-      case "SHR_E10":
-      case "SHL_E10":
-        // エネルギー演算結果をレジスタAに格納（仮実装）
-        vm.setRegister("A", 0)
-        break
-      default:
-        vm.advancePC(1)
-        return {
-          success: false,
-          error: `Unknown energy instruction: ${decoded.instruction.mnemonic}`,
-          cycles: 1,
-        }
-    }
+  //   // TODO: エネルギー計算命令の実装
+  //   // 現在は仮実装として成功を返す
+  //   switch (decoded.instruction.mnemonic) {
+  //     case "ADD_E32":
+  //     case "SUB_E32":
+  //     case "CMP_E32":
+  //     case "SHR_E10":
+  //     case "SHL_E10":
+  //       // エネルギー演算結果をレジスタAに格納（仮実装）
+  //       vm.setRegister("A", 0)
+  //       break
+  //     default:
+  //       vm.advancePC(1)
+  //       return {
+  //         success: false,
+  //         error: `Unknown energy instruction: ${decoded.instruction.mnemonic}`,
+  //         cycles: 1,
+  //       }
+  //   }
 
-    vm.advancePC(decoded.length)
-    return { success: true, cycles: 4 } // エネルギー命令は4サイクル
-  },
+  //   vm.advancePC(decoded.length)
+  //   return { success: true, cycles: 4 } // エネルギー命令は4サイクル
+  // },
 
-  /**
-   * UNIT_MEM_WRITE_DYN命令の実行
-   * @param vm VM状態
-   * @param decoded デコード済み命令
-   * @param unit 実行コンテキストのユニット
-   * @returns 実行結果
-   */
-  executeUnitMemWriteDyn(vm: VMState, decoded: DecodedInstruction, unit: Unit): ExecutionResult {
-    // 動的アドレス指定によるユニットメモリ書き込み
-    // 第2バイト: ユニット種別とインデックス（上位4bit:種別、下位4bit:インデックス）
-    // 第3バイト: アドレス指定レジスタ（0=A, 1=B, 2=C, 3=D）
-    const unitByte = decoded.operands.unitId
-    const regIndex = decoded.operands.unitMemAddr // 第3バイトがレジスタインデックスとして使用される
+  // /**
+  //  * UNIT_MEM_WRITE_DYN命令の実行
+  //  * @param vm VM状態
+  //  * @param decoded デコード済み命令
+  //  * @param unit 実行コンテキストのユニット
+  //  * @returns 実行結果
+  //  */
+  // executeUnitMemWriteDyn(vm: VMState, decoded: DecodedInstruction, unit: Unit): ExecutionResult {
+  //   // 動的アドレス指定によるユニットメモリ書き込み
+  //   // 第2バイト: ユニット種別とインデックス（上位4bit:種別、下位4bit:インデックス）
+  //   // 第3バイト: アドレス指定レジスタ（0=A, 1=B, 2=C, 3=D）
+  //   const unitByte = decoded.operands.unitId
+  //   const regIndex = decoded.operands.unitMemAddr // 第3バイトがレジスタインデックスとして使用される
 
-    if (unitByte === undefined || regIndex === undefined) {
-      vm.advancePC(decoded.length)
-      return {
-        success: false,
-        error: "Invalid UNIT_MEM_WRITE_DYN operands",
-        cycles: 1,
-      }
-    }
+  //   if (unitByte === undefined || regIndex === undefined) {
+  //     vm.advancePC(decoded.length)
+  //     return {
+  //       success: false,
+  //       error: "Invalid UNIT_MEM_WRITE_DYN operands",
+  //       cycles: 1,
+  //     }
+  //   }
 
-    // レジスタから動的アドレスを取得
-    const dynamicAddr = vm.getRegisterByIndex(regIndex & 0x03) & 0xff
+  //   // レジスタから動的アドレスを取得
+  //   const dynamicAddr = vm.getRegisterByIndex(regIndex & 0x03) & 0xff
 
-    // ユニット種別とインデックスを分離
-    const unitType = (unitByte >> 4) & 0x0f
-    const unitIndex = unitByte & 0x0f
+  //   // ユニット種別とインデックスを分離
+  //   const unitType = (unitByte >> 4) & 0x0f
+  //   const unitIndex = unitByte & 0x0f
 
-    // 対象ユニットの特定
-    const targetUnit = this.findUnit(unit, unitType, unitIndex)
-    if (targetUnit == null) {
-      // 仕様: 失敗してもエネルギー消費、副作用なし
-      // エラーを返すが、サイクル数は消費される
-      vm.advancePC(decoded.length)
-      return {
-        success: false,
-        error: `Unit ${unitType}:${unitIndex} not found`,
-        cycles: 3, // ユニット操作は3サイクル消費
-      }
-    }
+  //   // 対象ユニットの特定
+  //   const targetUnit = this.findUnit(unit, unitType, unitIndex)
+  //   if (targetUnit == null) {
+  //     // 仕様: 失敗してもエネルギー消費、副作用なし
+  //     // エラーを返すが、サイクル数は消費される
+  //     vm.advancePC(decoded.length)
+  //     return {
+  //       success: false,
+  //       error: `Unit ${unitType}:${unitIndex} not found`,
+  //       cycles: 3, // ユニット操作は3サイクル消費
+  //     }
+  //   }
 
-    const memInterface = createMemoryInterface(targetUnit)
-    if (memInterface == null) {
-      // 仕様: 失敗してもエネルギー消費、副作用なし
-      vm.advancePC(decoded.length)
-      return {
-        success: false,
-        error: "Target unit has no memory interface",
-        cycles: 3, // ユニット操作は3サイクル消費
-      }
-    }
+  //   const memInterface = createMemoryInterface(targetUnit)
+  //   if (memInterface == null) {
+  //     // 仕様: 失敗してもエネルギー消費、副作用なし
+  //     vm.advancePC(decoded.length)
+  //     return {
+  //       success: false,
+  //       error: "Target unit has no memory interface",
+  //       cycles: 3, // ユニット操作は3サイクル消費
+  //     }
+  //   }
 
-    // Aレジスタの下位8bitを書き込み
-    const value = vm.getRegister("A") & 0xff
-    const success = memInterface.writeMemory(dynamicAddr, value)
+  //   // Aレジスタの下位8bitを書き込み
+  //   const value = vm.getRegister("A") & 0xff
+  //   const success = memInterface.writeMemory(dynamicAddr, value)
 
-    // 仕様: 失敗してもエネルギー消費、副作用なし
-    if (!success) {
-      vm.advancePC(decoded.length)
-      return {
-        success: false,
-        error: `Cannot write to address 0x${dynamicAddr.toString(16).padStart(2, "0")}`,
-        cycles: 3, // ユニット操作は3サイクル消費
-      }
-    }
+  //   // 仕様: 失敗してもエネルギー消費、副作用なし
+  //   if (!success) {
+  //     vm.advancePC(decoded.length)
+  //     return {
+  //       success: false,
+  //       error: `Cannot write to address 0x${dynamicAddr.toString(16).padStart(2, "0")}`,
+  //       cycles: 3, // ユニット操作は3サイクル消費
+  //     }
+  //   }
 
-    // 成功時はPCを進める
-    vm.advancePC(decoded.length)
-    return { success: true, cycles: 3 }
-  },
+  //   // 成功時はPCを進める
+  //   vm.advancePC(decoded.length)
+  //   return { success: true, cycles: 3 }
+  // },
 
-  /**
-   * ユニット識別子からユニットを検索
-   * @param _currentUnit 現在のユニット
-   * @param _unitId ユニット識別子
-   * @returns 見つかったユニット、またはnull
-   */
-  findUnitById(_currentUnit: Unit, _unitId: number): Unit | null {
-    // TODO: 実際の実装では、同じHULL上のユニットリストから検索
-    // 現在は仮実装としてnullを返す
-    return null
-  },
+  // /**
+  //  * ユニット識別子からユニットを検索
+  //  * @param _currentUnit 現在のユニット
+  //  * @param _unitId ユニット識別子
+  //  * @returns 見つかったユニット、またはnull
+  //  */
+  // findUnitById(_currentUnit: Unit, _unitId: number): Unit | null {
+  //   // TODO: 実際の実装では、同じHULL上のユニットリストから検索
+  //   // 現在は仮実装としてnullを返す
+  //   return null
+  // },
 
-  /**
-   * ユニット種別とインデックスからユニットを検索
-   * @param currentUnit 現在のユニット
-   * @param unitType ユニット種別（0=HULL, 1=ASSEMBLER, 2=COMPUTER）
-   * @param unitIndex ユニットインデックス
-   * @returns 対象ユニット（見つからない場合はnull）
-   */
-  findUnit(_currentUnit: Unit, _unitType: number, _unitIndex: number): Unit | null {
-    // TODO: 実際の実装では、同じHULL上のユニットリストから検索
-    // unitTypeとunitIndexから対象ユニットを特定
-    // 現在は仮実装としてnullを返す
-    return null
-  },
+  // /**
+  //  * ユニット種別とインデックスからユニットを検索
+  //  * @param currentUnit 現在のユニット
+  //  * @param unitType ユニット種別（0=HULL, 1=ASSEMBLER, 2=COMPUTER）
+  //  * @param unitIndex ユニットインデックス
+  //  * @returns 対象ユニット（見つからない場合はnull）
+  //  */
+  // findUnit(_currentUnit: Unit, _unitType: number, _unitIndex: number): Unit | null {
+  //   // TODO: 実際の実装では、同じHULL上のユニットリストから検索
+  //   // unitTypeとunitIndexから対象ユニットを特定
+  //   // 現在は仮実装としてnullを返す
+  //   return null
+  // },
 
-  /**
-   * 単一ステップ実行
-   * @param vm VM状態
-   * @param unit 実行ユニット
-   * @returns 実行結果
-   */
-  step(vm: VMState, unit?: Unit): ExecutionResult {
+  step(vm: VMState, unitPort: VMUnitPort = VMUnitPortNone): ExecutionResult {
     const decoded = InstructionDecoder.decode(vm)
-    return this.execute(vm, decoded, unit)
+    return this.execute(vm, decoded, unitPort)
   },
 
-  /**
-   * 指定サイクル数まで実行
-   * @param vm VM状態
-   * @param maxCycles 最大サイクル数
-   * @param unit 実行ユニット
-   * @returns 総実行サイクル数
-   */
-  run(vm: VMState, maxCycles: number, unit?: Unit): number {
+  run(vm: VMState, maxCycles: number, unitPort: VMUnitPort): number {
     let totalCycles = 0
 
     while (totalCycles < maxCycles) {
-      const result = this.step(vm, unit)
+      const result = this.step(vm, unitPort)
       totalCycles += result.cycles
-
-      // エラーが発生した場合は実行を停止
-      if (!result.success) {
-        break
-      }
     }
 
     return totalCycles

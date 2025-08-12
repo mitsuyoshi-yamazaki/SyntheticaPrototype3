@@ -40,7 +40,7 @@ describe("ENERGY命令", () => {
 
     expect(result.success).toBe(true)
     expect(result.cycles).toBe(5)
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
     expect(vm.getRegister("A")).toBe(2500) // currentEnergy
   })
 
@@ -144,12 +144,12 @@ describe("ENERGY命令", () => {
     let result = InstructionExecutor.step(vm, computer)
     expect(result.success).toBe(true)
     expect(vm.getRegister("A")).toBe(2500)
-    expect(vm.pc).toBe(5)
+    expect(vm.programCounter).toBe(5)
 
     // 2つ目実行
     result = InstructionExecutor.step(vm, computer)
     expect(result.success).toBe(true)
     expect(vm.getRegister("A")).toBe(3000)
-    expect(vm.pc).toBe(10)
+    expect(vm.programCounter).toBe(10)
   })
 })

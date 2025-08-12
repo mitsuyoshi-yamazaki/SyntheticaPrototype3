@@ -43,8 +43,8 @@ describe("ComputerVMSystem", () => {
       expect(vm.getRegister("B")).toBe(0x5678)
       expect(vm.getRegister("C")).toBe(0xabcd)
       expect(vm.getRegister("D")).toBe(0xef00)
-      expect(vm.pc).toBe(0x10)
-      expect(vm.sp).toBe(0xf0)
+      expect(vm.programCounter).toBe(0x10)
+      expect(vm.stackPointer).toBe(0xf0)
       expect(vm.zeroFlag).toBe(true)
       expect(vm.carryFlag).toBe(false)
       expect(vm.memorySize).toBe(256)
@@ -73,8 +73,8 @@ describe("ComputerVMSystem", () => {
       vm.setRegister("B", 0xbbbb)
       vm.setRegister("C", 0xcccc)
       vm.setRegister("D", 0xdddd)
-      vm.pc = 0x50
-      vm.sp = 0x80
+      vm.programCounter = 0x50
+      vm.stackPointer = 0x80
       vm.zeroFlag = false
       vm.carryFlag = true
 
@@ -240,7 +240,6 @@ describe("ComputerVMSystem", () => {
       expect(computer.vmError).toBeUndefined()
     })
   })
-
 
   describe("loadProgram", () => {
     test("プログラムのロード", () => {
