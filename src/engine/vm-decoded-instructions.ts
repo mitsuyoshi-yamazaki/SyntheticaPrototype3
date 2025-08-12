@@ -4,7 +4,12 @@ import { RegisterName } from "./vm-state"
 
 type OperandOffset16 = { readonly offset16: number } /** 16bit符号付きオフセット */
 type OperandAddress16 = { readonly address16: number } /** 16bit絶対アドレス */
+type OperandImmediate16 = { readonly immediate16: number } /** 16bit即値 */
 type OperandRegister = { readonly register: RegisterName } /** レジスタ名 */
+type OperandRegisters = {
+  readonly sourceRegister: RegisterName
+  readonly destinationRegister: RegisterName
+}
 type OperandUnit = {
   readonly unitType: UnitType
   readonly unitIndex: number
@@ -121,6 +126,27 @@ export type InstructionJmpInd = Instruction & { readonly mnemonic: "JMP_IND", re
 export type InstructionJmpAbs = Instruction & { readonly mnemonic: "JMP_ABS", readonly operand: OperandAddress16 }
 export type InstructionRet = Instruction & { readonly mnemonic: "RET" }
 
+// 5バイト命令
+// 拡張演算命令
+export type InstructionMulAb = Instruction & { readonly mnemonic: "MUL_AB" }
+export type InstructionDivAb = Instruction & { readonly mnemonic: "DIV_AB" }
+export type InstructionShl = Instruction & { readonly mnemonic: "SHL" }
+export type InstructionShr = Instruction & { readonly mnemonic: "SHR" }
+export type InstructionSar = Instruction & { readonly mnemonic: "SAR" }
+
+// 条件付き移動命令
+export type InstructionCmovZ = Instruction & { readonly mnemonic: "CMOV_Z", readonly operand: OperandRegisters }
+export type InstructionCmovNz = Instruction & { readonly mnemonic: "CMOV_NZ", readonly operand: OperandRegisters }
+export type InstructionCmovC = Instruction & { readonly mnemonic: "CMOV_C", readonly operand: OperandRegisters }
+export type InstructionCmovNc = Instruction & { readonly mnemonic: "CMOV_NC", readonly operand: OperandRegisters }
+
+// 即値ロード命令
+export type InstructionLoadImm = Instruction & { readonly mnemonic: "LOAD_IMM", readonly operand: OperandImmediate16 }
+export type InstructionLoadImmB = Instruction & { readonly mnemonic: "LOAD_IMM_B", readonly operand: OperandImmediate16 }
+
+// NOP命令
+export type InstructionNop5 = Instruction & { readonly mnemonic: "NOP5" }
+
 export type DecodedInstruction =
   | InstructionNop0
   | InstructionNop1
@@ -202,3 +228,15 @@ export type DecodedInstruction =
   | InstructionJmpInd
   | InstructionJmpAbs
   | InstructionRet
+  | InstructionMulAb
+  | InstructionDivAb
+  | InstructionShl
+  | InstructionShr
+  | InstructionSar
+  | InstructionCmovZ
+  | InstructionCmovNz
+  | InstructionCmovC
+  | InstructionCmovNc
+  | InstructionLoadImm
+  | InstructionLoadImmB
+  | InstructionNop5
