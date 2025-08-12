@@ -1,9 +1,21 @@
+import { UnitType } from "../types/game"
 import { Instruction } from "./vm-instructions"
 import { RegisterName } from "./vm-state"
 
+type OperandOffset16 = { readonly offset16: number } /** 16bit符号付きオフセット（3バイト命令） */
+type OperandRegister = { readonly register: RegisterName } /** レジスタ名 */
+type OperandUnit = {
+  readonly unitType: UnitType
+  readonly unitIndex: number
+}
+
+
 // 1バイト命令
+// テンプレート用NOP
 export type InstructionNop0 = Instruction & { readonly mnemonic: "NOP0" }
 export type InstructionNop1 = Instruction & { readonly mnemonic: "NOP1" }
+
+// データ移動命令
 export type InstructionXchg = Instruction & { readonly mnemonic: "XCHG" }
 export type InstructionMovAb = Instruction & { readonly mnemonic: "MOV_AB" }
 export type InstructionMovAd = Instruction & { readonly mnemonic: "MOV_AD" }
@@ -17,6 +29,8 @@ export type InstructionMovCd = Instruction & { readonly mnemonic: "MOV_CD" }
 export type InstructionMovDc = Instruction & { readonly mnemonic: "MOV_DC" }
 export type InstructionMovSp = Instruction & { readonly mnemonic: "MOV_SP" }
 export type InstructionSetSp = Instruction & { readonly mnemonic: "SET_SP" }
+
+// 算術演算命令（16bit演算）
 export type InstructionIncA = Instruction & { readonly mnemonic: "INC_A" }
 export type InstructionIncB = Instruction & { readonly mnemonic: "INC_B" }
 export type InstructionIncC = Instruction & { readonly mnemonic: "INC_C" }
@@ -32,6 +46,8 @@ export type InstructionAndAb = Instruction & { readonly mnemonic: "AND_AB" }
 export type InstructionOrAb = Instruction & { readonly mnemonic: "OR_AB" }
 export type InstructionNotA = Instruction & { readonly mnemonic: "NOT_A" }
 export type InstructionCmpAb = Instruction & { readonly mnemonic: "CMP_AB" }
+
+// スタック操作
 export type InstructionPushA = Instruction & { readonly mnemonic: "PUSH_A" }
 export type InstructionPushB = Instruction & { readonly mnemonic: "PUSH_B" }
 export type InstructionPushC = Instruction & { readonly mnemonic: "PUSH_C" }
@@ -41,10 +57,9 @@ export type InstructionPopB = Instruction & { readonly mnemonic: "POP_B" }
 export type InstructionPopC = Instruction & { readonly mnemonic: "POP_C" }
 export type InstructionPopD = Instruction & { readonly mnemonic: "POP_D" }
 
-type OperandOffset16 = { readonly offset16: number } /** 16bit符号付きオフセット（3バイト命令） */
-type OperandRegister = { readonly register: RegisterName } /** レジスタ名 */
 
 // 3バイト命令
+// メモリアクセス命令（相対アドレス）
 export type InstructionLoadA = Instruction & { readonly mnemonic: "LOAD_A", readonly operand: OperandOffset16 }
 export type InstructionStoreA = Instruction & { readonly mnemonic: "STORE_A", readonly operand: OperandOffset16 }
 export type InstructionLoadInd = Instruction & { readonly mnemonic: "LOAD_IND", readonly operand: OperandOffset16 }
@@ -52,11 +67,13 @@ export type InstructionStoreInd = Instruction & { readonly mnemonic: "STORE_IND"
 export type InstructionLoadAW = Instruction & { readonly mnemonic: "LOAD_A_W", readonly operand: OperandOffset16 }
 export type InstructionStoreAW = Instruction & { readonly mnemonic: "STORE_A_W", readonly operand: OperandOffset16 }
 
+// レジスタベースメモリアクセス命令
 export type InstructionLoadReg = Instruction & { readonly mnemonic: "LOAD_REG", readonly operand: OperandRegister }
 export type InstructionStoreReg = Instruction & { readonly mnemonic: "STORE_REG", readonly operand: OperandRegister }
 export type InstructionLoadIndReg = Instruction & { readonly mnemonic: "LOAD_IND_REG", readonly operand: OperandRegister }
 export type InstructionStoreIndReg = Instruction & { readonly mnemonic: "STORE_IND_REG", readonly operand: OperandRegister }
 
+// 制御命令
 export type InstructionJmp = Instruction & { readonly mnemonic: "JMP", readonly operand: OperandOffset16 }
 export type InstructionJz = Instruction & { readonly mnemonic: "JZ", readonly operand: OperandOffset16 }
 export type InstructionJnz = Instruction & { readonly mnemonic: "JNZ", readonly operand: OperandOffset16 }
@@ -68,6 +85,26 @@ export type InstructionJle = Instruction & { readonly mnemonic: "JLE", readonly 
 export type InstructionJge = Instruction & { readonly mnemonic: "JGE", readonly operand: OperandOffset16 }
 export type InstructionJl = Instruction & { readonly mnemonic: "JL", readonly operand: OperandOffset16 }
 
+// 4バイト命令
+// パターンマッチング命令
+export type InstructionSearchF = Instruction & { readonly mnemonic: "SEARCH_F" }
+export type InstructionSearchB = Instruction & { readonly mnemonic: "SEARCH_B" }
+export type InstructionSearchFMax = Instruction & { readonly mnemonic: "SEARCH_F_MAX" }
+export type InstructionSearchBMax = Instruction & { readonly mnemonic: "SEARCH_B_MAX" }
+
+// ユニット操作命令（メモリマップドI/O）
+export type InstructionUnitMemRead = Instruction & { readonly mnemonic: "UNIT_MEM_READ", readonly operand: OperandUnit }
+export type InstructionUnitMemWrite = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE", readonly operand: OperandUnit }
+export type InstructionUnitMemReadReg = Instruction & { readonly mnemonic: "UNIT_MEM_READ_REG", readonly operand: OperandUnit }
+export type InstructionUnitMemWriteReg = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE_REG", readonly operand: OperandUnit }
+export type InstructionUnitExists = Instruction & { readonly mnemonic: "UNIT_EXISTS", readonly operand: OperandUnit }
+
+// エネルギー計算命令（1024進法32bit演算）
+export type InstructionAddE32 = Instruction & { readonly mnemonic: "ADD_E32" }
+export type InstructionSubE32 = Instruction & { readonly mnemonic: "SUB_E32" }
+export type InstructionCmpE32 = Instruction & { readonly mnemonic: "CMP_E32" }
+export type InstructionShrE10 = Instruction & { readonly mnemonic: "SHR_E10" }
+export type InstructionShlE10 = Instruction & { readonly mnemonic: "SHL_E10" }
 
 export type DecodedInstruction =
   | InstructionNop0
@@ -128,3 +165,17 @@ export type DecodedInstruction =
   | InstructionJle
   | InstructionJge
   | InstructionJl
+  | InstructionSearchF
+  | InstructionSearchB
+  | InstructionSearchFMax
+  | InstructionSearchBMax
+  | InstructionUnitMemRead
+  | InstructionUnitMemWrite
+  | InstructionUnitMemReadReg
+  | InstructionUnitMemWriteReg
+  | InstructionUnitExists
+  | InstructionAddE32
+  | InstructionSubE32
+  | InstructionCmpE32
+  | InstructionShrE10
+  | InstructionShlE10
