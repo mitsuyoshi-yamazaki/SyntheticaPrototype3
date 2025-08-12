@@ -25,13 +25,13 @@ export type FlagName = keyof typeof FLAG_NAMES
 /** VM状態 */
 export class VMState {
   /** プログラムカウンタ（16bit） */
-  private _pc = 0
+  private _programCounter = 0
 
   /** ワーキングレジスタ（A, B, C, D 各16bit） */
   private readonly _registers: Uint16Array
 
   /** スタックポインタ（16bit） */
-  private _sp: number
+  private _stackPointer: number
 
   /** フラグ */
   private _zeroFlag = false
@@ -44,13 +44,13 @@ export class VMState {
   private readonly _memorySize: number
 
   /** プログラムカウンタ取得 */
-  public get pc(): number {
-    return this._pc
+  public get programCounter(): number {
+    return this._programCounter
   }
 
   /** スタックポインタ取得 */
-  public get sp(): number {
-    return this._sp
+  public get stackPointer(): number {
+    return this._stackPointer
   }
 
   /** ゼロフラグ取得 */
@@ -69,13 +69,13 @@ export class VMState {
   }
 
   /** プログラムカウンタ設定 */
-  public set pc(value: number) {
-    this._pc = value & 0xffff // 16bitマスク
+  public set programCounter(value: number) {
+    this._programCounter = value % this._memorySize
   }
 
   /** スタックポインタ設定 */
-  public set sp(value: number) {
-    this._sp = value & 0xffff // 16bitマスク
+  public set stackPointer(value: number) {
+    this._stackPointer = value % this._memorySize
   }
 
   /** ゼロフラグ設定 */
@@ -93,7 +93,7 @@ export class VMState {
       throw new Error(`Invalid memory size: ${memorySize}. Must be 1-65536`)
     }
     this._memorySize = memorySize
-    this._sp = memorySize - 1
+    this._stackPointer = memorySize - 1
 
     if (existingMemory != null) {
       if (existingMemory.length !== memorySize) {
@@ -134,30 +134,6 @@ export class VMState {
   }
 
   /**
-   * レジスタインデックスでの読み取り
-   * @param index レジスタインデックス（0-3）
-   * @returns レジスタ値（16bit）
-   */
-  public getRegisterByIndex(index: number): number {
-    if (index < 0 || index > 3) {
-      throw new Error(`Invalid register index: ${index}`)
-    }
-    return this._registers[index] ?? 0
-  }
-
-  /**
-   * レジスタインデックスでの書き込み
-   * @param index レジスタインデックス（0-3）
-   * @param value 値（16bitマスクされる）
-   */
-  public setRegisterByIndex(index: number, value: number): void {
-    if (index < 0 || index > 3) {
-      throw new Error(`Invalid register index: ${index}`)
-    }
-    this._registers[index] = value & 0xffff
-  }
-
-  /**
    * メモリ読み取り（8bit）
    * @param address アドレス（循環バッファとして扱う）
    * @returns メモリ値（8bit）
@@ -193,8 +169,8 @@ export class VMState {
    */
   public writeMemory16(address: number, value: number): void {
     const masked = value & 0xffff
-    this.writeMemory8(address, masked & 0xff)
-    this.writeMemory8(address + 1, (masked >> 8) & 0xff)
+    this.writeMemory8(address % this._memorySize, masked & 0xff)
+    this.writeMemory8((address + 1) % this._memorySize, (masked >> 8) & 0xff)
   }
 
   /**
@@ -228,8 +204,8 @@ export class VMState {
    * @returns 新しいPC値
    */
   public advancePC(bytes: number): number {
-    this._pc = (this._pc + bytes) & 0xffff
-    return this._pc
+    this._programCounter = (this._programCounter + bytes) % this._memorySize
+    return this._programCounter
   }
 
   /**
@@ -237,8 +213,8 @@ export class VMState {
    * @param value プッシュする値
    */
   public push16(value: number): void {
-    this._sp = (this._sp - 2) & 0xffff
-    this.writeMemory16(this._sp, value)
+    this._stackPointer = (this._stackPointer + this._memorySize - 2) % this._memorySize
+    this.writeMemory16(this._stackPointer, value) // FixMe: メモリ末尾の8bitとメモリ先頭の8bitの組み合わせになる場合の考慮もれ
   }
 
   /**
@@ -246,8 +222,8 @@ export class VMState {
    * @returns ポップした値
    */
   public pop16(): number {
-    const value = this.readMemory16(this._sp)
-    this._sp = (this._sp + 2) & 0xffff
+    const value = this.readMemory16(this._stackPointer)
+    this._stackPointer = (this._stackPointer + 2) % this._memorySize
     return value
   }
 
@@ -282,8 +258,8 @@ export class VMState {
    */
   public clone(): VMState {
     const cloned = new VMState(this._memorySize)
-    cloned._pc = this._pc
-    cloned._sp = this._sp
+    cloned._programCounter = this._programCounter
+    cloned._stackPointer = this._stackPointer
     cloned._zeroFlag = this._zeroFlag
     cloned._carryFlag = this._carryFlag
     cloned._registers.set(this._registers)
@@ -295,8 +271,8 @@ export class VMState {
    * VM状態のリセット
    */
   public reset(): void {
-    this._pc = 0
-    this._sp = 0xffff
+    this._programCounter = 0
+    this._stackPointer = 0xffff
     this._zeroFlag = false
     this._carryFlag = false
     this._registers.fill(0)
@@ -310,8 +286,8 @@ export class VMState {
   public toString(): string {
     const flags = `${this._zeroFlag ? "Z" : "-"}${this._carryFlag ? "C" : "-"}`
     return [
-      `PC: 0x${this._pc.toString(16).padStart(4, "0")}`,
-      `SP: 0x${this._sp.toString(16).padStart(4, "0")}`,
+      `PC: 0x${this._programCounter.toString(16).padStart(4, "0")}`,
+      `SP: 0x${this._stackPointer.toString(16).padStart(4, "0")}`,
       `Flags: ${flags}`,
       `A: 0x${this.getRegister("A").toString(16).padStart(4, "0")}`,
       `B: 0x${this.getRegister("B").toString(16).padStart(4, "0")}`,
