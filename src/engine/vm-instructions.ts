@@ -37,6 +37,7 @@ export type Instruction = {
   readonly description: string
 }
 
+// prettier-ignore
 /** 1バイト命令（0x00-0x3F） */
 export const ONE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   // テンプレート用NOP
@@ -86,6 +87,7 @@ export const ONE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   0x31: { opcode: 0x31, mnemonic: "POP_D", length: 1, type: "STACK", description: "スタックからDレジスタにポップ" },
 }
 
+// prettier-ignore
 /** 3バイト命令（0x40-0x7F） */
 export const THREE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   // メモリアクセス命令（相対アドレス）
@@ -115,6 +117,7 @@ export const THREE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   0x69: { opcode: 0x69, mnemonic: "JL", length: 3, type: "JUMP", description: "符号付き小なり（A < B after CMP_AB）" },
 }
 
+// prettier-ignore
 /** 4バイト命令（0x80-0xBF） */
 export const FOUR_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   // パターンマッチング命令
@@ -152,6 +155,7 @@ export const FOUR_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   0xb2: { opcode: 0xb2, mnemonic: "RET", length: 4, type: "JUMP", description: "PC = C（CALLからの復帰専用）" },
 }
 
+// prettier-ignore
 /** 5バイト命令（0xC0-0xFF） */
 export const FIVE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   // 拡張演算命令
@@ -175,6 +179,7 @@ export const FIVE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   0xf0: { opcode: 0xf0, mnemonic: "NOP5", length: 5, type: "NOP", description: "5バイトNOP（パディング用）" },
 }
 
+// prettier-ignore
 /** 全命令マップ */
 export const ALL_INSTRUCTIONS = new Map<number, Instruction>([
   ...Object.entries(ONE_BYTE_INSTRUCTIONS).map(([k, v]) => [Number(k), v] as [number, Instruction]),
