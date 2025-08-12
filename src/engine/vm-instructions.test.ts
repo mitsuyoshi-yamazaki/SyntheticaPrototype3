@@ -1921,6 +1921,83 @@ describe("0x1A XOR_AB", () => {
       zeroFlag: true, // ゼロフラグセット
     })
   })
+
+  test("XOR_AB実行 - 同じ値でゼロ", () => {
+    vm.setRegister("A", 0x1234)
+    vm.setRegister("B", 0x1234)
+    vm.setRegister("C", 0xcccc)
+    vm.setRegister("D", 0xdddd)
+    vm.writeMemory8(0, 0x1a) // XOR_AB
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x1234,
+      registerB: 0x1234,
+      registerC: 0xcccc,
+      registerD: 0xdddd,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    // 実行後の状態を検証 - 同じ値のXORは0になる
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xff,
+      registerA: 0x0000,
+      registerB: 0x1234,
+      registerC: 0xcccc,
+      registerD: 0xdddd,
+      carryFlag: false,
+      zeroFlag: true, // ゼロフラグセット
+    })
+  })
+
+  test("XOR_AB実行 - ビット反転パターン", () => {
+    // 下位8ビットを反転するパターン
+    vm.setRegister("A", 0xab12)
+    vm.setRegister("B", 0x00ff) // 下位8ビットすべて1
+    vm.setRegister("C", 0x3333)
+    vm.setRegister("D", 0x4444)
+    vm.writeMemory8(0, 0x1a) // XOR_AB
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xab12,
+      registerB: 0x00ff,
+      registerC: 0x3333,
+      registerD: 0x4444,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    // 実行後の状態を検証 - 下位8ビットが反転
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xff,
+      registerA: 0xabed, // 0xab12 XOR 0x00ff = 0xabed
+      registerB: 0x00ff,
+      registerC: 0x3333,
+      registerD: 0x4444,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
 })
 
 describe("0x1B AND_AB", () => {
@@ -2001,6 +2078,108 @@ describe("0x1B AND_AB", () => {
       registerD: 0x4444,
       carryFlag: false,
       zeroFlag: true,
+    })
+  })
+
+  test("AND_AB実行 - ビットマスク（特定ビットのクリア）", () => {
+    // ビット4-7をクリアするパターン
+    vm.setRegister("A", 0xabcd)
+    vm.setRegister("B", 0xff0f) // ビット4-7が0のマスク
+    vm.setRegister("C", 0x5555)
+    vm.setRegister("D", 0x6666)
+    vm.writeMemory8(0, 0x1b) // AND_AB
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xabcd,
+      registerB: 0xff0f,
+      registerC: 0x5555,
+      registerD: 0x6666,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    // 実行後の状態を検証 - ビット4-7がクリアされる
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xff,
+      registerA: 0xab0d, // 0xabcd AND 0xff0f = 0xab0d
+      registerB: 0xff0f,
+      registerC: 0x5555,
+      registerD: 0x6666,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
+
+  test("AND_AB実行 - ビットテスト（特定ビットの判定）", () => {
+    // ビット12が立っているかテスト
+    vm.setRegister("A", 0x1000) // ビット12が1
+    vm.setRegister("B", 0x1000) // ビット12のマスク
+    vm.setRegister("C", 0x7777)
+    vm.setRegister("D", 0x8888)
+    vm.writeMemory8(0, 0x1b) // AND_AB
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x1000,
+      registerB: 0x1000,
+      registerC: 0x7777,
+      registerD: 0x8888,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    // 実行後の状態を検証 - ビットが立っている
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xff,
+      registerA: 0x1000, // ビットが立っている
+      registerB: 0x1000,
+      registerC: 0x7777,
+      registerD: 0x8888,
+      carryFlag: false,
+      zeroFlag: false, // ゼロではない
+    })
+
+    // ビット12が立っていない場合のテスト
+    vm.pc = 1
+    vm.setRegister("A", 0x0fff) // ビット12が0
+    vm.setRegister("B", 0x1000) // ビット12のマスク
+    vm.writeMemory8(1, 0x1b) // AND_AB
+
+    const result2 = InstructionExecutor.step(vm)
+
+    expect(result2.success).toBe(true)
+    expect(result2.error).toBeUndefined()
+    expect(result2.cycles).toBe(1)
+
+    // ビットが立っていない場合
+    expectVMState(vm, {
+      pc: 2,
+      sp: 0xff,
+      registerA: 0x0000, // ビットが立っていない
+      registerB: 0x1000,
+      registerC: 0x7777,
+      registerD: 0x8888,
+      carryFlag: false,
+      zeroFlag: true, // ゼロフラグがセットされる
     })
   })
 })
@@ -2085,6 +2264,45 @@ describe("0x1C OR_AB", () => {
       zeroFlag: true,
     })
   })
+
+  test("OR_AB実行 - ビットマスク（特定ビットのセット）", () => {
+    // ビット8-11をセットするパターン
+    vm.setRegister("A", 0xa0cd)
+    vm.setRegister("B", 0x0f00) // ビット8-11が1のマスク
+    vm.setRegister("C", 0x1111)
+    vm.setRegister("D", 0x2222)
+    vm.writeMemory8(0, 0x1c) // OR_AB
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0xa0cd,
+      registerB: 0x0f00,
+      registerC: 0x1111,
+      registerD: 0x2222,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    // 実行後の状態を検証 - ビット8-11がセットされる
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xff,
+      registerA: 0xafcd, // 0xa0cd OR 0x0f00 = 0xafcd
+      registerB: 0x0f00,
+      registerC: 0x1111,
+      registerD: 0x2222,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+  })
 })
 
 describe("0x1D NOT_A", () => {
@@ -2165,6 +2383,44 @@ describe("0x1D NOT_A", () => {
       registerD: 0xeeee,
       carryFlag: false,
       zeroFlag: true,
+    })
+  })
+
+  test("NOT_A実行 - ゼロの否定", () => {
+    vm.setRegister("A", 0x0000)
+    vm.setRegister("B", 0x1111)
+    vm.setRegister("C", 0x2222)
+    vm.setRegister("D", 0x3333)
+    vm.writeMemory8(0, 0x1d) // NOT_A
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x0000,
+      registerB: 0x1111,
+      registerC: 0x2222,
+      registerD: 0x3333,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm)
+
+    expect(result.success).toBe(true)
+    expect(result.error).toBeUndefined()
+    expect(result.cycles).toBe(1)
+
+    // 実行後の状態を検証 - ゼロの否定は0xFFFF
+    expectVMState(vm, {
+      pc: 1,
+      sp: 0xff,
+      registerA: 0xffff, // NOT 0x0000 = 0xFFFF
+      registerB: 0x1111,
+      registerC: 0x2222,
+      registerD: 0x3333,
+      carryFlag: false,
+      zeroFlag: false, // 0xFFFFはゼロではない
     })
   })
 })
