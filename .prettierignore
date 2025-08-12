@@ -26,3 +26,6 @@ yarn.lock
 # Config files that should maintain specific formatting
 .prettierrc
 .eslintrc*
+
+# Files with large number of lines
+src/engine/vm-decoded-instructions.ts
