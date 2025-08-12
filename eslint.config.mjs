@@ -42,6 +42,7 @@ const sharedRules = {
       allowAny: false,
     },
   ],
+  "@typescript-eslint/adjacent-overload-signatures": "off",
 }
 
 /**

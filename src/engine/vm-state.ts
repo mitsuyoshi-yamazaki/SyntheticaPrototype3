@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/adjacent-overload-signatures */
 /**
  * Synthetica Script VM の状態管理
  */
