@@ -6110,11 +6110,6 @@ describe("0x94 UNIT_EXISTS", () => {
   })
 })
 
-// ユニット操作命令のプレースホルダ
-describe("ユニット操作命令", () => {
-  test.todo("0x9b UNIT_MEM_WRITE_DYN - レジスタ指定アドレスへのユニットメモリ書き込み")
-})
-
 // エネルギー計算命令のプレースホルダ
 describe("エネルギー計算命令", () => {
   test.todo("0x95 ADD_E32 - 32bitエネルギー加算（1024進法）")
@@ -6147,6 +6142,7 @@ describe("未定義命令", () => {
     // 4バイト未定義命令
     ...Array.from({ length: 12 }, (_, i) => 0x84 + i), // 0x84-0x8F
     0x9a,
+    0x9b,
     ...Array.from({ length: 4 }, (_, i) => 0x9c + i), // 0x9C-0x9F
     ...Array.from({ length: 12 }, (_, i) => 0xa4 + i), // 0xA4-0xAF
     ...Array.from({ length: 13 }, (_, i) => 0xb3 + i), // 0xB3-0xBF

@@ -175,7 +175,6 @@ export class InstructionDecoder {
 
         case "UNIT_MEM_READ_REG":
         case "UNIT_MEM_WRITE_REG":
-        case "UNIT_MEM_WRITE_DYN":
           return {
             address,
             ...instruction,

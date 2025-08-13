@@ -108,9 +108,6 @@ export type InstructionUnitMemReadReg = Instruction & { readonly mnemonic: "UNIT
 export type InstructionUnitMemWriteReg = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE_REG", readonly operand: OperandUnit & OperandRegister }
 export type InstructionUnitExists = Instruction & { readonly mnemonic: "UNIT_EXISTS", readonly operand: OperandUnit }
 
-// 動的ユニット操作命令
-export type InstructionUnitMemWriteDyn = Instruction & { readonly mnemonic: "UNIT_MEM_WRITE_DYN", readonly operand: OperandUnit & OperandRegister }
-
 // 4バイト命令
 // パターンマッチング命令
 export type InstructionSearchF = Instruction & { readonly mnemonic: "SEARCH_F" }
@@ -239,7 +236,6 @@ export type DecodedInstruction =
   | InstructionCmpE32
   | InstructionShrE10
   | InstructionShlE10
-  | InstructionUnitMemWriteDyn
   | InstructionLoadAbs
   | InstructionStoreAbs
   | InstructionLoadAbsW

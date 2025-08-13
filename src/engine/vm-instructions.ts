@@ -98,9 +98,6 @@ export const THREE_BYTE_INSTRUCTIONS: Record<number, Instruction> = {
   0x92: { opcode: 0x92, mnemonic: "UNIT_MEM_READ_REG", length: 4, description: "レジスタ指定で外部ユニットメモリ読み取り", cycles: 3, conditionalCycles: 3 },
   0x93: { opcode: 0x93, mnemonic: "UNIT_MEM_WRITE_REG", length: 4, description: "レジスタ指定で外部ユニットメモリ書き込み", cycles: 3, conditionalCycles: 3 },
   0x94: { opcode: 0x94, mnemonic: "UNIT_EXISTS", length: 4, description: "ユニット存在確認", cycles: 3, conditionalCycles: 3 },
-
-    // 動的ユニット操作命令
-  0x9b: { opcode: 0x9b, mnemonic: "UNIT_MEM_WRITE_DYN", length: 4, description: "レジスタ指定アドレスへのユニットメモリ書き込み（第3バイト: アドレス指定レジスタ 0=A, 1=B, 2=C, 3=D）", cycles: 3, conditionalCycles: 3 },
 }
 
 // prettier-ignore

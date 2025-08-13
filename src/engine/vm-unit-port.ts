@@ -47,8 +47,6 @@ export class VMPhysicalUnitPort implements VMUnitPort {
     - UNIT_MEM_READ/WRITE命令の第2バイトでユニット指定
     - 上位4bit=種別、下位4bit=インデックス
     - 自己参照時はCOMPUTER[0]が常に自身を示す
-  - 動的ユニット操作 (行260-263):
-    - UNIT_MEM_WRITE_DYN命令でレジスタ経由のアドレス指定可能
      */
     this._connectedUnits = {
       HULL: [],
