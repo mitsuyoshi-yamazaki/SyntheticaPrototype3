@@ -5799,6 +5799,7 @@ describe("0x90 UNIT_MEM_READ", () => {
   const mockedUnitPort: VMUnitPort = {
     read: jest.fn(() => 0xab),
     write: jest.fn(),
+    exists: jest.fn(() => false),
   }
 
   beforeEach(() => {
@@ -5852,6 +5853,7 @@ describe("0x91 UNIT_MEM_WRITE", () => {
   const mockedUnitPort: VMUnitPort = {
     read: jest.fn(() => 0xab),
     write: jest.fn(),
+    exists: jest.fn(() => false),
   }
 
   beforeEach(() => {
@@ -5905,6 +5907,7 @@ describe("0x92 UNIT_MEM_READ_REG", () => {
   const mockedUnitPort: VMUnitPort = {
     read: jest.fn(() => 0xcd),
     write: jest.fn(),
+    exists: jest.fn(() => false),
   }
 
   beforeEach(() => {
@@ -5958,6 +5961,7 @@ describe("0x93 UNIT_MEM_WRITE_REG", () => {
   const mockedUnitPort: VMUnitPort = {
     read: jest.fn(() => 0xab),
     write: jest.fn(),
+    exists: jest.fn(() => false),
   }
 
   beforeEach(() => {
@@ -6006,9 +6010,108 @@ describe("0x93 UNIT_MEM_WRITE_REG", () => {
   })
 })
 
+describe("0x94 UNIT_EXISTS", () => {
+  let vm: VMState
+
+  beforeEach(() => {
+    vm = new VMState(0x100)
+  })
+
+  test("0x94 UNIT_EXISTS - ユニット存在確認", () => {
+    const mockedUnitPort: VMUnitPort = {
+      read: jest.fn(() => 0xab),
+      write: jest.fn(),
+      exists: jest.fn(() => true),
+    }
+
+    vm.setRegister("A", 0x4444)
+    vm.setRegister("B", 0x5555)
+    vm.setRegister("C", 0x6666)
+    vm.setRegister("D", 0x7777)
+
+    vm.writeMemory8(0, 0x94) // UNIT_EXISTS
+    vm.writeMemory8(1, 0x12) // 1: ASSEMBLER, index: 2
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x4444,
+      registerB: 0x5555,
+      registerC: 0x6666,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm, mockedUnitPort)
+
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 4,
+      sp: 0xff,
+      registerA: 0x0001,
+      registerB: 0x5555,
+      registerC: 0x6666,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(mockedUnitPort.exists).toHaveBeenCalledWith("ASSEMBLER", 2)
+  })
+
+  test("0x94 UNIT_EXISTS - ユニット存在せず", () => {
+    const mockedUnitPort: VMUnitPort = {
+      read: jest.fn(() => 0xab),
+      write: jest.fn(),
+      exists: jest.fn(() => false),
+    }
+
+    vm.setRegister("A", 0x4444)
+    vm.setRegister("B", 0x5555)
+    vm.setRegister("C", 0x6666)
+    vm.setRegister("D", 0x7777)
+
+    vm.writeMemory8(0, 0x94) // UNIT_EXISTS
+    vm.writeMemory8(1, 0x24) // 2: COMPUTER, index: 4
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x4444,
+      registerB: 0x5555,
+      registerC: 0x6666,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm, mockedUnitPort)
+
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 4,
+      sp: 0xff,
+      registerA: 0x0000,
+      registerB: 0x5555,
+      registerC: 0x6666,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(mockedUnitPort.exists).toHaveBeenCalledWith("COMPUTER", 4)
+  })
+})
+
 // ユニット操作命令のプレースホルダ
 describe("ユニット操作命令", () => {
-  test.todo("0x94 UNIT_EXISTS - ユニット存在確認")
   test.todo("0x9b UNIT_MEM_WRITE_DYN - レジスタ指定アドレスへのユニットメモリ書き込み")
 })
 

@@ -7,6 +7,7 @@ import { VMUnitMemoryAccessor } from "./vm-unit-memory-accessor"
 export type VMUnitPort = {
   read: (unitType: UnitType, unitIndex: number, memoryIndex: number) => number
   write: (unitType: UnitType, unitIndex: number, memoryIndex: number, value: number) => void
+  exists: (unitType: UnitType, unitIndex: number) => boolean
 }
 
 export const VMUnitPortNone: VMUnitPort = {
@@ -16,6 +17,10 @@ export const VMUnitPortNone: VMUnitPort = {
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   write(_unitType: UnitType, _unitIndex: number, _memoryIndex: number, _value: number): void {},
+
+  exists(_unitType: UnitType, _unitIndex: number): boolean {
+    return false
+  },
 }
 
 type UnitMap = { HULL: Hull[]; ASSEMBLER: Assembler[]; COMPUTER: Computer[] }
@@ -117,5 +122,9 @@ export class VMPhysicalUnitPort implements VMUnitPort {
       return
     }
     VMUnitMemoryAccessor.writeMemory(unit, memoryIndex, value)
+  }
+
+  public exists(unitType: UnitType, unitIndex: number): boolean {
+    return this._connectedUnits[unitType][unitIndex] != null
   }
 }

@@ -296,6 +296,11 @@ export const InstructionExecutor = {
           )
           break
         case "UNIT_EXISTS":
+          vm.setRegister(
+            "A",
+            unitPort.exists(decoded.operand.unitType, decoded.operand.unitIndex) ? 0x01 : 0x00
+          )
+          break
         case "UNIT_MEM_WRITE_DYN":
         case "SEARCH_F":
         case "SEARCH_B":
