@@ -5,111 +5,111 @@
 
 export type GameLawParameters = {
   // ========== 物理・運動 ==========
-  
+
   /** 最大力 */
-  maxForce: number;
+  maxForce: number
   /** 力のスケール */
-  forceScale: number;
+  forceScale: number
   /** 摩擦係数 */
-  friction: number;
-  
+  friction: number
+
   // ========== ユニット構成エネルギー ==========
-  
+
   // HULL
   /** 容量1あたりの構成エネルギー */
-  hullEnergyPerCapacity: number;
-  
+  hullEnergyPerCapacity: number
+
   // ASSEMBLER
   /** ASSEMBLER基本構成エネルギー */
-  assemblerBaseEnergy: number;
+  assemblerBaseEnergy: number
   /** assemble_power 1あたりの追加エネルギー */
-  assemblerEnergyPerPower: number;
-  
+  assemblerEnergyPerPower: number
+
   // COMPUTER
   /** COMPUTER基本構成エネルギー */
-  computerBaseEnergy: number;
+  computerBaseEnergy: number
   /** 周波数に基づくエネルギー係数 */
-  computerFrequencyEnergyMultiplier: number;
+  computerFrequencyEnergyMultiplier: number
   /** 周波数の除数 */
-  computerFrequencyDivisor: number;
+  computerFrequencyDivisor: number
   /** メモリ1バイトあたりのエネルギー */
-  computerMemoryEnergyPerByte: number;
-  
+  computerMemoryEnergyPerByte: number
+
   // ========== ユニット生産エネルギー（生産コスト係数） ==========
-  
+
   /** HULL生産時の追加コスト係数 */
-  hullProductionRatio: number;
+  hullProductionRatio: number
   /** ASSEMBLER生産時の追加コスト係数 */
-  assemblerProductionRatio: number;
+  assemblerProductionRatio: number
   /** COMPUTER生産時の追加コスト係数 */
-  computerProductionRatio: number;
-  
+  computerProductionRatio: number
+
   // ========== 生産開始時コスト ==========
-  
+
   /** 生産開始時に必要な初期エネルギーの係数 */
-  productionStartCostRatio: number;
-  
+  productionStartCostRatio: number
+
   // ========== COMPUTER動作時の消費エネルギー ==========
-  
+
   /** 1バイト命令の実行コスト */
-  computerInstructionCost1Byte: number;
+  computerInstructionCost1Byte: number
   /** 3バイト命令の実行コスト */
-  computerInstructionCost3Byte: number;
+  computerInstructionCost3Byte: number
   /** 4バイト命令の実行コスト */
-  computerInstructionCost4Byte: number;
+  computerInstructionCost4Byte: number
   /** 5バイト命令の実行コスト */
-  computerInstructionCost5Byte: number;
+  computerInstructionCost5Byte: number
   /** 絶対アドレス命令の追加コスト */
-  computerAbsoluteAddressCost: number;
+  computerAbsoluteAddressCost: number
   /** ユニット操作命令の追加コスト */
-  computerUnitOperationCost: number;
-  
+  computerUnitOperationCost: number
+
   // ========== エネルギー収集・崩壊 ==========
-  
+
   /** エネルギーオブジェクトの自然崩壊割合（per tick） */
-  energyDecayRate: number;
+  energyDecayRate: number
   /** エネルギーソースの最小出力（E/tick） */
-  energySourceMinOutput: number;
+  energySourceMinOutput: number
   /** エネルギーソースの最大出力（E/tick） */
-  energySourceMaxOutput: number;
+  energySourceMaxOutput: number
   /** HULLのエネルギー収集半径係数（HULL半径に対する倍率） */
-  energyCollectionRadiusMultiplier: number;
-  
+  energyCollectionRadiusMultiplier: number
+
   // ========== 熱システム ==========
-  
+
   /** 消費エネルギーが熱に変わる割合 */
-  energyToHeatConversionRatio: number;
+  energyToHeatConversionRatio: number
   /** 熱拡散率 */
-  heatDiffusionRate: number;
+  heatDiffusionRate: number
   /** 放熱率（per tick） */
-  heatRadiationRate: number;
+  heatRadiationRate: number
   /** 熱ダメージが発生する温度 */
-  heatDamageThreshold: number;
+  heatDamageThreshold: number
   /** 熱ダメージ係数 */
-  heatDamageMultiplier: number;
+  heatDamageMultiplier: number
   /** 損傷ユニットへの熱ダメージ倍率 */
-  heatDamageMultiplierDamaged: number;
+  heatDamageMultiplierDamaged: number
   /** 生産中ユニットへの熱ダメージ倍率 */
-  heatDamageMultiplierProducing: number;
-  
+  heatDamageMultiplierProducing: number
+
   // ========== 修復コスト ==========
-  
+
   /** 修復時の追加コスト係数 */
-  repairCostMultiplier: number;
-  
+  repairCostMultiplier: number
+
   // ========== ユニット結合・分離 ==========
-  
+
   /** HULLマージ時のエネルギーコスト（0 = 未定義） */
-  hullMergeEnergyCost: number;
+  hullMergeEnergyCost: number
   /** ユニット分離時のエネルギーコスト */
-  unitDetachEnergyCost: number;
-  
+  unitDetachEnergyCost: number
+
   // ========== 物理・移動 ==========
-  
+
   /** 質量あたりの移動エネルギーコスト（0 = 未定義） */
-  movementEnergyCostPerMass: number;
+  movementEnergyCostPerMass: number
   /** 衝突時のエネルギー損失（0 = 未定義） */
-  collisionEnergyLoss: number;
+  collisionEnergyLoss: number
 }
 
 /**
@@ -121,7 +121,7 @@ export const DEFAULT_PARAMETERS: GameLawParameters = {
   maxForce: 10,
   forceScale: 5,
   friction: 0.98,
-  
+
   // ユニット構成エネルギー
   hullEnergyPerCapacity: 2,
   assemblerBaseEnergy: 8000,
@@ -130,15 +130,15 @@ export const DEFAULT_PARAMETERS: GameLawParameters = {
   computerFrequencyEnergyMultiplier: 100,
   computerFrequencyDivisor: 5,
   computerMemoryEnergyPerByte: 50,
-  
+
   // ユニット生産エネルギー
   hullProductionRatio: 0.05,
   assemblerProductionRatio: 0.5,
   computerProductionRatio: 0.1,
-  
+
   // 生産開始時コスト
   productionStartCostRatio: 0.05,
-  
+
   // COMPUTER動作時の消費エネルギー
   computerInstructionCost1Byte: 1,
   computerInstructionCost3Byte: 3,
@@ -146,13 +146,13 @@ export const DEFAULT_PARAMETERS: GameLawParameters = {
   computerInstructionCost5Byte: 5,
   computerAbsoluteAddressCost: 2,
   computerUnitOperationCost: 10,
-  
+
   // エネルギー収集・崩壊
   energyDecayRate: 0.001,
   energySourceMinOutput: 10,
   energySourceMaxOutput: 100,
   energyCollectionRadiusMultiplier: 2,
-  
+
   // 熱システム
   energyToHeatConversionRatio: 1.0,
   heatDiffusionRate: 0.1,
@@ -161,18 +161,18 @@ export const DEFAULT_PARAMETERS: GameLawParameters = {
   heatDamageMultiplier: 1.0,
   heatDamageMultiplierDamaged: 2.0,
   heatDamageMultiplierProducing: 3.0,
-  
+
   // 修復コスト
   repairCostMultiplier: 1.1,
-  
+
   // ユニット結合・分離
   hullMergeEnergyCost: 0, // 未定義
   unitDetachEnergyCost: 0,
-  
+
   // 物理・移動
   movementEnergyCostPerMass: 0, // 未定義
   collisionEnergyLoss: 0, // 未定義
-};
+}
 
 /**
  * バランス調整パラメータ
@@ -180,23 +180,23 @@ export const DEFAULT_PARAMETERS: GameLawParameters = {
  */
 export const BALANCED_PARAMETERS: GameLawParameters = {
   ...DEFAULT_PARAMETERS,
-  
+
   // ASSEMBLERのコストを削減（自己複製を可能にする）
   assemblerEnergyPerPower: 1000, // 2000 → 1000
-  
+
   // 生産コストを若干削減
   hullProductionRatio: 0.04, // 0.05 → 0.04
   assemblerProductionRatio: 0.4, // 0.5 → 0.4
   computerProductionRatio: 0.08, // 0.1 → 0.08
-  
+
   // エネルギーソース出力を増加
   energySourceMinOutput: 15, // 10 → 15
   energySourceMaxOutput: 150, // 100 → 150
-  
+
   // 熱ダメージを緩和
   heatDamageThreshold: 120, // 100 → 120
   heatRadiationRate: 0.015, // 0.01 → 0.015
-};
+}
 
 /**
  * 実験用パラメータ
@@ -204,27 +204,26 @@ export const BALANCED_PARAMETERS: GameLawParameters = {
  */
 export const EXPERIMENTAL_PARAMETERS: GameLawParameters = {
   ...DEFAULT_PARAMETERS,
-  
+
   // 極端に低いコスト設定
   hullEnergyPerCapacity: 1,
   assemblerBaseEnergy: 1000,
   assemblerEnergyPerPower: 100,
   computerBaseEnergy: 100,
   computerMemoryEnergyPerByte: 10,
-  
+
   // 生産コストを最小化
   hullProductionRatio: 0.01,
   assemblerProductionRatio: 0.05,
   computerProductionRatio: 0.01,
-  
-  // エネルギーソース出力を大幅増加
-  energySourceMinOutput: 50,
-  energySourceMaxOutput: 500,
-  
+
+  energySourceMinOutput: 20,
+  energySourceMaxOutput: 100,
+
   // 熱システムを無効化に近い状態
   heatDamageThreshold: 1000,
   heatRadiationRate: 0.5,
-};
+}
 
 /**
  * テスト用パラメータ
@@ -235,7 +234,7 @@ export const TEST_PARAMETERS: GameLawParameters = {
   maxForce: 10,
   forceScale: 5,
   friction: 0.98,
-  
+
   // ユニット構成エネルギー（テスト用に簡略化）
   hullEnergyPerCapacity: 2,
   assemblerBaseEnergy: 800,
@@ -244,15 +243,15 @@ export const TEST_PARAMETERS: GameLawParameters = {
   computerFrequencyEnergyMultiplier: 100,
   computerFrequencyDivisor: 5,
   computerMemoryEnergyPerByte: 50,
-  
+
   // ユニット生産エネルギー
   hullProductionRatio: 0.05,
   assemblerProductionRatio: 0.2,
   computerProductionRatio: 0.1,
-  
+
   // 生産開始時コスト
   productionStartCostRatio: 0.05,
-  
+
   // COMPUTER動作時の消費エネルギー
   computerInstructionCost1Byte: 1,
   computerInstructionCost3Byte: 3,
@@ -260,13 +259,13 @@ export const TEST_PARAMETERS: GameLawParameters = {
   computerInstructionCost5Byte: 5,
   computerAbsoluteAddressCost: 2,
   computerUnitOperationCost: 10,
-  
+
   // エネルギー収集・崩壊
   energyDecayRate: 0.001,
   energySourceMinOutput: 10,
   energySourceMaxOutput: 100,
   energyCollectionRadiusMultiplier: 2,
-  
+
   // 熱システム
   energyToHeatConversionRatio: 1.0,
   heatDiffusionRate: 0.25,
@@ -275,56 +274,58 @@ export const TEST_PARAMETERS: GameLawParameters = {
   heatDamageMultiplier: 1.0,
   heatDamageMultiplierDamaged: 2.0,
   heatDamageMultiplierProducing: 3.0,
-  
+
   // 修復コスト
   repairCostMultiplier: 1.1,
-  
+
   // ユニット結合・分離
   hullMergeEnergyCost: 0,
   unitDetachEnergyCost: 0,
-  
+
   // 物理・移動
   movementEnergyCostPerMass: 0,
   collisionEnergyLoss: 0,
-};
+}
 
 /**
  * 現在のエネルギーパラメータ設定
  * 環境変数や設定に応じて切り替え
  */
-let currentParameters: GameLawParameters = DEFAULT_PARAMETERS;
+let currentParameters: GameLawParameters = DEFAULT_PARAMETERS
 
 /**
  * 現在のゲーム法則パラメータを取得
  */
 export const getGameLawParameters = (): GameLawParameters => {
-  return currentParameters;
-};
+  return currentParameters
+}
 
 /**
  * ゲーム法則パラメータを設定
  */
 export const setGameLawParameters = (params: GameLawParameters): void => {
-  currentParameters = params;
-};
+  currentParameters = params
+}
 
 /**
  * プリセット名からパラメータを取得
  */
-export const getPresetParameters = (preset: 'default' | 'balanced' | 'experimental'): GameLawParameters => {
+export const getPresetParameters = (
+  preset: "default" | "balanced" | "experimental"
+): GameLawParameters => {
   switch (preset) {
-    case 'balanced':
-      return BALANCED_PARAMETERS;
-    case 'experimental':
-      return EXPERIMENTAL_PARAMETERS;
+    case "balanced":
+      return BALANCED_PARAMETERS
+    case "experimental":
+      return EXPERIMENTAL_PARAMETERS
     default:
-      return DEFAULT_PARAMETERS;
+      return DEFAULT_PARAMETERS
   }
-};
+}
 
 /**
  * プリセット名からパラメータを設定
  */
-export const setPresetParameters = (preset: 'default' | 'balanced' | 'experimental'): void => {
-  currentParameters = getPresetParameters(preset);
-};
+export const setPresetParameters = (preset: "default" | "balanced" | "experimental"): void => {
+  currentParameters = getPresetParameters(preset)
+}
