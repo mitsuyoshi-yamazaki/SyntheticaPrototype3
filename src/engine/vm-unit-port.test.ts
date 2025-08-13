@@ -9,4 +9,8 @@ describe("VMUnitPortNone", () => {
   test.each(UnitTypes)("write $unitType", unitType => {
     expect(() => VMUnitPortNone.write(unitType, 0, 0, 0)).not.toThrow()
   })
+
+  test.each(UnitTypes)("exists $unitType", unitType => {
+    expect(VMUnitPortNone.exists(unitType, 0)).toBe(false)
+  })
 })
