@@ -49,9 +49,8 @@ jest.mock("./heat-map-renderer", () => ({
   HeatMapRenderer: jest.fn().mockImplementation(() => ({
     graphics: {
       clear: jest.fn(),
-      beginFill: jest.fn(),
-      drawRect: jest.fn(),
-      endFill: jest.fn(),
+      fill: jest.fn(),
+      rect: jest.fn(),
     },
     visible: false,
     alpha: 0.7,

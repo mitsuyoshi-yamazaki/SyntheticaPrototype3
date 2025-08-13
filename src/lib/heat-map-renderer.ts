@@ -77,14 +77,8 @@ export class HeatMapRenderer {
         const color = this.heatToColor(heat, maxHeat)
 
         // セルを描画
-        this._graphics.beginFill(color, 1)
-        this._graphics.drawRect(
-          x * this._cellSize,
-          y * this._cellSize,
-          this._cellSize,
-          this._cellSize
-        )
-        this._graphics.endFill()
+        this._graphics.fill(color)
+        this._graphics.rect(x * this._cellSize, y * this._cellSize, this._cellSize, this._cellSize)
       }
     }
   }
@@ -146,11 +140,7 @@ export class HeatMapRenderer {
  * @param height 凡例の高さ
  * @param maxHeat 最大熱量
  */
-export const createHeatMapLegend = (
-  width = 200,
-  height = 20,
-  maxHeat = 500
-): PIXI.Container => {
+export const createHeatMapLegend = (width = 200, height = 20, maxHeat = 500): PIXI.Container => {
   const container = new PIXI.Container()
 
   // グラデーションバー
@@ -186,9 +176,8 @@ export const createHeatMapLegend = (
     }
 
     const color = (r << 16) | (g << 8) | b
-    graphics.beginFill(color)
-    graphics.drawRect(i, 0, 1, height)
-    graphics.endFill()
+    graphics.fill(color)
+    graphics.rect(i, 0, 1, height)
   }
 
   container.addChild(graphics)
