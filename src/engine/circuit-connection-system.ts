@@ -67,12 +67,12 @@ export class CircuitConnectionSystem {
    */
   public static canAccess(sourceUnit: Unit, targetUnit: Unit): boolean {
     // 両方のユニットが固定されているか確認
-    if (sourceUnit.parentHull == null || targetUnit.parentHull == null) {
+    if (sourceUnit.parentHullId == null || targetUnit.parentHullId == null) {
       return false
     }
 
     // 同一HULLに固定されているか確認
-    return sourceUnit.parentHull === targetUnit.parentHull
+    return sourceUnit.parentHullId === targetUnit.parentHullId
   }
 
   /**

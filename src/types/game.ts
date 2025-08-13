@@ -2,6 +2,8 @@
  * ゲーム全体で使用する基本的な型定義
  */
 
+import { VMState } from "../engine"
+
 /** オブジェクトの一意識別子 */
 export type ObjectId = number & { readonly __brand: "ObjectId" }
 
@@ -49,7 +51,7 @@ export type BaseUnit = GameObject & {
   readonly type: UnitType
   readonly buildEnergy: number // 構成エネルギー
   currentEnergy: number // 現在のエネルギー（ダメージを受けると減少）
-  readonly parentHull?: ObjectId // 所属するHULL
+  readonly parentHullId?: ObjectId // 所属するHULL
 }
 
 /** HULLユニット */
@@ -58,7 +60,7 @@ export type Hull = BaseUnit & {
   readonly capacity: number // エネルギー格納容量
   storedEnergy: number // 格納中のエネルギー
   attachedUnitIds: ObjectId[] // 固定されているユニット
-  collectingEnergy?: boolean // エネルギー収集中フラグ
+  collectingEnergy: boolean // エネルギー収集中フラグ
 }
 
 /** ASSEMBLERユニット */
@@ -73,16 +75,13 @@ export type Assembler = BaseUnit & {
 /** COMPUTERユニット */
 export type Computer = BaseUnit & {
   readonly type: ComputerType
-  readonly processingPower: number // 処理能力（命令/tick）
+  readonly processingPower: number // 処理能力（正の整数の場合: 命令実行数/tick、負の整数の場合: -n は 1命令実行/n tick）
   readonly memorySize: number // メモリサイズ（バイト）
-  memory: Uint8Array // メモリ内容
-  programCounter: number // プログラムカウンタ
-  registers: Uint16Array // レジスタ（8個）
-  stackPointer: number // スタックポインタ
-  zeroFlag: boolean // ゼロフラグ
-  carryFlag: boolean // キャリーフラグ
-  vmCyclesExecuted: number // 現在のtickで実行済みサイクル数
-  vmError?: string // VM実行エラー
+  readonly vm: VMState
+  readonly computingState: {
+    skippingTicks: number // （分数周波数の場合のみ）スキップする残りtick
+    cycleOverflow: number // 次のtickへ持ち越す命令サイクル
+  }
 }
 
 export type Unit = Hull | Assembler | Computer

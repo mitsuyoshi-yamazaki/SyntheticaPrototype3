@@ -87,8 +87,8 @@ describe("ObjectFactory", () => {
 
     test("calculateAssemblerBuildEnergy - ASSEMBLERの構成エネルギーを計算", () => {
       // TEST_PARAMETERS: assemblerBaseEnergy: 800, assemblerEnergyPerPower: 200
-      expect(calculateAssemblerBuildEnergy(1)).toBe(1000)  // 800 + 1 * 200
-      expect(calculateAssemblerBuildEnergy(5)).toBe(1800)  // 800 + 5 * 200
+      expect(calculateAssemblerBuildEnergy(1)).toBe(1000) // 800 + 1 * 200
+      expect(calculateAssemblerBuildEnergy(5)).toBe(1800) // 800 + 5 * 200
       expect(calculateAssemblerBuildEnergy(10)).toBe(2800) // 800 + 10 * 200
     })
 
@@ -217,7 +217,7 @@ describe("ObjectFactory", () => {
         parentHullId
       )
 
-      expect(assembler.parentHull).toBe(parentHullId)
+      expect(assembler.parentHullId).toBe(parentHullId)
     })
   })
 

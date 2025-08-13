@@ -291,7 +291,7 @@ export const drawObject = (
       const size = gameObject.radius * 2
 
       // HULLに固定されていない場合のみネイティブデザインを描画
-      if (assembler.parentHull === undefined) {
+      if (assembler.parentHullId === undefined) {
         // 角丸長方形を描画
         graphics.roundRect(-size / 2, -size / 2, size, size, 5)
         graphics.stroke({
@@ -316,7 +316,7 @@ export const drawObject = (
       const computer = gameObject as Computer
 
       // HULLに固定されていない場合のみネイティブデザインを描画
-      if (computer.parentHull === undefined) {
+      if (computer.parentHullId === undefined) {
         // 円形を描画
         graphics.circle(0, 0, gameObject.radius)
         graphics.fill(RenderingParameters.computer.color)

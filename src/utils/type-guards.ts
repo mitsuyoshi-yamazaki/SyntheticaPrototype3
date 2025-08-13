@@ -73,9 +73,9 @@ export const isHullCollectingEnergy = (hull: Hull): boolean => {
 
 // parentHull関連ガード
 export const hasParentHull = (unit: BaseUnit): boolean => {
-  return unit.parentHull !== undefined
+  return unit.parentHullId !== undefined
 }
 
 export const isIndependentUnit = (unit: BaseUnit): boolean => {
-  return unit.parentHull === undefined
+  return unit.parentHullId === undefined
 }

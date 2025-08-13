@@ -16,6 +16,7 @@ import type {
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { wrapPosition } from "@/utils/torus-math"
 import { getGameLawParameters } from "@/config/game-law-parameters"
+import { VMState } from "./vm-state"
 
 const ENERGY_TO_AREA_RATIO = 0.05
 
@@ -60,9 +61,12 @@ export const calculateComputerBuildEnergy = (
 ): number => {
   const params = getGameLawParameters()
   const frequencyComponent = Math.ceil(
-    Math.pow(processingPower / params.computerFrequencyDivisor, 2) * params.computerFrequencyEnergyMultiplier
+    Math.pow(processingPower / params.computerFrequencyDivisor, 2) *
+      params.computerFrequencyEnergyMultiplier
   )
-  return params.computerBaseEnergy + frequencyComponent + memorySize * params.computerMemoryEnergyPerByte
+  return (
+    params.computerBaseEnergy + frequencyComponent + memorySize * params.computerMemoryEnergyPerByte
+  )
 }
 
 export class ObjectFactory {
@@ -117,6 +121,7 @@ export class ObjectFactory {
       capacity,
       storedEnergy: 0,
       attachedUnitIds: [],
+      collectingEnergy: true,
     }
   }
 
@@ -141,7 +146,7 @@ export class ObjectFactory {
       mass: buildEnergy,
       buildEnergy,
       currentEnergy: buildEnergy,
-      ...(parentHull !== undefined ? { parentHull } : {}),
+      ...(parentHull !== undefined ? { parentHullId: parentHull } : {}),
       assemblePower,
       isAssembling: false,
       progress: 0,
@@ -176,16 +181,14 @@ export class ObjectFactory {
       mass: buildEnergy,
       buildEnergy,
       currentEnergy: buildEnergy,
-      ...(parentHull !== undefined ? { parentHull } : {}),
+      ...(parentHull !== undefined ? { parentHullId: parentHull } : {}),
       processingPower,
       memorySize,
-      memory,
-      programCounter: 0,
-      registers: new Uint16Array(8),
-      stackPointer: memorySize - 1, // スタックは最上位から下に向かって成長
-      zeroFlag: false,
-      carryFlag: false,
-      vmCyclesExecuted: 0,
+      vm: new VMState(memorySize, memory),
+      computingState: {
+        skippingTicks: 0,
+        cycleOverflow: 0,
+      },
     }
   }
 

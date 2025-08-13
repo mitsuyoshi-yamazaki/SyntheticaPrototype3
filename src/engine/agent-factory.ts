@@ -5,7 +5,6 @@
 import type { GameObject, ObjectId, Vec2, Computer, Assembler } from "@/types/game"
 import type { AgentPreset } from "./presets/types"
 import { ObjectFactory } from "./object-factory"
-import { ComputerVMSystem } from "./computer-vm-system"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -45,7 +44,6 @@ export class AgentFactory {
     objects.push(hull)
 
     // 3. 他のユニットを生成して配置
-    let computerUnit: GameObject | null = null
 
     for (const unitDef of preset.units) {
       if (unitDef.type === "HULL") {
@@ -81,7 +79,6 @@ export class AgentFactory {
             Vec2Utils.create(0, 0), // 相対位置は0
             preset.program
           )
-          computerUnit = unit
           break
 
         default:
@@ -90,14 +87,9 @@ export class AgentFactory {
 
       objects.push(unit)
 
-      if (unit.parentHull != null) {
+      if (unit.parentHullId != null) {
         hull.attachedUnitIds.push(unit.id)
       }
-    }
-
-    // 5. COMPUTERにプログラムがロード済みなので、実行を開始
-    if (computerUnit != null && computerUnit.type === "COMPUTER") {
-      ComputerVMSystem.startProgram(computerUnit as Computer)
     }
 
     return objects

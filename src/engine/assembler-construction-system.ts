@@ -12,6 +12,7 @@ import type {
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 import { isHull } from "@/utils/type-guards"
 import { getGameLawParameters } from "@/config/game-law-parameters"
+import { VMState } from "./vm-state"
 
 /** 生産中ユニットの状態 */
 export type ProducingUnit = BaseUnit & {
@@ -66,9 +67,12 @@ export const UnitCostCalculator = {
   calculateComputerBuildEnergy(processingPower: number, memorySize: number): number {
     const params = getGameLawParameters()
     const frequencyTerm = Math.ceil(
-      Math.pow(processingPower / params.computerFrequencyDivisor, 2) * params.computerFrequencyEnergyMultiplier
+      Math.pow(processingPower / params.computerFrequencyDivisor, 2) *
+        params.computerFrequencyEnergyMultiplier
     )
-    return params.computerBaseEnergy + frequencyTerm + memorySize * params.computerMemoryEnergyPerByte
+    return (
+      params.computerBaseEnergy + frequencyTerm + memorySize * params.computerMemoryEnergyPerByte
+    )
   },
 
   /** COMPUTERの生産エネルギー計算 */
@@ -232,7 +236,8 @@ export class AssemblerConstructionSystem {
           capacity: producingUnit.targetSpec.capacity,
           storedEnergy: 0,
           attachedUnitIds: [],
-        } as Hull
+          collectingEnergy: true,
+        } satisfies Hull
       case "ASSEMBLER":
         return {
           ...baseUnit,
@@ -240,21 +245,19 @@ export class AssemblerConstructionSystem {
           assemblePower: producingUnit.targetSpec.assemblePower,
           isAssembling: false,
           progress: 0,
-        } as Assembler
+        } satisfies Assembler
       case "COMPUTER":
         return {
           ...baseUnit,
           type: "COMPUTER",
           processingPower: producingUnit.targetSpec.processingPower,
           memorySize: producingUnit.targetSpec.memorySize,
-          memory: new Uint8Array(producingUnit.targetSpec.memorySize),
-          programCounter: 0,
-          registers: new Uint16Array(8),
-          stackPointer: producingUnit.targetSpec.memorySize - 1,
-          zeroFlag: false,
-          carryFlag: false,
-          vmCyclesExecuted: 0,
-        } as Computer
+          vm: new VMState(producingUnit.targetSpec.memorySize),
+          computingState: {
+            skippingTicks: 0,
+            cycleOverflow: 0,
+          },
+        } satisfies Computer
     }
   }
 

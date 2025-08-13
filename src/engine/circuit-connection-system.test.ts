@@ -104,7 +104,7 @@ describe("CircuitConnectionSystem", () => {
         assemblePower: 1,
         isAssembling: false,
         progress: 0,
-        parentHull: hull1.id,
+        parentHullId: hull1.id,
       }
 
       assembler2 = {
@@ -120,7 +120,7 @@ describe("CircuitConnectionSystem", () => {
         assemblePower: 1,
         isAssembling: false,
         progress: 0,
-        parentHull: hull2.id,
+        parentHullId: hull2.id,
       }
 
       computer1 = {
@@ -143,7 +143,7 @@ describe("CircuitConnectionSystem", () => {
         carryFlag: false,
         isRunning: false,
         vmCyclesExecuted: 0,
-        parentHull: hull1.id,
+        parentHullId: hull1.id,
       }
     })
 
@@ -160,7 +160,7 @@ describe("CircuitConnectionSystem", () => {
     test("parentHullがないユニットはアクセス不可", () => {
       // parentHullを除外したアセンブラーを作成
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { parentHull: _parentHull, ...assemblerBase } = assembler1
+      const { parentHullId: _parentHull, ...assemblerBase } = assembler1
       const assemblerWithoutHull = assemblerBase as Assembler
       expect(CircuitConnectionSystem.canAccess(assemblerWithoutHull, computer1)).toBe(false)
       expect(CircuitConnectionSystem.canAccess(computer1, assemblerWithoutHull)).toBe(false)
@@ -191,7 +191,7 @@ describe("CircuitConnectionSystem", () => {
         assemblePower: 5,
         isAssembling: false,
         progress: 0,
-        parentHull: hullId,
+        parentHullId: hullId,
       }
 
       computer = {
@@ -214,7 +214,7 @@ describe("CircuitConnectionSystem", () => {
         carryFlag: false,
         isRunning: false,
         vmCyclesExecuted: 0,
-        parentHull: hullId,
+        parentHullId: hullId,
       }
     })
 
