@@ -8,9 +8,7 @@ import { HullEnergyManager } from "./hull-energy-manager"
 import { EnergySourceManager } from "./energy-source-manager"
 import { EnergyCollector } from "./energy-collector"
 import { EnergyDecaySystem } from "./energy-decay-system"
-import { ComputerVMSystem } from "./computer-vm-system"
-import { ComputerVMSystemDebug } from "./computer-vm-system-debug"
-import { ComputerDebugger } from "./computer-debugger"
+import { ComputerVMSystem, DebugComputerVMSystem } from "./computer-vm-system"
 import { AgentFactory } from "./agent-factory"
 import type {
   GameObject,
@@ -23,12 +21,14 @@ import type {
   Unit,
   Assembler,
   Vec2,
+  ObjectId,
 } from "@/types/game"
 import type { HeatSystem } from "./heat-system"
 import { isHull, isEnergyObject } from "@/utils/type-guards"
 import { Vec2 as Vec2Utils } from "@/utils/vec2"
 
 import type { AgentPresetPlacement } from "./presets/types"
+import { WorldDebugger } from "./world-debugger"
 
 export type WorldConfig = {
   width: number
@@ -39,28 +39,24 @@ export type WorldConfig = {
 }
 
 export class World {
+  public readonly debugger: WorldDebugger | null
+
   private readonly _stateManager: WorldStateManager
   private readonly _objectFactory: ObjectFactory
   private readonly _hullEnergyManager: HullEnergyManager
   private readonly _energySourceManager: EnergySourceManager
   private readonly _energyCollector: EnergyCollector
   private readonly _energyDecaySystem: EnergyDecaySystem
-  private readonly _computerVMSystem: ComputerVMSystemDebug | null
-  private readonly _debugger: ComputerDebugger | null
+  private readonly _computerVMSystem: ComputerVMSystem
 
   /** ワールド状態を取得 */
   public get state() {
     return this._stateManager.state
   }
-  
+
   /** 熱システムを取得 */
   public get heatSystem(): HeatSystem {
     return this._stateManager.heatSystem
-  }
-  
-  /** デバッガーを取得（デバッグモード時のみ） */
-  public get debugger(): ComputerDebugger | null {
-    return this._debugger
   }
 
   public constructor(config: WorldConfig) {
@@ -84,13 +80,13 @@ export class World {
 
     // ComputerVMシステムの初期化（デバッグモードに応じて切り替え）
     if (config.debugMode === true) {
-      const computerDebugger = new ComputerDebugger()
-      this._computerVMSystem = new ComputerVMSystemDebug(computerDebugger)
-      this._debugger = computerDebugger
+      const debugVMSystem = new DebugComputerVMSystem()
+      this.debugger = new WorldDebugger(debugVMSystem)
+      this._computerVMSystem = debugVMSystem
       console.log("[World] デバッグモードで起動")
     } else {
-      this._computerVMSystem = null
-      this._debugger = null
+      this.debugger = null
+      this._computerVMSystem = new ComputerVMSystem()
     }
 
     this.initialize(config)
@@ -161,7 +157,7 @@ export class World {
   public removeObject(id: GameObject["id"]): void {
     this._stateManager.removeObject(id)
   }
-  
+
   /** 指定位置にエネルギーオブジェクトを作成 */
   public createEnergyObject(position: Vec2, amount: number): void {
     const id = this._stateManager.generateObjectId()
@@ -208,12 +204,9 @@ export class World {
 
       // ユニットシステムの更新
       this.updateUnitSystem()
-      
+
       // 熱システムの更新
       this.updateHeatSystem()
-
-      // VMサイクルカウンタのリセット（次のtick準備）
-      this.resetVMCycleCounters()
     }
   }
 
@@ -317,19 +310,6 @@ export class World {
     }
   }
 
-  /** デバッグ用：ランダムな位置にエネルギーオブジェクトを生成 */
-  public spawnRandomEnergy(amount: number): void {
-    const id = this._stateManager.generateObjectId()
-    const position = Vec2Utils.create(
-      Math.random() * this.state.width,
-      Math.random() * this.state.height
-    )
-
-    const energyObj = this._objectFactory.createEnergyObject(id, position, amount)
-
-    this._stateManager.addObject(energyObj)
-  }
-
   /** ユニットシステムの更新 */
   private updateUnitSystem(): void {
     // TODO: ASSEMBLERユニットの構築処理
@@ -341,72 +321,63 @@ export class World {
   /** COMPUTERユニットのVM実行 */
   private executeComputerVMs(): void {
     const objects = this._stateManager.getAllObjects()
-    const tick = this._stateManager.state.tick
 
-    // デバッグモードの場合、HULLマップを更新
-    if (this._computerVMSystem != null) {
-      const hulls: Hull[] = []
-      for (const obj of objects) {
-        if (isHull(obj)) {
-          hulls.push(obj)
+    const units = new Map<ObjectId, Unit>()
+    const computers: Computer[] = []
+
+    objects.forEach(obj => {
+      switch (obj.type) {
+        case "HULL":
+        case "ASSEMBLER":
+          units.set(obj.id, obj as Unit)
+          break
+        case "COMPUTER":
+          units.set(obj.id, obj as Computer)
+          computers.push(obj as Computer)
+          break
+        case "ENERGY":
+          break
+        default: {
+          // const _: never = obj // なぜかエラーとなる
+          break
         }
       }
-      this._computerVMSystem.updateHullMap(hulls)
-    }
+    })
 
-    for (const obj of objects) {
-      if (obj.type === "COMPUTER") {
-        if (this._computerVMSystem != null) {
-          // デバッグモード: インスタンスメソッドを使用
-          this._computerVMSystem.executeVMWithDebug(obj as Computer, tick)
-        } else {
-          // 通常モード: staticメソッドを使用
-          ComputerVMSystem.executeVM(obj as Computer)
-        }
-      }
-    }
+    computers.forEach(computer => {
+      this._computerVMSystem.executeVM(computer, unitId => units.get(unitId) ?? null)
+    })
   }
 
-  /** VMサイクルカウンタのリセット */
-  private resetVMCycleCounters(): void {
-    const objects = this._stateManager.getAllObjects()
-
-    for (const obj of objects) {
-      if (obj.type === "COMPUTER") {
-        ComputerVMSystem.resetCycleCounter(obj as Computer)
-      }
-    }
-  }
-  
   /** 熱システムの更新 */
   private updateHeatSystem(): void {
     // 熱拡散の計算（セルオートマトン）
     this._stateManager.heatSystem.updateDiffusion()
-    
+
     // 放熱処理
     this._stateManager.heatSystem.updateRadiation()
-    
+
     // 熱によるダメージ処理
     this.applyHeatDamage()
   }
-  
+
   /** 熱によるダメージをユニットに適用 */
   private applyHeatDamage(): void {
     const objects = this._stateManager.getAllObjects()
-    
+
     for (const obj of objects) {
       // ユニットのみ熱ダメージを受ける
       if (obj.type === "HULL" || obj.type === "ASSEMBLER" || obj.type === "COMPUTER") {
         const unit = obj as Unit
-        
+
         // ユニットの位置から熱グリッド座標を計算
         const gridX = Math.floor(unit.position.x / 10)
         const gridY = Math.floor(unit.position.y / 10)
-        
+
         // ダメージフラグを判定
         const isDamaged = unit.currentEnergy < unit.buildEnergy
-        const isProducing = obj.type === "ASSEMBLER" && (obj as Assembler).isAssembling
-        
+        const isProducing = obj.type === "ASSEMBLER" && (obj as Assembler).isAssembling // FixMe: ASSEMBLERではなくassemble対象のダメージ係数が増える
+
         // 熱ダメージを計算
         const damage = this._stateManager.heatSystem.calculateHeatDamage(
           gridX,
@@ -414,21 +385,21 @@ export class World {
           isDamaged,
           isProducing
         )
-        
+
         if (damage > 0) {
           // ダメージを適用（currentEnergyを減少）
           unit.currentEnergy = Math.max(0, unit.currentEnergy - damage)
-          
+
           // energyも同期（質量保存の法則）
           unit.energy = Math.min(unit.energy, unit.currentEnergy)
-          
+
           // オブジェクトを更新
           this._stateManager.updateObject(unit)
-          
+
           // ユニットが破壊された場合
           if (unit.currentEnergy === 0) {
             this._stateManager.removeObject(unit.id)
-            
+
             // 破壊による熱の追加（エネルギーの10%が熱に変換）
             const heatGenerated = Math.floor(unit.buildEnergy * 0.1)
             this._stateManager.addHeatToCell(unit.position, heatGenerated)

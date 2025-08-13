@@ -40,10 +40,10 @@ export class GameWorld {
 
     // ワールドの初期化（デモ用設定を含む）
     this._world = new World(config)
-    
+
     // 選択マネージャーの初期化
     this._selectionManager = new ObjectSelectionManager(this._world.state.objects)
-    
+
     // HULL情報レンダラーの初期化
     this._hullInfoRenderer = new HullInfoRenderer()
   }
@@ -96,7 +96,7 @@ export class GameWorld {
       objGraphics.y = obj.position.y
       container.addChild(objGraphics)
     }
-    
+
     // HULL情報ウィンドウを描画（最前面）
     container.addChild(this._hullInfoRenderer.container)
   }
@@ -104,17 +104,12 @@ export class GameWorld {
   /** 1tick進める */
   public tick(): void {
     this._world.tick()
-    
+
     // 選択マネージャーのオブジェクトを更新
     this._selectionManager.updateObjects(this._world.state.objects)
-    
+
     // 選択中のHULL情報を更新
     this.updateHullInfo()
-  }
-
-  /** デバッグ用：ランダムエネルギー生成 */
-  public spawnRandomEnergy(amount: number): void {
-    this._world.spawnRandomEnergy(amount)
   }
 
   /** 熱マップの表示状態を切り替え */
@@ -136,7 +131,7 @@ export class GameWorld {
   public addForceField(field: DirectionalForceField): void {
     this._world.addForceField(field)
   }
-  
+
   /**
    * 指定位置のオブジェクトを選択
    * @param worldX ワールドX座標
@@ -145,9 +140,9 @@ export class GameWorld {
   public selectObjectAt(worldX: number, worldY: number): void {
     const worldPosition = { x: worldX, y: worldY }
     const screenPosition = { x: worldX, y: worldY } // ワールド座標と同じ
-    
+
     const selected = this._selectionManager.selectObjectAt(worldPosition, screenPosition)
-    
+
     // デバッガーに選択状態を通知
     const computerDebugger = this._world.debugger
     if (computerDebugger != null) {
@@ -157,7 +152,7 @@ export class GameWorld {
         computerDebugger.setSelectedHull(null)
       }
     }
-    
+
     if (selected != null && isHull(selected)) {
       // HULLが選択された場合、情報を表示
       this.updateHullInfo()
@@ -166,20 +161,20 @@ export class GameWorld {
       this._hullInfoRenderer.hide()
     }
   }
-  
+
   /**
    * 選択中のHULL情報を更新
    */
   private updateHullInfo(): void {
     const selectedInfo = this._selectionManager.getSelectedObject()
-    
+
     if (selectedInfo == null || !isHull(selectedInfo.object)) {
       this._hullInfoRenderer.hide()
       return
     }
-    
+
     const hull = selectedInfo.object
-    
+
     // 接続されているユニットを取得
     const units: GameObject[] = []
     for (const unitId of hull.attachedUnitIds) {
@@ -188,7 +183,7 @@ export class GameWorld {
         units.push(unit)
       }
     }
-    
+
     // HULL情報を更新して表示
     this._hullInfoRenderer.update(hull, units, hull.position)
   }

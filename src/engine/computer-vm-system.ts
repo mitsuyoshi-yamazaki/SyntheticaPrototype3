@@ -2,136 +2,86 @@
  * COMPUTERユニットのVM実行を管理するシステム
  */
 
-import type { Computer } from "@/types/game"
-import { VMState } from "./vm-state"
+import type { Computer, ObjectId, Unit } from "@/types/game"
 import { InstructionExecutor } from "./vm-executor"
+import { VMPhysicalUnitPort, VMUnitPort } from "./vm-unit-port"
 
-/** VM実行システム */
-export const ComputerVMSystem = {
-  /**
-   * COMPUTERユニットのVM状態を作成
-   * @param computer COMPUTERユニット
-   * @returns VMState
-   */
-  createVMState(computer: Computer): VMState {
-    // COMPUTERユニットの既存メモリ配列を使用してVMStateを作成
-    const vm = new VMState(computer.memorySize, computer.memory)
+export class ComputerVMSystem {
+  public executeVM(computer: Computer, getUnitById: (unitId: ObjectId) => Unit | null): void {
+    if (computer.computingState.skippingTicks > 0) {
+      computer.computingState.skippingTicks -= 1
 
-    // レジスタの復元
-    vm.setRegister("A", computer.registers[0] ?? 0)
-    vm.setRegister("B", computer.registers[1] ?? 0)
-    vm.setRegister("C", computer.registers[2] ?? 0)
-    vm.setRegister("D", computer.registers[3] ?? 0)
-
-    // 状態の復元
-    vm.programCounter = computer.programCounter
-    vm.stackPointer = computer.stackPointer
-    vm.zeroFlag = computer.zeroFlag
-    vm.carryFlag = computer.carryFlag
-
-    return vm
-  },
-
-  /**
-   * VM状態をCOMPUTERユニットに同期
-   * @param vm VMState
-   * @param computer COMPUTERユニット
-   */
-  syncVMState(vm: VMState, computer: Computer): void {
-    // メモリの同期（VMStateとComputerは同じ配列を参照しているので不要）
-
-    // レジスタの同期
-    computer.registers[0] = vm.getRegister("A")
-    computer.registers[1] = vm.getRegister("B")
-    computer.registers[2] = vm.getRegister("C")
-    computer.registers[3] = vm.getRegister("D")
-
-    // 状態の同期
-    computer.programCounter = vm.programCounter
-    computer.stackPointer = vm.stackPointer
-    computer.zeroFlag = vm.zeroFlag
-    computer.carryFlag = vm.carryFlag
-  },
-
-  /**
-   * COMPUTERユニットのVMを実行
-   * @param computer COMPUTERユニット
-   */
-  executeVM(computer: Computer): void {
-    // エラーがあってもPCをリセットして実行を継続
-    if (computer.vmError != null) {
-      // PCが範囲外の場合は0にリセット
-      if (computer.programCounter >= computer.memorySize) {
-        computer.programCounter = 0
+      if (computer.computingState.skippingTicks > 0) {
+        // 分数周波数を持つ場合
+        return
       }
-      // エラーをクリア
-      delete computer.vmError
     }
 
-    // VMState作成
-    const vm = this.createVMState(computer)
+    let cycles: number
 
-    // このtickで実行可能な残りサイクル数
-    const remainingCycles = computer.processingPower - computer.vmCyclesExecuted
+    if (computer.processingPower > 0) {
+      // 正の整数の場合: 命令実行数/tick
+      cycles = computer.processingPower
+      computer.computingState.skippingTicks = 0
+    } else {
+      // 負の整数の場合: -n は 1命令実行/n tick
+      cycles = 1
+      computer.computingState.skippingTicks = -(computer.processingPower - 1)
+    }
 
-    if (remainingCycles <= 0) {
+    // 持ち越したcycleの消費
+    if (cycles > computer.computingState.cycleOverflow) {
+      cycles -= computer.computingState.cycleOverflow
+    } else {
+      computer.computingState.cycleOverflow -= cycles
       return
     }
 
+    const unitPort: VMUnitPort = new VMPhysicalUnitPort(computer, getUnitById)
+    const { cyclesUsed } = this.run(cycles, computer, unitPort)
+
+    computer.computingState.cycleOverflow = cyclesUsed - cycles
+  }
+
+  protected run(cycles: number, computer: Computer, unitPort: VMUnitPort): { cyclesUsed: number } {
     let cyclesUsed = 0
 
-    // 残りサイクル分だけ実行
-    while (cyclesUsed < remainingCycles) {
-      const result = InstructionExecutor.step(vm, computer)
-
+    while (cyclesUsed < cycles) {
+      const result = InstructionExecutor.step(computer.vm, unitPort)
       cyclesUsed += result.cycles
-
-      if (!result.success) {
-        // エラー発生（無効な命令をスキップして継続）
-        // PCを次の命令に進める（無効な命令をスキップ）
-        vm.programCounter = (vm.programCounter + 1) % computer.memorySize
-        // 最小サイクル消費
-        if (result.cycles === 0) {
-          cyclesUsed += 1
-        }
-        continue
-      }
     }
 
-    // VM状態をユニットに同期（エラーがあっても同期）
-    this.syncVMState(vm, computer)
+    return { cyclesUsed }
+  }
+}
 
-    // 実行済みサイクル数を更新
-    computer.vmCyclesExecuted += cyclesUsed
-  },
+export class DebugComputerVMSystem extends ComputerVMSystem {
+  public selectedHullId: ObjectId | null = null
 
-  /**
-   * 次のtickに向けてサイクルカウンタをリセット
-   * @param computer COMPUTERユニット
-   */
-  resetCycleCounter(computer: Computer): void {
-    computer.vmCyclesExecuted = 0
-  },
+  protected override run(
+    cycles: number,
+    computer: Computer,
+    unitPort: VMUnitPort
+  ): { cyclesUsed: number } {
+    if (computer.parentHullId !== this.selectedHullId) {
+      return super.run(cycles, computer, unitPort)
+    }
 
-  /**
-   * プログラムを開始
-   * @param computer COMPUTERユニット
-   * @param startAddress 開始アドレス（省略時は0）
-   */
-  startProgram(computer: Computer, startAddress = 0): void {
-    computer.programCounter = startAddress
-    delete computer.vmError
-    computer.vmCyclesExecuted = 0
-  },
+    let cyclesUsed = 0
+    const debugMessages: string[] = []
 
-  /**
-   * プログラムをロード
-   * @param computer COMPUTERユニット
-   * @param program プログラムバイト列
-   * @param startAddress ロード開始アドレス（省略時は0）
-   */
-  loadProgram(computer: Computer, program: Uint8Array, startAddress = 0): void {
-    const maxLength = Math.min(program.length, computer.memorySize - startAddress)
-    computer.memory.set(program.slice(0, maxLength), startAddress)
-  },
+    while (cyclesUsed < cycles) {
+      const programCounter = computer.vm.programCounter
+      const result = InstructionExecutor.step(computer.vm, unitPort)
+      cyclesUsed += result.cycles
+
+      debugMessages.push(
+        `${programCounter.toString(16)}: ${result.executed.mnemonic} ${result.cycles} cycles, ${result.case}`
+      )
+    }
+
+    console.log(debugMessages.join("\n"))
+
+    return { cyclesUsed }
+  }
 }

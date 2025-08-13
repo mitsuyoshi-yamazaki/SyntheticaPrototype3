@@ -40,7 +40,6 @@ jest.mock("../engine", () => ({
       heatGrid: [],
     },
     tick: jest.fn(),
-    spawnRandomEnergy: jest.fn(),
     addForceField: jest.fn(),
   })),
 }))
@@ -86,15 +85,6 @@ describe("GameWorld", () => {
 
     expect(world.width).toBe(width)
     expect(world.height).toBe(height)
-  })
-
-  test("spawnRandomEnergyが呼び出せる", () => {
-    const world = new GameWorld(createTestConfig(800, 600))
-
-    // エラーなく実行できることを確認
-    expect(() => {
-      world.spawnRandomEnergy(100)
-    }).not.toThrow()
   })
 
   test("tickメソッドが呼び出せる", () => {

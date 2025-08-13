@@ -47,7 +47,7 @@ describe("ASSEMBLE命令", () => {
       mass: 100,
       buildEnergy: 100,
       currentEnergy: 100,
-      parentHull: "hull-1" as ObjectId,
+      parentHullId: "hull-1" as ObjectId,
       assemblePower: 5,
       isAssembling: false,
       progress: 0,
@@ -63,7 +63,7 @@ describe("ASSEMBLE命令", () => {
       mass: 50,
       buildEnergy: 50,
       currentEnergy: 50,
-      parentHull: "hull-1" as ObjectId,
+      parentHullId: "hull-1" as ObjectId,
       processingPower: 10,
       memorySize: 256,
       memory: new Uint8Array(256),
@@ -490,7 +490,7 @@ describe("ASSEMBLE命令", () => {
       const otherAssembler: Assembler = {
         ...assembler,
         id: "assembler-2" as ObjectId,
-        parentHull: "hull-2" as ObjectId, // 異なるHULL
+        parentHullId: "hull-2" as ObjectId, // 異なるHULL
       }
 
       // findUnitByIdモックを更新

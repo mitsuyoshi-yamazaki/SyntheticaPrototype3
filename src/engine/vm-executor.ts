@@ -1004,9 +1004,15 @@ export const InstructionExecutor = {
   //   return null
   // },
 
-  step(vm: VMState, unitPort: VMUnitPort = VMUnitPortNone): ExecutionResult {
+  step(
+    vm: VMState,
+    unitPort: VMUnitPort = VMUnitPortNone
+  ): ExecutionResult & { executed: DecodedInstruction } {
     const decoded = InstructionDecoder.decode(vm)
-    return this.execute(vm, decoded, unitPort)
+    return {
+      ...this.execute(vm, decoded, unitPort),
+      executed: decoded,
+    }
   },
 
   run(vm: VMState, maxCycles: number, unitPort: VMUnitPort): number {
