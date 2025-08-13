@@ -33,9 +33,7 @@ const generateSelfReplicatorProgram = (): Uint8Array => {
 
   // ジャンプ命令を仮配置して後で修正
   const addJump = (opcode: number, label: string) => {
-    if (!fixups[label]) {
-      fixups[label] = []
-    }
+    fixups[label] ??= []
     fixups[label].push(program.length + 1) // オペコード後のオフセット位置
     program.push(opcode, 0x00, 0x00) // 仮のオフセット
   }
