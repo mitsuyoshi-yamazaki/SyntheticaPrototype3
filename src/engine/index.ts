@@ -48,17 +48,6 @@ export {
   type UnitIdentifier,
   type CircuitAccessResult,
 } from "./circuit-connection-system"
-export {
-  createMemoryInterface,
-  HullMemoryInterface,
-  AssemblerMemoryInterface,
-  ComputerMemoryInterface,
-  HULL_MEMORY_MAP,
-  ASSEMBLER_MEMORY_MAP,
-  COMPUTER_MEMORY_MAP,
-  type MemoryMap,
-  type UnitMemoryInterface,
-} from "./unit-memory-interface"
 export { VMState, REGISTER_NAMES, FLAG_NAMES } from "./vm-state"
 export type { RegisterName, FlagName } from "./vm-state"
 export {

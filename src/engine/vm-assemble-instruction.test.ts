@@ -7,11 +7,6 @@ import { InstructionDecoder } from "./vm-decoder"
 import { InstructionExecutor } from "./vm-executor"
 import type { Computer, Assembler, Hull, ObjectId } from "@/types/game"
 
-// createMemoryInterfaceのモック設定
-jest.mock("./unit-memory-interface", () => ({
-  createMemoryInterface: jest.fn(),
-}))
-
 describe("ASSEMBLE命令", () => {
   let vm: VMState
   let computer: Computer
