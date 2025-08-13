@@ -21,7 +21,7 @@ export type ExecutionResult = ExecutionResultSuccess | ExecutionResultFailure
 
 /** 命令実行エンジン */
 export const InstructionExecutor = {
-  execute(vm: VMState, decoded: DecodedInstruction, _unitPort: VMUnitPort): ExecutionResult {
+  execute(vm: VMState, decoded: DecodedInstruction, unitPort: VMUnitPort): ExecutionResult {
     try {
       switch (decoded.mnemonic) {
         case "NOP":
@@ -260,9 +260,41 @@ export const InstructionExecutor = {
           return this.executeJump(vm, decoded)
 
         case "UNIT_MEM_READ":
+          vm.setRegister(
+            "A",
+            unitPort.read(
+              decoded.operand.unitType,
+              decoded.operand.unitIndex,
+              decoded.operand.unitMemoryAddress
+            )
+          )
+          break
         case "UNIT_MEM_WRITE":
+          unitPort.write(
+            decoded.operand.unitType,
+            decoded.operand.unitIndex,
+            decoded.operand.unitMemoryAddress,
+            vm.getRegister("A") & 0xff
+          )
+          break
         case "UNIT_MEM_READ_REG":
+          vm.setRegister(
+            "A",
+            unitPort.read(
+              decoded.operand.unitType,
+              decoded.operand.unitIndex,
+              vm.getRegister(decoded.operand.register) & 0xff
+            )
+          )
+          break
         case "UNIT_MEM_WRITE_REG":
+          unitPort.write(
+            decoded.operand.unitType,
+            decoded.operand.unitIndex,
+            vm.getRegister(decoded.operand.register) & 0xff,
+            vm.getRegister("A") & 0xff
+          )
+          break
         case "UNIT_EXISTS":
         case "UNIT_MEM_WRITE_DYN":
         case "SEARCH_F":
@@ -601,42 +633,6 @@ export const InstructionExecutor = {
   //       error: "Target unit has no memory interface",
   //       cycles: 1,
   //     }
-  //   }
-
-  //   switch (decoded.instruction.mnemonic) {
-  //     case "UNIT_MEM_READ": {
-  //       const value = memInterface.readMemory(memAddr)
-  //       if (value == null) {
-  //         vm.advancePC(decoded.length)
-  //         return {
-  //           success: false,
-  //           error: `Cannot read from address 0x${memAddr.toString(16).padStart(2, "0")}`,
-  //           cycles: 1,
-  //         }
-  //       }
-  //       vm.setRegister("B", value)
-  //       break
-  //     }
-  //     case "UNIT_MEM_WRITE": {
-  //       const value = vm.getRegister("C") & 0xff
-  //       const success = memInterface.writeMemory(memAddr, value)
-  //       if (!success) {
-  //         vm.advancePC(decoded.length)
-  //         return {
-  //           success: false,
-  //           error: `Cannot write to address 0x${memAddr.toString(16).padStart(2, "0")}`,
-  //           cycles: 1,
-  //         }
-  //       }
-  //       break
-  //     }
-  //     default:
-  //       vm.advancePC(1)
-  //       return {
-  //         success: false,
-  //         error: `Unknown unit instruction: ${decoded.instruction.mnemonic}`,
-  //         cycles: 1,
-  //       }
   //   }
 
   //   vm.advancePC(decoded.length)

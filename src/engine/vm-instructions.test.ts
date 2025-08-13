@@ -1,5 +1,6 @@
 import { InstructionExecutor } from "./vm-executor"
 import { VMState } from "./vm-state"
+import { VMUnitPort } from "./vm-unit-port"
 
 /*
 ## Claudeへの指令
@@ -5793,12 +5794,220 @@ describe("0xF0 NOP5", () => {
   })
 })
 
+describe("0x90 UNIT_MEM_READ", () => {
+  let vm: VMState
+  const mockedUnitPort: VMUnitPort = {
+    read: jest.fn(() => 0xab),
+    write: jest.fn(),
+  }
+
+  beforeEach(() => {
+    vm = new VMState(0x100)
+  })
+
+  test("0x90 UNIT_MEM_READ - 外部ユニットメモリ読み取り", () => {
+    vm.setRegister("A", 0x4444)
+    vm.setRegister("B", 0x5555)
+    vm.setRegister("C", 0x6666)
+    vm.setRegister("D", 0x7777)
+
+    vm.writeMemory8(0, 0x90) // UNIT_MEM_READ
+    vm.writeMemory8(1, 0x12) // 1: ASSEMBLER, index: 2
+    vm.writeMemory8(2, 0x03) // ユニットメモリアドレス
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x4444,
+      registerB: 0x5555,
+      registerC: 0x6666,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm, mockedUnitPort)
+
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 4,
+      sp: 0xff,
+      registerA: 0x00ab,
+      registerB: 0x5555,
+      registerC: 0x6666,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(mockedUnitPort.read).toHaveBeenCalledWith("ASSEMBLER", 2, 0x03)
+  })
+})
+
+describe("0x91 UNIT_MEM_WRITE", () => {
+  let vm: VMState
+  const mockedUnitPort: VMUnitPort = {
+    read: jest.fn(() => 0xab),
+    write: jest.fn(),
+  }
+
+  beforeEach(() => {
+    vm = new VMState(0x100)
+  })
+
+  test("0x91 UNIT_MEM_WRITE - 外部ユニットメモリ書き込み", () => {
+    vm.setRegister("A", 0x2345) // 下位4bitを書き込み
+    vm.setRegister("B", 0x5555)
+    vm.setRegister("C", 0x6666)
+    vm.setRegister("D", 0x7777)
+
+    vm.writeMemory8(0, 0x91) // UNIT_MEM_WRITE
+    vm.writeMemory8(1, 0x03) // 0: HULL, index: 3
+    vm.writeMemory8(2, 0x12) // ユニットメモリアドレス
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x2345,
+      registerB: 0x5555,
+      registerC: 0x6666,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm, mockedUnitPort)
+
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 4,
+      sp: 0xff,
+      registerA: 0x2345,
+      registerB: 0x5555,
+      registerC: 0x6666,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(mockedUnitPort.write).toHaveBeenCalledWith("HULL", 3, 0x12, 0x45)
+  })
+})
+
+describe("0x92 UNIT_MEM_READ_REG", () => {
+  let vm: VMState
+  const mockedUnitPort: VMUnitPort = {
+    read: jest.fn(() => 0xcd),
+    write: jest.fn(),
+  }
+
+  beforeEach(() => {
+    vm = new VMState(0x100)
+  })
+
+  test("0x92 UNIT_MEM_READ_REG - レジスタ指定で外部ユニットメモリ読み取り", () => {
+    vm.setRegister("A", 0x4444)
+    vm.setRegister("B", 0x5555)
+    vm.setRegister("C", 0x0056)
+    vm.setRegister("D", 0x7777)
+
+    vm.writeMemory8(0, 0x92) // UNIT_MEM_READ_REG
+    vm.writeMemory8(1, 0x25) // 2: COMPUTER, index: 5
+    vm.writeMemory8(2, 0x02) // Cレジスタ
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x4444,
+      registerB: 0x5555,
+      registerC: 0x0056,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm, mockedUnitPort)
+
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 4,
+      sp: 0xff,
+      registerA: 0x00cd,
+      registerB: 0x5555,
+      registerC: 0x0056,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(mockedUnitPort.read).toHaveBeenCalledWith("COMPUTER", 5, 0x56)
+  })
+})
+
+describe("0x93 UNIT_MEM_WRITE_REG", () => {
+  let vm: VMState
+  const mockedUnitPort: VMUnitPort = {
+    read: jest.fn(() => 0xab),
+    write: jest.fn(),
+  }
+
+  beforeEach(() => {
+    vm = new VMState(0x100)
+  })
+
+  test("0x93 UNIT_MEM_WRITE_REG - レジスタ指定で外部ユニットメモリ書き込み", () => {
+    vm.setRegister("A", 0x4567) // 下位4bitを書き込み
+    vm.setRegister("B", 0x0023)
+    vm.setRegister("C", 0x6666)
+    vm.setRegister("D", 0x7777)
+
+    vm.writeMemory8(0, 0x93) // UNIT_MEM_WRITE_REG
+    vm.writeMemory8(1, 0x03) // 0: HULL, index: 3
+    vm.writeMemory8(2, 0x01) // Bレジスタ
+
+    // 実行前の状態を検証
+    expectVMState(vm, {
+      pc: 0,
+      sp: 0xff,
+      registerA: 0x4567,
+      registerB: 0x0023,
+      registerC: 0x6666,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+
+    const result = InstructionExecutor.step(vm, mockedUnitPort)
+
+    expect(result.case).toBe("success")
+    expect(result.cycles).toBe(3)
+
+    // 実行後の状態を検証
+    expectVMState(vm, {
+      pc: 4,
+      sp: 0xff,
+      registerA: 0x4567,
+      registerB: 0x0023,
+      registerC: 0x6666,
+      registerD: 0x7777,
+      carryFlag: false,
+      zeroFlag: false,
+    })
+    expect(mockedUnitPort.write).toHaveBeenCalledWith("HULL", 3, 0x23, 0x67)
+  })
+})
+
 // ユニット操作命令のプレースホルダ
 describe("ユニット操作命令", () => {
-  test.todo("0x90 UNIT_MEM_READ - 外部ユニットメモリ読み取り")
-  test.todo("0x91 UNIT_MEM_WRITE - 外部ユニットメモリ書き込み")
-  test.todo("0x92 UNIT_MEM_READ_REG - レジスタ指定で外部ユニットメモリ読み取り")
-  test.todo("0x93 UNIT_MEM_WRITE_REG - レジスタ指定で外部ユニットメモリ書き込み")
   test.todo("0x94 UNIT_EXISTS - ユニット存在確認")
   test.todo("0x9b UNIT_MEM_WRITE_DYN - レジスタ指定アドレスへのユニットメモリ書き込み")
 })
