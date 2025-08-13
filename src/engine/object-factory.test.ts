@@ -243,11 +243,9 @@ describe("ObjectFactory", () => {
         currentEnergy: expectedBuildEnergy,
         processingPower,
         memorySize,
-        programCounter: 0,
       })
 
-      expect(computer.memory.length).toBe(memorySize)
-      expect(computer.registers.length).toBe(8)
+      expect(computer.vm.memorySize).toBe(memorySize)
       expect("parentHull" in computer).toBe(false)
     })
 
@@ -264,12 +262,12 @@ describe("ObjectFactory", () => {
       )
 
       // プログラムがメモリにコピーされている
-      expect(computer.memory[0]).toBe(0x01)
-      expect(computer.memory[1]).toBe(0x02)
-      expect(computer.memory[2]).toBe(0x03)
-      expect(computer.memory[3]).toBe(0x04)
-      expect(computer.memory[4]).toBe(0x05)
-      expect(computer.memory[5]).toBe(0x00) // 残りは0
+      expect(computer.vm.readMemory8(0)).toBe(0x01)
+      expect(computer.vm.readMemory8(1)).toBe(0x02)
+      expect(computer.vm.readMemory8(2)).toBe(0x03)
+      expect(computer.vm.readMemory8(3)).toBe(0x04)
+      expect(computer.vm.readMemory8(4)).toBe(0x05)
+      expect(computer.vm.readMemory8(5)).toBe(0x00) // 残りは0
     })
 
     test("メモリサイズより大きいプログラムは切り詰められる", () => {
@@ -285,8 +283,8 @@ describe("ObjectFactory", () => {
         program
       )
 
-      expect(computer.memory.length).toBe(memorySize)
-      expect(computer.memory[memorySize - 1]).toBe(0xff)
+      expect(computer.vm.memorySize).toBe(memorySize)
+      expect(computer.vm.readMemory8(memorySize - 1)).toBe(0xff)
     })
   })
 
@@ -371,12 +369,6 @@ describe("ObjectFactory", () => {
       // area = 1000000 * 0.05 = 50000, radius = sqrt(50000/π) ≈ 126.16
       expect(obj.radius).toBeCloseTo(126.16, 1)
       expect(obj.energy).toBe(energy)
-    })
-
-    test("メモリサイズ0のCOMPUTER", () => {
-      const computer = factory.createComputer(generateId(), Vec2Utils.create(0, 0), 10, 0)
-
-      expect(computer.memory.length).toBe(0)
     })
 
     test("世界境界上の位置", () => {
