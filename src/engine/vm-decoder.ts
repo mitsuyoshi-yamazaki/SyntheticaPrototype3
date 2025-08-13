@@ -218,23 +218,11 @@ export class InstructionDecoder {
         address,
         ...instruction,
         mnemonic: "INVALID",
+        cycles: 1,
+        conditionalCycles: 1,
         invalidReason: `${error as string | Error}`,
       } satisfies InstructionInvalid
     }
-  }
-
-  /**
-   * 指定アドレスから命令をデコード
-   * @param vm VM状態
-   * @param address デコードするアドレス
-   * @returns デコード結果
-   */
-  public static decodeAt(vm: VMState, address: number): DecodedInstruction {
-    const savedPC = vm.programCounter
-    vm.programCounter = address
-    const result = this.decode(vm)
-    vm.programCounter = savedPC
-    return result
   }
 
   /**
