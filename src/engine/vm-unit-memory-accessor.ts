@@ -60,17 +60,21 @@ const readHullMemory: (hull: Hull, memoryIndex: number) => number = (hull, memor
       return hull.capacity // FixMe: 16bit必要ではないか？
     case 0x01: // [R] uint 現在の格納量
       return hull.storedEnergy + hull.attachedUnitIds.length * 100 // FixMe: 接続しているユニット容積を算出する
-    case 0x02: // [R] uint エネルギー格納量
+    case 0x02: // [R] uint 現在のk格納量
+      return 0xff // TODO: 実装する
+    case 0x03: // [R] uint エネルギー格納量
       return hull.storedEnergy
-    case 0x03: // [RW] bool エネルギー回収状態
+    case 0x04: // [R] uint kエネルギー格納量
+      return 0xff // TODO: 実装する
+    case 0x05: // [RW] bool エネルギー回収状態
       return hull.collectingEnergy ? 0x01 : 0x00
-    case 0x04: // [RW] uint マージ対象指定
+    case 0x06: // [RW] uint マージ対象指定
       return 0xff // TODO: 実装する
-    case 0x05: // [RW] uint 分離対象ユニット種別
+    case 0x07: // [RW] uint 分離対象ユニット種別
       return 0xff // TODO: 実装する
-    case 0x06: // [RW] uint 分離対象ユニットindex
+    case 0x08: // [RW] uint 分離対象ユニットindex
       return 0xff // TODO: 実装する
-    case 0x07: // [RW] bool 分離実行フラグ。Trueを書き込むとリセット実行。実行後Falseがセットされる
+    case 0x09: // [RW] bool 分離実行フラグ。Trueを書き込むと実行。実行後Falseがセットされる
       return 0x00 // TODO: 実装する
     default:
       throw new VMInvalidUnitMemoryError("Memory index out of range")
@@ -86,22 +90,24 @@ const writeHullMemory: (hull: Hull, memoryIndex: number, value: number) => void 
   switch (memoryIndex) {
     case 0x00: // [R] uint HULL容量（スペック）
     case 0x01: // [R] uint 現在の格納量
-    case 0x02: // [R] uint エネルギー格納量
+    case 0x02: // [R] uint 現在のk格納量
+    case 0x03: // [R] uint エネルギー格納量
+    case 0x04: // [R] uint kエネルギー格納量
       throw new VMInvalidUnitMemoryError("Readonly memory")
 
-    case 0x03: // [RW] bool エネルギー回収状態
+    case 0x05: // [RW] bool エネルギー回収状態
       hull.collectingEnergy = value === 0x00 ? false : true
       return
-    case 0x04: // [RW] uint マージ対象指定
+    case 0x06: // [RW] uint マージ対象指定
       // TODO: 実装する
       return
-    case 0x05: // [RW] uint 分離対象ユニット種別
+    case 0x07: // [RW] uint 分離対象ユニット種別
       // TODO: 実装する
       return
-    case 0x06: // [RW] uint 分離対象ユニットindex
+    case 0x08: // [RW] uint 分離対象ユニットindex
       // TODO: 実装する
       return
-    case 0x07: // [RW] bool 分離実行フラグ。Trueを書き込むとリセット実行。実行後Falseがセットされる
+    case 0x09: // [RW] bool 分離実行フラグ。Trueを書き込むと実行。実行後Falseがセットされる
       // TODO: 実装する
       return
     default:
@@ -204,9 +210,13 @@ const readComputerMemory: (computer: Computer, memoryIndex: number) => number = 
       return computer.memorySize
     case 0x02: // [RW] bool メモリ領域の外部書き換え・読み取り許可状態（他COMPUTERからメモリ内容の読み取りおよび書き換えの許可状態。生成時はTrue。FalseからTrueに変更する操作は自身のみ行える）
       return 0xff // TODO: 実装する
-    case 0x03: // [RW] uint メモリ指定アドレス（メモリ領域の外部書き換え・読み取り許可状態であるとき、書き換え・読み取り対象アドレスを指定する）
+    case 0x03: // [RW] uint メモリ指定アドレス上位bit（メモリ領域の外部書き換え・読み取り許可状態であるとき、書き換え・読み取り対象アドレスを指定する）
       return 0xff // TODO: 実装する
-    case 0x04: // [RW] uint メモリ値（メモリ領域の外部書き換え・読み取り許可状態であるとき、メモリ指定アドレスで指定されたメモリの内容を表示する。書き換えればメモリの内容が書き変わる）
+    case 0x04: // [RW] uint メモリ指定アドレス下位bit
+      return 0xff // TODO: 実装する
+    case 0x05: // [RW] uint メモリ値（メモリ領域の外部書き換え・読み取り許可状態であるとき、メモリ指定アドレスで指定されたメモリの内容を表示する。書き換えればメモリの内容が書き変わる）
+      return 0xff // TODO: 実装する
+    case 0x06: // [RW] bool メモリ書き込みフラグ
       return 0xff // TODO: 実装する
     default:
       throw new VMInvalidUnitMemoryError("Memory index out of range")
@@ -227,9 +237,17 @@ const writeComputerMemory: (computer: Computer, memoryIndex: number, value: numb
     case 0x02: // [RW] bool メモリ領域の外部書き換え・読み取り許可状態（他COMPUTERからメモリ内容の読み取りおよび書き換えの許可状態。生成時はTrue。FalseからTrueに変更する操作は自身のみ行える）
       // TODO: FalseからTrueに変更する操作は自身のみ行える制約を実装する
       return
-    case 0x03: // [RW] uint メモリ指定アドレス（メモリ領域の外部書き換え・読み取り許可状態であるとき、書き換え・読み取り対象アドレスを指定する）
+    case 0x03: // [RW] uint メモリ指定アドレス上位bit（メモリ領域の外部書き換え・読み取り許可状態であるとき、書き換え・読み取り対象アドレスを指定する）
+      // TODO: 実装する
       return
-    case 0x04: // [RW] uint メモリ値（メモリ領域の外部書き換え・読み取り許可状態であるとき、メモリ指定アドレスで指定されたメモリの内容を表示する。書き換えればメモリの内容が書き変わる）
+    case 0x04: // [RW] uint メモリ指定アドレス下位bit
+      // TODO: 実装する
+      return
+    case 0x05: // [RW] uint メモリ値（メモリ領域の外部書き換え・読み取り許可状態であるとき、メモリ指定アドレスで指定されたメモリの内容を表示する。書き換えればメモリの内容が書き変わる）
+      // TODO: 実装する
+      return
+    case 0x06: // [RW] bool メモリ書き込みフラグ
+      // TODO: 実装する
       return
     default:
       throw new VMInvalidUnitMemoryError("Memory index out of range")
