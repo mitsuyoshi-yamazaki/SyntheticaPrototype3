@@ -61,6 +61,10 @@ export type Hull = BaseUnit & {
   storedEnergy: number // 格納中のエネルギー
   attachedUnitIds: ObjectId[] // 固定されているユニット
   collectingEnergy: boolean // エネルギー収集中フラグ
+  mergeTargetId?: ObjectId // マージ対象HULL ID
+  detachTargetUnitType?: number // 分離対象ユニット種別
+  detachTargetUnitIndex?: number // 分離対象ユニットindex
+  detachExecuteFlag: boolean // 分離実行フラグ
 }
 
 /** ASSEMBLERユニット */
@@ -70,6 +74,20 @@ export type Assembler = BaseUnit & {
   isAssembling: boolean
   targetSpec?: UnitSpec // 組立中のユニット仕様
   progress: number // 組立進捗（0-1）
+  productionUnitType?: number // 生産ユニット種別
+  productionHullIndex?: number // 生産ユニット接続HULL index
+  productionParam1?: number // 生産パラメータ1
+  productionParam2?: number // 生産パラメータ2
+  productionParam3?: number // 生産パラメータ3（予約）
+  productionParam4?: number // 生産パラメータ4（予約）
+  productionParam5?: number // 生産パラメータ5（予約）
+  productionParam6?: number // 生産パラメータ6（予約）
+  repairUnitType?: number // 修理ユニット種別
+  repairUnitIndex?: number // 修理ユニットindex
+  repairState: boolean // 修理状態
+  lastProducedUnitType?: number // 最後に生産したユニット種別
+  lastProducedUnitIndex?: number // 最後に生産したユニットindex
+  resetLastProducedFlag: boolean // 最後に生産したユニット情報をリセットフラグ
 }
 
 /** COMPUTERユニット */
@@ -82,6 +100,11 @@ export type Computer = BaseUnit & {
     skippingTicks: number // （分数周波数の場合のみ）スキップする残りtick
     cycleOverflow: number // 次のtickへ持ち越す命令サイクル
   }
+  externalMemoryAccessAllowed: boolean // メモリ領域の外部書き換え・読み取り許可状態
+  memoryAddressHigh?: number // メモリ指定アドレス上位bit
+  memoryAddressLow?: number // メモリ指定アドレス下位bit
+  memoryValue?: number // メモリ値
+  memoryWriteFlag: boolean // メモリ書き込みフラグ
 }
 
 export type Unit = Hull | Assembler | Computer
