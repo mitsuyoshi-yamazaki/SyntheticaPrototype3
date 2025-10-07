@@ -30,7 +30,6 @@ const GameCanvasPixi = ({
   const gameWorldRef = useRef<GameWorld | null>(null)
   const isPausedRef = useRef(isPaused)
   const targetTPSRef = useRef(targetTPS)
-  const [isHeatMapVisible, setIsHeatMapVisible] = useState(false)
   const [energyPreset, setEnergyPreset] = useState<"default" | "balanced" | "experimental">(
     "default"
   )
@@ -78,29 +77,9 @@ const GameCanvasPixi = ({
       app.ticker.maxFPS = targetTPSRef.current
 
       // GameWorldの初期化
-      const gameWorld = new GameWorld({
-        width,
-        height,
-        debugMode,
-        defaultAgentPresets: [
-          {
-            preset: SELF_REPLICATOR_PRESET,
-            position: Vec2Utils.create(width * 0.3, height * 0.5),
-          },
-        ],
-      })
+      const gameWorld = new GameWorld(width, height)
       gameWorldRef.current = gameWorld
       console.log("ゲームワールドを初期化しました")
-
-      // デモ用の力場を追加
-      // 中央に渦巻き力場を追加
-      gameWorld.addForceField({
-        id: 1000001 as ObjectId, // 固定ID使用
-        type: "SPIRAL",
-        position: Vec2Utils.create(width / 2, height / 2),
-        radius: Math.min(width, height) * 0.4,
-        strength: 20,
-      })
 
       // レンダリング用コンテナ
       const gameContainer = new PIXI.Container()
@@ -159,13 +138,8 @@ const GameCanvasPixi = ({
 
         // デバッグ情報更新
         const objectCount = gameWorld.getObjectCount()
-        const zoom = viewport.zoom.toFixed(2)
-        const viewportPos = viewport.position
-        const posX = Math.round(viewportPos.x)
-        const posY = Math.round(viewportPos.y)
-        const heatMapStatus = gameWorld.isHeatMapVisible ? "ON" : "OFF"
         const pauseStatus = isPausedRef.current ? " [PAUSED]" : ""
-        debugText.text = `FPS: ${fps}${pauseStatus}\nTPS: ${tps} / ${targetTPSRef.current}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}\nZoom: ${zoom}x\nCamera: (${posX}, ${posY})\nHeat Map: ${heatMapStatus}`
+        debugText.text = `FPS: ${fps}${pauseStatus}\nTPS: ${tps} / ${targetTPSRef.current}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}`
       })
     }
 
@@ -181,23 +155,10 @@ const GameCanvasPixi = ({
     }
   }, [width, height, ticksPerFrame, energyPreset, debugMode])
 
-  // 熱マップ表示状態の変更を反映
-  useEffect(() => {
-    if (gameWorldRef.current != null) {
-      gameWorldRef.current.setHeatMapVisible(isHeatMapVisible)
-    }
-  }, [isHeatMapVisible])
-
   return (
     <div className="flex flex-col items-center gap-4">
       <div ref={containerRef} className="border border-gray-300 rounded-lg" />
       <div className="flex gap-4">
-        <button
-          onClick={() => setIsHeatMapVisible(!isHeatMapVisible)}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-        >
-          熱マップ: {isHeatMapVisible ? "ON" : "OFF"}
-        </button>
         <select
           value={energyPreset}
           onChange={e => setEnergyPreset(e.target.value as "default" | "balanced" | "experimental")}
