@@ -35,11 +35,11 @@ export default function Home() {
 
         {/* ゲームキャンバス */}
         <div className="mb-8 relative">
-          <GameCanvasPixi 
-            key={resetKey} 
-            width={800} 
-            height={600} 
-            ticksPerFrame={1} 
+          <GameCanvasPixi
+            key={resetKey}
+            width={800}
+            height={600}
+            ticksPerFrame={1}
             isPaused={isPaused}
             targetTPS={targetTPS}
             debugMode={debugMode}
@@ -94,7 +94,7 @@ export default function Home() {
                   min="1"
                   max="120"
                   value={targetTPS}
-                  onChange={(e) => handleTPSChange(Number(e.target.value))}
+                  onChange={e => handleTPSChange(Number(e.target.value))}
                   className="flex-1"
                 />
                 <input
@@ -102,7 +102,7 @@ export default function Home() {
                   min="1"
                   max="120"
                   value={targetTPS}
-                  onChange={(e) => handleTPSChange(Number(e.target.value))}
+                  onChange={e => handleTPSChange(Number(e.target.value))}
                   className="w-16 px-2 py-1 border rounded text-center"
                 />
               </div>
@@ -112,21 +112,22 @@ export default function Home() {
                 <span>120 TPS (最速)</span>
               </div>
             </div>
-            
+
             {/* デバッグモード */}
             <div className="border-t pt-4">
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={debugMode}
-                  onChange={(e) => setDebugMode(e.target.checked)}
+                  onChange={e => setDebugMode(e.target.checked)}
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                 />
                 <span className="text-sm font-medium text-gray-700">COMPUTERデバッグモード</span>
               </label>
               {debugMode && (
                 <div className="text-xs text-yellow-600 mt-2">
-                  ※ HULLをクリックして選択すると、接続されたCOMPUTERの実行ログがコンソールに出力されます
+                  ※
+                  HULLをクリックして選択すると、接続されたCOMPUTERの実行ログがコンソールに出力されます
                 </div>
               )}
             </div>

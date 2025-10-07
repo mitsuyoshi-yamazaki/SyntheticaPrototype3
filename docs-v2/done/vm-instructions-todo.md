@@ -18,6 +18,7 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 ## タスク一覧
 
 ### 既存テストの修正
+
 - [x] vm-instructions.test.ts冒頭のコメント更新
 - [x] NOP0テストのsp期待値修正（0xffff → 0x09）
 - [x] NOP1テストのsp期待値修正（0xffff → 0x09）
@@ -26,6 +27,7 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 ### 1バイト命令テスト実装（0x00-0x3F）
 
 #### データ移動命令
+
 - [x] 0x00: NOP0（既存・修正済み）
 - [x] 0x01: NOP1（既存・修正済み）
 - [x] 0x02: XCHG（既存・修正済み）
@@ -43,6 +45,7 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 - [x] 0x0E: SET_SP
 
 #### 算術演算命令（16bit演算）
+
 - [x] 0x10: INC_A
 - [x] 0x11: INC_B
 - [x] 0x12: INC_C
@@ -70,6 +73,7 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 ### 3バイト命令テスト実装（0x40-0x7F）
 
 #### メモリアクセス命令（相対アドレス）
+
 - [x] 0x40: LOAD_A
 - [x] 0x41: STORE_A
 - [x] 0x42: LOAD_IND
@@ -78,12 +82,14 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 - [x] 0x45: STORE_A_W
 
 #### レジスタベースメモリアクセス命令
+
 - [x] 0x50: LOAD_REG
 - [x] 0x51: STORE_REG
 - [x] 0x52: LOAD_IND_REG
 - [x] 0x53: STORE_IND_REG
 
 #### 制御命令
+
 - [x] 0x60: JMP
 - [x] 0x61: JZ
 - [x] 0x62: JNZ
@@ -98,12 +104,14 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 ### 4バイト命令テスト実装（0x80-0xBF）
 
 #### パターンマッチング命令
+
 - [x] 0x80: SEARCH_F（プレースホルダ）
 - [x] 0x81: SEARCH_B（プレースホルダ）
 - [x] 0x82: SEARCH_F_MAX（プレースホルダ）
 - [x] 0x83: SEARCH_B_MAX（プレースホルダ）
 
 #### ユニット操作命令（プレースホルダのみ）
+
 - [x] 0x90: UNIT_MEM_READ（プレースホルダ）
 - [x] 0x91: UNIT_MEM_WRITE（プレースホルダ）
 - [x] 0x92: UNIT_MEM_READ_REG（プレースホルダ）
@@ -112,6 +120,7 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 - [x] 0x9B: UNIT_MEM_WRITE_DYN（プレースホルダ）
 
 #### エネルギー計算命令
+
 - [x] 0x95: ADD_E32（プレースホルダ）
 - [x] 0x96: SUB_E32（プレースホルダ）
 - [x] 0x97: CMP_E32（プレースホルダ）
@@ -119,12 +128,14 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 - [x] 0x99: SHL_E10（プレースホルダ）
 
 #### メモリアクセス命令（絶対アドレス）
+
 - [ ] 0xA0: LOAD_ABS
 - [ ] 0xA1: STORE_ABS
 - [ ] 0xA2: LOAD_ABS_W
 - [ ] 0xA3: STORE_ABS_W
 
 #### 間接ジャンプ命令
+
 - [ ] 0xB0: JMP_IND
 - [ ] 0xB1: JMP_ABS
 - [ ] 0xB2: RET
@@ -132,6 +143,7 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 ### 5バイト命令テスト実装（0xC0-0xFF）
 
 #### 拡張演算命令
+
 - [ ] 0xC0: MUL_AB
 - [ ] 0xC1: DIV_AB
 - [ ] 0xC2: SHL
@@ -143,31 +155,37 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 - [ ] 0xC8: CMOV_NC
 
 #### 即値ロード命令
+
 - [x] 0xE0: LOAD_IMM
 - [x] 0xE1: LOAD_IMM_B
 
 #### NOP命令
+
 - [x] 0xF0: NOP5
 
 ### 未定義命令テスト実装
 
 #### 1バイト未定義命令
+
 - [x] 0x0F
 - [x] 0x23-0x2D（11命令）
 - [x] 0x32-0x3F（14命令）
 
 #### 3バイト未定義命令
+
 - [x] 0x46-0x4F（10命令）
 - [x] 0x54-0x5F（12命令）
 - [x] 0x6A-0x7F（22命令）
 
 #### 4バイト未定義命令
+
 - [x] 0x84-0x8F（12命令）
 - [x] 0x9A-0x9F（6命令）
 - [x] 0xA4-0xAF（12命令）
 - [x] 0xB3-0xBF（13命令）
 
 #### 5バイト未定義命令
+
 - [x] 0xC9-0xDF（23命令）
 - [x] 0xE2-0xEF（14命令）
 - [x] 0xF1-0xFF（15命令）
@@ -175,6 +193,7 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 ## 実装状況サマリー
 
 ### 完了済み
+
 - ✅ 1バイト命令（0x00-0x3F）: すべて実装済み
 - ✅ 3バイト命令（0x40-0x7F）: すべて実装済み
 - ✅ 4バイト命令（0x80-0xBF）: すべて実装済み（プレースホルダ含む）
@@ -182,6 +201,7 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 - ✅ 未定義命令の一括テスト: 実装済み（test.each使用）
 
 ### 未実装
+
 （なし - すべて実装済み）
 
 ## 実装優先度
@@ -201,6 +221,7 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
 エラーが発生した場合にどの命令でエラーになったか特定が困難になる可能性がある：
 
 #### POP命令テスト（4件）
+
 - Line 2496: "POP_A実行 - 16bit値のポップ" - 2 step() calls
   - 1回目: PUSH_A命令でスタックに値を積む
   - 2回目: POP_A命令で値を取り出す
@@ -218,6 +239,7 @@ SyntheticaScript命令セットの仕様（`docs/spec-v3/synthetica-script.md`�
   - 2回目: POP_D命令で値を取り出す
 
 #### 条件付きジャンプ命令テスト（4件）
+
 - Line 3704: "JG実行 - 符号付き大なり時のジャンプ" - 2 step() calls
   - 1回目: CMP_AB命令でフラグを設定
   - 2回目: JG命令で条件ジャンプ
