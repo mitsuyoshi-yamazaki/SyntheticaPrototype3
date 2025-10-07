@@ -2,12 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import * as PIXI from "pixi.js"
-import { GameWorld } from "@/lib/GameWorld"
-import { Viewport } from "@/engine/viewport"
-import type { ObjectId } from "@/types/game"
-import { Vec2 as Vec2Utils } from "@/utils/vec2"
-import { SELF_REPLICATOR_PRESET } from "../engine/presets/self-replicator-preset"
-import { setPresetParameters } from "@/config/game-law-parameters"
+import { GameWorld } from "../game/GameWorld"
 
 type GameCanvasProps = {
   width?: number
@@ -33,7 +28,6 @@ const GameCanvasPixi = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const appRef = useRef<PIXI.Application | null>(null)
   const gameWorldRef = useRef<GameWorld | null>(null)
-  const viewportRef = useRef<Viewport | null>(null)
   const isPausedRef = useRef(isPaused)
   const targetTPSRef = useRef(targetTPS)
   const [isHeatMapVisible, setIsHeatMapVisible] = useState(false)
@@ -83,9 +77,6 @@ const GameCanvasPixi = ({
       // 初期FPS設定（refから読み取る）
       app.ticker.maxFPS = targetTPSRef.current
 
-      // エネルギーパラメータプリセットを適用
-      setPresetParameters(energyPreset)
-
       // GameWorldの初期化
       const gameWorld = new GameWorld({
         width,
@@ -111,43 +102,9 @@ const GameCanvasPixi = ({
         strength: 20,
       })
 
-      // 左上に直線状力場を追加
-      gameWorld.addForceField({
-        id: 1000002 as ObjectId,
-        type: "LINEAR",
-        position: Vec2Utils.create(width * 0.2, height * 0.2),
-        radius: 150,
-        strength: 15,
-        direction: Vec2Utils.create(1, 0),
-      })
-
-      // 右下に放射状力場を追加（斥力）
-      gameWorld.addForceField({
-        id: 1000003 as ObjectId,
-        type: "RADIAL",
-        position: Vec2Utils.create(width * 0.8, height * 0.8),
-        radius: 150,
-        strength: 25, // 正の値で斥力
-      })
-
-      // Viewportの初期化
-      const viewport = new Viewport({
-        screenWidth: width,
-        screenHeight: height,
-        worldWidth: width,
-        worldHeight: height,
-        minZoom: 0.1,
-        maxZoom: 5.0,
-        initialZoom: 1.0,
-      })
-      viewportRef.current = viewport
-
       // レンダリング用コンテナ
       const gameContainer = new PIXI.Container()
       app.stage.addChild(gameContainer)
-
-      // ViewportにコンテナをセットI
-      viewport.setContainer(gameContainer)
 
       // UI背景（デザイン仕様: rgba(0, 0, 0, 0.6)）
       const uiBg = new PIXI.Graphics()
@@ -168,73 +125,12 @@ const GameCanvasPixi = ({
       debugText.y = 10
       app.stage.addChild(debugText)
 
-      // マウスイベントの設定
-      app.stage.eventMode = "static"
-      app.stage.hitArea = app.screen
-
-      // パン操作（マウスドラッグ）
-      let isDragging = false
-      let dragStartPos = { x: 0, y: 0 }
-      const DRAG_THRESHOLD = 5 // ピクセル
-
-      app.stage.on("pointerdown", (event: PIXI.FederatedPointerEvent) => {
-        dragStartPos = { x: event.global.x, y: event.global.y }
-        isDragging = true
-        viewport.startDrag({ x: event.global.x, y: event.global.y })
-      })
-
-      app.stage.on("pointermove", (event: PIXI.FederatedPointerEvent) => {
-        if (isDragging) {
-          viewport.drag({ x: event.global.x, y: event.global.y })
-        }
-      })
-
-      app.stage.on("pointerup", (event: PIXI.FederatedPointerEvent) => {
-        // ドラッグではなくクリックだった場合、オブジェクト選択
-        const dragDistance = Math.sqrt(
-          Math.pow(event.global.x - dragStartPos.x, 2) +
-            Math.pow(event.global.y - dragStartPos.y, 2)
-        )
-
-        if (dragDistance < DRAG_THRESHOLD) {
-          // スクリーン座標からワールド座標へ変換
-          const worldPos = viewport.screenToWorld({ x: event.global.x, y: event.global.y })
-          gameWorld.selectObjectAt(worldPos.x, worldPos.y)
-        }
-
-        isDragging = false
-        viewport.endDrag()
-      })
-
-      app.stage.on("pointerupoutside", () => {
-        isDragging = false
-        viewport.endDrag()
-      })
-
       // FPS/TPS計測用
       let lastTime = performance.now()
       let frameCount = 0
       let fps = 0
       let tickCount = 0
       let tps = 0
-
-      // ズーム操作（マウスホイール）
-      let wheelHandler: ((event: WheelEvent) => void) | null = null
-      if (app.canvas instanceof HTMLCanvasElement) {
-        wheelHandler = (event: WheelEvent) => {
-          event.preventDefault()
-          const rect = app.canvas.getBoundingClientRect()
-          const mouseX = event.clientX - rect.left
-          const mouseY = event.clientY - rect.top
-
-          if (event.deltaY < 0) {
-            viewport.zoomIn(1.1, { x: mouseX, y: mouseY })
-          } else {
-            viewport.zoomOut(1.1, { x: mouseX, y: mouseY })
-          }
-        }
-        app.canvas.addEventListener("wheel", wheelHandler, { passive: false })
-      }
 
       // ゲームループ
       app.ticker.add(() => {
@@ -282,7 +178,6 @@ const GameCanvasPixi = ({
         appRef.current = null
       }
       gameWorldRef.current = null
-      viewportRef.current = null
     }
   }, [width, height, ticksPerFrame, energyPreset, debugMode])
 
