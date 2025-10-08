@@ -121,6 +121,10 @@ export class Vector {
     return this.x === 0 && this.y === 0
   }
 
+  public isApproximatelyZero = (epsilon: number = Number.EPSILON): boolean => {
+    return Math.abs(this.x - 0) < epsilon && Math.abs(this.y - 0) < epsilon
+  }
+
   public clone = (): Vector => {
     return new Vector(this.x, this.y)
   }
