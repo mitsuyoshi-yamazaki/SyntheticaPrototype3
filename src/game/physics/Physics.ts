@@ -4,7 +4,7 @@ type EnergyConsumptionParameters = {
   readonly moveWeight: number
 }
 
-type PhysicsParameters = {
+export type PhysicsParameters = {
   readonly energyConsumption: EnergyConsumptionParameters
 
   readonly inertia: number
@@ -40,6 +40,6 @@ export class Physics {
   }
 
   public velocityForPower(power: Vector, weight: number): Vector {
-    return power.divide(Math.max(weight, 0.01) * this.parameters.inertia)
+    return power.divide(Math.max(weight * this.parameters.inertia, 0.01))
   }
 }

@@ -2,7 +2,46 @@
 
 import { useEffect, useRef, useState } from "react"
 import * as PIXI from "pixi.js"
-import { GameWorld } from "../game/GameWorld"
+import { GameWorld, RenderTheme } from "../game/GameWorld"
+import { Vector } from "../utility/Vector"
+import { Physics, PhysicsParameters } from "../game/physics/Physics"
+import { EnergySource } from "../game/energy/EnergySource"
+
+const physicsParameter: PhysicsParameters = {
+  energyConsumption: {
+    moveWeight: 1,
+  },
+
+  inertia: 0,
+
+  frictionForVelocity: (_velocity: number): number => {
+    return 0 // TODO:
+  },
+}
+
+const renderTheme: RenderTheme = {
+  backgroundColor: 0x101010,
+  agentColor: 0x2c3e50,
+  energyColor: 0xffd700,
+}
+
+const createGameWorld = (worldWidth: number, worldHeight: number): GameWorld => {
+  const physics = new Physics(physicsParameter)
+  const worldSize = new Vector(worldWidth, worldHeight)
+  const gameWorld = new GameWorld(worldSize, physics, renderTheme)
+
+  gameWorld.addEnvironmentalObject(
+    new EnergySource(
+      worldSize.divide(4),
+      { min: 10, max: 100 },
+      { min: 20, max: 200 },
+      { min: 45, max: 135 },
+      { min: 10, max: 20 }
+    )
+  )
+
+  return gameWorld
+}
 
 type GameCanvasProps = {
   width?: number
@@ -77,7 +116,7 @@ const GameCanvasPixi = ({
       app.ticker.maxFPS = targetTPSRef.current
 
       // GameWorldの初期化
-      const gameWorld = new GameWorld(width, height)
+      const gameWorld = createGameWorld(width, height)
       gameWorldRef.current = gameWorld
       console.log("ゲームワールドを初期化しました")
 
