@@ -10,5 +10,3 @@ export type AgentApi = AgentSpec & {
   say(message: string): void
   move(power: Vector): void
 }
-
-export type AgentSoftware = (api: AgentApi) => void

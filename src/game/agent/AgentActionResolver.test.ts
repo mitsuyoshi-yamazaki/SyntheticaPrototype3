@@ -28,8 +28,8 @@ describe("AgentActionResolver", () => {
           disassemblePower: 5,
           numberOfConnectors: 2,
           senseRange: 50,
-        },
-        () => {}
+          software: () => {},
+        }
       )
       agent.energyAmount = energyAmount
       return agent

@@ -1,8 +1,8 @@
 import * as PIXI from "pixi.js"
 import { Vector } from "../../utility/Vector"
 import { GameObject } from "../object/GameObject"
-import { AgentApi, AgentSoftware } from "./AgentApi"
-import { AgentSpec } from "./AgentType"
+import { AgentApi } from "./AgentApi"
+import { AgentSoftware, AgentSpec } from "./AgentType"
 import { RenderTheme } from "../GameWorld"
 import type { AnyGameObject } from "../object/types"
 import { getNewId, Id } from "../object/ObjectId"
@@ -38,8 +38,7 @@ export class Agent extends GameObject<Agent> implements AgentApi {
 
   public constructor(
     public position: Vector,
-    spec: AgentSpec,
-    public readonly software: AgentSoftware
+    spec: AgentSpec
   ) {
     super()
 
@@ -51,6 +50,7 @@ export class Agent extends GameObject<Agent> implements AgentApi {
     this.numberOfConnectors = spec.numberOfConnectors
     this.movePower = spec.movePower
     this.senseRange = spec.senseRange
+    this.software = spec.software
 
     this.radius = Math.max(Math.sqrt(this.capacity), 1)
   }
@@ -94,6 +94,7 @@ export class Agent extends GameObject<Agent> implements AgentApi {
   public readonly numberOfConnectors: number
   public readonly movePower: number
   public readonly senseRange: number
+  public readonly software: AgentSoftware
 
   // Property Accessor
   public energyAmount = 0
