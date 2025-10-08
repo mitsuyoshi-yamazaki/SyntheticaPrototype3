@@ -9,3 +9,5 @@ export type AgentApi = AgentSpec & {
   // Action APIs
   move(power: Vector): void
 }
+
+export type AgentSoftware = (api: AgentApi) => void

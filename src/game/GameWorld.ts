@@ -40,7 +40,10 @@ export class GameWorld {
     this.updateObjects()
 
     // 3. 環境動作
+    // TODO:
+
     // 4. ソフトウェア実行
+    this.runAgents(agents)
   }
 
   private runReservedAgentActions(agents: Agent[]): void {
@@ -79,6 +82,13 @@ export class GameWorld {
       obj.velocity = this.physics
         .updatedVelocity(obj.velocity)
         .add(this.physics.velocityForPower(obj.acceleration, obj.weight))
+    })
+  }
+
+  private runAgents(agents: Agent[]): void {
+    agents.forEach(agent => {
+      agent.actionReserves = {}
+      agent.software(agent)
     })
   }
 

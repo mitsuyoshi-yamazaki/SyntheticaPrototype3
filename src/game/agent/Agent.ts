@@ -1,6 +1,6 @@
 import { Vector } from "../../utility/Vector"
 import { GameObject } from "../object/GameObject"
-import { AgentApi } from "./AgentApi"
+import { AgentApi, AgentSoftware } from "./AgentApi"
 import { AgentSpec } from "./AgentType"
 
 // ActionReserveには予約する必要のある（ゲーム世界に影響を及ぼす）アクションのみが定義される
@@ -25,7 +25,8 @@ export class Agent extends GameObject implements AgentApi {
     public position: Vector,
     public velocity: Vector,
     public acceleration: Vector,
-    spec: AgentSpec
+    spec: AgentSpec,
+    public readonly software: AgentSoftware
   ) {
     super()
 
