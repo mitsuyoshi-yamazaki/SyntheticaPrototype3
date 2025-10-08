@@ -14,8 +14,8 @@ const physicsParameter: PhysicsParameters = {
 
   inertia: 0,
 
-  frictionForVelocity: (_velocity: number): number => {
-    return 0 // TODO:
+  frictionForVelocity: (velocity: number): number => {
+    return (0.001 + 0.01 * velocity) * velocity
   },
 }
 

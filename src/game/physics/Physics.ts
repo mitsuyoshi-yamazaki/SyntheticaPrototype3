@@ -36,7 +36,9 @@ export class Physics {
   }
 
   public updatedVelocity(velocity: Vector): Vector {
-    return velocity.multiply(1 - this.frictionForVelocity(velocity.length))
+    return velocity.multiply(
+      (velocity.length - this.frictionForVelocity(velocity.length)) / velocity.length
+    )
   }
 
   public velocityForPower(power: Vector, weight: number): Vector {
