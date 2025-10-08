@@ -38,7 +38,7 @@ export class GameWorld {
 
   public tick() {
     // setup
-    this._objects.forEach(obj => (obj.acceleration = Vector.zero()))
+    this._objects.forEach(obj => (obj.acceleration = null))
     const agents = this._objects.filter(isAgent)
 
     // 1. エージェント動作
@@ -56,8 +56,14 @@ export class GameWorld {
 
   private runReservedAgentActions(agents: Agent[]): void {
     agents.forEach(agent => {
+      agent.saying = null
+
       Array.from(Object.values(agent.actionReserves)).forEach(actionReserve => {
         switch (actionReserve.case) {
+          case "Say":
+            agent.saying = actionReserve.message
+            return
+
           case "Move": {
             const resolved = AgentActionResolver.resolveMove(
               this.physics,
@@ -78,18 +84,17 @@ export class GameWorld {
           }
         }
       })
-      // strictEntries(agent.actionReserves).forEach(<A extends ActionReserve, T = A["case"]>([actionType, actionReserve]: [T, A]) => {
-
-      // })
     })
   }
 
   private updateObjects(): void {
     this._objects.forEach(obj => {
       obj.position = this.normalizedPosition(obj.position.add(obj.velocity))
-      obj.velocity = this.physics
-        .updatedVelocity(obj.velocity)
-        .add(this.physics.velocityForPower(obj.acceleration, obj.weight))
+      obj.velocity = this.physics.updatedVelocity(obj.velocity)
+
+      if (obj.acceleration != null) {
+        obj.velocity = obj.velocity.add(this.physics.velocityForPower(obj.acceleration, obj.weight))
+      }
     })
   }
 

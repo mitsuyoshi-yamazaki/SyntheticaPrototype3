@@ -1,4 +1,4 @@
-import { Graphics } from "pixi.js"
+import * as PIXI from "pixi.js"
 import { Vector } from "../../utility/Vector"
 import { GameObject } from "../object/GameObject"
 import { AgentApi, AgentSoftware } from "./AgentApi"
@@ -53,7 +53,7 @@ export class Agent extends GameObject implements AgentApi {
     this.radius = Math.max(Math.sqrt(this.capacity), 1)
   }
 
-  public renderPixi(graphics: Graphics, renderTheme: RenderTheme): void {
+  public renderPixi(graphics: PIXI.Graphics, renderTheme: RenderTheme): void {
     graphics.circle(this.position.x - this.radius, this.position.y - this.radius, this.radius)
     graphics.fill(renderTheme.backgroundColor)
     graphics.stroke({
@@ -66,14 +66,20 @@ export class Agent extends GameObject implements AgentApi {
       const centerY = this.position.y - this.radius
       const textY = centerY - this.radius - 5
 
-      graphics.text(this.saying, centerX, textY, {
+      const text = new PIXI.Text({
+        text: this.saying,
         style: {
-          fill: renderTheme.agentColor,
-          fontSize: 12,
-          fontFamily: 'Arial',
+          fontFamily: "Courier New, monospace",
+          fontSize: 8,
+          fill: 0xffffff,
+          fontWeight: "bold",
         },
-        anchor: { x: 0.5, y: 1 },
       })
+      text.x = centerX
+      text.y = textY
+      text.anchor.set(0.5) // 中央揃え
+
+      graphics.addChild(text)
     }
   }
 

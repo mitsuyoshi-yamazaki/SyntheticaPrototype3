@@ -7,6 +7,7 @@ export type AgentApi = AgentSpec & {
   readonly velocity: Vector
 
   // Action APIs
+  say(message: string): void
   move(power: Vector): void
 }
 
