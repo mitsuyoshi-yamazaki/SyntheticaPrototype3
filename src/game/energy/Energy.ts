@@ -1,7 +1,7 @@
 import { Graphics } from "pixi.js"
 import { Vector } from "../../utility/Vector"
 import { GameObject } from "../object/GameObject"
-import { RenderTheme } from "../GameWorld"
+import { RenderTheme } from "../game-world/GameWorld"
 import { getNewId, Id } from "../object/ObjectId"
 import type { AnyGameObject } from "../object/types"
 

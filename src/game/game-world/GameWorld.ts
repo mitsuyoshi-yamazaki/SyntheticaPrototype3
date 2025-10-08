@@ -1,10 +1,10 @@
 import * as PIXI from "pixi.js"
-import { Vector } from "../utility/Vector"
-import { Physics } from "./physics/Physics"
-import { Agent, isAgent } from "./agent/Agent"
-import { AgentActionResolver } from "./agent/AgentActionResolver"
-import { DrawableObject } from "./object/DrawableObject"
-import { AnyEnvironmentalObject, AnyGameObject } from "./object/types"
+import { Vector } from "../../utility/Vector"
+import { Physics } from "../physics/Physics"
+import { Agent, isAgent } from "../agent/Agent"
+import { AgentActionResolver } from "../agent/AgentActionResolver"
+import { DrawableObject } from "../object/DrawableObject"
+import { AnyEnvironmentalObject, AnyGameObject } from "../object/types"
 
 export type RenderTheme = {
   readonly backgroundColor: number

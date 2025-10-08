@@ -3,7 +3,7 @@ import { Vector } from "../../utility/Vector"
 import { GameObject } from "../object/GameObject"
 import { AgentApi } from "./AgentApi"
 import { AgentSoftware, AgentSpec } from "./AgentType"
-import { RenderTheme } from "../GameWorld"
+import { RenderTheme } from "../game-world/GameWorld"
 import type { AnyGameObject } from "../object/types"
 import { getNewId, Id } from "../object/ObjectId"
 

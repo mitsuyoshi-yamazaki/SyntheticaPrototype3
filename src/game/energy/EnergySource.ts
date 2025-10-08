@@ -3,7 +3,7 @@ import { randomInRange, Range } from "../../utility/UtilityFunctions"
 import { Vector } from "../../utility/Vector"
 import { EnvironmentalObject } from "../object/EnvironmentalObject"
 import { Energy } from "./Energy"
-import { RenderTheme } from "../GameWorld"
+import { RenderTheme } from "../game-world/GameWorld"
 import { AnyEnvironmentalObject, AnyGameObject } from "../object/types"
 import { getNewId, Id } from "../object/ObjectId"
 

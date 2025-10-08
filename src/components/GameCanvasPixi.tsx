@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import * as PIXI from "pixi.js"
-import { GameWorld, RenderTheme } from "../game/GameWorld"
+import { GameWorld, RenderTheme } from "../game/game-world/GameWorld"
 import { Vector } from "../utility/Vector"
 import { Physics, PhysicsParameters } from "../game/physics/Physics"
 import { EnergySource } from "../game/energy/EnergySource"
