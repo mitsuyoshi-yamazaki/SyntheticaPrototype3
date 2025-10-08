@@ -31,7 +31,7 @@ export class EnergySource extends EnvironmentalObject {
     this.cooldown = Math.floor(randomInRange(this.cooldownRange))
     const energyVelocityDirection = randomInRange(this.energyProductionDirectionRange)
     const energyVelocity = Vector.fromAngle(
-      energyVelocityDirection,
+      (energyVelocityDirection * Math.PI) / 180,
       randomInRange(this.energyProductionVelocityRange)
     )
 
@@ -43,7 +43,7 @@ export class EnergySource extends EnvironmentalObject {
   public renderPixi(graphics: Graphics, renderTheme: RenderTheme): void {
     const size = 10
     const radius = size / 2
-    graphics.roundRect(this.position.x - radius, this.position.x - radius, size, size, size / 5)
+    graphics.roundRect(this.position.x - radius, this.position.y - radius, size, size, size / 5)
     graphics.fill(renderTheme.energyColor)
   }
 }
