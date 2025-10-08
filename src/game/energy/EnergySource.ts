@@ -2,12 +2,14 @@ import { Graphics } from "pixi.js"
 import { randomInRange, Range } from "../../utility/UtilityFunctions"
 import { Vector } from "../../utility/Vector"
 import { EnvironmentalObject } from "../object/EnvironmentalObject"
-import { GameObject } from "../object/GameObject"
 import { Energy } from "./Energy"
 import { RenderTheme } from "../GameWorld"
+import { AnyEnvironmentalObject, AnyGameObject } from "../object/types"
+import { getNewId, Id } from "../object/ObjectId"
 
-export class EnergySource extends EnvironmentalObject {
+export class EnergySource extends EnvironmentalObject<EnergySource> {
   public readonly type = "EnergySource"
+  public readonly id: Id<EnergySource> = getNewId()
 
   private cooldown = 0
 
@@ -21,7 +23,7 @@ export class EnergySource extends EnvironmentalObject {
     super()
   }
 
-  public run(): { objectsToAdd: GameObject[] } {
+  public run(): { objectsToAdd: AnyGameObject[] } {
     if (this.cooldown > 0) {
       this.cooldown -= 1
       return { objectsToAdd: [] }
@@ -48,6 +50,6 @@ export class EnergySource extends EnvironmentalObject {
   }
 }
 
-export const isEnergySource = (obj: EnvironmentalObject): obj is EnergySource => {
+export const isEnergySource = (obj: AnyEnvironmentalObject): obj is EnergySource => {
   return obj.type === "EnergySource"
 }

@@ -2,12 +2,14 @@ import { Graphics } from "pixi.js"
 import { Vector } from "../../utility/Vector"
 import { GameObject } from "../object/GameObject"
 import { RenderTheme } from "../GameWorld"
+import { getNewId, Id } from "../object/ObjectId"
+import type { AnyGameObject } from "../object/types"
 
-export class Energy extends GameObject {
+export class Energy extends GameObject<Energy> {
   public readonly type = "Energy"
+  public readonly id: Id<Energy> = getNewId()
   public readonly radius: number
   public readonly weight: number
-  public acceleration = Vector.zero()
 
   public constructor(
     public position: Vector,
@@ -26,6 +28,6 @@ export class Energy extends GameObject {
   }
 }
 
-export const isEnergy = (obj: GameObject): obj is Energy => {
+export const isEnergy = (obj: AnyGameObject): obj is Energy => {
   return obj.type === "Energy"
 }

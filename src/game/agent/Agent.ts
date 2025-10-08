@@ -4,6 +4,8 @@ import { GameObject } from "../object/GameObject"
 import { AgentApi, AgentSoftware } from "./AgentApi"
 import { AgentSpec } from "./AgentType"
 import { RenderTheme } from "../GameWorld"
+import type { AnyGameObject } from "../object/types"
+import { getNewId, Id } from "../object/ObjectId"
 
 // ActionReserveには予約する必要のある（ゲーム世界に影響を及ぼす）アクションのみが定義される
 type ActionReserveSay = {
@@ -21,13 +23,13 @@ type ActionReserveAssemble = {
 type ActionReserve = ActionReserveSay | ActionReserveMove | ActionReserveAssemble
 
 /* eslint-disable @typescript-eslint/member-ordering */
-export class Agent extends GameObject implements AgentApi {
+export class Agent extends GameObject<Agent> implements AgentApi {
   public readonly type = "Agent"
+  public readonly id: Id<Agent> = getNewId()
   public readonly radius: number
   public velocity = Vector.zero()
 
   public actionReserves: { [A in ActionReserve as A["case"]]?: A } = {}
-  public acceleration = Vector.zero()
   public saying: string | null = null
 
   public get weight(): number {
@@ -113,6 +115,6 @@ export class Agent extends GameObject implements AgentApi {
 }
 /* eslint-enable @typescript-eslint/member-ordering */
 
-export const isAgent = (obj: GameObject): obj is Agent => {
+export const isAgent = (obj: AnyGameObject): obj is Agent => {
   return obj.type === "Agent"
 }
