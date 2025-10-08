@@ -13,13 +13,15 @@ export const createSimpleSelfReplicationAgent = (position: Vector): Agent => {
     movePower: 10,
     senseRange: 100,
     software: (agentApi: AgentApi, gameWorldApi: GameWorldApi) => {
-      const objectsInRange = gameWorldApi.searchObjects()
-      const energyInRange = objectsInRange.filter(obj => obj.objectType === "Energy")
-      if (energyInRange.length > 0) {
-        agentApi.say(`${energyInRange.length}E`)
-      } else {
-        agentApi.say("...")
-      }
+      // const objectsInRange = gameWorldApi.searchObjects()
+      // const energyInRange = objectsInRange.filter(obj => obj.objectType === "Energy")
+      // if (energyInRange.length > 0) {
+      //   agentApi.say(`${energyInRange.length}E`)
+      // } else {
+      //   agentApi.say("...")
+      // }
+      agentApi.say(`${agentApi.energyAmount}`)
+      gameWorldApi
     },
   })
 

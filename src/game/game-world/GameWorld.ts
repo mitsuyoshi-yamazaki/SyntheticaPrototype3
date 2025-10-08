@@ -5,6 +5,7 @@ import { Agent, isAgent } from "../agent/Agent"
 import { AgentActionResolver } from "../agent/AgentActionResolver"
 import { DrawableObject } from "../object/DrawableObject"
 import { AnyEnvironmentalObject, AnyGameObject } from "../object/types"
+import { Id } from "../object/ObjectId"
 
 export type RenderTheme = {
   readonly backgroundColor: number
@@ -16,6 +17,7 @@ export class GameWorld {
   private _t = 0
   private readonly _environmentalObjects: AnyEnvironmentalObject[] = []
   private readonly _objects: AnyGameObject[] = []
+  private readonly _objectsMap = new Map<AnyGameObject["id"], AnyGameObject>()
 
   public get tickCount(): number {
     return this._t
@@ -33,6 +35,11 @@ export class GameWorld {
 
   public addObjects(objects: AnyGameObject[]): void {
     this._objects.push(...objects)
+    objects.forEach(obj => this._objectsMap.set(obj.id, obj))
+  }
+
+  public getObjectById<T extends AnyGameObject>(id: Id<T>): T | null {
+    return (this._objectsMap.get(id as AnyGameObject["id"]) ?? null) as T | null
   }
 
   public tick() {
@@ -76,6 +83,19 @@ export class GameWorld {
           case "Assemble":
             // TODO:
             return
+          case "Transfer": {
+            const target = this.getObjectById(actionReserve.targetId)
+            if (target != null && target.type === "Agent") {
+              const transferableAmount = Math.max(actionReserve.energyAmount, agent.energyAmount)
+              const receivableAmount = Math.min(
+                transferableAmount,
+                target.capacity - target.energyAmount
+              )
+              agent.energyAmount -= receivableAmount
+              target.energyAmount += receivableAmount
+            }
+            return
+          }
           default: {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const _: never = actionReserve

@@ -18,9 +18,18 @@ type ActionReserveMove = {
 }
 type ActionReserveAssemble = {
   readonly case: "Assemble"
-  readonly target: number // TODO:
+  readonly spec: AgentSpec
 }
-type ActionReserve = ActionReserveSay | ActionReserveMove | ActionReserveAssemble
+type ActionReserveTransfer = {
+  readonly case: "Transfer"
+  readonly energyAmount: number
+  readonly targetId: Id<Agent>
+}
+type ActionReserve =
+  | ActionReserveSay
+  | ActionReserveMove
+  | ActionReserveAssemble
+  | ActionReserveTransfer
 
 /* eslint-disable @typescript-eslint/member-ordering */
 export class Agent extends GameObject<Agent> implements AgentApi {
@@ -100,6 +109,7 @@ export class Agent extends GameObject<Agent> implements AgentApi {
   public energyAmount = 0
 
   // Action APIs
+  // Action Reserve APIs
   public say(message: string): void {
     this.actionReserves.Say = {
       case: "Say",
@@ -111,6 +121,21 @@ export class Agent extends GameObject<Agent> implements AgentApi {
     this.actionReserves.Move = {
       case: "Move",
       power,
+    }
+  }
+
+  public assemble(spec: AgentSpec): void {
+    this.actionReserves.Assemble = {
+      case: "Assemble",
+      spec,
+    }
+  }
+
+  public transfer(energyAmount: number, targetId: Id<Agent>): void {
+    this.actionReserves.Transfer = {
+      case: "Transfer",
+      energyAmount,
+      targetId,
     }
   }
 }
