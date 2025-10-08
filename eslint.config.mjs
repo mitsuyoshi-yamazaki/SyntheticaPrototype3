@@ -20,8 +20,6 @@ const sharedRules = {
   "prefer-const": "error",
   "no-var": "error",
   eqeqeq: ["error", "always", { null: "never" }],
-  // null/undefinedの比較では == を強制
-  "@typescript-eslint/prefer-nullish-coalescing": "error",
   curly: ["error", "all"],
   "@typescript-eslint/prefer-function-type": "error",
   "@typescript-eslint/consistent-type-definitions": ["error", "type"],
@@ -43,6 +41,12 @@ const sharedRules = {
     },
   ],
   "@typescript-eslint/adjacent-overload-signatures": "off",
+  "@typescript-eslint/prefer-nullish-coalescing": [
+    "error",
+    {
+      ignoreIfStatements: true,
+    },
+  ],
 }
 
 /**
