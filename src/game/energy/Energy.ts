@@ -5,10 +5,11 @@ export class Energy extends GameObject {
   public readonly type = "Energy"
 
   public constructor(
-    public readonly position: Vector,
     public readonly radius: number,
     public readonly weight: number,
-    public readonly velocity: Vector,
+    public position: Vector,
+    public velocity: Vector,
+    public acceleration: Vector,
     public readonly amount: number
   ) {
     super()

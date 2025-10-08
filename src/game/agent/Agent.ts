@@ -8,11 +8,11 @@ type ActionReserveMove = {
   readonly case: "Move"
   readonly power: Vector
 }
-type ActionReserveConnect = {
-  readonly case: "Connect"
+type ActionReserveAssemble = {
+  readonly case: "Assemble"
   readonly target: number // TODO:
 }
-type ActionReserve = ActionReserveMove | ActionReserveConnect
+type ActionReserve = ActionReserveMove | ActionReserveAssemble
 
 /* eslint-disable @typescript-eslint/member-ordering */
 export class Agent extends GameObject implements AgentApi {
@@ -20,10 +20,11 @@ export class Agent extends GameObject implements AgentApi {
   public actionReserves: { [A in ActionReserve as A["case"]]?: A } = {}
 
   public constructor(
-    public readonly position: Vector,
     public readonly radius: number,
     public readonly weight: number,
-    public readonly velocity: Vector,
+    public position: Vector,
+    public velocity: Vector,
+    public acceleration: Vector,
     spec: AgentSpec
   ) {
     super()
@@ -49,7 +50,7 @@ export class Agent extends GameObject implements AgentApi {
   public readonly senseRange: number
 
   // Property Accessor
-  public readonly energyAmount: number = 0
+  public energyAmount = 0
 
   // Action APIs
   public move(power: Vector): void {

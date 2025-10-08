@@ -29,12 +29,16 @@ export class GameWorld {
   }
 
   public tick() {
+    // setup
+    this._objects.forEach(obj => (obj.acceleration = Vector.zero()))
     const agents = this._objects.filter(isAgent)
 
     // 1. エージェント動作
     this.runReservedAgentActions(agents)
 
     // 2. 物理計算
+    this.updateObjects()
+
     // 3. 環境動作
     // 4. ソフトウェア実行
   }
@@ -43,10 +47,17 @@ export class GameWorld {
     agents.forEach(agent => {
       Array.from(Object.values(agent.actionReserves)).forEach(actionReserve => {
         switch (actionReserve.case) {
-          case "Move":
-            AgentActionResolver.resolveMove(this.physics, agent, actionReserve.power)
+          case "Move": {
+            const resolved = AgentActionResolver.resolveMove(
+              this.physics,
+              agent,
+              actionReserve.power
+            )
+            agent.energyAmount -= resolved.energyConsumption
+            agent.applyForce(resolved.forceToApply)
             return
-          case "Connect":
+          }
+          case "Assemble":
             // TODO:
             return
           default: {
@@ -59,6 +70,15 @@ export class GameWorld {
       // strictEntries(agent.actionReserves).forEach(<A extends ActionReserve, T = A["case"]>([actionType, actionReserve]: [T, A]) => {
 
       // })
+    })
+  }
+
+  private updateObjects(): void {
+    this._objects.forEach(obj => {
+      obj.position = obj.position.add(obj.velocity)
+      obj.velocity = this.physics
+        .updatedVelocity(obj.velocity)
+        .add(this.physics.velocityForPower(obj.acceleration, obj.weight))
     })
   }
 

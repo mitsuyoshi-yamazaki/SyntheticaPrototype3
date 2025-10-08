@@ -1,4 +1,4 @@
-import { GameObject } from "../object/GameObject"
+import { Vector } from "../../utility/Vector"
 
 type EnergyConsumptionParameters = {
   readonly moveWeight: number
@@ -6,6 +6,10 @@ type EnergyConsumptionParameters = {
 
 type PhysicsParameters = {
   readonly energyConsumption: EnergyConsumptionParameters
+
+  readonly inertia: number
+
+  frictionForVelocity: (velocity: number) => number
 }
 
 class EnergyConsumption {
@@ -27,8 +31,15 @@ export class Physics {
     this.energyConsumption = new EnergyConsumption(parameters.energyConsumption)
   }
 
-  /// オブジェクトの位置と速度の更新
-  public updateObjects(_objects: GameObject[]): void {
-    // TODO:
+  public frictionForVelocity(velocity: number): number {
+    return this.parameters.frictionForVelocity(velocity)
+  }
+
+  public updatedVelocity(velocity: Vector): Vector {
+    return velocity.multiply(1 - this.frictionForVelocity(velocity.length))
+  }
+
+  public velocityForPower(power: Vector, weight: number): Vector {
+    return power.divide(Math.max(weight, 0.01) * this.parameters.inertia)
   }
 }
