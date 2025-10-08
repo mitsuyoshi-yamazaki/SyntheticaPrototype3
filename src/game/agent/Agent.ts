@@ -6,6 +6,10 @@ import { AgentSpec } from "./AgentType"
 import { RenderTheme } from "../GameWorld"
 
 // ActionReserveには予約する必要のある（ゲーム世界に影響を及ぼす）アクションのみが定義される
+type ActionReserveSay = {
+  readonly case: "Say"
+  readonly message: string
+}
 type ActionReserveMove = {
   readonly case: "Move"
   readonly power: Vector
@@ -14,19 +18,24 @@ type ActionReserveAssemble = {
   readonly case: "Assemble"
   readonly target: number // TODO:
 }
-type ActionReserve = ActionReserveMove | ActionReserveAssemble
+type ActionReserve = ActionReserveSay | ActionReserveMove | ActionReserveAssemble
 
 /* eslint-disable @typescript-eslint/member-ordering */
 export class Agent extends GameObject implements AgentApi {
   public readonly type = "Agent"
+  public readonly radius: number
+  public velocity = Vector.zero()
+
   public actionReserves: { [A in ActionReserve as A["case"]]?: A } = {}
   public acceleration = Vector.zero()
+  public saying: string | null = null
+
+  public get weight(): number {
+    return this.capacity + this.energyAmount
+  }
 
   public constructor(
-    public readonly radius: number,
-    public readonly weight: number,
     public position: Vector,
-    public velocity: Vector,
     spec: AgentSpec,
     public readonly software: AgentSoftware
   ) {
@@ -40,6 +49,8 @@ export class Agent extends GameObject implements AgentApi {
     this.numberOfConnectors = spec.numberOfConnectors
     this.movePower = spec.movePower
     this.senseRange = spec.senseRange
+
+    this.radius = Math.max(Math.sqrt(this.capacity), 1)
   }
 
   public renderPixi(graphics: Graphics, renderTheme: RenderTheme): void {
@@ -49,6 +60,21 @@ export class Agent extends GameObject implements AgentApi {
       width: 2,
       color: renderTheme.agentColor,
     })
+
+    if (this.saying != null) {
+      const centerX = this.position.x - this.radius
+      const centerY = this.position.y - this.radius
+      const textY = centerY - this.radius - 5
+
+      graphics.text(this.saying, centerX, textY, {
+        style: {
+          fill: renderTheme.agentColor,
+          fontSize: 12,
+          fontFamily: 'Arial',
+        },
+        anchor: { x: 0.5, y: 1 },
+      })
+    }
   }
 
   // ---- APIs ---- //
@@ -65,6 +91,13 @@ export class Agent extends GameObject implements AgentApi {
   public energyAmount = 0
 
   // Action APIs
+  public say(message: string): void {
+    this.actionReserves.Say = {
+      case: "Say",
+      message,
+    }
+  }
+
   public move(power: Vector): void {
     this.actionReserves.Move = {
       case: "Move",
