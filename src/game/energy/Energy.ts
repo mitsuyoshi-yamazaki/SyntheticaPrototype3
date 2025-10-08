@@ -1,5 +1,7 @@
+import { Graphics } from "pixi.js"
 import { Vector } from "../../utility/Vector"
 import { GameObject } from "../object/GameObject"
+import { RenderTheme } from "../GameWorld"
 
 export class Energy extends GameObject {
   public readonly type = "Energy"
@@ -16,6 +18,11 @@ export class Energy extends GameObject {
 
     this.weight = amount
     this.radius = Math.sqrt(amount)
+  }
+
+  public renderPixi(graphics: Graphics, renderTheme: RenderTheme): void {
+    graphics.circle(this.position.x - this.radius, this.position.y - this.radius, this.radius)
+    graphics.fill(renderTheme.energyColor)
   }
 }
 

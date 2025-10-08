@@ -1,8 +1,10 @@
+import { Graphics } from "pixi.js"
 import { randomInRange, Range } from "../../utility/UtilityFunctions"
 import { Vector } from "../../utility/Vector"
 import { EnvironmentalObject } from "../object/EnvironmentalObject"
 import { GameObject } from "../object/GameObject"
 import { Energy } from "./Energy"
+import { RenderTheme } from "../GameWorld"
 
 export class EnergySource extends EnvironmentalObject {
   public readonly type = "EnergySource"
@@ -36,6 +38,13 @@ export class EnergySource extends EnvironmentalObject {
     return {
       objectsToAdd: [new Energy(this.position, energyVelocity, energyAmountToProduce)],
     }
+  }
+
+  public renderPixi(graphics: Graphics, renderTheme: RenderTheme): void {
+    const size = 10
+    const radius = size / 2
+    graphics.roundRect(this.position.x - radius, this.position.x - radius, size, size, radius)
+    graphics.fill(renderTheme.energyColor)
   }
 }
 

@@ -1,10 +1,10 @@
 import type { Vector } from "../../utility/Vector"
+import { DrawableObject } from "./DrawableObject"
 
-export abstract class GameObject {
+export abstract class GameObject extends DrawableObject {
   public abstract readonly type: string
   public abstract readonly radius: number
   public abstract readonly weight: number
-  public abstract position: Vector
   public abstract velocity: Vector
   public abstract acceleration: Vector
 

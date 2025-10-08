@@ -1,7 +1,9 @@
+import { Graphics } from "pixi.js"
 import { Vector } from "../../utility/Vector"
 import { GameObject } from "../object/GameObject"
 import { AgentApi, AgentSoftware } from "./AgentApi"
 import { AgentSpec } from "./AgentType"
+import { RenderTheme } from "../GameWorld"
 
 // ActionReserveには予約する必要のある（ゲーム世界に影響を及ぼす）アクションのみが定義される
 type ActionReserveMove = {
@@ -38,6 +40,15 @@ export class Agent extends GameObject implements AgentApi {
     this.numberOfConnectors = spec.numberOfConnectors
     this.movePower = spec.movePower
     this.senseRange = spec.senseRange
+  }
+
+  public renderPixi(graphics: Graphics, renderTheme: RenderTheme): void {
+    graphics.circle(this.position.x - this.radius, this.position.y - this.radius, this.radius)
+    graphics.fill(renderTheme.backgroundColor)
+    graphics.stroke({
+      width: 2,
+      color: renderTheme.agentColor,
+    })
   }
 
   // ---- APIs ---- //

@@ -5,6 +5,13 @@ import { Physics } from "./physics/Physics"
 import { EnvironmentalObject } from "./object/EnvironmentalObject"
 import { Agent, isAgent } from "./agent/Agent"
 import { AgentActionResolver } from "./agent/AgentActionResolver"
+import { DrawableObject } from "./object/DrawableObject"
+
+export type RenderTheme = {
+  readonly backgroundColor: number
+  readonly agentColor: number
+  readonly energyColor: number
+}
 
 export class GameWorld {
   private _t = 0
@@ -17,7 +24,8 @@ export class GameWorld {
 
   public constructor(
     public readonly size: Vector,
-    public readonly physics: Physics
+    public readonly physics: Physics,
+    public readonly renderTheme: RenderTheme
   ) {}
 
   public addEnvironmentalObject(obj: EnvironmentalObject): void {
@@ -99,8 +107,23 @@ export class GameWorld {
     })
   }
 
-  public renderPixi(_container: PIXI.Container): void {
-    // TODO:
+  public renderPixi(container: PIXI.Container): void {
+    // コンテナをクリア
+    container.removeChildren()
+
+    // 世界の境界線を描画
+    const border = new PIXI.Graphics()
+    border.rect(0, 0, this.size.x, this.size.y)
+    border.stroke({ width: 1, color: 0x666666 })
+    container.addChild(border)
+
+    // オブジェクトを描画
+    const drawableObjects: DrawableObject[] = [...this._environmentalObjects, ...this._objects]
+    drawableObjects.forEach(drawableObject => {
+      const graphics = new PIXI.Graphics()
+      drawableObject.renderPixi(graphics, this.renderTheme)
+      container.addChild(graphics)
+    })
   }
 
   public getObjectCount(): number {
