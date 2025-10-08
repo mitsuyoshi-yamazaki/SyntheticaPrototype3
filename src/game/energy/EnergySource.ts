@@ -43,7 +43,7 @@ export class EnergySource extends EnvironmentalObject {
   public renderPixi(graphics: Graphics, renderTheme: RenderTheme): void {
     const size = 10
     const radius = size / 2
-    graphics.roundRect(this.position.x - radius, this.position.x - radius, size, size, radius)
+    graphics.roundRect(this.position.x - radius, this.position.x - radius, size, size, size / 5)
     graphics.fill(renderTheme.energyColor)
   }
 }
