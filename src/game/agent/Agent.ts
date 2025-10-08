@@ -3,9 +3,9 @@ import { Vector } from "../../utility/Vector"
 import { GameObject } from "../object/GameObject"
 import { AgentApi } from "./AgentApi"
 import { AgentSoftware, AgentSpec } from "./AgentType"
-import { RenderTheme } from "../game-world/GameWorld"
 import type { AnyGameObject } from "../object/types"
 import { getNewId, Id } from "../object/ObjectId"
+import { RenderTheme } from "../game-world/GameWorld"
 
 // ActionReserveには予約する必要のある（ゲーム世界に影響を及ぼす）アクションのみが定義される
 type ActionReserveSay = {
@@ -66,7 +66,7 @@ export class Agent extends GameObject<Agent> implements AgentApi {
     if (this.saying != null) {
       const centerX = this.position.x - this.radius
       const centerY = this.position.y - this.radius
-      const textY = centerY - this.radius - 5
+      const textY = centerY - this.radius - 7
 
       const text = new PIXI.Text({
         text: this.saying,

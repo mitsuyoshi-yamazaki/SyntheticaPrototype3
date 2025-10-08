@@ -1,6 +1,7 @@
+import type { GameWorldApi } from "../game-world/GameWorldApi"
 import type { AgentApi } from "./AgentApi"
 
-export type AgentSoftware = (api: AgentApi) => void
+export type AgentSoftware = (agentApi: AgentApi, gameWorldApi: GameWorldApi) => void
 
 export type AgentSpec = {
   readonly capacity: number

@@ -104,6 +104,23 @@ export class GameWorld {
     )
   }
 
+  /**
+   * トーラス平面上での2点間の相対位置ベクトルを計算する（最短距離）
+   * @param from 基準点
+   * @param to 対象点
+   * @returns fromを原点としたときのtoの相対位置（最短経路）
+   */
+  private torusRelativePosition(from: Vector, to: Vector): Vector {
+    const dx = to.x - from.x
+    const dy = to.y - from.y
+
+    // 各軸について、境界を越えた場合の距離と通常の距離を比較して短い方を選ぶ
+    const shortestDx = Math.abs(dx) <= this.size.x / 2 ? dx : dx - Math.sign(dx) * this.size.x
+    const shortestDy = Math.abs(dy) <= this.size.y / 2 ? dy : dy - Math.sign(dy) * this.size.y
+
+    return new Vector(shortestDx, shortestDy)
+  }
+
   private runEnvironmentalObjects(): void {
     this._environmentalObjects.forEach(environmentalObject => {
       const { objectsToAdd } = environmentalObject.run()
@@ -114,7 +131,11 @@ export class GameWorld {
   private runAgents(agents: Agent[]): void {
     agents.forEach(agent => {
       agent.actionReserves = {}
-      agent.software(agent)
+      agent.software(agent, {
+        searchObjects: () => this.searchObjects(agent.position, agent.senseRange),
+        searchEnvironmentalObjects: () =>
+          this.searchEnvironmentalObjects(agent.position, agent.senseRange),
+      })
     })
   }
 
@@ -138,6 +159,59 @@ export class GameWorld {
   }
 
   public getObjectCount(): number {
-    return 0 // TODO:
+    return this._objects.length
+  }
+
+  // ---- APIs ---- //
+  public searchObjects(
+    position: Vector,
+    range: number
+  ): {
+    id: AnyGameObject["id"]
+    objectType: AnyGameObject["type"]
+    position: Vector
+  }[] {
+    const rangeSquared = range * range
+    return this._objects
+      .map(obj => {
+        const relativePos = this.torusRelativePosition(position, obj.position)
+        return {
+          object: obj,
+          relativePosition: relativePos,
+          distanceSquared: relativePos.lengthSquared,
+        }
+      })
+      .filter(item => item.distanceSquared <= rangeSquared)
+      .map(item => ({
+        id: item.object.id,
+        objectType: item.object.type,
+        position: item.relativePosition,
+      }))
+  }
+
+  public searchEnvironmentalObjects(
+    position: Vector,
+    range: number
+  ): {
+    id: AnyEnvironmentalObject["id"]
+    objectType: AnyEnvironmentalObject["type"]
+    position: Vector
+  }[] {
+    const rangeSquared = range * range
+    return this._environmentalObjects
+      .map(obj => {
+        const relativePos = this.torusRelativePosition(position, obj.position)
+        return {
+          object: obj,
+          relativePosition: relativePos,
+          distanceSquared: relativePos.lengthSquared,
+        }
+      })
+      .filter(item => item.distanceSquared <= rangeSquared)
+      .map(item => ({
+        id: item.object.id,
+        objectType: item.object.type,
+        position: item.relativePosition,
+      }))
   }
 }

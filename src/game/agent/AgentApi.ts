@@ -1,4 +1,4 @@
-import { Vector } from "../../utility/Vector"
+import type { Vector } from "../../utility/Vector"
 import { AgentSpec } from "./AgentType"
 
 export type AgentApi = AgentSpec & {
