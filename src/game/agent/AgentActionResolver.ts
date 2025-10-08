@@ -17,7 +17,7 @@ export const AgentActionResolver = {
       agent.weight,
       forcePower
     )
-    if (requiredEnergy >= agent.energyAmount) {
+    if (requiredEnergy <= agent.energyAmount) {
       return {
         energyConsumption: requiredEnergy,
         forceToApply: power,
@@ -30,7 +30,7 @@ export const AgentActionResolver = {
     )
     return {
       energyConsumption: agent.energyAmount,
-      forceToApply: power.normalized.multiply(reducedPower),
+      forceToApply: power.length === 0 ? power : power.normalized.multiply(reducedPower),
     }
   },
 }
