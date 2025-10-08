@@ -15,12 +15,14 @@ describe("AgentActionResolver", () => {
       })
     }
 
-    const createAgent = (weight: number, energyAmount: number): Agent => {
+    const createAgent = (expectedWeight: number, energyAmount: number): Agent => {
+      // weight = capacity + energyAmount のため、capacity を計算
+      const capacity = expectedWeight - energyAmount
       const agent = new Agent(
         new Vector(0, 0), // position
         {
           movePower: 10,
-          capacity: 100,
+          capacity,
           accessControl: "Accessible",
           assemblePower: 5,
           disassemblePower: 5,
