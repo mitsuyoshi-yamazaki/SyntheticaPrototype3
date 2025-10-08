@@ -1,4 +1,4 @@
-import { Vector } from "../../utility/Vector"
+import type { Vector } from "../../utility/Vector"
 
 export abstract class GameObject {
   public abstract readonly type: string

@@ -18,13 +18,13 @@ type ActionReserve = ActionReserveMove | ActionReserveAssemble
 export class Agent extends GameObject implements AgentApi {
   public readonly type = "Agent"
   public actionReserves: { [A in ActionReserve as A["case"]]?: A } = {}
+  public acceleration = Vector.zero()
 
   public constructor(
     public readonly radius: number,
     public readonly weight: number,
     public position: Vector,
     public velocity: Vector,
-    public acceleration: Vector,
     spec: AgentSpec,
     public readonly software: AgentSoftware
   ) {

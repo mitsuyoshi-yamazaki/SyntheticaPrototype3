@@ -24,8 +24,8 @@ export class GameWorld {
     this._environmentalObjects.push(obj)
   }
 
-  public addObject(obj: GameObject): void {
-    this._objects.push(obj)
+  public addObjects(objects: GameObject[]): void {
+    this._objects.push(...objects)
   }
 
   public tick() {
@@ -40,7 +40,7 @@ export class GameWorld {
     this.updateObjects()
 
     // 3. 環境動作
-    // TODO:
+    this.runEnvironmentalObjects()
 
     // 4. ソフトウェア実行
     this.runAgents(agents)
@@ -82,6 +82,13 @@ export class GameWorld {
       obj.velocity = this.physics
         .updatedVelocity(obj.velocity)
         .add(this.physics.velocityForPower(obj.acceleration, obj.weight))
+    })
+  }
+
+  private runEnvironmentalObjects(): void {
+    this._environmentalObjects.forEach(environmentalObject => {
+      const { objectsToAdd } = environmentalObject.run()
+      this.addObjects(objectsToAdd)
     })
   }
 
