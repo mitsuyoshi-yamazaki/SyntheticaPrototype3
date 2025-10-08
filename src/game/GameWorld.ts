@@ -86,11 +86,18 @@ export class GameWorld {
 
   private updateObjects(): void {
     this._objects.forEach(obj => {
-      obj.position = obj.position.add(obj.velocity)
+      obj.position = this.normalizedPosition(obj.position.add(obj.velocity))
       obj.velocity = this.physics
         .updatedVelocity(obj.velocity)
         .add(this.physics.velocityForPower(obj.acceleration, obj.weight))
     })
+  }
+
+  private normalizedPosition(position: Vector): Vector {
+    return new Vector(
+      (position.x + this.size.x) % this.size.x,
+      (position.y + this.size.y) % this.size.y
+    )
   }
 
   private runEnvironmentalObjects(): void {
