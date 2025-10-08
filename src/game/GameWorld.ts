@@ -1,19 +1,65 @@
 import * as PIXI from "pixi.js"
+import { GameObject } from "./object/GameObject"
+import { Vector } from "../utility/Vector"
+import { Physics } from "./physics/Physics"
+import { EnvironmentalObject } from "./object/EnvironmentalObject"
+import { Agent, isAgent } from "./agent/Agent"
+import { AgentActionResolver } from "./agent/AgentActionResolver"
 
 export class GameWorld {
   private _t = 0
+  private readonly _environmentalObjects: EnvironmentalObject[] = []
+  private readonly _objects: GameObject[] = []
 
   public get tickCount(): number {
     return this._t
   }
 
   public constructor(
-    public readonly width: number,
-    public readonly height: number
+    public readonly size: Vector,
+    public readonly physics: Physics
   ) {}
 
+  public addEnvironmentalObject(obj: EnvironmentalObject): void {
+    this._environmentalObjects.push(obj)
+  }
+
+  public addObject(obj: GameObject): void {
+    this._objects.push(obj)
+  }
+
   public tick() {
-    // TODO:
+    const agents = this._objects.filter(isAgent)
+
+    // 1. エージェント動作
+    this.runReservedAgentActions(agents)
+
+    // 2. 物理計算
+    // 3. 環境動作
+    // 4. ソフトウェア実行
+  }
+
+  private runReservedAgentActions(agents: Agent[]): void {
+    agents.forEach(agent => {
+      Array.from(Object.values(agent.actionReserves)).forEach(actionReserve => {
+        switch (actionReserve.case) {
+          case "Move":
+            AgentActionResolver.resolveMove(this.physics, agent, actionReserve.power)
+            return
+          case "Connect":
+            // TODO:
+            return
+          default: {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const _: never = actionReserve
+            return
+          }
+        }
+      })
+      // strictEntries(agent.actionReserves).forEach(<A extends ActionReserve, T = A["case"]>([actionType, actionReserve]: [T, A]) => {
+
+      // })
+    })
   }
 
   public renderPixi(_container: PIXI.Container): void {
