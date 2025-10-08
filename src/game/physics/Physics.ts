@@ -36,6 +36,9 @@ export class Physics {
   }
 
   public updatedVelocity(velocity: Vector): Vector {
+    if (velocity.isApproximatelyZero()) {
+      return velocity
+    }
     return velocity.multiply(
       (velocity.length - this.frictionForVelocity(velocity.length)) / velocity.length
     )
