@@ -191,6 +191,46 @@ describe("Vector", () => {
       expect(v.isZero()).toBe(false)
     })
 
+    test("isApproximatelyZero: 完全なゼロベクトル", () => {
+      const v = new Vector(0, 0)
+      expect(v.isApproximatelyZero()).toBe(true)
+    })
+
+    test("isApproximatelyZero: 非常に小さい値（デフォルトepsilon以下）", () => {
+      const v = new Vector(Number.EPSILON / 2, Number.EPSILON / 2)
+      expect(v.isApproximatelyZero()).toBe(true)
+    })
+
+    test("isApproximatelyZero: デフォルトepsilon以上の値", () => {
+      const v = new Vector(Number.EPSILON * 2, Number.EPSILON * 2)
+      expect(v.isApproximatelyZero()).toBe(false)
+    })
+
+    test("isApproximatelyZero: カスタムepsilonで真", () => {
+      const v = new Vector(0.0001, 0.0001)
+      expect(v.isApproximatelyZero(0.001)).toBe(true)
+    })
+
+    test("isApproximatelyZero: カスタムepsilonで偽", () => {
+      const v = new Vector(0.001, 0.001)
+      expect(v.isApproximatelyZero(0.0001)).toBe(false)
+    })
+
+    test("isApproximatelyZero: 片方の成分だけが小さい場合（偽）", () => {
+      const v = new Vector(Number.EPSILON / 2, 1.0)
+      expect(v.isApproximatelyZero()).toBe(false)
+    })
+
+    test("isApproximatelyZero: 負の小さい値", () => {
+      const v = new Vector(-Number.EPSILON / 2, -Number.EPSILON / 2)
+      expect(v.isApproximatelyZero()).toBe(true)
+    })
+
+    test("isApproximatelyZero: 正負混在の小さい値", () => {
+      const v = new Vector(Number.EPSILON / 2, -Number.EPSILON / 2)
+      expect(v.isApproximatelyZero()).toBe(true)
+    })
+
     test("clone: ベクトルの複製", () => {
       const v1 = new Vector(1, 2)
       const v2 = v1.clone()
