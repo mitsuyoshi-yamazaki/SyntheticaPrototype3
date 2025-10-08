@@ -3,6 +3,10 @@ import { Physics } from "../physics/Physics"
 import { Agent } from "./Agent"
 
 export const AgentActionResolver = {
+  /**
+   * 予約された移動アクションに対して、消費エネルギーと発生する力を返す
+   * エージェントのもつエネルギーが不足する場合は、全エネルギーを消費したときに発生させられる力を返す
+   */
   resolveMove(
     physics: Physics,
     agent: Agent,
