@@ -1,4 +1,36 @@
 export class Vector {
+  private _length: number | null = null
+  private _lengthSquared: number | null = null
+  private _normalized: Vector | null = null
+
+  // 長さ関連
+  public get length(): number {
+    if (this._length == null) {
+      this._length = Math.sqrt(this.x * this.x + this.y * this.y)
+    }
+    return this._length
+  }
+  public get lengthSquared(): number {
+    if (this._lengthSquared == null) {
+      this._lengthSquared = this.x * this.x + this.y * this.y
+    }
+    return this._lengthSquared
+  }
+
+  /**
+   * @throws {Error} ゼロベクトルの場合
+   */
+  public get normalized(): Vector {
+    if (this._normalized == null) {
+      const len = this.length
+      if (len === 0) {
+        throw new Error("Cannot normalize zero vector")
+      }
+      this._normalized = this.divide(len)
+    }
+    return this._normalized
+  }
+
   public constructor(
     public readonly x: number,
     public readonly y: number
@@ -32,27 +64,6 @@ export class Vector {
     return new Vector(-this.x, -this.y)
   }
 
-  // 長さ関連
-
-  public length = (): number => {
-    return Math.sqrt(this.x * this.x + this.y * this.y)
-  }
-
-  public lengthSquared = (): number => {
-    return this.x * this.x + this.y * this.y
-  }
-
-  /**
-   * @throws {Error} ゼロベクトルの場合
-   */
-  public normalize = (): Vector => {
-    const len = this.length()
-    if (len === 0) {
-      throw new Error("Cannot normalize zero vector")
-    }
-    return this.divide(len)
-  }
-
   // 内積・外積
 
   public dot = (other: Vector): number => {
@@ -69,11 +80,11 @@ export class Vector {
   // 距離
 
   public distanceTo = (other: Vector): number => {
-    return this.subtract(other).length()
+    return this.subtract(other).length
   }
 
   public distanceSquaredTo = (other: Vector): number => {
-    return this.subtract(other).lengthSquared()
+    return this.subtract(other).lengthSquared
   }
 
   // 角度
@@ -90,7 +101,7 @@ export class Vector {
    */
   public angleTo = (other: Vector): number => {
     const dotProduct = this.dot(other)
-    const lengths = this.length() * other.length()
+    const lengths = this.length * other.length
     if (lengths === 0) {
       return 0
     }

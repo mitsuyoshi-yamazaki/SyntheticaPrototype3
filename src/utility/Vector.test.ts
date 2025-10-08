@@ -50,25 +50,25 @@ describe("Vector", () => {
   describe("長さ関連", () => {
     test("length: ベクトルの長さ", () => {
       const v = new Vector(3, 4)
-      expect(v.length()).toBe(5)
+      expect(v.length).toBe(5)
     })
 
     test("lengthSquared: ベクトルの長さの二乗", () => {
       const v = new Vector(3, 4)
-      expect(v.lengthSquared()).toBe(25)
+      expect(v.lengthSquared).toBe(25)
     })
 
     test("normalize: 正規化されたベクトル", () => {
       const v = new Vector(3, 4)
-      const result = v.normalize()
+      const result = v.normalized
       expect(result.x).toBeCloseTo(0.6)
       expect(result.y).toBeCloseTo(0.8)
-      expect(result.length()).toBeCloseTo(1)
+      expect(result.length).toBeCloseTo(1)
     })
 
     test("normalize: ゼロベクトルの正規化で例外", () => {
       const v = Vector.zero()
-      expect(() => v.normalize()).toThrow("Cannot normalize zero vector")
+      expect(() => v.normalized).toThrow("Cannot normalize zero vector")
     })
   })
 
@@ -224,7 +224,7 @@ describe("Vector", () => {
       const v = Vector.fromAngle(Math.PI / 4, 2)
       expect(v.x).toBeCloseTo(Math.sqrt(2))
       expect(v.y).toBeCloseTo(Math.sqrt(2))
-      expect(v.length()).toBeCloseTo(2)
+      expect(v.length).toBeCloseTo(2)
     })
   })
 
@@ -247,7 +247,8 @@ describe("Vector", () => {
 
     test("normalize: 元のベクトルを変更しない", () => {
       const v = new Vector(3, 4)
-      v.normalize()
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = v.normalized
       expect(v.x).toBe(3)
       expect(v.y).toBe(4)
     })
