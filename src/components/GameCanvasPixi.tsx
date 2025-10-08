@@ -58,7 +58,10 @@ const createGameWorld = (worldWidth: number, worldHeight: number): GameWorld => 
       randomInRange({ min: worldSize.y * 0.1, max: worldSize.y * 0.4 })
     )
   }
-  const ancestors: Agent[] = [createSimpleSelfReplicationAgent(randomPosition())]
+  const ancestors: Agent[] = [
+    createSimpleSelfReplicationAgent(randomPosition(), 1000),
+    createSimpleSelfReplicationAgent(randomPosition(), 200),
+  ]
   gameWorld.addObjects(ancestors)
 
   return gameWorld

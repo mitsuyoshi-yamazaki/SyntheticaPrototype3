@@ -38,6 +38,17 @@ export class GameWorld {
     objects.forEach(obj => this._objectsMap.set(obj.id, obj))
   }
 
+  public removeObjects(objectIds: AnyGameObject["id"][]): void {
+    objectIds.forEach(objectId => {
+      const index = this._objects.findIndex(obj => obj.id === objectId)
+      if (index >= 0) {
+        this._objects.splice(index, 1)
+      }
+
+      this._objectsMap.delete(objectId)
+    })
+  }
+
   public getObjectById<T extends AnyGameObject>(id: Id<T>): T | null {
     return (this._objectsMap.get(id as AnyGameObject["id"]) ?? null) as T | null
   }
@@ -48,7 +59,7 @@ export class GameWorld {
     const agents = this._objects.filter(isAgent)
 
     // 1. エージェント動作
-    this.runReservedAgentActions(agents)
+    const { objectsToRemove } = this.runReservedAgentActions(agents)
 
     // 2. 物理計算
     this.updateObjects()
@@ -58,9 +69,13 @@ export class GameWorld {
 
     // 4. ソフトウェア実行
     this.runAgents(agents)
+
+    this.removeObjects(objectsToRemove.map(obj => obj.id))
   }
 
-  private runReservedAgentActions(agents: Agent[]): void {
+  private runReservedAgentActions(agents: Agent[]): { objectsToRemove: AnyGameObject[] } {
+    const objectsToRemove: AnyGameObject[] = []
+
     agents.forEach(agent => {
       agent.saying = null
 
@@ -83,10 +98,27 @@ export class GameWorld {
           case "Assemble":
             // TODO:
             return
+          case "Absorb": {
+            const target = this.getObjectById(actionReserve.targetId)
+            if (target != null && target.type === "Energy" && agent.isAdjacentTo(target)) {
+              const absorbableAmount = Math.min(actionReserve.amount, target.amount)
+              const receivableAmount = Math.min(
+                absorbableAmount,
+                agent.capacity - agent.energyAmount
+              )
+              target.amount -= receivableAmount
+              agent.energyAmount += receivableAmount
+
+              if (target.amount <= 0.1) {
+                objectsToRemove.push(target)
+              }
+            }
+            return
+          }
           case "Transfer": {
             const target = this.getObjectById(actionReserve.targetId)
             if (target != null && target.type === "Agent") {
-              const transferableAmount = Math.max(actionReserve.energyAmount, agent.energyAmount)
+              const transferableAmount = Math.min(actionReserve.energyAmount, agent.energyAmount)
               const receivableAmount = Math.min(
                 transferableAmount,
                 target.capacity - target.energyAmount
@@ -104,6 +136,8 @@ export class GameWorld {
         }
       })
     })
+
+    return { objectsToRemove }
   }
 
   private updateObjects(): void {

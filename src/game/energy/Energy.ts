@@ -14,7 +14,7 @@ export class Energy extends GameObject<Energy> {
   public constructor(
     public position: Vector,
     public velocity: Vector,
-    public readonly amount: number
+    public amount: number
   ) {
     super()
 

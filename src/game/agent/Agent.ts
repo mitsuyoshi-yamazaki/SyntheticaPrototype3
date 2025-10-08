@@ -6,6 +6,7 @@ import { AgentSoftware, AgentSpec } from "./AgentType"
 import type { AnyGameObject } from "../object/types"
 import { getNewId, Id } from "../object/ObjectId"
 import { RenderTheme } from "../game-world/GameWorld"
+import { Energy } from "../energy/Energy"
 
 // ActionReserveには予約する必要のある（ゲーム世界に影響を及ぼす）アクションのみが定義される
 type ActionReserveSay = {
@@ -20,6 +21,11 @@ type ActionReserveAssemble = {
   readonly case: "Assemble"
   readonly spec: AgentSpec
 }
+type ActionReserveAbsorb = {
+  readonly case: "Absorb"
+  readonly targetId: Id<Energy>
+  readonly amount: number
+}
 type ActionReserveTransfer = {
   readonly case: "Transfer"
   readonly energyAmount: number
@@ -29,6 +35,7 @@ type ActionReserve =
   | ActionReserveSay
   | ActionReserveMove
   | ActionReserveAssemble
+  | ActionReserveAbsorb
   | ActionReserveTransfer
 
 /* eslint-disable @typescript-eslint/member-ordering */
@@ -128,6 +135,14 @@ export class Agent extends GameObject<Agent> implements AgentApi {
     this.actionReserves.Assemble = {
       case: "Assemble",
       spec,
+    }
+  }
+
+  public absorb(targetId: Id<Energy>, amount: number): void {
+    this.actionReserves.Absorb = {
+      case: "Absorb",
+      targetId,
+      amount,
     }
   }
 
