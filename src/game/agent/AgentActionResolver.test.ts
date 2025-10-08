@@ -17,11 +17,7 @@ describe("AgentActionResolver", () => {
 
     const createAgent = (weight: number, energyAmount: number): Agent => {
       const agent = new Agent(
-        1.0, // radius
-        weight,
         new Vector(0, 0), // position
-        new Vector(0, 0), // velocity
-        new Vector(0, 0), // acceleration
         {
           movePower: 10,
           capacity: 100,
@@ -30,7 +26,8 @@ describe("AgentActionResolver", () => {
           disassemblePower: 5,
           numberOfConnectors: 2,
           senseRange: 50,
-        }
+        },
+        () => {}
       )
       agent.energyAmount = energyAmount
       return agent

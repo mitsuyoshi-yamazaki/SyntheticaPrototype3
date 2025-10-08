@@ -6,6 +6,9 @@ import { GameWorld, RenderTheme } from "../game/GameWorld"
 import { Vector } from "../utility/Vector"
 import { Physics, PhysicsParameters } from "../game/physics/Physics"
 import { EnergySource } from "../game/energy/EnergySource"
+import { Agent } from "../game/agent/Agent"
+import { randomInRange } from "../utility/UtilityFunctions"
+import { createSimpleSelfReplicationAgent } from "../game/preset/PredefinedAgents"
 
 const physicsParameter: PhysicsParameters = {
   energyConsumption: {
@@ -32,13 +35,31 @@ const createGameWorld = (worldWidth: number, worldHeight: number): GameWorld => 
 
   gameWorld.addEnvironmentalObject(
     new EnergySource(
-      worldSize.divide(4),
+      worldSize.multiply(0.25),
       { min: 10, max: 100 },
       { min: 20, max: 200 },
       { min: 45, max: 135 },
       { min: 10, max: 20 }
     )
   )
+  gameWorld.addEnvironmentalObject(
+    new EnergySource(
+      worldSize.multiply(0.75),
+      { min: 1, max: 20 },
+      { min: 1, max: 50 },
+      { min: 240, max: 270 },
+      { min: 20, max: 30 }
+    )
+  )
+
+  const randomPosition = (): Vector => {
+    return new Vector(
+      randomInRange({ min: worldSize.x * 0.65, max: worldSize.x * 0.85 }),
+      randomInRange({ min: worldSize.y * 0.1, max: worldSize.y * 0.4 })
+    )
+  }
+  const ancestors: Agent[] = [createSimpleSelfReplicationAgent(randomPosition())]
+  gameWorld.addObjects(ancestors)
 
   return gameWorld
 }

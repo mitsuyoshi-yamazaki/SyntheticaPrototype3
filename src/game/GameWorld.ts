@@ -1,11 +1,10 @@
 import * as PIXI from "pixi.js"
-import { GameObject } from "./object/GameObject"
 import { Vector } from "../utility/Vector"
 import { Physics } from "./physics/Physics"
-import { EnvironmentalObject } from "./object/EnvironmentalObject"
 import { Agent, isAgent } from "./agent/Agent"
 import { AgentActionResolver } from "./agent/AgentActionResolver"
 import { DrawableObject } from "./object/DrawableObject"
+import { AnyEnvironmentalObject, AnyGameObject } from "./object/types"
 
 export type RenderTheme = {
   readonly backgroundColor: number
@@ -15,8 +14,8 @@ export type RenderTheme = {
 
 export class GameWorld {
   private _t = 0
-  private readonly _environmentalObjects: EnvironmentalObject[] = []
-  private readonly _objects: GameObject[] = []
+  private readonly _environmentalObjects: AnyEnvironmentalObject[] = []
+  private readonly _objects: AnyGameObject[] = []
 
   public get tickCount(): number {
     return this._t
@@ -28,17 +27,17 @@ export class GameWorld {
     public readonly renderTheme: RenderTheme
   ) {}
 
-  public addEnvironmentalObject(obj: EnvironmentalObject): void {
+  public addEnvironmentalObject(obj: AnyEnvironmentalObject): void {
     this._environmentalObjects.push(obj)
   }
 
-  public addObjects(objects: GameObject[]): void {
+  public addObjects(objects: AnyGameObject[]): void {
     this._objects.push(...objects)
   }
 
   public tick() {
     // setup
-    this._objects.forEach(obj => (obj.acceleration = Vector.zero()))
+    this._objects.forEach(obj => (obj.acceleration = null))
     const agents = this._objects.filter(isAgent)
 
     // 1. エージェント動作
@@ -56,8 +55,14 @@ export class GameWorld {
 
   private runReservedAgentActions(agents: Agent[]): void {
     agents.forEach(agent => {
+      agent.saying = null
+
       Array.from(Object.values(agent.actionReserves)).forEach(actionReserve => {
         switch (actionReserve.case) {
+          case "Say":
+            agent.saying = actionReserve.message
+            return
+
           case "Move": {
             const resolved = AgentActionResolver.resolveMove(
               this.physics,
@@ -78,18 +83,17 @@ export class GameWorld {
           }
         }
       })
-      // strictEntries(agent.actionReserves).forEach(<A extends ActionReserve, T = A["case"]>([actionType, actionReserve]: [T, A]) => {
-
-      // })
     })
   }
 
   private updateObjects(): void {
     this._objects.forEach(obj => {
       obj.position = this.normalizedPosition(obj.position.add(obj.velocity))
-      obj.velocity = this.physics
-        .updatedVelocity(obj.velocity)
-        .add(this.physics.velocityForPower(obj.acceleration, obj.weight))
+      obj.velocity = this.physics.updatedVelocity(obj.velocity)
+
+      if (obj.acceleration != null) {
+        obj.velocity = obj.velocity.add(this.physics.velocityForPower(obj.acceleration, obj.weight))
+      }
     })
   }
 
