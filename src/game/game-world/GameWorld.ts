@@ -6,6 +6,7 @@ import { AgentActionResolver } from "../agent/AgentActionResolver"
 import { DrawableObject } from "../object/DrawableObject"
 import { AnyEnvironmentalObject, AnyGameObject } from "../object/types"
 import { Id } from "../object/ObjectId"
+import { TraceObject } from "../object/TraceObject"
 
 export type RenderTheme = {
   readonly backgroundColor: number
@@ -67,12 +68,14 @@ export class GameWorld {
 
     const objectsToAdd: AnyGameObject[] = []
     const objectsToRemove: AnyGameObject[] = []
+    const environmentalObjectsToAdd: AnyEnvironmentalObject[] = []
     const environmentalObjectsToRemove: AnyEnvironmentalObject[] = []
 
     // 1. エージェント動作
     const reservedActionResult = this.runReservedAgentActions(agents)
     objectsToAdd.push(...reservedActionResult.objectsToAdd)
     objectsToRemove.push(...reservedActionResult.objectsToRemove)
+    environmentalObjectsToAdd.push(...reservedActionResult.environmentalObjectsToAdd)
 
     // 2. 物理計算
     this.updateObjects()
@@ -88,6 +91,7 @@ export class GameWorld {
     this.removeObjects(objectsToRemove.map(obj => obj.id))
     environmentalObjectsToRemove.forEach(obj => this.removeEnvironmentalObject(obj.id))
     this.addObjects(objectsToAdd)
+    environmentalObjectsToAdd.forEach(obj => this.addEnvironmentalObject(obj))
 
     this._t += 1
   }
@@ -95,9 +99,11 @@ export class GameWorld {
   private runReservedAgentActions(agents: Agent[]): {
     objectsToAdd: AnyGameObject[]
     objectsToRemove: AnyGameObject[]
+    environmentalObjectsToAdd: AnyEnvironmentalObject[]
   } {
     const objectsToAdd: AnyGameObject[] = []
     const objectsToRemove: AnyGameObject[] = []
+    const environmentalObjectsToAdd: AnyEnvironmentalObject[] = []
 
     agents.forEach(agent => {
       agent.saying = null
@@ -148,6 +154,18 @@ export class GameWorld {
 
               if (target.amount <= 0.1) {
                 objectsToRemove.push(target)
+                environmentalObjectsToAdd.push(
+                  new TraceObject(
+                    target.position.clone(),
+                    {
+                      case: "Block",
+                      size: target.radius * 2 * 0.6,
+                      color: this.renderTheme.energyColor,
+                    },
+                    this.t,
+                    receivableAmount * 100
+                  )
+                )
               }
             }
             return
@@ -174,7 +192,7 @@ export class GameWorld {
       })
     })
 
-    return { objectsToAdd, objectsToRemove }
+    return { objectsToAdd, objectsToRemove, environmentalObjectsToAdd }
   }
 
   private updateObjects(): void {
