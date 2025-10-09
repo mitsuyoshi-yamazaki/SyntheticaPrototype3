@@ -19,7 +19,7 @@ export class GameWorld {
   private readonly _objects: AnyGameObject[] = []
   private readonly _objectsMap = new Map<AnyGameObject["id"], AnyGameObject>()
 
-  public get tickCount(): number {
+  public get t(): number {
     return this._t
   }
 
@@ -31,6 +31,13 @@ export class GameWorld {
 
   public addEnvironmentalObject(obj: AnyEnvironmentalObject): void {
     this._environmentalObjects.push(obj)
+  }
+
+  public removeEnvironmentalObject(objectId: AnyEnvironmentalObject["id"]): void {
+    const index = this._environmentalObjects.findIndex(obj => obj.id === objectId)
+    if (index >= 0) {
+      this._environmentalObjects.splice(index, 1)
+    }
   }
 
   public addObjects(objects: AnyGameObject[]): void {
@@ -58,20 +65,31 @@ export class GameWorld {
     this._objects.forEach(obj => (obj.acceleration = null))
     const agents = this._objects.filter(isAgent)
 
+    const objectsToAdd: AnyGameObject[] = []
+    const objectsToRemove: AnyGameObject[] = []
+    const environmentalObjectsToRemove: AnyEnvironmentalObject[] = []
+
     // 1. エージェント動作
-    const { objectsToAdd, objectsToRemove } = this.runReservedAgentActions(agents)
+    const reservedActionResult = this.runReservedAgentActions(agents)
+    objectsToAdd.push(...reservedActionResult.objectsToAdd)
+    objectsToRemove.push(...reservedActionResult.objectsToRemove)
 
     // 2. 物理計算
     this.updateObjects()
 
     // 3. 環境動作
-    this.runEnvironmentalObjects()
+    const environmentalObjectResult = this.runEnvironmentalObjects()
+    objectsToAdd.push(...environmentalObjectResult.objectsToAdd)
+    environmentalObjectsToRemove.push(...environmentalObjectResult.environmentalObjectsToRemove)
 
     // 4. ソフトウェア実行
     this.runAgents(agents)
 
     this.removeObjects(objectsToRemove.map(obj => obj.id))
+    environmentalObjectsToRemove.forEach(obj => this.removeEnvironmentalObject(obj.id))
     this.addObjects(objectsToAdd)
+
+    this._t += 1
   }
 
   private runReservedAgentActions(agents: Agent[]): {
@@ -194,11 +212,20 @@ export class GameWorld {
     return new Vector(shortestDx, shortestDy)
   }
 
-  private runEnvironmentalObjects(): void {
+  private runEnvironmentalObjects(): {
+    objectsToAdd: AnyGameObject[]
+    environmentalObjectsToRemove: AnyEnvironmentalObject[]
+  } {
+    const objectsToAdd: AnyGameObject[] = []
+    const environmentalObjectsToRemove: AnyEnvironmentalObject[] = []
+
     this._environmentalObjects.forEach(environmentalObject => {
-      const { objectsToAdd } = environmentalObject.run()
-      this.addObjects(objectsToAdd)
+      const result = environmentalObject.run(this.t)
+      objectsToAdd.push(...result.objectsToAdd)
+      environmentalObjectsToRemove.push(...result.environmentalObjectsToRemove)
     })
+
+    return { objectsToAdd, environmentalObjectsToRemove }
   }
 
   private runAgents(agents: Agent[]): void {

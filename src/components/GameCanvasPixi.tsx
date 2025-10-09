@@ -202,7 +202,7 @@ const GameCanvasPixi = ({
         // デバッグ情報更新
         const objectCount = gameWorld.getObjectCount()
         const pauseStatus = isPausedRef.current ? " [PAUSED]" : ""
-        debugText.text = `FPS: ${fps}${pauseStatus}\nTPS: ${tps} / ${targetTPSRef.current}\nTick: ${gameWorld.tickCount}\nObjects: ${objectCount}`
+        debugText.text = `FPS: ${fps}${pauseStatus}\nTPS: ${tps} / ${targetTPSRef.current}\nTick: ${gameWorld.t}\nObjects: ${objectCount}`
       })
     }
 

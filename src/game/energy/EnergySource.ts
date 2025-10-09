@@ -23,10 +23,13 @@ export class EnergySource extends EnvironmentalObject<EnergySource> {
     super()
   }
 
-  public run(): { objectsToAdd: AnyGameObject[] } {
+  public run(): {
+    objectsToAdd: AnyGameObject[]
+    environmentalObjectsToRemove: AnyEnvironmentalObject[]
+  } {
     if (this.cooldown > 0) {
       this.cooldown -= 1
-      return { objectsToAdd: [] }
+      return { objectsToAdd: [], environmentalObjectsToRemove: [] }
     }
 
     const energyAmountToProduce = Math.floor(randomInRange(this.energyAmountRange))
@@ -39,6 +42,7 @@ export class EnergySource extends EnvironmentalObject<EnergySource> {
 
     return {
       objectsToAdd: [new Energy(this.position, energyVelocity, energyAmountToProduce)],
+      environmentalObjectsToRemove: [],
     }
   }
 
