@@ -45,6 +45,8 @@ export class Agent extends GameObject<Agent> implements AgentApi {
   public readonly id: Id<Agent> = getNewId()
   public readonly radius: number
   public velocity = Vector.zero()
+  public readonly maxHits: number
+  public hits: number
 
   public actionReserves: { [A in ActionReserve as A["case"]]?: A } = {}
   public saying: string | null = null
@@ -70,6 +72,9 @@ export class Agent extends GameObject<Agent> implements AgentApi {
     this.software = spec.software
 
     this.radius = Math.max(Math.sqrt(this.capacity), 1)
+
+    this.maxHits = this.capacity
+    this.hits = this.maxHits
   }
 
   public renderPixi(graphics: PIXI.Graphics, renderTheme: RenderTheme): void {

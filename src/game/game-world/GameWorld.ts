@@ -106,6 +106,11 @@ export class GameWorld {
     const environmentalObjectsToAdd: AnyEnvironmentalObject[] = []
 
     agents.forEach(agent => {
+      if (agent.hits <= 0) {
+        objectsToRemove.push(agent)
+        return
+      }
+
       agent.saying = null
 
       Array.from(Object.values(agent.actionReserves)).forEach(actionReserve => {
@@ -190,6 +195,8 @@ export class GameWorld {
           }
         }
       })
+
+      agent.hits -= 0.05
     })
 
     return { objectsToAdd, objectsToRemove, environmentalObjectsToAdd }
