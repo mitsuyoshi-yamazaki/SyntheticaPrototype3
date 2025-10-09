@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import * as PIXI from "pixi.js"
 import { GameWorld, RenderTheme } from "../game/game-world/GameWorld"
 import { Vector } from "../utility/Vector"
@@ -93,9 +93,6 @@ const GameCanvasPixi = ({
   const gameWorldRef = useRef<GameWorld | null>(null)
   const isPausedRef = useRef(isPaused)
   const targetTPSRef = useRef(targetTPS)
-  const [energyPreset, setEnergyPreset] = useState<"default" | "balanced" | "experimental">(
-    "default"
-  )
 
   // isPausedの最新値を保持
   useEffect(() => {
@@ -216,22 +213,11 @@ const GameCanvasPixi = ({
       }
       gameWorldRef.current = null
     }
-  }, [width, height, ticksPerFrame, energyPreset, debugMode])
+  }, [width, height, ticksPerFrame, debugMode])
 
   return (
     <div className="flex flex-col items-center gap-4">
       <div ref={containerRef} className="border border-gray-300 rounded-lg" />
-      <div className="flex gap-4">
-        <select
-          value={energyPreset}
-          onChange={e => setEnergyPreset(e.target.value as "default" | "balanced" | "experimental")}
-          className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
-        >
-          <option value="default">デフォルト</option>
-          <option value="balanced">バランス調整版</option>
-          <option value="experimental">実験用</option>
-        </select>
-      </div>
     </div>
   )
 }
