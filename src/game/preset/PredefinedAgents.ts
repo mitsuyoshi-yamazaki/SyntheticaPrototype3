@@ -30,13 +30,14 @@ const software1: AgentSoftware = (agentApi: AgentApi, gameWorldApi: GameWorldApi
     id: Id<Energy>
     objectType: "Energy"
     position: Vector
+    radius: number
   }[]
 
   energyInRange.sort((lhs, rhs) => lhs.position.length - rhs.position.length)
   const closestEnergy = energyInRange[0]
 
   if (closestEnergy != null) {
-    if (closestEnergy.position.length < agentApi.radius * 2) {
+    if (closestEnergy.position.length < agentApi.radius + closestEnergy.radius) {
       agentApi.absorb(closestEnergy.id, agentApi.capacity)
     } else {
       agentApi.move(closestEnergy.position.normalized.multiply(0.0001))

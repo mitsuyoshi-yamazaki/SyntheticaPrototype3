@@ -248,6 +248,7 @@ export class GameWorld {
     id: AnyGameObject["id"]
     objectType: AnyGameObject["type"]
     position: Vector
+    radius: number
   }[] {
     const rangeSquared = range * range
     return this._objects
@@ -264,6 +265,7 @@ export class GameWorld {
         id: item.object.id,
         objectType: item.object.type,
         position: item.relativePosition,
+        radius: item.object.radius,
       }))
   }
 

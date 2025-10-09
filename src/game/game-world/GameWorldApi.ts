@@ -6,6 +6,7 @@ export type GameWorldApi = {
     id: AnyGameObject["id"]
     objectType: AnyGameObject["type"]
     position: Vector
+    radius: number
   }[]
 
   searchEnvironmentalObjects(): {
