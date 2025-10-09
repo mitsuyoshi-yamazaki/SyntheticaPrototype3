@@ -168,7 +168,7 @@ export class GameWorld {
                       color: this.renderTheme.energyColor,
                     },
                     this.t,
-                    receivableAmount * 100
+                    receivableAmount * 20
                   )
                 )
               }

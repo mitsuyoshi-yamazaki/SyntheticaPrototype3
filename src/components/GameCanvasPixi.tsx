@@ -24,7 +24,7 @@ const physicsParameter: PhysicsParameters = {
 
 const renderTheme: RenderTheme = {
   backgroundColor: 0x101010,
-  agentColor: 0x2c3e50,
+  agentColor: 0x405264, //0x2c3e50,
   energyColor: 0xffd700,
 }
 
@@ -60,7 +60,7 @@ const createGameWorld = (worldWidth: number, worldHeight: number): GameWorld => 
   }
   const ancestors: Agent[] = [
     createSimpleSelfReplicationAgent(randomPosition(), 1000),
-    createSimpleSelfReplicationAgent(randomPosition(), 500),
+    // createSimpleSelfReplicationAgent(randomPosition(), 500),
   ]
   gameWorld.addObjects(ancestors)
 

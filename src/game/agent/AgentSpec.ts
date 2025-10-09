@@ -6,7 +6,7 @@ export type AgentSoftware = (agentApi: AgentApi, gameWorldApi: GameWorldApi) => 
 export type AgentSpec = {
   readonly capacity: number
   readonly accessControl: "Accessible" | "Inaccessible"
-  readonly assemblePower: number /// 使用していない
+  readonly assemblePower: number
   readonly disassemblePower: number
   readonly numberOfConnectors: number
   readonly movePower: number

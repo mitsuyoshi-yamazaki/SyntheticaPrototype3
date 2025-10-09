@@ -73,7 +73,7 @@ export class TraceObject extends EnvironmentalObject<TraceObject> {
         graphics.lineTo(this.traceType.endPoint.x, this.traceType.endPoint.y).stroke({
           width: this.traceType.size,
           color: renderTheme.energyColor,
-          alpha: 0.1,
+          alpha: 0.2,
           alignment: 0.5,
         })
         return
@@ -84,7 +84,7 @@ export class TraceObject extends EnvironmentalObject<TraceObject> {
           this.traceType.size,
           this.traceType.size
         )
-        graphics.fill({ color: this.traceType.color, alpha: 0.1 })
+        graphics.fill({ color: this.traceType.color, alpha: 0.2 })
         return
       default: {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
