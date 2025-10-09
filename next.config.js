@@ -5,8 +5,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: process.env.NODE_ENV === "production" ? "/SyntheticaPrototype2" : "",
-  assetPrefix: process.env.NODE_ENV === "production" ? "/SyntheticaPrototype2/" : "",
+  basePath: process.env.NODE_ENV === "production" ? "/SyntheticaPrototype3" : "",
+  assetPrefix: process.env.NODE_ENV === "production" ? "/SyntheticaPrototype3/" : "",
 }
 
 module.exports = nextConfig
