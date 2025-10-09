@@ -1,6 +1,7 @@
 import { Vector } from "../../utility/Vector"
 import { Physics } from "../physics/Physics"
 import { Agent } from "./Agent"
+import { AgentSpec, requiredEnergyAmountForSpec } from "./AgentSpec"
 
 export const AgentActionResolver = {
   /**
@@ -31,6 +32,22 @@ export const AgentActionResolver = {
     return {
       energyConsumption: agent.energyAmount,
       forceToApply: power.length === 0 ? power : power.normalized.multiply(reducedPower),
+    }
+  },
+
+  resolveAssemble(
+    _physics: Physics,
+    agent: Agent,
+    spec: AgentSpec,
+    transferEnergyAmount: number
+  ): { canAssemble: boolean; assembleEnergyConsumption: number } {
+    const requiredEnergy = requiredEnergyAmountForSpec(spec)
+    if (agent.energyAmount < requiredEnergy + transferEnergyAmount) {
+      return { canAssemble: false, assembleEnergyConsumption: 0 }
+    }
+    return {
+      canAssemble: true,
+      assembleEnergyConsumption: requiredEnergy,
     }
   },
 }

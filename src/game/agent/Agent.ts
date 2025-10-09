@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js"
 import { Vector } from "../../utility/Vector"
 import { GameObject } from "../object/GameObject"
 import { AgentApi } from "./AgentApi"
-import { AgentSoftware, AgentSpec } from "./AgentType"
+import { AgentSoftware, AgentSpec } from "./AgentSpec"
 import type { AnyGameObject } from "../object/types"
 import { getNewId, Id } from "../object/ObjectId"
 import { RenderTheme } from "../game-world/GameWorld"
@@ -20,6 +20,7 @@ type ActionReserveMove = {
 type ActionReserveAssemble = {
   readonly case: "Assemble"
   readonly spec: AgentSpec
+  readonly transferEnergyAmount: number
 }
 type ActionReserveAbsorb = {
   readonly case: "Absorb"
@@ -75,7 +76,7 @@ export class Agent extends GameObject<Agent> implements AgentApi {
     graphics.circle(this.position.x - this.radius, this.position.y - this.radius, this.radius)
     graphics.fill(renderTheme.backgroundColor)
     graphics.stroke({
-      width: 2,
+      width: Math.max(4, this.radius / 10),
       color: renderTheme.agentColor,
     })
 
@@ -131,10 +132,11 @@ export class Agent extends GameObject<Agent> implements AgentApi {
     }
   }
 
-  public assemble(spec: AgentSpec): void {
+  public assemble(spec: AgentSpec, transferEnergyAmount: number): void {
     this.actionReserves.Assemble = {
       case: "Assemble",
       spec,
+      transferEnergyAmount,
     }
   }
 

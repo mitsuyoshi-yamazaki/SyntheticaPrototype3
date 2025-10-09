@@ -6,11 +6,22 @@ export type AgentSoftware = (agentApi: AgentApi, gameWorldApi: GameWorldApi) => 
 export type AgentSpec = {
   readonly capacity: number
   readonly accessControl: "Accessible" | "Inaccessible"
-  readonly assemblePower: number
+  readonly assemblePower: number /// 使用していない
   readonly disassemblePower: number
   readonly numberOfConnectors: number
   readonly movePower: number
   readonly senseRange: number
 
   readonly software: AgentSoftware
+}
+
+export const requiredEnergyAmountForSpec = (spec: AgentSpec): number => {
+  return Math.ceil(
+    spec.capacity * 0.4 +
+      spec.assemblePower * 5 +
+      spec.disassemblePower * 3 +
+      spec.numberOfConnectors * 2 +
+      spec.movePower * 1 +
+      spec.senseRange / 2
+  )
 }

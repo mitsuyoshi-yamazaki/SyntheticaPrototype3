@@ -60,7 +60,7 @@ const createGameWorld = (worldWidth: number, worldHeight: number): GameWorld => 
   }
   const ancestors: Agent[] = [
     createSimpleSelfReplicationAgent(randomPosition(), 1000),
-    createSimpleSelfReplicationAgent(randomPosition(), 200),
+    createSimpleSelfReplicationAgent(randomPosition(), 500),
   ]
   gameWorld.addObjects(ancestors)
 

@@ -24,7 +24,7 @@ export class Energy extends GameObject<Energy> {
 
   public renderPixi(graphics: Graphics, renderTheme: RenderTheme): void {
     graphics.circle(this.position.x - this.radius, this.position.y - this.radius, this.radius)
-    graphics.fill(renderTheme.energyColor)
+    graphics.fill({ color: renderTheme.energyColor, alpha: 1 })
   }
 }
 

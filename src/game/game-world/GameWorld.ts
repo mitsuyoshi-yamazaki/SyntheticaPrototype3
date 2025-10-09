@@ -59,7 +59,7 @@ export class GameWorld {
     const agents = this._objects.filter(isAgent)
 
     // 1. エージェント動作
-    const { objectsToRemove } = this.runReservedAgentActions(agents)
+    const { objectsToAdd, objectsToRemove } = this.runReservedAgentActions(agents)
 
     // 2. 物理計算
     this.updateObjects()
@@ -71,9 +71,14 @@ export class GameWorld {
     this.runAgents(agents)
 
     this.removeObjects(objectsToRemove.map(obj => obj.id))
+    this.addObjects(objectsToAdd)
   }
 
-  private runReservedAgentActions(agents: Agent[]): { objectsToRemove: AnyGameObject[] } {
+  private runReservedAgentActions(agents: Agent[]): {
+    objectsToAdd: AnyGameObject[]
+    objectsToRemove: AnyGameObject[]
+  } {
+    const objectsToAdd: AnyGameObject[] = []
     const objectsToRemove: AnyGameObject[] = []
 
     agents.forEach(agent => {
@@ -95,9 +100,23 @@ export class GameWorld {
             agent.applyForce(resolved.forceToApply)
             return
           }
-          case "Assemble":
-            // TODO:
+          case "Assemble": {
+            const resolved = AgentActionResolver.resolveAssemble(
+              this.physics,
+              agent,
+              actionReserve.spec,
+              actionReserve.transferEnergyAmount
+            )
+            if (resolved.canAssemble !== true) {
+              return
+            }
+            agent.energyAmount -=
+              resolved.assembleEnergyConsumption + actionReserve.transferEnergyAmount
+            const newAgent = new Agent(agent.position.clone(), actionReserve.spec)
+            newAgent.energyAmount += actionReserve.transferEnergyAmount
+            objectsToAdd.push(newAgent)
             return
+          }
           case "Absorb": {
             const target = this.getObjectById(actionReserve.targetId)
             if (target != null && target.type === "Energy" && agent.isAdjacentTo(target)) {
@@ -137,7 +156,7 @@ export class GameWorld {
       })
     })
 
-    return { objectsToRemove }
+    return { objectsToAdd, objectsToRemove }
   }
 
   private updateObjects(): void {
@@ -185,11 +204,16 @@ export class GameWorld {
   private runAgents(agents: Agent[]): void {
     agents.forEach(agent => {
       agent.actionReserves = {}
-      agent.software(agent, {
-        searchObjects: () => this.searchObjects(agent.position, agent.senseRange),
-        searchEnvironmentalObjects: () =>
-          this.searchEnvironmentalObjects(agent.position, agent.senseRange),
-      })
+      try {
+        agent.software(agent, {
+          searchObjects: () => this.searchObjects(agent.position, agent.senseRange),
+          searchEnvironmentalObjects: () =>
+            this.searchEnvironmentalObjects(agent.position, agent.senseRange),
+        })
+      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        console.log(`Agent ${agent.id} raises error: ${error}`)
+      }
     })
   }
 
